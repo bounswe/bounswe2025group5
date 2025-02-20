@@ -1,5 +1,6 @@
 ---
-name: 🔧 Task
+name: Task
+about: General Tasks
 title: "[Task] <short-description>"
 assignees: ''
 ---
