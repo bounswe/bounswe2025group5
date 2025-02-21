@@ -30,7 +30,7 @@ A clear and concise description of what the bug is.
 ## Expected Behavior
 Describe what should have happened.
 1. ### Additional Context [Optional]
-    Any extra detail, screenshot, or log (There should be an explanation for any screenshot or log added.). Explain (or show) them one by one in a list like this:
+    Any extra detail, screenshot, or log (There should be an explanation for every screenshot or log added.). Explain (or show) them one by one in a list like this:
     1. Note 1: [Explanation, screenhot or logs]
     2. Note 2: [Explanation, screenhot or logs]
     3. Note 3: [Explanation, screenhot or logs] (As many notes as needed)
@@ -38,7 +38,7 @@ Describe what should have happened.
 ## Actual Behavior
 Describe what actually happened instead.
 1. ### Additional Context [Optional]
-    Any extra detail, screenshot, or log (There should be an explanation for any screenshot or log added.). Explain (or show) them one by one in a list like this:
+    Any extra detail, screenshot, or log (There should be an explanation for every screenshot or log added.). Explain (or show) them one by one in a list like this:
     1. Note 1: [Explanation, screenhot or logs]
     2. Note 2: [Explanation, screenhot or logs]
     3. Note 3: [Explanation, screenhot or logs] (As many notes as needed)
