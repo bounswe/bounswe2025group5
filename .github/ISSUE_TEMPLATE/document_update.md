@@ -1,3 +1,4 @@
+---
 name: Documentation Update
 about: Request updates to the documentation
 title: 'Document update needed'
