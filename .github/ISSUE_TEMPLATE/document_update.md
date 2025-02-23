@@ -18,6 +18,13 @@ Describe the needed update about the document briefly.
 - [ ] Update Example/Code
 - [ ] Other (please specify)
 
+### Acceptance Criteria
+- [ ] Criterion 1
+  - sub-criterion 1
+  - sub-criterion 2
+- [ ] Criterion 2
+- [ ] Criterion 3
+
 ### Specific Details
 - What content should be updated. 
 - Provide links to related documentation or references.
