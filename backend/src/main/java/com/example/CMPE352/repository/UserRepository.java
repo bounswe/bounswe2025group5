@@ -1,4 +1,4 @@
 package com.example.CMPE352.repository;
 
-public class UserRepository {
+public interface UserRepository {
 }
