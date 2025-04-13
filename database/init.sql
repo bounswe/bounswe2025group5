@@ -5,7 +5,6 @@ CREATE DATABASE IF NOT EXISTS  zero_waste_challenge_dev;
 -- Use the database
 USE zero_waste_challenge_dev;
 
-
 -- User table creation
 CREATE TABLE IF NOT EXISTS Users (
     user_id  INT PRIMARY KEY AUTO_INCREMENT,
@@ -24,7 +23,7 @@ CREATE TABLE  IF NOT EXISTS  Profiles (
     user_id INT UNIQUE NOT NULL,
     photo_url VARCHAR(255),
     biography TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
     );
 
@@ -48,7 +47,7 @@ CREATE TABLE   IF NOT EXISTS Rewards (
     );
 
 -- User-Reward table creation
-CREATE TABLE UserRewards (
+CREATE TABLE IF NOT EXISTS UserRewards (
      user_id INT NOT NULL,
      reward_id INT NOT NULL,
      is_taken BOOLEAN DEFAULT false,
@@ -58,3 +57,47 @@ CREATE TABLE UserRewards (
      FOREIGN KEY (reward_id) REFERENCES Rewards(reward_id) ON DELETE CASCADE
 );
 
+-- Challenges table creation
+CREATE TABLE IF NOT EXISTS Challenges (
+    challenge_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    description VARCHAR(200) NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    status ENUM ('Active', 'Requested', 'Ended')
+);
+
+-- User-Challenges table creation
+CREATE TABLE IF NOT EXISTS UserChallenge (
+    user_id INT NOT NULL,
+    challenge_id INT NOT NULL,
+    joined_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, challenge_id),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (challenge_id) REFERENCES Challenges(challenge_id) ON DELETE CASCADE
+);
+
+-- Leaderboards table creation
+CREATE TABLE IF NOT EXISTS Leaderboards (
+    leaderboard_id INT PRIMARY KEY AUTO_INCREMENT,
+    location VARCHAR(50),
+    type ENUM ('Plastic', 'Organic', 'Paper', 'Metal', 'Glass')
+);
+
+-- User-Leaderboard table creation
+CREATE TABLE IF NOT EXISTS UserLeaderboard (
+    leaderboard_id INT NOT NULL,
+    user_id INT NOT NULL,
+    ranking INT NOT NULL,
+    score INT NOT NULL,
+    PRIMARY KEY (leaderboard_id, user_id),
+    FOREIGN KEY (leaderboard_id) REFERENCES Leaderboards(leaderboard_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+    );
+
+CREATE TABLE IF NOT EXISTS Report (
+    report_id INT PRIMARY KEY AUTO_INCREMENT,
+    reason VARCHAR(500),
+    report_date DATE NOT NULL,
+    status ENUM ('Received', 'Resolved')
+);
