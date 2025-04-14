@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS WasteGoal (
 );
 
 -- Badge table creation
-CREATE TABLE Badge (
+CREATE TABLE IF NOT EXISTS Badge (
     badge_id INT PRIMARY KEY AUTO_INCREMENT,
     description VARCHAR(255) NOT NULL,
     criteria VARCHAR(255) NOT NULL,
@@ -126,7 +126,7 @@ CREATE TABLE Badge (
 
 -- User-Badge table creation
 -- This table is used to track which users have achieved which badges
-CREATE TABLE UserHasBadge (
+CREATE TABLE IF NOT EXISTS UserHasBadge (
     user_id INT NOT NULL,
     badge_id INT NOT NULL,
     date_achieved DATE NOT NULL, -- We should keep track of badge history, so we need to know when the user achieved the badge
@@ -137,7 +137,7 @@ CREATE TABLE UserHasBadge (
 
 -- WasteLog table creation
 -- This table is used to track the amount of waste logged by users
-CREATE TABLE WasteLog (
+CREATE TABLE IF NOT EXISTS WasteLog (
     log_id INT PRIMARY KEY AUTO_INCREMENT,
     amount DOUBLE NOT NULL,
     wasteType ENUM ('Plastic', 'Organic', 'Paper', 'Metal', 'Glass') NOT NULL,
