@@ -101,3 +101,51 @@ CREATE TABLE IF NOT EXISTS Report (
     report_date DATE NOT NULL,
     status ENUM ('Received', 'Resolved')
 );
+
+-- WasteGoal table creation
+CREATE TABLE IF NOT EXISTS WasteGoal (
+    goal_id INT PRIMARY KEY AUTO_INCREMENT,
+    unit VARCHAR(50) NOT NULL,
+    wasteType ENUM ('Plastic', 'Organic', 'Paper', 'Metal', 'Glass') NOT NULL, -- Should this be VARCHAR or something like this? 
+    percentOfProgress DOUBLE NOT NULL,
+    reward_id INT NOT NULL,
+    user_id INT NOT NULL,
+    duration DOUBLE NOT NULL,
+    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completed ENUM ('Yes', 'No') DEFAULT 'No',
+    FOREIGN KEY (reward_id) REFERENCES Rewards(reward_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+);
+
+-- Badge table creation
+CREATE TABLE Badge (
+    badge_id INT PRIMARY KEY AUTO_INCREMENT,
+    description VARCHAR(255) NOT NULL,
+    criteria VARCHAR(255) NOT NULL,
+)
+
+-- User-Badge table creation
+-- This table is used to track which users have achieved which badges
+CREATE TABLE UserHasBadge (
+    user_id INT NOT NULL,
+    badge_id INT NOT NULL,
+    date_achieved DATE NOT NULL, -- We should keep track of badge history, so we need to know when the user achieved the badge
+    PRIMARY KEY (user_id, badge_id),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (badge_id) REFERENCES Badge(badge_id) ON DELETE CASCADE
+);
+
+-- WasteLog table creation
+-- This table is used to track the amount of waste logged by users
+CREATE TABLE WasteLog (
+    log_id INT PRIMARY KEY AUTO_INCREMENT,
+    amount DOUBLE NOT NULL,
+    wasteType ENUM ('Plastic', 'Organic', 'Paper', 'Metal', 'Glass') NOT NULL,
+    goal_id INT NOT NULL,
+    user_id INT NOT NULL,
+    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Keep track of the date of the log? This was not considered before 
+    FOREIGN KEY (goal_id) REFERENCES WasteGoal(goal_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+)
+
+
