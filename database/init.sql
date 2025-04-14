@@ -121,8 +121,8 @@ CREATE TABLE IF NOT EXISTS WasteGoal (
 CREATE TABLE IF NOT EXISTS Badge (
     badge_id INT PRIMARY KEY AUTO_INCREMENT,
     description VARCHAR(255) NOT NULL,
-    criteria VARCHAR(255) NOT NULL,
-)
+    criteria VARCHAR(255) NOT NULL
+);
 
 -- User-Badge table creation
 -- This table is used to track which users have achieved which badges
