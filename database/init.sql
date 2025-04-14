@@ -106,7 +106,7 @@ CREATE TABLE IF NOT EXISTS Report (
 CREATE TABLE IF NOT EXISTS WasteGoal (
     goal_id INT PRIMARY KEY AUTO_INCREMENT,
     unit VARCHAR(50) NOT NULL,
-    wasteType ENUM ('Plastic', 'Organic', 'Paper', 'Metal', 'Glass') NOT NULL, -- Should this be VARCHAR or something like this? 
+    wasteType ENUM ('Plastic', 'Organic', 'Paper', 'Metal', 'Glass') NOT NULL, -- Should this be VARCHAR or something like this?
     percentOfProgress DOUBLE NOT NULL,
     reward_id INT NOT NULL,
     user_id INT NOT NULL,
@@ -143,9 +143,47 @@ CREATE TABLE IF NOT EXISTS WasteLog (
     wasteType ENUM ('Plastic', 'Organic', 'Paper', 'Metal', 'Glass') NOT NULL,
     goal_id INT NOT NULL,
     user_id INT NOT NULL,
-    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Keep track of the date of the log? This was not considered before 
+    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Keep track of the date of the log? This was not considered before
     FOREIGN KEY (goal_id) REFERENCES WasteGoal(goal_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
-)
+);
 
+
+
+
+-- Forum feed creation
+CREATE TABLE IF NOT EXISTS ForumFeeds (
+    feed_id INT PRIMARY KEY AUTO_INCREMENT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Post creation
+CREATE TABLE IF NOT EXISTS Posts (
+     post_id INT PRIMARY KEY AUTO_INCREMENT,
+     feed_id INT,
+     user_id INT NOT NULL,
+     content TEXT NOT NULL,
+     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+     likes INT DEFAULT 0,
+     FOREIGN KEY (feed_id) REFERENCES ForumFeeds(feed_id) ON DELETE SET NULL,
+     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+);
+-- Assuming links of attachments to posts will be stored
+CREATE TABLE IF NOT EXISTS PostAttachments (
+    attachment_id INT PRIMARY KEY AUTO_INCREMENT,
+    post_id INT NOT NULL,
+    file_url VARCHAR(500),
+    FOREIGN KEY (post_id) REFERENCES Posts(post_id) ON DELETE CASCADE
+);
+
+-- Creating table for comments
+CREATE TABLE IF NOT EXISTS Comments (
+        comment_id INT PRIMARY KEY AUTO_INCREMENT,
+        post_id INT NOT NULL,
+        user_id INT NOT NULL,
+        content TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (post_id) REFERENCES Posts(post_id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+);
 
