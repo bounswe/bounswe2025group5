@@ -3,6 +3,7 @@ package com.example.CMPE352.service;
 import com.example.CMPE352.exception.AccessDeniedException;
 import com.example.CMPE352.model.*;
 import com.example.CMPE352.repository.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -11,19 +12,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class WasteLogService {
 
     private final WasteLogRepository wasteLogRepository;
     private final WasteGoalRepository wasteGoalRepository;
     private final UserRepository userRepository;
 
-    public WasteLogService(WasteLogRepository wasteLogRepository,
-                           WasteGoalRepository wasteGoalRepository,
-                           UserRepository userRepository) {
-        this.wasteLogRepository = wasteLogRepository;
-        this.wasteGoalRepository = wasteGoalRepository;
-        this.userRepository = userRepository;
-    }
 
     public WasteLog saveLog(String username, WasteLog log) {
         User user = userRepository.findByUsername(username).orElseThrow();
@@ -39,7 +34,6 @@ public class WasteLogService {
 
         WasteLog savedLog = wasteLogRepository.save(log);
 
-        // Check if goal is now completed
         List<WasteLog> allLogs = wasteLogRepository.findAllByGoal_GoalId(goal.getGoalId());
         double totalLogged = allLogs.stream().mapToDouble(WasteLog::getAmount).sum();
 

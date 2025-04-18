@@ -32,10 +32,6 @@ public class WasteGoal {
     @Column(name = "wasteType", nullable = false)
     private wasteType wasteType;
 
-    @ManyToOne
-    @JoinColumn(name = "reward_id", nullable = false)
-    private Reward reward;
-
     @Column(name = "duration", nullable = false)
     private int duration;
 

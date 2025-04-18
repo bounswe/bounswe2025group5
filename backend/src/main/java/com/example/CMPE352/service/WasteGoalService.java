@@ -1,6 +1,9 @@
 package com.example.CMPE352.service;
 import com.example.CMPE352.repository.UserRepository;
 import com.example.CMPE352.exception.AccessDeniedException;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import com.example.CMPE352.model.*;
@@ -9,15 +12,13 @@ import org.springframework.stereotype.Service;
 
 
 @Service
+@RequiredArgsConstructor
 public class WasteGoalService {
 
     private final WasteGoalRepository wasteGoalRepository;
     private final UserRepository userRepository;
 
-    public WasteGoalService(WasteGoalRepository wasteGoalRepository, UserRepository userRepository) {
-        this.wasteGoalRepository = wasteGoalRepository;
-        this.userRepository = userRepository;
-    }
+
 
     public Page<WasteGoal> getWasteGoal(String username, Pageable pageable) {
         User user = userRepository.findByUsername(username).orElseThrow();
@@ -42,7 +43,6 @@ public class WasteGoalService {
         goal.setDuration(updatedGoal.getDuration());
         goal.setWasteType(updatedGoal.getWasteType());
         goal.setUnit(updatedGoal.getUnit());
-        goal.setReward(updatedGoal.getReward());
 
         wasteGoalRepository.save(goal);
         return "Waste goal updated successfully";
