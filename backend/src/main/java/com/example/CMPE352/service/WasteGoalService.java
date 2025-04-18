@@ -38,10 +38,7 @@ public class WasteGoalService {
         if (!goal.getOwner().getId().equals(user.getId())) {
             throw new AccessDeniedException("You are not authorized to update this goal.");
         }
-
-        // Update allowed fields
         goal.setDuration(updatedGoal.getDuration());
-        goal.setWasteType(updatedGoal.getWasteType());
         goal.setUnit(updatedGoal.getUnit());
 
         wasteGoalRepository.save(goal);

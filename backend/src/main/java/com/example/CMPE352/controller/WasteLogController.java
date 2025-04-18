@@ -18,13 +18,11 @@ public class WasteLogController {
         this.wasteLogService = wasteLogService;
     }
 
-    // Save new log
     @PostMapping("/{username}/logs")
     public WasteLog addLog(@PathVariable String username, @RequestBody WasteLog log) {
         return wasteLogService.saveLog(username, log);
     }
 
-    // Get log
     @GetMapping("/{username}/logs")
     public Page<WasteLog> getLogs(@PathVariable String username,
                                   @RequestParam(defaultValue = "0") int page,
@@ -33,7 +31,6 @@ public class WasteLogController {
         return wasteLogService.getUserLogs(username, pageable);
     }
 
-    // Delete log
     @DeleteMapping("/{username}/logs/{logId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteLog(@PathVariable String username, @PathVariable Integer logId) {
