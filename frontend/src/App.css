@@ -1,5 +1,10 @@
 .App {
   text-align: center;
+  background-color: #FFF7E8;
+  background-image: url('./assets/wallpaper2.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 .App-logo {
@@ -12,16 +17,25 @@
     animation: App-logo-spin infinite 20s linear;
   }
 }
+.content-container {
+  backdrop-filter: blur(8px); /* Optional: blur effect for the background */
+  background-color: rgba(0, 0, 0, 0.038); /* Light background for content */
+  padding: 40px; /* Add some space inside */
+  border-radius: 16px; /* Optional: rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: add a soft shadow */
+  max-width: 600px; /* Max width of the container */
+  width: 100%; /* Full width up to the max width */
+  text-align: center; /* Center the text */
+}
 
 .App-header {
-  background-color: #282c34;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
+  color: rgb(36, 101, 19);
 }
 
 .App-link {
