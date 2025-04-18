@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface WasteLogRepository extends JpaRepository<WasteLog, Integer> {
     Page<WasteLog> findByUserId(Integer userId, Pageable pageable);
-    List<WasteLog> findByGoalId(Integer goalId);
+
+    List<WasteLog> findAllByGoal_GoalId(Integer goalGoalId);
 }
 

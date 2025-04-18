@@ -40,7 +40,7 @@ public class WasteLogService {
         WasteLog savedLog = wasteLogRepository.save(log);
 
         // Check if goal is now completed
-        List<WasteLog> allLogs = wasteLogRepository.findByGoalId(goal.getGoalId());
+        List<WasteLog> allLogs = wasteLogRepository.findAllByGoal_GoalId(goal.getGoalId());
         double totalLogged = allLogs.stream().mapToDouble(WasteLog::getAmount).sum();
 
         if (totalLogged >= goal.getAmount() && !goal.isCompleted()) {
