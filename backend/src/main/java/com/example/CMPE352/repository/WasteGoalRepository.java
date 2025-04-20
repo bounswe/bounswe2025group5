@@ -12,10 +12,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface WasteGoalRepository extends JpaRepository<WasteGoal, Integer> {
     @Query("""
-    SELECT g FROM WasteGoal g
+
+            SELECT g FROM WasteGoal g
     WHERE g.owner.username = :username
-    AND (:lastGoalId IS NULL OR g.goalId < 
-        (SELECT sub.goalId FROM WasteGoal sub WHERE sub.goalId = :lastGoalId))
+      AND (:lastGoalId IS NULL OR g.goalId < :lastGoalId)
     ORDER BY g.goalId DESC
     """)
     Page<WasteGoal> findTopGoals(@Param("username") String username,
