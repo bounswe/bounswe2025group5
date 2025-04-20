@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
 
@@ -24,12 +26,24 @@ public class Post {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "content", nullable = false)
+    @Column(name = "content", nullable = false, length = 1000)
     private String content;
 
-    @Column(name = "created_at")
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;
 
     @Column(name = "likes", nullable = false)
     private Integer likes;
+
+    @Column(name = "photo_url")
+    private String photoUrl;
+
+
+    public Post(User user, String content, String photoUrl, Integer likes) {
+        this.user = user;
+        this.content = content;
+        this.photoUrl = photoUrl;
+        this.likes = likes;
+    }
 }
