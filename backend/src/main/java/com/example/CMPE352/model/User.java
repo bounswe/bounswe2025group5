@@ -1,9 +1,9 @@
 package com.example.CMPE352.model;
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
@@ -12,6 +12,7 @@ import java.util.List;
 @Entity
 @Table(name = "Users")
 @Data
+@ToString(exclude = {"goals","profile" })
 @AllArgsConstructor
 @NoArgsConstructor
 public class User {
@@ -51,6 +52,12 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserReward> userRewards;
 
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    private List<WasteGoal> goals;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<WasteLog> logs;
+
     public User(String email, String username, String passwordHash) {
         this.email = email;
         this.username = username;
@@ -58,3 +65,26 @@ public class User {
     }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
