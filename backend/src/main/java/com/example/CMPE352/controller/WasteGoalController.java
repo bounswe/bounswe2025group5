@@ -1,16 +1,23 @@
 package com.example.CMPE352.controller;
 
+import com.example.CMPE352.model.request.CreateWasteGoalRequest;
+import com.example.CMPE352.model.response.CreateWasteGoalResponse;
+import com.example.CMPE352.model.response.DeleteWasteGoalResponse;
+import com.example.CMPE352.model.response.GetWasteGoalResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 import com.example.CMPE352.model.*;
 import com.example.CMPE352.service.WasteGoalService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/goals")
 public class WasteGoalController {
 
     private final WasteGoalService wasteGoalService;
@@ -19,32 +26,35 @@ public class WasteGoalController {
         this.wasteGoalService = wasteGoalService;
     }
 
-    @GetMapping("/{username}/goals")
-    public Page<WasteGoal> getGoalsInDatabase(
-            @PathVariable String username,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return wasteGoalService.getWasteGoal(username, pageable);
+    @GetMapping("/info")
+    public ResponseEntity<List<GetWasteGoalResponse>> getGoals(
+            @RequestParam String username,
+            @RequestParam int size,
+            @RequestParam(required = false) Long lastGoalId
+    ) {
+        List<GetWasteGoalResponse> goals = wasteGoalService.getWasteGoals(username,size, lastGoalId);
+        return ResponseEntity.ok(goals);
     }
 
-    @PostMapping("/{username}/goals")
-    public WasteGoal createWasteGoal(@PathVariable String username, @RequestBody WasteGoal goal) {
-        return wasteGoalService.saveWasteGoal(username, goal);
-    }
-
-    @PutMapping("/{username}/goals/{goalId}")
-    public String updateWasteGoal(@PathVariable String username,
-                                @PathVariable Integer goalId,
-                                @RequestBody WasteGoal updatedGoal) {
-
-        return wasteGoalService.updateWasteGoal(username, goalId, updatedGoal);
+    @PostMapping("/create")
+    public ResponseEntity<CreateWasteGoalResponse> createWasteGoal(@RequestBody CreateWasteGoalRequest createWasteGoalRequest) {
+        CreateWasteGoalResponse goal = wasteGoalService.saveWasteGoal(createWasteGoalRequest);
+        return ResponseEntity.ok(goal);
 
     }
 
-    @DeleteMapping("/{username}/goals/{goalId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public String deleteWasteGoal(@PathVariable String username, @PathVariable Integer goalId) {
-        return wasteGoalService.deleteWasteGoal(username, goalId);
+    @PutMapping("/edit/{goalId}")
+    public ResponseEntity<CreateWasteGoalResponse> editWasteGoal(
+            @PathVariable Integer goalId,
+            @RequestBody WasteGoal updatedGoal) {
+        CreateWasteGoalResponse updatedGoalResponse = wasteGoalService.editWasteGoal(goalId, updatedGoal);
+        return ResponseEntity.ok(updatedGoalResponse);
+    }
+
+
+    @DeleteMapping("/delete/{goalId}")
+    public ResponseEntity<DeleteWasteGoalResponse> deleteWasteGoal(@PathVariable Integer goalId) {
+        wasteGoalService.deleteWasteGoal(goalId);
+        return ResponseEntity.ok(new DeleteWasteGoalResponse(goalId));
     }
 }
