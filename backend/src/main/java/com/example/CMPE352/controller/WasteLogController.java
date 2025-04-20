@@ -1,40 +1,48 @@
 package com.example.CMPE352.controller;
 
-import com.example.CMPE352.model.WasteLog;
+import com.example.CMPE352.model.request.CreateWasteLogRequest;
+import com.example.CMPE352.model.request.UpdateWasteLogRequest;
+import com.example.CMPE352.model.response.CreateOrEditWasteLogResponse;
+import com.example.CMPE352.model.response.DeleteWasteLogResponse;
+import com.example.CMPE352.model.response.GetWasteLogResponse;
 import com.example.CMPE352.service.WasteLogService;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/logs")
+@RequiredArgsConstructor
 public class WasteLogController {
 
     private final WasteLogService wasteLogService;
 
-    public WasteLogController(WasteLogService wasteLogService) {
-        this.wasteLogService = wasteLogService;
+    @GetMapping("/get")
+    public ResponseEntity<List<GetWasteLogResponse>> getLogs(
+            @RequestParam Integer goalId) {
+        List<GetWasteLogResponse> logs = wasteLogService.getWasteLogsForGoal(goalId);
+        return ResponseEntity.ok(logs);
     }
 
-    @PostMapping("/{username}/logs")
-    public WasteLog addLog(@PathVariable String username, @RequestBody WasteLog log) {
-        return wasteLogService.saveLog(username, log);
+    @PostMapping("/create")
+    public ResponseEntity<CreateOrEditWasteLogResponse> createWasteLog(@RequestBody CreateWasteLogRequest request) {
+        CreateOrEditWasteLogResponse response = wasteLogService.createWasteLog(request);
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{username}/logs")
-    public Page<WasteLog> getLogs(@PathVariable String username,
-                                  @RequestParam(defaultValue = "0") int page,
-                                  @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return wasteLogService.getUserLogs(username, pageable);
+    @PutMapping("/update/{logId}")
+    public ResponseEntity<CreateOrEditWasteLogResponse> updateWasteLog(
+            @PathVariable Integer logId,
+            @RequestBody UpdateWasteLogRequest  updateWasteLogRequest) {
+        CreateOrEditWasteLogResponse response = wasteLogService.updateWasteLog(logId,updateWasteLogRequest);
+        return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{username}/logs/{logId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteLog(@PathVariable String username, @PathVariable Integer logId) {
-        wasteLogService.deleteLog(username, logId);
+    @DeleteMapping("/delete/{logId}")
+    public ResponseEntity<DeleteWasteLogResponse> deleteWasteLog(@PathVariable Integer logId) {
+        DeleteWasteLogResponse  response = wasteLogService.deleteWasteLog(logId);
+        return ResponseEntity.ok(response);
     }
 }
-

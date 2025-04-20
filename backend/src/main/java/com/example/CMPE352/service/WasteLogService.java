@@ -1,63 +1,75 @@
 package com.example.CMPE352.service;
 
-import com.example.CMPE352.exception.AccessDeniedException;
+import com.example.CMPE352.exception.NotFoundException;
 import com.example.CMPE352.model.*;
+import com.example.CMPE352.model.request.CreateWasteLogRequest;
+import com.example.CMPE352.model.request.UpdateWasteLogRequest;
+import com.example.CMPE352.model.response.CreateOrEditWasteLogResponse;
+import com.example.CMPE352.model.response.DeleteWasteLogResponse;
+import com.example.CMPE352.model.response.GetWasteLogResponse;
 import com.example.CMPE352.repository.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class WasteLogService {
+    private final UserRepository userRepository;
 
     private final WasteLogRepository wasteLogRepository;
     private final WasteGoalRepository wasteGoalRepository;
-    private final UserRepository userRepository;
 
+    public List<GetWasteLogResponse> getWasteLogsForGoal(Integer goalId) {
+        WasteGoal goal = wasteGoalRepository.findById(goalId)
+                .orElseThrow(() -> new NotFoundException("WasteGoal not found: " + goalId));
 
-    public WasteLog saveLog(String username, WasteLog log) {
-        User user = userRepository.findByUsername(username).orElseThrow();
-        WasteGoal goal = wasteGoalRepository.findById(log.getGoal().getGoalId()).orElseThrow();
-
-        if (!goal.getOwner().getId().equals(user.getId())) {
-            throw new AccessDeniedException("You are not authorized to log to this goal.");
-        }
-
-        log.setUser(user);
-        log.setGoal(goal);
-        log.setDate(LocalDateTime.now());
-
-        WasteLog savedLog = wasteLogRepository.save(log);
-
-        List<WasteLog> allLogs = wasteLogRepository.findAllByGoal_GoalId(goal.getGoalId());
-        double totalLogged = allLogs.stream().mapToDouble(WasteLog::getAmount).sum();
-
-        if (totalLogged >= goal.getAmount() && !goal.isCompleted()) {
-            goal.setCompleted(true);
-            wasteGoalRepository.save(goal);
-        }
-
-        return savedLog;
+        List<WasteLog> wasteLogs = wasteLogRepository.findByGoal(goal);
+        return wasteLogs.stream()
+                .map(wasteLog -> {
+                    GetWasteLogResponse response = new GetWasteLogResponse();
+                    response.setLogId(wasteLog.getLogId());
+                    response.setAmount(wasteLog.getAmount());
+                    response.setDate(wasteLog.getDate());
+                    response.setGoalId(wasteLog.getGoal().getGoalId());
+                    response.setUsername(wasteLog.getUser().getUsername());
+                    return response;
+                })
+                .collect(Collectors.toList());
     }
 
-    public Page<WasteLog> getUserLogs(String username, Pageable pageable) {
-        User user = userRepository.findByUsername(username).orElseThrow();
-        return wasteLogRepository.findByUserId(user.getId(), pageable);
+    public CreateOrEditWasteLogResponse createWasteLog(CreateWasteLogRequest request) {
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new NotFoundException("User not found: " + request.getUsername()));
+
+        WasteGoal goal = wasteGoalRepository.findById(request.getGoalId())
+                .orElseThrow(() -> new NotFoundException("WasteGoal not found: " + request.getGoalId()));
+
+        WasteLog wasteLog = new WasteLog();
+        wasteLog.setAmount(request.getAmount());
+        wasteLog.setUser(user);
+        wasteLog.setGoal(goal);
+
+        wasteLogRepository.save(wasteLog);
+
+        return new CreateOrEditWasteLogResponse(wasteLog.getLogId(), wasteLog.getAmount(), wasteLog.getDate());
     }
 
-    public void deleteLog(String username, Integer logId) {
-        User user = userRepository.findByUsername(username).orElseThrow();
-        WasteLog log = wasteLogRepository.findById(logId).orElseThrow();
+    public CreateOrEditWasteLogResponse updateWasteLog(Integer logId, UpdateWasteLogRequest request) {
+        WasteLog existingLog = wasteLogRepository.findById(logId)
+                .orElseThrow(() -> new NotFoundException("WasteLog not found: " + logId));
+        existingLog.setAmount(request.getAmount());
+        wasteLogRepository.save(existingLog);
 
-        if (!log.getUser().getId().equals(user.getId())) {
-            throw new AccessDeniedException("You are not allowed to delete this log.");
-        }
+        return new CreateOrEditWasteLogResponse(existingLog.getLogId(), existingLog.getAmount(), existingLog.getDate());
+    }
 
-        wasteLogRepository.delete(log);
+    public DeleteWasteLogResponse deleteWasteLog(Integer logId) {
+        WasteLog wasteLog = wasteLogRepository.findById(logId)
+                .orElseThrow(() -> new NotFoundException("WasteLog not found: " + logId));
+        wasteLogRepository.delete(wasteLog);
+        return new DeleteWasteLogResponse(logId);
     }
 }
