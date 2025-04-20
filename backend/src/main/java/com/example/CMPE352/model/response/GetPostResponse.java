@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostResponse {
+public class GetPostResponse {
 
     private Integer postId;
     private String content;
