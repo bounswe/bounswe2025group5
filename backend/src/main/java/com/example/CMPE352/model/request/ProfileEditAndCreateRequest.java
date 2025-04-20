@@ -3,7 +3,8 @@ package com.example.CMPE352.model.request;
 import lombok.Data;
 
 @Data
-public class ProfileEditRequest {
+public class ProfileEditAndCreateRequest {
+    private String username;
     private String biography;
     private String photoUrl;
 }
