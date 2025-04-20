@@ -12,9 +12,6 @@ import java.time.LocalDateTime;
 @Table(name = "WasteLog")
 public class WasteLog {
 
-    public enum WasteType {
-        Plastic, Organic, Paper, Metal, Glass
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,11 +19,7 @@ public class WasteLog {
     private Integer logId;
 
     @Column(nullable = false)
-    private Double amount; // This "amount" attribute has been added
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "wasteType", nullable = false)
-    private WasteType wasteType;
+    private Double amount;
 
     @Column(name = "date", nullable = false)
     private LocalDateTime date;

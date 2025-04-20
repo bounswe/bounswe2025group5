@@ -2,6 +2,11 @@ package com.example.CMPE352.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -9,6 +14,8 @@ import java.util.List;
 @Entity
 @Table(name = "WasteGoal")
 @Data
+@ToString(exclude = {"owner", "logs"})
+@NoArgsConstructor
 public class WasteGoal {
 
     public enum wasteType {
@@ -19,10 +26,12 @@ public class WasteGoal {
         Bottles, Grams, Kilograms, Liters, Units
     }
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "goal_id", nullable = false)
     private Integer goalId;
 
-    @Column(name = "date", nullable = false)
-    private LocalDate date;
+    @CreationTimestamp
+    @Column(name = "date", updatable = false)
+    private Timestamp date;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "unit", nullable = false)
@@ -38,8 +47,11 @@ public class WasteGoal {
     @Column(name = "amount", nullable = false)
     private double amount;
 
-    @Column(name = "completed", nullable = false)
-    private boolean completed;
+    @Column(name = "completed")
+    private Integer completed;
+
+    @Column(name = "percent_of_progress", nullable = false)
+    private Double percentOfProgress;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -48,10 +60,15 @@ public class WasteGoal {
     @OneToMany(mappedBy = "goal", cascade = CascadeType.ALL)
     private List<WasteLog> logs;
 
-    @PrePersist
-    protected void onCreate() {
-        this.date = LocalDate.now();
+
+    public WasteGoal(User owner, int duration, wasteUnit unit, wasteType wasteType, double amount) {
+        this.owner = owner;
+        this.duration = duration;
+        this.unit = unit;
+        this.wasteType = wasteType;
+        this.amount = amount;
+        this.completed = 0; ;
+        this.percentOfProgress=0.0;
+        this.date= new Timestamp(System.currentTimeMillis());
     }
-
-
 }
