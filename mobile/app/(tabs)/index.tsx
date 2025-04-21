@@ -3,7 +3,6 @@ import {
   Image,
   StyleSheet,
   TextInput,
-  Button,
   View,
   TouchableOpacity,
   Text,
@@ -24,6 +23,7 @@ export default function HomeScreen() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loggedIn, setLoggedIn] = useState(false);
+  const [errorVisible, setErrorVisible] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -34,7 +34,7 @@ export default function HomeScreen() {
           setUsername(storedUsername);
           setPassword(storedPassword);
           setLoggedIn(true);
-          navigation.navigate('Feed');
+          navigation.navigate('explore');
         }
       } catch (error) {
         console.error('Failed to load credentials:', error);
@@ -53,22 +53,23 @@ export default function HomeScreen() {
       } catch (error) {
         console.error('Error saving data:', error);
       }
-      navigation.navigate('Feed');
+      navigation.navigate('explore');
     } else {
-      console.error('Login failed');
       setLoggedIn(false);
+      setErrorVisible(true);
+      setTimeout(() => setErrorVisible(false), 5000);
     }
   };
 
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }
+    headerBackgroundColor={{ light: '#A1DCA1', dark: '#1D473D' }}
+    headerImage={
+      <Image
+        source={require('@/assets/images/recycle-logo-white.png')}
+        style={styles.recycleLogo}
+      />
+    }
     >
       <ThemedView style={styles.titleContainer}>
         {loggedIn && <ThemedText type="title">Welcome</ThemedText>}
@@ -92,19 +93,34 @@ export default function HomeScreen() {
       />
 
       <View style={styles.buttonContainer}>
-        <View style={styles.loginWrapper}>
-          <Button
-            title="Log In"
-            onPress={() => sendLoginRequest(username, password)}
-          />
-        </View>
         <TouchableOpacity
-          style={styles.registerButton}
+          style={[styles.authButton, styles.registerArea]}
           onPress={() => navigation.navigate('Register')}
         >
-          <Text style={styles.registerText}>Register</Text>
+          <Text style={styles.authText}>Register</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.authButton, styles.loginArea]}
+          onPress={() => sendLoginRequest(username, password)}
+        >
+          <Text style={styles.authText}>Log In</Text>
         </TouchableOpacity>
       </View>
+
+      <TouchableOpacity
+        style={styles.continueButton}
+        onPress={() => navigation.navigate('explore')}
+      >
+        <Text style={styles.continueText}>Continue to Explore page</Text>
+      </TouchableOpacity>
+
+      {errorVisible && (
+        <View style={styles.errorBox}>
+          <Text style={styles.errorText}>
+            Login failed, please try again.
+          </Text>
+        </View>
+      )}
     </ParallaxScrollView>
   );
 }
@@ -115,14 +131,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  recycleLogo: {
+    width: '115%',
+    height: undefined,
+    aspectRatio: 290 / 178,
+    alignSelf: 'center',
+  
   },
-
   input: {
     height: 40,
     borderColor: '#ccc',
@@ -133,27 +148,56 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     color: '#fff',
   },
-
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     marginHorizontal: 16,
     marginVertical: 8,
   },
-  loginWrapper: {
+  authButton: {
     flex: 1,
-    marginRight: 8,
-  },
-  registerButton: {
-    flex: 1,
-    backgroundColor: '#fff',
     borderRadius: 4,
     justifyContent: 'center',
     alignItems: 'center',
     height: 40,
   },
-  registerText: {
+  registerArea: {
+    backgroundColor: '#fff',
+    marginRight: 8,
+  },
+  loginArea: {
+    backgroundColor: '#4CAF50',
+    marginLeft: 8,
+  },
+  authText: {
     color: '#000',
     fontSize: 16,
+  },
+  continueButton: {
+    marginHorizontal: 16,
+    marginVertical: 8,
+    backgroundColor: '#fff',
+    borderRadius: 4,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  continueText: {
+    color: '#000',
+    fontSize: 16,
+  },
+  errorBox: {
+    position: 'absolute',
+    bottom: 20,
+    left: 16,
+    right: 16,
+    backgroundColor: 'red',
+    padding: 12,
+    borderRadius: 4,
+    alignItems: 'center',
+  },
+  errorText: {
+    color: '#fff',
+    fontSize: 14,
+    textAlign: 'center',
   },
 });
