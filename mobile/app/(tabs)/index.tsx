@@ -1,64 +1,62 @@
-import { Image, StyleSheet, Platform, TextInput , Button } from 'react-native';
-import { MMKV } from 'react-native-mmkv';
+import React, { useState, useEffect } from 'react';
+import {
+  Image,
+  StyleSheet,
+  TextInput,
+  Button,
+  View,
+  TouchableOpacity,
+  Text,
+} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import React from 'react';
-import { useState, useEffect } from 'react';
-import { store } from 'expo-router/build/global-state/router-store';
-//import url from '@/constants/Url';
+import { useNavigation } from '@react-navigation/native';
 
-const storage = new MMKV();
+type Navigation = {
+  navigate: (screen: string) => void;
+};
 
 export default function HomeScreen() {
-  const [username, setUsername] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [logedIn, setLogedIn] = React.useState(false);
-  
+  const navigation = useNavigation<Navigation>();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loggedIn, setLoggedIn] = useState(false);
+
   useEffect(() => {
-    const storedUsername = storage.getString('username');
-    const storedPassword = storage.getString('password');
-    if (storedUsername && storedPassword) {
-      setUsername(storedUsername);
-      setPassword(storedPassword);
-      setLogedIn(true);
-    }
+    (async () => {
+      try {
+        const storedUsername = await AsyncStorage.getItem('username');
+        const storedPassword = await AsyncStorage.getItem('password');
+        if (storedUsername && storedPassword) {
+          setUsername(storedUsername);
+          setPassword(storedPassword);
+          setLoggedIn(true);
+          navigation.navigate('Feed');
+        }
+      } catch (error) {
+        console.error('Failed to load credentials:', error);
+      }
+    })();
   }, []);
 
   const sendLoginRequest = async (username: string, password: string) => {
-    /*try {
-      const response = await fetch(url +'/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Login successful:', data);
-      } else {
-        console.error('Login failed:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error during login:', error);
-    }*/
-   if (username === 'test' && password === 'password') {
+    if (username === 'test' && password === 'password') {
       console.log('Login successful');
-      setLogedIn(true);
+      setLoggedIn(true);
       try {
-        storage.set('username', username);
-        storage.set('password', password);
+        await AsyncStorage.setItem('username', username);
+        await AsyncStorage.setItem('password', password);
         console.log('Data saved successfully');
-      }
-      catch (error) {
+      } catch (error) {
         console.error('Error saving data:', error);
       }
-    } else {  
+      navigation.navigate('Feed');
+    } else {
       console.error('Login failed');
-      setLogedIn(false);
+      setLoggedIn(false);
     }
   };
 
@@ -70,58 +68,43 @@ export default function HomeScreen() {
           source={require('@/assets/images/partial-react-logo.png')}
           style={styles.reactLogo}
         />
-      }>
+      }
+    >
       <ThemedView style={styles.titleContainer}>
-        {logedIn && <ThemedText type="title">Welcome</ThemedText>}
+        {loggedIn && <ThemedText type="title">Welcome</ThemedText>}
         <HelloWave />
       </ThemedView>
+
       <TextInput
-          style={styles.input}
-          onChangeText={setUsername}
-          placeholder='Username'
-          value={username}
-        />
-        <TextInput
-          style={styles.input}
-          onChangeText={setPassword}
-          placeholder='Password'
-          value={password}
-        />
-        <Button
-          title="Press me"
-          onPress={() => sendLoginRequest(username, password)}
-        />
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
+        style={styles.input}
+        onChangeText={setUsername}
+        placeholder="Username"
+        placeholderTextColor="#fff"
+        value={username}
+      />
+      <TextInput
+        style={styles.input}
+        onChangeText={setPassword}
+        placeholder="Password"
+        placeholderTextColor="#fff"
+        secureTextEntry
+        value={password}
+      />
+
+      <View style={styles.buttonContainer}>
+        <View style={styles.loginWrapper}>
+          <Button
+            title="Log In"
+            onPress={() => sendLoginRequest(username, password)}
+          />
+        </View>
+        <TouchableOpacity
+          style={styles.registerButton}
+          onPress={() => navigation.navigate('Register')}
+        >
+          <Text style={styles.registerText}>Register</Text>
+        </TouchableOpacity>
+      </View>
     </ParallaxScrollView>
   );
 }
@@ -132,15 +115,45 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
   reactLogo: {
     height: 178,
     width: 290,
     bottom: 0,
     left: 0,
     position: 'absolute',
+  },
+
+  input: {
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    marginHorizontal: 16,
+    marginVertical: 8,
+    paddingHorizontal: 8,
+    borderRadius: 4,
+    color: '#fff',
+  },
+
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginHorizontal: 16,
+    marginVertical: 8,
+  },
+  loginWrapper: {
+    flex: 1,
+    marginRight: 8,
+  },
+  registerButton: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 40,
+  },
+  registerText: {
+    color: '#000',
+    fontSize: 16,
   },
 });
