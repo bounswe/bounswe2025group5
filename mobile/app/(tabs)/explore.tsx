@@ -22,7 +22,8 @@ export default function TabTwoScreen() {
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Explore Page</ThemedText>
       </ThemedView>
-      <ThemedText>This is the page to view different posts from various users.</ThemedText>
+      <ThemedText>This is the for posts.
+      </ThemedText>
   
       
     </ParallaxScrollView>
