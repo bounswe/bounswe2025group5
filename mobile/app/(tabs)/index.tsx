@@ -50,7 +50,7 @@ export default function HomeScreen() {
         await AsyncStorage.setItem('username', username);
         await AsyncStorage.setItem('password', password);
         console.log('Data saved successfully');
-      } catch (error) {
+      } catch (error) { 
         console.error('Error saving data:', error);
       }
       navigation.navigate('explore');
@@ -111,7 +111,8 @@ export default function HomeScreen() {
         style={styles.continueButton}
         onPress={() => navigation.navigate('explore')}
       >
-        <Text style={styles.continueText}>Continue to Explore page</Text>
+        <Text style={[styles.continueText, { textAlign: 'center' }]}>
+          Continue to Explore Page</Text>
       </TouchableOpacity>
 
       {errorVisible && (
