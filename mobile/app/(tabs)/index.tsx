@@ -23,6 +23,8 @@ export default function HomeScreen() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loggedIn, setLoggedIn] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [extraInput, setExtraInput] = useState('');
   const [errorVisible, setErrorVisible] = useState(false);
 
   useEffect(() => {
@@ -44,13 +46,11 @@ export default function HomeScreen() {
 
   const sendLoginRequest = async (username: string, password: string) => {
     if (username === 'test' && password === 'password') {
-      console.log('Login successful');
       setLoggedIn(true);
       try {
         await AsyncStorage.setItem('username', username);
         await AsyncStorage.setItem('password', password);
-        console.log('Data saved successfully');
-      } catch (error) { 
+      } catch (error) {
         console.error('Error saving data:', error);
       }
       navigation.navigate('explore');
@@ -63,19 +63,29 @@ export default function HomeScreen() {
 
   return (
     <ParallaxScrollView
-    headerBackgroundColor={{ light: '#A1DCA1', dark: '#1D473D' }}
-    headerImage={
-      <Image
-        source={require('@/assets/images/recycle-logo-white.png')}
-        style={styles.recycleLogo}
-      />
-    }
+      headerBackgroundColor={{ light: '#A1DCA1', dark: '#1D473D' }}
+      headerImage={
+        <Image
+          source={require('@/assets/images/recycle-logo-white.png')}
+          style={styles.recycleLogo}
+        />
+      }
     >
       <ThemedView style={styles.titleContainer}>
-        {loggedIn && <ThemedText type="title">Welcome</ThemedText>}
+        {loggedIn && (
+          <ThemedText type="title" style={{ fontSize: 28 }}>
+            Welcome to WasteLess
+          </ThemedText>
+        )}
         <HelloWave />
       </ThemedView>
 
+      {/* Mode Header */}
+      <Text style={styles.modeHeader}>
+        {isRegistering ? 'Create account' : 'Login here'}
+      </Text>
+
+      {/* Inputs */}
       <TextInput
         style={styles.input}
         onChangeText={setUsername}
@@ -83,6 +93,17 @@ export default function HomeScreen() {
         placeholderTextColor="#fff"
         value={username}
       />
+
+      {isRegistering && (
+        <TextInput
+          style={styles.input}
+          onChangeText={setExtraInput}
+          placeholder="Email"
+          placeholderTextColor="#fff"
+          value={extraInput}
+        />
+      )}
+
       <TextInput
         style={styles.input}
         onChangeText={setPassword}
@@ -92,34 +113,50 @@ export default function HomeScreen() {
         value={password}
       />
 
-      <View style={styles.buttonContainer}>
+      {/* Action Buttons */}
+      <View style={styles.buttonsColumn}>
+        {isRegistering ? (
+          <>
+            <TouchableOpacity
+              style={[styles.authButtonFull, styles.registerAreaFull]}
+              onPress={() => {/* handle registration */}}
+            >
+              <Text style={styles.authText}>Register</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.authButtonFull, styles.loginAreaFull]}
+              onPress={() => setIsRegistering(false)}
+            >
+              <Text style={styles.authText}>Back to Log In</Text>
+            </TouchableOpacity>
+          </>
+        ) : (
+          <>
+            <TouchableOpacity
+              style={[styles.authButtonFull, styles.loginAreaFull]}
+              onPress={() => sendLoginRequest(username, password)}
+            >
+              <Text style={styles.authText}>Log In</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.authButtonFull, styles.registerAreaFull]}
+              onPress={() => setIsRegistering(true)}
+            >
+              <Text style={styles.authText}>Register</Text>
+            </TouchableOpacity>
+          </>
+        )}
         <TouchableOpacity
-          style={[styles.authButton, styles.registerArea]}
-          onPress={() => navigation.navigate('Register')}
+          style={styles.continueButton}
+          onPress={() => navigation.navigate('explore')}
         >
-          <Text style={styles.authText}>Register</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.authButton, styles.loginArea]}
-          onPress={() => sendLoginRequest(username, password)}
-        >
-          <Text style={styles.authText}>Log In</Text>
+          <Text style={styles.authText}>Continue to Explore Page</Text>
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity
-        style={styles.continueButton}
-        onPress={() => navigation.navigate('explore')}
-      >
-        <Text style={[styles.continueText, { textAlign: 'center' }]}>
-          Continue to Explore Page</Text>
-      </TouchableOpacity>
-
       {errorVisible && (
         <View style={styles.errorBox}>
-          <Text style={styles.errorText}>
-            Login failed, please try again.
-          </Text>
+          <Text style={styles.errorText}>Login failed, please try again.</Text>
         </View>
       )}
     </ParallaxScrollView>
@@ -137,7 +174,13 @@ const styles = StyleSheet.create({
     height: undefined,
     aspectRatio: 290 / 178,
     alignSelf: 'center',
-  
+  },
+  modeHeader: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
+    marginTop: 16,
   },
   input: {
     height: 40,
@@ -149,42 +192,37 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     color: '#fff',
   },
-  buttonContainer: {
-    flexDirection: 'row',
+  buttonsColumn: {
     marginHorizontal: 16,
-    marginVertical: 8,
+    marginTop: 24,
+    marginBottom: 8,
   },
-  authButton: {
-    flex: 1,
+  authButtonFull: {
+    width: '100%',
+    height: 40,
+    marginVertical: 8,
     borderRadius: 4,
     justifyContent: 'center',
     alignItems: 'center',
-    height: 40,
   },
-  registerArea: {
-    backgroundColor: '#fff',
-    marginRight: 8,
+  registerAreaFull: {
+    backgroundColor: '#2196F3',
   },
-  loginArea: {
+  loginAreaFull: {
     backgroundColor: '#4CAF50',
-    marginLeft: 8,
   },
   authText: {
     color: '#000',
     fontSize: 16,
   },
   continueButton: {
-    marginHorizontal: 16,
-    marginVertical: 8,
+    width: '100%',
+    height: 40,
     backgroundColor: '#fff',
     borderRadius: 4,
-    height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  continueText: {
-    color: '#000',
-    fontSize: 16,
+    marginVertical: 8,
   },
   errorBox: {
     position: 'absolute',
