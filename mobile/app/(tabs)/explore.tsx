@@ -1,6 +1,5 @@
-// explore.tsx
 import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
 
@@ -10,6 +9,7 @@ type Post = {
   content: string;
   likes: number;
   comments: number;
+  image: string;
 };
 
 const mockPosts: Post[] = [
@@ -19,6 +19,7 @@ const mockPosts: Post[] = [
     content: 'This is a short preview of the post content…',
     likes: 12,
     comments: 4,
+    image: 'https://via.placeholder.com/300x150',
   },
   {
     id: '2',
@@ -26,18 +27,22 @@ const mockPosts: Post[] = [
     content: 'Another preview text goes here as a placeholder.',
     likes: 8,
     comments: 2,
+    image: 'https://via.placeholder.com/300x150',
   },
 ];
 
 function PostSkeleton({ post }: { post: Post }) {
   return (
     <View style={styles.postContainer}>
+      <Image source={{ uri: post.image }} style={styles.postImage} />
+
       <ThemedText type="title" style={styles.postTitle}>
         {post.title}
       </ThemedText>
       <ThemedText style={styles.postContent}>
         {post.content}
       </ThemedText>
+
       <View style={styles.postFooter}>
         <Ionicons name="heart-outline" size={16} />
         <ThemedText style={styles.footerText}>{post.likes}</ThemedText>
@@ -83,6 +88,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+  },
+  postImage: {
+    width: '100%',
+    height: 150,
+    borderRadius: 4,
+    marginBottom: 10,
+    backgroundColor: '#eee',
   },
   postTitle: {
     fontSize: 18,
