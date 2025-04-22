@@ -24,7 +24,7 @@ export default function HomeScreen() {
   const [password, setPassword] = useState('');
   const [loggedIn, setLoggedIn] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
-  const [extraInput, setExtraInput] = useState('');
+  const [email, setEmail] = useState('');
   const [errorVisible, setErrorVisible] = useState(false);
 
   useEffect(() => {
@@ -36,6 +36,7 @@ export default function HomeScreen() {
           setUsername(storedUsername);
           setPassword(storedPassword);
           setLoggedIn(true);
+
           navigation.navigate('explore');
         }
       } catch (error) {
@@ -43,6 +44,24 @@ export default function HomeScreen() {
       }
     })();
   }, []);
+
+  const sendRegisterRequest = async (username: string, email: string, password: string) => {
+    if (username && email && password) {
+      setLoggedIn(true);
+      try {
+        await AsyncStorage.setItem('username', username);
+        await AsyncStorage.setItem('email', email);
+        await AsyncStorage.setItem('password', password);
+      } catch (error) {
+        console.error('Error saving data:', error);
+      }
+      navigation.navigate('explore');
+    } else {
+      setLoggedIn(false);
+      setErrorVisible(true);
+      setTimeout(() => setErrorVisible(false), 5000);
+    }
+  };
 
   const sendLoginRequest = async (username: string, password: string) => {
     if (username === 'test' && password === 'password') {
@@ -97,10 +116,10 @@ export default function HomeScreen() {
       {isRegistering && (
         <TextInput
           style={styles.input}
-          onChangeText={setExtraInput}
+          onChangeText={setEmail}
           placeholder="Email"
           placeholderTextColor="#fff"
-          value={extraInput}
+          value={email}
         />
       )}
 
@@ -119,7 +138,7 @@ export default function HomeScreen() {
           <>
             <TouchableOpacity
               style={[styles.authButtonFull, styles.registerAreaFull]}
-              onPress={() => {/* handle registration */}}
+              onPress={() => sendRegisterRequest(username,email, password)} 
             >
               <Text style={styles.authText}>Register</Text>
             </TouchableOpacity>
@@ -134,7 +153,7 @@ export default function HomeScreen() {
           <>
             <TouchableOpacity
               style={[styles.authButtonFull, styles.loginAreaFull]}
-              onPress={() => sendLoginRequest(username, password)}
+              onPress={() => sendLoginRequest(username, password)} 
             >
               <Text style={styles.authText}>Log In</Text>
             </TouchableOpacity>
