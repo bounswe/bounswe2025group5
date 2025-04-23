@@ -1,6 +1,7 @@
 // app/(tabs)/profile.tsx
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { StyleSheet, Image, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -10,7 +11,16 @@ import { AuthContext } from '../_layout';
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
   const { userType } = useContext(AuthContext);
+  const [username, setUsername] = useState<string>('');
 
+  // load saved username
+  useEffect(() => {
+    AsyncStorage.getItem('username').then(u => {
+      if (u) setUsername(u);
+    });
+  }, []);
+
+  // redirect guests back to Home with error
   useFocusEffect(
     React.useCallback(() => {
       if (userType === 'guest') {
@@ -39,11 +49,15 @@ export default function ProfileScreen() {
     >
       <ThemedView style={styles.contentContainer}>
         {/* separator between image and content */}
-        <View style={styles.separator} />
+        
 
-        <ThemedText type="title" style={styles.title}>
-          Profile
+
+
+        {/* personalized greeting */}
+        <ThemedText type="default" style={styles.greeting}>
+          Hello, {username}
         </ThemedText>
+
         {/* TODO: add your profile details/components here */}
       </ThemedView>
     </ParallaxScrollView>
@@ -54,7 +68,7 @@ const styles = StyleSheet.create({
   headerImage: {
     width: '100%',
     height: undefined,
-    aspectRatio: 0.88,           
+    aspectRatio: 0.88,
   },
   contentContainer: {
     flex: 1,
@@ -64,6 +78,10 @@ const styles = StyleSheet.create({
     height: StyleSheet.hairlineWidth,
     backgroundColor: '#ccc',
     marginVertical: 16,
+  },
+  greeting: {
+    fontSize: 18,
+    marginBottom: 8,
   },
   title: {
     fontSize: 24,
