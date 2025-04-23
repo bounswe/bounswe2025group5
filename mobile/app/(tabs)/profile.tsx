@@ -70,7 +70,10 @@ export default function ProfileScreen() {
 
         {/* action buttons */}
         <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#4CAF50' }]}>
-          <Text style={styles.actionText}>Log waste</Text>
+          <Text style={styles.actionText}>Add a Waste Log</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#2E7D32' }]}>
+          <Text style={styles.actionText}>Add a Waste Goal</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#2196F3' }]}>
           <Text style={styles.actionText}>Create a post</Text>
@@ -139,8 +142,5 @@ const styles = StyleSheet.create({
   actionText: {
     color: '#fff',
     fontSize: 16,
-  },
-  title: {
-    fontSize: 24,
   },
 });
