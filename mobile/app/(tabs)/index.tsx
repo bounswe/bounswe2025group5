@@ -108,10 +108,10 @@ export default function HomeScreen() {
 
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1DCA1', dark: '#1D473D' }}
+      headerBackgroundColor={{ light: '#', dark: '#' }} //Could be changed later but currently it looks fire!
       headerImage={
         <Image
-          source={require('@/assets/images/recycle-logo-white.png')}
+          source={require('@/assets/images/wasteless-logo.png')}
           style={styles.recycleLogo}
         />
       }>
@@ -127,30 +127,29 @@ export default function HomeScreen() {
       <Text style={styles.modeHeader}>
         {isRegistering ? 'Create account' : 'Login here'}
       </Text>
-
       <TextInput
-        style={styles.input}
+        style={[styles.input, { color: '#000', backgroundColor: '#fff' }]}
         onChangeText={setUsername}
         placeholder="Username"
-        placeholderTextColor="#fff"
+        placeholderTextColor="#888"
         value={username}
       />
 
       {isRegistering && (
         <TextInput
-          style={styles.input}
+          style={[styles.input, { color: '#000', backgroundColor: '#fff' }]}
           onChangeText={setEmail}
           placeholder="Email"
-          placeholderTextColor="#fff"
+          placeholderTextColor="#888"
           value={email}
         />
       )}
 
       <TextInput
-        style={styles.input}
+        style={[styles.input, { color: '#000', backgroundColor: '#fff' }]}
         onChangeText={setPassword}
         placeholder="Password"
-        placeholderTextColor="#fff"
+        placeholderTextColor="#888"
         secureTextEntry
         value={password}
       />
@@ -230,6 +229,8 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     justifyContent: 'center',
     alignItems: 'center',
+    borderColor: '#fff',
+    borderWidth: 1,
   },
   registerAreaFull: { backgroundColor: '#2196F3' },
   loginAreaFull: { backgroundColor: '#4CAF50' },
@@ -237,11 +238,13 @@ const styles = StyleSheet.create({
   continueButton: {
     width: '100%',
     height: 40,
-    backgroundColor: '#fff',
+    backgroundColor: '#f9f6ee',
     borderRadius: 4,
     justifyContent: 'center',
     alignItems: 'center',
     marginVertical: 8,
+    borderColor: '#000',
+    borderWidth: 1,
   },
   errorBox: {
     position: 'absolute',
