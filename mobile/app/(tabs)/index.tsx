@@ -13,15 +13,17 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
 
 type Navigation = {
-  navigate: (screen: string) => void;
+  navigate: (screen: string, params?: any) => void;
+  setParams?: (params: any) => void;
 };
 
 export default function HomeScreen() {
   const navigation = useNavigation<Navigation>();
+  const route = useRoute<any>();
   const { setUserType } = useContext(AuthContext);
 
   const [username, setUsername] = useState('');
@@ -30,62 +32,70 @@ export default function HomeScreen() {
   const [isRegistering, setIsRegistering] = useState(false);
   const [email, setEmail] = useState('');
   const [errorVisible, setErrorVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
+  // auto-login if credentials saved
   useEffect(() => {
     (async () => {
       try {
-        const storedUsername = await AsyncStorage.getItem('username');
-        const storedPassword = await AsyncStorage.getItem('password');
-        if (storedUsername && storedPassword) {
-          setUsername(storedUsername);
-          setPassword(storedPassword);
+        const [u, p] = await Promise.all([
+          AsyncStorage.getItem('username'),
+          AsyncStorage.getItem('password'),
+        ]);
+        if (u && p) {
+          setUsername(u);
+          setPassword(p);
           setLoggedIn(true);
           setUserType('user');
           navigation.navigate('explore');
         }
-      } catch (error) {
-        console.error('Failed to load credentials:', error);
+      } catch (err) {
+        console.error(err);
       }
     })();
   }, []);
+
+  // catch 'error' param from navigation and show red box
+  useEffect(() => {
+    if (route.params?.error) {
+      setErrorMessage(route.params.error);
+      setErrorVisible(true);
+      setTimeout(() => setErrorVisible(false), 5000);
+      // clear it so it doesn’t re-fire
+      if (navigation.setParams) {
+        navigation.setParams({ error: undefined });
+      }
+    }
+  }, [route.params?.error]);
 
   const sendRegisterRequest = async (u: string, e: string, p: string) => {
     if (u && e && p) {
       setLoggedIn(true);
       setUserType('user');
-      try {
-        await AsyncStorage.multiSet([
-          ['username', u],
-          ['email', e],
-          ['password', p],
-        ]);
-      } catch (error) {
-        console.error('Error saving data:', error);
-      }
+      await AsyncStorage.multiSet([
+        ['username', u],
+        ['email', e],
+        ['password', p],
+      ]);
       navigation.navigate('explore');
     } else {
-      setLoggedIn(false);
+      setErrorMessage('Login failed, please try again.');
       setErrorVisible(true);
       setTimeout(() => setErrorVisible(false), 5000);
     }
   };
 
   const sendLoginRequest = async (u: string, p: string) => {
-    // demo credentials – replace with real auth
     if (u === 'test' && p === 'password') {
       setLoggedIn(true);
       setUserType('user');
-      try {
-        await AsyncStorage.multiSet([
-          ['username', u],
-          ['password', p],
-        ]);
-      } catch (error) {
-        console.error('Error saving data:', error);
-      }
+      await AsyncStorage.multiSet([
+        ['username', u],
+        ['password', p],
+      ]);
       navigation.navigate('explore');
     } else {
-      setLoggedIn(false);
+      setErrorMessage('Login failed, please try again.');
       setErrorVisible(true);
       setTimeout(() => setErrorVisible(false), 5000);
     }
@@ -180,7 +190,7 @@ export default function HomeScreen() {
 
       {errorVisible && (
         <View style={styles.errorBox}>
-          <Text style={styles.errorText}>Login failed, please try again.</Text>
+          <Text style={styles.errorText}>{errorMessage}</Text>
         </View>
       )}
     </ParallaxScrollView>
@@ -188,11 +198,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
+  titleContainer: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   recycleLogo: {
     width: '115%',
     height: undefined,
@@ -216,11 +222,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     color: '#fff',
   },
-  buttonsColumn: {
-    marginHorizontal: 16,
-    marginTop: 24,
-    marginBottom: 8,
-  },
+  buttonsColumn: { marginHorizontal: 16, marginTop: 24, marginBottom: 8 },
   authButtonFull: {
     width: '100%',
     height: 40,
@@ -229,16 +231,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  registerAreaFull: {
-    backgroundColor: '#2196F3',
-  },
-  loginAreaFull: {
-    backgroundColor: '#4CAF50',
-  },
-  authText: {
-    color: '#000',
-    fontSize: 16,
-  },
+  registerAreaFull: { backgroundColor: '#2196F3' },
+  loginAreaFull: { backgroundColor: '#4CAF50' },
+  authText: { color: '#000', fontSize: 16 },
   continueButton: {
     width: '100%',
     height: 40,
@@ -258,9 +253,5 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     alignItems: 'center',
   },
-  errorText: {
-    color: '#fff',
-    fontSize: 14,
-    textAlign: 'center',
-  },
+  errorText: { color: '#fff', fontSize: 14, textAlign: 'center' },
 });
