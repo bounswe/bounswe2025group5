@@ -110,7 +110,8 @@ export default function HomeScreen() {
       setTimeout(() => setErrorVisible(false), 5000);
       return;
     }
-    if (u === 'test' && p === 'password') {
+    //Change this to your backend login request   !!!!!!!!
+    if (u === 'test' && p === 'password') { // Mock login for testing purposes
       setLoggedIn(true);
       setUserType('user');
       setUsername(u);

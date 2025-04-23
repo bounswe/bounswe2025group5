@@ -29,10 +29,12 @@ export default function ProfileScreen() {
     }, [userType])
   );
 
+  // only real users see Profile
   if (userType !== 'user') {
     return null;
   }
 
+  // handle logout
   const handleLogout = async () => {
     await AsyncStorage.multiRemove(['username', 'password', 'email']);
     setUserType(null);
@@ -52,23 +54,29 @@ export default function ProfileScreen() {
       }
     >
       <ThemedView style={styles.contentContainer}>
+        {/* logout button */}
         <View style={styles.logoutContainer}>
           <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
             <Text style={styles.logoutText}>Log Out</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.profileContainer}>
-          <View style={styles.profilePic} />
+        {/* edit profile button below logout */}
+        <View style={styles.editProfileContainer}>
           <TouchableOpacity style={styles.editButton}>
             <Text style={styles.editButtonText}>Edit profile</Text>
           </TouchableOpacity>
         </View>
 
-        <ThemedText type="default" style={styles.greeting}>
-          Hello, {username}
-        </ThemedText>
+        {/* profile picture and greeting side by side */}
+        <View style={styles.profileContainer}>
+          <View style={styles.profilePic} />
+            <ThemedText type="default" style={[styles.greeting, { fontSize: 20, marginLeft: 10 }]}>
+              Hello, {username}
+            </ThemedText>
+        </View>
 
+        {/* action buttons */}
         <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#4CAF50' }]}>
           <Text style={styles.actionText}>Add a Waste Log</Text>
         </TouchableOpacity>
@@ -90,20 +98,47 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  headerImage: { width: '100%', height: undefined, aspectRatio: 0.88 },
-  contentContainer: { flex: 1, padding: 16 },
-  logoutContainer: { alignItems: 'flex-end' },
+  headerImage: {
+    width: '100%',
+    height: undefined,
+    aspectRatio: 0.88,
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 16,
+    marginTop: -20, // lift content up by 20px
+  },
+  logoutContainer: {
+    alignItems: 'flex-end',
+  },
   logoutButton: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 20,
     paddingVertical: 6,
     borderRadius: 4,
     backgroundColor: '#E53935',
   },
-  logoutText: { color: '#fff', fontSize: 14 },
+  logoutText: {
+    color: '#fff',
+    fontSize: 14,
+  },
+  editProfileContainer: {
+    alignItems: 'flex-end',
+    marginVertical: 8,
+  },
+  editButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 4,
+    backgroundColor: '#007AFF',
+  },
+  editButtonText: {
+    color: '#fff',
+    fontSize: 14,
+  },
   profileContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start', // move to left
     marginBottom: 16,
   },
   profilePic: {
@@ -113,14 +148,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#ddd',
     marginRight: 12,
   },
-  editButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 4,
-    backgroundColor: '#007AFF',
+  greeting: {
+    fontSize: 18,
   },
-  editButtonText: { color: '#fff', fontSize: 14 },
-  greeting: { fontSize: 18, marginBottom: 16, textAlign: 'center' },
   actionButton: {
     width: '100%',
     paddingVertical: 12,
@@ -128,5 +158,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     alignItems: 'center',
   },
-  actionText: { color: '#fff', fontSize: 16 },
+  actionText: {
+    color: '#fff',
+    fontSize: 16,
+  },
 });
