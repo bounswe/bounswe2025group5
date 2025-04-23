@@ -62,11 +62,12 @@ function PostSkeleton({ post }: { post: Post }) {
 
 export default function ExploreScreen() {
   const navigation = useNavigation();
-  const { userType } = useContext(AuthContext);
+  const { userType,username } = useContext(AuthContext);
 
   useFocusEffect(
     React.useCallback(() => {
       console.log('userType:', userType);
+      console.log('username:', username);
     }, [userType])
   );
 
