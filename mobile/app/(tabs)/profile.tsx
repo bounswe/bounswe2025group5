@@ -1,6 +1,7 @@
 // app/(tabs)/profile.tsx
 import React, { useContext } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Image, View } from 'react-native';
+import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -20,27 +21,49 @@ export default function ProfileScreen() {
     }, [userType])
   );
 
-  // only render for real users
+  // only real users see Profile
   if (userType !== 'user') {
     return null;
   }
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title" style={styles.title}>
-        Profile
-      </ThemedText>
-      {/* TODO: add your profile details/components here */}
-    </ThemedView>
+    <ParallaxScrollView
+      headerBackgroundColor={{ light: '#fff', dark: '#000' }}
+      headerImage={
+        <Image
+          source={require('@/assets/images/wallpaper.png')}
+          style={styles.headerImage}
+          resizeMode="cover"
+        />
+      }
+    >
+      <ThemedView style={styles.contentContainer}>
+        {/* separator between image and content */}
+        <View style={styles.separator} />
+
+        <ThemedText type="title" style={styles.title}>
+          Profile
+        </ThemedText>
+        {/* TODO: add your profile details/components here */}
+      </ThemedView>
+    </ParallaxScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  headerImage: {
+    width: '100%',
+    height: undefined,
+    aspectRatio: 0.88,           
+  },
+  contentContainer: {
     flex: 1,
     padding: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
+  },
+  separator: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: '#ccc',
+    marginVertical: 16,
   },
   title: {
     fontSize: 24,
