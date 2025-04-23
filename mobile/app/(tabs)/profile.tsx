@@ -1,6 +1,12 @@
 // app/(tabs)/profile.tsx
 import React, { useContext, useState, useEffect } from 'react';
-import { StyleSheet, Image, View } from 'react-native';
+import {
+  StyleSheet,
+  Image,
+  View,
+  TouchableOpacity,
+  Text,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -48,17 +54,33 @@ export default function ProfileScreen() {
       }
     >
       <ThemedView style={styles.contentContainer}>
-        {/* separator between image and content */}
-        
 
+        {/* profile picture + edit button */}
+        <View style={styles.profileContainer}>
+          <View style={styles.profilePic} />
+          <TouchableOpacity style={styles.editButton}>
+            <Text style={styles.editButtonText}>Edit profile</Text>
+          </TouchableOpacity>
+        </View>
 
-
-        {/* personalized greeting */}
+        {/* greeting */}
         <ThemedText type="default" style={styles.greeting}>
           Hello, {username}
         </ThemedText>
 
-        {/* TODO: add your profile details/components here */}
+        {/* action buttons */}
+        <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#4CAF50' }]}>
+          <Text style={styles.actionText}>Log waste</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#2196F3' }]}>
+          <Text style={styles.actionText}>Create a post</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#FF9800' }]}>
+          <Text style={styles.actionText}>Leaderboard</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#9C27B0' }]}>
+          <Text style={styles.actionText}>Challenges</Text>
+        </TouchableOpacity>
       </ThemedView>
     </ParallaxScrollView>
   );
@@ -79,9 +101,44 @@ const styles = StyleSheet.create({
     backgroundColor: '#ccc',
     marginVertical: 16,
   },
+  profileContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  profilePic: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#ddd',
+    marginRight: 12,
+  },
+  editButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 4,
+    backgroundColor: '#007AFF',
+  },
+  editButtonText: {
+    color: '#fff',
+    fontSize: 14,
+  },
   greeting: {
     fontSize: 18,
-    marginBottom: 8,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  actionButton: {
+    width: '100%',
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginBottom: 12,
+    alignItems: 'center',
+  },
+  actionText: {
+    color: '#fff',
+    fontSize: 16,
   },
   title: {
     fontSize: 24,
