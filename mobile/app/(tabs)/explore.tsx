@@ -1,10 +1,9 @@
 // app/(tabs)/explore.tsx
-import React, { useContext, useEffect } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import React, { useContext } from 'react';
+import { ScrollView, StyleSheet, View, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
-import { useNavigation } from '@react-navigation/native';
-import { useFocusEffect } from '@react-navigation/native'
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
 
 type Post = {
@@ -13,18 +12,38 @@ type Post = {
   content: string;
   likes: number;
   comments: number;
+  image: string;
 };
 
 const mockPosts: Post[] = [
-  { id: '1', title: 'Post Title 1', content: 'This is a short preview of the post content…', likes: 12, comments: 4 },
-  { id: '2', title: 'Post Title 2', content: 'Another preview text goes here as a placeholder.', likes: 8, comments: 2 },
+  {
+    id: '1',
+    title: 'Post Title 1',
+    content: 'This is a short preview of the post content…',
+    likes: 12,
+    comments: 4,
+    image: 'https://via.placeholder.com/300x150',
+  },
+  {
+    id: '2',
+    title: 'Post Title 2',
+    content: 'Another preview text goes here as a placeholder.',
+    likes: 8,
+    comments: 2,
+    image: 'https://via.placeholder.com/300x150',
+  },
 ];
 
 function PostSkeleton({ post }: { post: Post }) {
   return (
     <View style={styles.postContainer}>
-      <ThemedText type="title" style={styles.postTitle}>{post.title}</ThemedText>
-      <ThemedText style={styles.postContent}>{post.content}</ThemedText>
+      <Image source={{ uri: post.image }} style={styles.postImage} />
+      <ThemedText type="title" style={styles.postTitle}>
+        {post.title}
+      </ThemedText>
+      <ThemedText style={styles.postContent}>
+        {post.content}
+      </ThemedText>
       <View style={styles.postFooter}>
         <Ionicons name="heart-outline" size={16} />
         <ThemedText style={styles.footerText}>{post.likes}</ThemedText>
@@ -41,11 +60,11 @@ export default function ExploreScreen() {
 
   useFocusEffect(
     React.useCallback(() => {
-      console.log('userType:', userType) // Debugging line to check userType everytime Feed is clicked.
+      console.log('userType:', userType); // Debug on focus
     }, [userType])
-  )
+  );
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!userType) {
       navigation.navigate('index' as never);
     }
@@ -58,15 +77,24 @@ export default function ExploreScreen() {
       <View style={styles.header}>
         <ThemedText type="title">Explore</ThemedText>
       </View>
-      {mockPosts.map(post => <PostSkeleton key={post.id} post={post} />)}
+      {mockPosts.map(post => (
+        <PostSkeleton key={post.id} post={post} />
+      ))}
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  content: { paddingBottom: 24 },
-  header: { paddingHorizontal: 16, marginVertical: 12 },
+  container: {
+    flex: 1,
+  },
+  content: {
+    paddingBottom: 24,
+  },
+  header: {
+    paddingHorizontal: 16,
+    marginVertical: 12,
+  },
   postContainer: {
     backgroundColor: '#fff',
     borderRadius: 8,
@@ -78,8 +106,28 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  postTitle: { fontSize: 18, marginBottom: 6 },
-  postContent: { fontSize: 14, color: '#666', marginBottom: 10 },
-  postFooter: { flexDirection: 'row', alignItems: 'center' },
-  footerText: { fontSize: 14, marginHorizontal: 8 },
+  postImage: {
+    width: '100%',
+    height: 150,
+    borderRadius: 4,
+    marginBottom: 10,
+    backgroundColor: '#eee',
+  },
+  postTitle: {
+    fontSize: 18,
+    marginBottom: 6,
+  },
+  postContent: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 10,
+  },
+  postFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  footerText: {
+    fontSize: 14,
+    marginHorizontal: 8,
+  },
 });
