@@ -24,9 +24,9 @@ type Navigation = {
 export default function HomeScreen() {
   const navigation = useNavigation<Navigation>();
   const route = useRoute<any>();
-  const { setUserType } = useContext(AuthContext);
+  const { setUserType, setUsername } = useContext(AuthContext);
 
-  const [username, setUsername] = useState('');
+  const [usernameInput, setUsernameInput] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [email, setEmail] = useState('');
@@ -44,10 +44,11 @@ export default function HomeScreen() {
           AsyncStorage.getItem('password'),
         ]);
         if (u && p) {
-          setUsername(u);
+          setUsernameInput(u);
           setPassword(p);
           setLoggedIn(true);
           setUserType('user');
+          setUsername(u);
           navigation.navigate('explore');
         }
       } catch (err) {
@@ -67,31 +68,28 @@ export default function HomeScreen() {
   }, [route.params?.error]);
 
   const sendRegisterRequest = async (u: string, e: string, p: string) => {
-    // username must not contain '@'
     if (u.includes('@')) {
       setErrorMessage('username cant include special character');
       setErrorVisible(true);
       setTimeout(() => setErrorVisible(false), 5000);
       return;
     }
-    // password must be at least 8 chars
     if (p.length < 8) {
       setErrorMessage('Password must be at least 8 characters long');
       setErrorVisible(true);
       setTimeout(() => setErrorVisible(false), 5000);
       return;
     }
-    // passwords must match
     if (p !== confirmPassword) {
       setErrorMessage("Passwords doesn't match");
       setErrorVisible(true);
       setTimeout(() => setErrorVisible(false), 5000);
       return;
     }
-    // proceed if all fields present
     if (u && e && p) {
       setLoggedIn(true);
       setUserType('user');
+      setUsername(u);
       await AsyncStorage.multiSet([
         ['username', u],
         ['email', e],
@@ -106,9 +104,8 @@ export default function HomeScreen() {
   };
 
   const sendLoginRequest = async (u: string, p: string) => {
-    // optional: enforce secure password even for login
     if (p.length < 8) {
-      setErrorMessage('Password  to be secure');
+      setErrorMessage('Password needs to be secure');
       setErrorVisible(true);
       setTimeout(() => setErrorVisible(false), 5000);
       return;
@@ -116,6 +113,7 @@ export default function HomeScreen() {
     if (u === 'test' && p === 'password') {
       setLoggedIn(true);
       setUserType('user');
+      setUsername(u);
       await AsyncStorage.multiSet([
         ['username', u],
         ['password', p],
@@ -130,6 +128,7 @@ export default function HomeScreen() {
 
   const continueAsGuest = () => {
     setUserType('guest');
+    setUsername('');
     navigation.navigate('explore');
   };
 
@@ -158,10 +157,10 @@ export default function HomeScreen() {
 
       <TextInput
         style={[styles.input, { color: '#000', backgroundColor: '#fff' }]}
-        onChangeText={setUsername}
+        onChangeText={setUsernameInput}
         placeholder="Username"
         placeholderTextColor="#888"
-        value={username}
+        value={usernameInput}
       />
 
       {isRegistering && (
@@ -199,7 +198,7 @@ export default function HomeScreen() {
           <>
             <TouchableOpacity
               style={[styles.authButtonFull, styles.registerAreaFull]}
-              onPress={() => sendRegisterRequest(username, email, password)}
+              onPress={() => sendRegisterRequest(usernameInput, email, password)}
             >
               <Text style={styles.authText}>Register</Text>
             </TouchableOpacity>
@@ -214,7 +213,7 @@ export default function HomeScreen() {
           <>
             <TouchableOpacity
               style={[styles.authButtonFull, styles.loginAreaFull]}
-              onPress={() => sendLoginRequest(username, password)}
+              onPress={() => sendLoginRequest(usernameInput, password)}
             >
               <Text style={styles.authText}>Log In</Text>
             </TouchableOpacity>
@@ -290,10 +289,7 @@ const styles = StyleSheet.create({
   loginAreaFull: {
     backgroundColor: '#4CAF50',
   },
-  authText: {
-    color: '#000',
-    fontSize: 16,
-  },
+  authText: { color: '#000', fontSize: 16 },
   continueButton: {
     width: '100%',
     height: 40,

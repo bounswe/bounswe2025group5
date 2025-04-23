@@ -1,5 +1,5 @@
 // app/(tabs)/profile.tsx
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext } from 'react';
 import {
   StyleSheet,
   Image,
@@ -16,15 +16,7 @@ import { AuthContext } from '../_layout';
 
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
-  const { userType, setUserType } = useContext(AuthContext);
-  const [username, setUsername] = useState<string>('');
-
-  // load saved username
-  useEffect(() => {
-    AsyncStorage.getItem('username').then(u => {
-      if (u) setUsername(u);
-    });
-  }, []);
+  const { userType, setUserType, username, setUsername } = useContext(AuthContext);
 
   // redirect guests back to Home with error
   useFocusEffect(
@@ -37,15 +29,14 @@ export default function ProfileScreen() {
     }, [userType])
   );
 
-  // only real users see Profile
   if (userType !== 'user') {
     return null;
   }
 
-  // handle logout
   const handleLogout = async () => {
     await AsyncStorage.multiRemove(['username', 'password', 'email']);
     setUserType(null);
+    setUsername('');
     navigation.navigate('index');
   };
 
@@ -61,14 +52,12 @@ export default function ProfileScreen() {
       }
     >
       <ThemedView style={styles.contentContainer}>
-        {/* logout button aligned to top-right */}
         <View style={styles.logoutContainer}>
           <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
             <Text style={styles.logoutText}>Log Out</Text>
           </TouchableOpacity>
         </View>
 
-        {/* profile picture + edit button */}
         <View style={styles.profileContainer}>
           <View style={styles.profilePic} />
           <TouchableOpacity style={styles.editButton}>
@@ -76,12 +65,10 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* greeting */}
         <ThemedText type="default" style={styles.greeting}>
           Hello, {username}
         </ThemedText>
 
-        {/* action buttons */}
         <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#4CAF50' }]}>
           <Text style={styles.actionText}>Add a Waste Log</Text>
         </TouchableOpacity>
@@ -103,33 +90,16 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    width: '100%',
-    height: undefined,
-    aspectRatio: 0.88,
-  },
-  contentContainer: {
-    flex: 1,
-    padding: 16,
-  },
-  logoutContainer: {
-    alignItems: 'flex-end',
-  },
+  headerImage: { width: '100%', height: undefined, aspectRatio: 0.88 },
+  contentContainer: { flex: 1, padding: 16 },
+  logoutContainer: { alignItems: 'flex-end' },
   logoutButton: {
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 4,
     backgroundColor: '#E53935',
   },
-  logoutText: {
-    color: '#fff',
-    fontSize: 14,
-  },
-  separator: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: '#ccc',
-    marginVertical: 16,
-  },
+  logoutText: { color: '#fff', fontSize: 14 },
   profileContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -149,15 +119,8 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: '#007AFF',
   },
-  editButtonText: {
-    color: '#fff',
-    fontSize: 14,
-  },
-  greeting: {
-    fontSize: 18,
-    marginBottom: 16,
-    textAlign: 'center',
-  },
+  editButtonText: { color: '#fff', fontSize: 14 },
+  greeting: { fontSize: 18, marginBottom: 16, textAlign: 'center' },
   actionButton: {
     width: '100%',
     paddingVertical: 12,
@@ -165,8 +128,5 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     alignItems: 'center',
   },
-  actionText: {
-    color: '#fff',
-    fontSize: 16,
-  },
+  actionText: { color: '#fff', fontSize: 16 },
 });

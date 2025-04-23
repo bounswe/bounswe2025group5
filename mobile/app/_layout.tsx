@@ -11,14 +11,18 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 
 export type UserType = 'guest' | 'user' | null;
 
-type AuthContextType = {
+export type AuthContextType = {
   userType: UserType;
   setUserType: React.Dispatch<React.SetStateAction<UserType>>;
+  username: string;
+  setUsername: React.Dispatch<React.SetStateAction<string>>;
 };
 
 export const AuthContext = createContext<AuthContextType>({
   userType: null,
   setUserType: () => {},
+  username: '',
+  setUsername: () => {},
 });
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -31,6 +35,7 @@ export default function RootLayout() {
   });
 
   const [userType, setUserType] = useState<UserType>(null);
+  const [username, setUsername] = useState<string>('');
 
   useEffect(() => {
     if (loaded) {
@@ -43,7 +48,7 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthContext.Provider value={{ userType, setUserType }}>
+    <AuthContext.Provider value={{ userType, setUserType, username, setUsername }}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
