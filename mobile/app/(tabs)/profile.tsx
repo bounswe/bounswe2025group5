@@ -16,7 +16,7 @@ import { AuthContext } from '../_layout';
 
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
-  const { userType } = useContext(AuthContext);
+  const { userType, setUserType } = useContext(AuthContext);
   const [username, setUsername] = useState<string>('');
 
   // load saved username
@@ -42,6 +42,13 @@ export default function ProfileScreen() {
     return null;
   }
 
+  // handle logout
+  const handleLogout = async () => {
+    await AsyncStorage.multiRemove(['username', 'password', 'email']);
+    setUserType(null);
+    navigation.navigate('index');
+  };
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#fff', dark: '#000' }}
@@ -54,6 +61,12 @@ export default function ProfileScreen() {
       }
     >
       <ThemedView style={styles.contentContainer}>
+        {/* logout button aligned to top-right */}
+        <View style={styles.logoutContainer}>
+          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+            <Text style={styles.logoutText}>Log Out</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* profile picture + edit button */}
         <View style={styles.profileContainer}>
@@ -98,6 +111,19 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     padding: 16,
+  },
+  logoutContainer: {
+    alignItems: 'flex-end',
+  },
+  logoutButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 4,
+    backgroundColor: '#E53935',
+  },
+  logoutText: {
+    color: '#fff',
+    fontSize: 14,
   },
   separator: {
     height: StyleSheet.hairlineWidth,
