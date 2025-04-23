@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+// app/(tabs)/index.tsx
+import React, { useState, useEffect, useContext } from 'react';
 import {
   Image,
   StyleSheet,
@@ -13,6 +14,7 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useNavigation } from '@react-navigation/native';
+import { AuthContext } from '../_layout';
 
 type Navigation = {
   navigate: (screen: string) => void;
@@ -20,6 +22,8 @@ type Navigation = {
 
 export default function HomeScreen() {
   const navigation = useNavigation<Navigation>();
+  const { setUserType } = useContext(AuthContext);
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loggedIn, setLoggedIn] = useState(false);
@@ -36,7 +40,7 @@ export default function HomeScreen() {
           setUsername(storedUsername);
           setPassword(storedPassword);
           setLoggedIn(true);
-
+          setUserType('user');
           navigation.navigate('explore');
         }
       } catch (error) {
@@ -45,13 +49,16 @@ export default function HomeScreen() {
     })();
   }, []);
 
-  const sendRegisterRequest = async (username: string, email: string, password: string) => {
-    if (username && email && password) {
+  const sendRegisterRequest = async (u: string, e: string, p: string) => {
+    if (u && e && p) {
       setLoggedIn(true);
+      setUserType('user');
       try {
-        await AsyncStorage.setItem('username', username);
-        await AsyncStorage.setItem('email', email);
-        await AsyncStorage.setItem('password', password);
+        await AsyncStorage.multiSet([
+          ['username', u],
+          ['email', e],
+          ['password', p],
+        ]);
       } catch (error) {
         console.error('Error saving data:', error);
       }
@@ -63,12 +70,16 @@ export default function HomeScreen() {
     }
   };
 
-  const sendLoginRequest = async (username: string, password: string) => {
-    if (username === 'test' && password === 'password') {
+  const sendLoginRequest = async (u: string, p: string) => {
+    // demo credentials – replace with real auth
+    if (u === 'test' && p === 'password') {
       setLoggedIn(true);
+      setUserType('user');
       try {
-        await AsyncStorage.setItem('username', username);
-        await AsyncStorage.setItem('password', password);
+        await AsyncStorage.multiSet([
+          ['username', u],
+          ['password', p],
+        ]);
       } catch (error) {
         console.error('Error saving data:', error);
       }
@@ -78,6 +89,11 @@ export default function HomeScreen() {
       setErrorVisible(true);
       setTimeout(() => setErrorVisible(false), 5000);
     }
+  };
+
+  const continueAsGuest = () => {
+    setUserType('guest');
+    navigation.navigate('explore');
   };
 
   return (
@@ -88,8 +104,7 @@ export default function HomeScreen() {
           source={require('@/assets/images/recycle-logo-white.png')}
           style={styles.recycleLogo}
         />
-      }
-    >
+      }>
       <ThemedView style={styles.titleContainer}>
         {loggedIn && (
           <ThemedText type="title" style={{ fontSize: 28 }}>
@@ -99,12 +114,10 @@ export default function HomeScreen() {
         <HelloWave />
       </ThemedView>
 
-      {/* Mode Header */}
       <Text style={styles.modeHeader}>
         {isRegistering ? 'Create account' : 'Login here'}
       </Text>
 
-      {/* Inputs */}
       <TextInput
         style={styles.input}
         onChangeText={setUsername}
@@ -132,20 +145,17 @@ export default function HomeScreen() {
         value={password}
       />
 
-      {/* Action Buttons */}
       <View style={styles.buttonsColumn}>
         {isRegistering ? (
           <>
             <TouchableOpacity
               style={[styles.authButtonFull, styles.registerAreaFull]}
-              onPress={() => sendRegisterRequest(username,email, password)} 
-            >
+              onPress={() => sendRegisterRequest(username, email, password)}>
               <Text style={styles.authText}>Register</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.authButtonFull, styles.loginAreaFull]}
-              onPress={() => setIsRegistering(false)}
-            >
+              onPress={() => setIsRegistering(false)}>
               <Text style={styles.authText}>Back to Log In</Text>
             </TouchableOpacity>
           </>
@@ -153,23 +163,18 @@ export default function HomeScreen() {
           <>
             <TouchableOpacity
               style={[styles.authButtonFull, styles.loginAreaFull]}
-              onPress={() => sendLoginRequest(username, password)} 
-            >
+              onPress={() => sendLoginRequest(username, password)}>
               <Text style={styles.authText}>Log In</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.authButtonFull, styles.registerAreaFull]}
-              onPress={() => setIsRegistering(true)}
-            >
+              onPress={() => setIsRegistering(true)}>
               <Text style={styles.authText}>Register</Text>
             </TouchableOpacity>
           </>
         )}
-        <TouchableOpacity
-          style={styles.continueButton}
-          onPress={() => navigation.navigate('explore')}
-        >
-          <Text style={styles.authText}>Continue to Explore Page</Text>
+        <TouchableOpacity style={styles.continueButton} onPress={continueAsGuest}>
+          <Text style={styles.authText}>Continue as Guest</Text>
         </TouchableOpacity>
       </View>
 

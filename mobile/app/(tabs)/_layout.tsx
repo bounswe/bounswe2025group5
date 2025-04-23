@@ -1,6 +1,6 @@
-// _layout.tsx
+// app/(tabs)/_layout.tsx
 import { Tabs } from 'expo-router';
-import React from 'react';
+import React, { useContext } from 'react';
 import { Platform } from 'react-native';
 
 import { HapticTab } from '@/components/HapticTab';
@@ -8,9 +8,11 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { AuthContext } from '../_layout';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const { userType } = useContext(AuthContext);
 
   return (
     <Tabs
@@ -22,11 +24,13 @@ export default function TabLayout() {
         tabBarStyle: Platform.select({
           ios: {
             position: 'absolute',
+            display: userType ? 'flex' : 'none',
           },
-          default: {},
+          default: {
+            display: userType ? 'flex' : 'none',
+          },
         }),
       }}>
-  
       <Tabs.Screen
         name="index"
         options={{
