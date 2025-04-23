@@ -30,18 +30,22 @@ export default function TabLayout() {
             display: userType ? 'flex' : 'none',
           },
         }),
-      }}>
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarItemStyle: {
+            display: userType === 'user' ? 'none' : 'flex'
+          },
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
-          title: 'Feed',
+          title: 'Explore',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
         }}
       />
