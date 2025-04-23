@@ -1,6 +1,12 @@
 // app/(tabs)/explore.tsx
 import React, { useContext } from 'react';
-import { ScrollView, StyleSheet, View, Image } from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  View,
+  Image,
+  TextInput,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -60,7 +66,7 @@ export default function ExploreScreen() {
 
   useFocusEffect(
     React.useCallback(() => {
-      console.log('userType:', userType); // Debug on focus
+      console.log('userType:', userType);
     }, [userType])
   );
 
@@ -77,6 +83,16 @@ export default function ExploreScreen() {
       <View style={styles.header}>
         <ThemedText type="title">Explore</ThemedText>
       </View>
+
+      <View style={styles.searchBar}>
+        <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder={Math.random() < 0.5 ? "Search for a specific topic…" : "Find something interesting…"}
+          placeholderTextColor="#888"
+        />
+      </View>
+
       {mockPosts.map(post => (
         <PostSkeleton key={post.id} post={post} />
       ))}
@@ -93,7 +109,25 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 16,
-    marginVertical: 12,
+    marginTop: 48,     
+    marginBottom: 8,
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+    borderRadius: 20,
+    marginHorizontal: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginBottom: 16,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
   },
   postContainer: {
     backgroundColor: '#fff',
