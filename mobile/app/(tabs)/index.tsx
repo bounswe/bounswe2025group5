@@ -68,24 +68,42 @@ export default function HomeScreen() {
   }, [route.params?.error]);
 
   const sendRegisterRequest = async (u: string, e: string, p: string) => {
-    if (u.includes('@')) {
-      setErrorMessage('username cant include special character');
+    // username not empty
+    if (!u.trim()) {
+      setErrorMessage("Username can't be empty");
       setErrorVisible(true);
       setTimeout(() => setErrorVisible(false), 5000);
       return;
     }
+    // valid email
+    if (!e.includes('@')) {
+      setErrorMessage('Please provide a valid email address');
+      setErrorVisible(true);
+      setTimeout(() => setErrorVisible(false), 5000);
+      return;
+    }
+    // username must not contain '@'
+    if (u.includes('@')) {
+      setErrorMessage('Username cannot contain "@"');
+      setErrorVisible(true);
+      setTimeout(() => setErrorVisible(false), 5000);
+      return;
+    }
+    // password must be at least 8 chars
     if (p.length < 8) {
       setErrorMessage('Password must be at least 8 characters long');
       setErrorVisible(true);
       setTimeout(() => setErrorVisible(false), 5000);
       return;
     }
+    // passwords must match
     if (p !== confirmPassword) {
-      setErrorMessage("Passwords doesn't match");
+      setErrorMessage("Passwords don't match");
       setErrorVisible(true);
       setTimeout(() => setErrorVisible(false), 5000);
       return;
     }
+    // proceed if all fields present
     if (u && e && p) {
       setLoggedIn(true);
       setUserType('user');
@@ -97,7 +115,7 @@ export default function HomeScreen() {
       ]);
       navigation.navigate('explore');
     } else {
-      setErrorMessage('Login failed, please try again.');
+      setErrorMessage('Registration failed, please try again.');
       setErrorVisible(true);
       setTimeout(() => setErrorVisible(false), 5000);
     }
@@ -110,8 +128,8 @@ export default function HomeScreen() {
       setTimeout(() => setErrorVisible(false), 5000);
       return;
     }
-    //Change this to your backend login request   !!!!!!!!
-    if (u === 'test' && p === 'password') { // Mock login for testing purposes
+    // Mock login for testing purposes
+    if (u === 'test' && p === 'password') {
       setLoggedIn(true);
       setUserType('user');
       setUsername(u);
@@ -290,7 +308,10 @@ const styles = StyleSheet.create({
   loginAreaFull: {
     backgroundColor: '#4CAF50',
   },
-  authText: { color: '#000', fontSize: 16 },
+  authText: {
+    color: '#000',
+    fontSize: 16,
+  },
   continueButton: {
     width: '100%',
     height: 40,
