@@ -28,9 +28,10 @@ export default function HomeScreen() {
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [email, setEmail] = useState('');
   const [loggedIn, setLoggedIn] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
-  const [email, setEmail] = useState('');
   const [errorVisible, setErrorVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -55,20 +56,39 @@ export default function HomeScreen() {
     })();
   }, []);
 
-  // catch 'error' param from navigation and show red box
+  // catch 'error' param and show red box
   useEffect(() => {
     if (route.params?.error) {
       setErrorMessage(route.params.error);
       setErrorVisible(true);
       setTimeout(() => setErrorVisible(false), 5000);
-      // clear it so it doesn’t re-fire
-      if (navigation.setParams) {
-        navigation.setParams({ error: undefined });
-      }
+      if (navigation.setParams) navigation.setParams({ error: undefined });
     }
   }, [route.params?.error]);
 
   const sendRegisterRequest = async (u: string, e: string, p: string) => {
+    // username must not contain '@'
+    if (u.includes('@')) {
+      setErrorMessage('username cant include special character');
+      setErrorVisible(true);
+      setTimeout(() => setErrorVisible(false), 5000);
+      return;
+    }
+    // password must be at least 8 chars
+    if (p.length < 8) {
+      setErrorMessage('Password must be at least 8 characters long');
+      setErrorVisible(true);
+      setTimeout(() => setErrorVisible(false), 5000);
+      return;
+    }
+    // passwords must match
+    if (p !== confirmPassword) {
+      setErrorMessage("Passwords doesn't match");
+      setErrorVisible(true);
+      setTimeout(() => setErrorVisible(false), 5000);
+      return;
+    }
+    // proceed if all fields present
     if (u && e && p) {
       setLoggedIn(true);
       setUserType('user');
@@ -86,6 +106,13 @@ export default function HomeScreen() {
   };
 
   const sendLoginRequest = async (u: string, p: string) => {
+    // optional: enforce secure password even for login
+    if (p.length < 8) {
+      setErrorMessage('Password  to be secure');
+      setErrorVisible(true);
+      setTimeout(() => setErrorVisible(false), 5000);
+      return;
+    }
     if (u === 'test' && p === 'password') {
       setLoggedIn(true);
       setUserType('user');
@@ -108,13 +135,14 @@ export default function HomeScreen() {
 
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#', dark: '#' }} //Could be changed later but currently it looks fire!
+      headerBackgroundColor={{ light: '#', dark: '#' }}
       headerImage={
         <Image
           source={require('@/assets/images/wasteless-logo.png')}
           style={styles.recycleLogo}
         />
-      }>
+      }
+    >
       <ThemedView style={styles.titleContainer}>
         {loggedIn && (
           <ThemedText type="title" style={{ fontSize: 28 }}>
@@ -127,6 +155,7 @@ export default function HomeScreen() {
       <Text style={styles.modeHeader}>
         {isRegistering ? 'Create account' : 'Login here'}
       </Text>
+
       <TextInput
         style={[styles.input, { color: '#000', backgroundColor: '#fff' }]}
         onChangeText={setUsername}
@@ -154,17 +183,30 @@ export default function HomeScreen() {
         value={password}
       />
 
+      {isRegistering && (
+        <TextInput
+          style={[styles.input, { color: '#000', backgroundColor: '#fff' }]}
+          onChangeText={setConfirmPassword}
+          placeholder="Confirm password"
+          placeholderTextColor="#888"
+          secureTextEntry
+          value={confirmPassword}
+        />
+      )}
+
       <View style={styles.buttonsColumn}>
         {isRegistering ? (
           <>
             <TouchableOpacity
               style={[styles.authButtonFull, styles.registerAreaFull]}
-              onPress={() => sendRegisterRequest(username, email, password)}>
+              onPress={() => sendRegisterRequest(username, email, password)}
+            >
               <Text style={styles.authText}>Register</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.authButtonFull, styles.loginAreaFull]}
-              onPress={() => setIsRegistering(false)}>
+              onPress={() => setIsRegistering(false)}
+            >
               <Text style={styles.authText}>Back to Log In</Text>
             </TouchableOpacity>
           </>
@@ -172,12 +214,14 @@ export default function HomeScreen() {
           <>
             <TouchableOpacity
               style={[styles.authButtonFull, styles.loginAreaFull]}
-              onPress={() => sendLoginRequest(username, password)}>
+              onPress={() => sendLoginRequest(username, password)}
+            >
               <Text style={styles.authText}>Log In</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.authButtonFull, styles.registerAreaFull]}
-              onPress={() => setIsRegistering(true)}>
+              onPress={() => setIsRegistering(true)}
+            >
               <Text style={styles.authText}>Register</Text>
             </TouchableOpacity>
           </>
@@ -197,7 +241,11 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  titleContainer: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   recycleLogo: {
     width: '115%',
     height: undefined,
@@ -221,7 +269,11 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     color: '#fff',
   },
-  buttonsColumn: { marginHorizontal: 16, marginTop: 24, marginBottom: 8 },
+  buttonsColumn: {
+    marginHorizontal: 16,
+    marginTop: 24,
+    marginBottom: 8,
+  },
   authButtonFull: {
     width: '100%',
     height: 40,
@@ -232,9 +284,16 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
     borderWidth: 1,
   },
-  registerAreaFull: { backgroundColor: '#2196F3' },
-  loginAreaFull: { backgroundColor: '#4CAF50' },
-  authText: { color: '#000', fontSize: 16 },
+  registerAreaFull: {
+    backgroundColor: '#2196F3',
+  },
+  loginAreaFull: {
+    backgroundColor: '#4CAF50',
+  },
+  authText: {
+    color: '#000',
+    fontSize: 16,
+  },
   continueButton: {
     width: '100%',
     height: 40,
@@ -256,5 +315,9 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     alignItems: 'center',
   },
-  errorText: { color: '#fff', fontSize: 14, textAlign: 'center' },
+  errorText: {
+    color: '#fff',
+    fontSize: 14,
+    textAlign: 'center',
+  },
 });
