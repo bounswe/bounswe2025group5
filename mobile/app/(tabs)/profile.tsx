@@ -15,18 +15,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-// AsyncStorage keys
-const BIO_KEY = 'userBio';
-const AVATAR_KEY = 'userAvatarUri';
-
-// load from storage
-async function getProfile() {
-  const [bio, avatarUri] = await Promise.all([
-    AsyncStorage.getItem(BIO_KEY),
-    AsyncStorage.getItem(AVATAR_KEY),
-  ]);
-  return { bio: bio ?? '', avatarUri: avatarUri ?? '' };
-}
+const API_BASE = 'http://localhost:8080';
 
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
@@ -35,33 +24,49 @@ export default function ProfileScreen() {
   const [avatarUri, setAvatarUri] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // redirect guests & fetch profile
   useFocusEffect(
     useCallback(() => {
       if (userType === 'guest') {
         navigation.navigate('index', { error: 'You need to sign up first!' });
         return;
       }
+  
       (async () => {
-        const { bio, avatarUri } = await getProfile();
-        setBio(bio);
-        setAvatarUri(avatarUri);
-        setLoading(false);
+        try {
+          const res = await fetch(`${API_BASE}/api/profile/info?username=${username}`);
+          if (res.status === 404) {
+            // Automatically create profile if not found
+            await fetch(`${API_BASE}/api/profile/create`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ username, biography: '', photoUrl: '' }),
+            });
+            // Now retry
+            const retryRes = await fetch(`${API_BASE}/api/profile/info?username=${username}`);
+            const retryData = await retryRes.json();
+            setBio(retryData.biography ?? '');
+            setAvatarUri(retryData.photoUrl ?? '');
+          } else {
+            const data = await res.json();
+            setBio(data.biography ?? '');
+            setAvatarUri(data.photoUrl ?? '');
+          }
+        } catch (err) {
+          console.error('Failed to fetch or create profile:', err);
+        } finally {
+          setLoading(false);
+        }
       })();
     }, [userType])
   );
+  
 
   const handleLogout = async () => {
-    await AsyncStorage.multiRemove(['username', 'password', 'email']);
+    await AsyncStorage.multiRemove(['username', 'password', 'email', 'token']);
     setUserType(null);
     setUsername('');
-  
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'index' }],
-    });
+    navigation.reset({ index: 0, routes: [{ name: 'index' }] });
   };
-  
 
   if (userType !== 'user' || loading) {
     return loading ? <ActivityIndicator style={{ flex: 1 }} /> : null;
@@ -79,14 +84,12 @@ export default function ProfileScreen() {
       }
     >
       <View style={styles.contentContainer}>
-        {/* Logout */}
         <View style={styles.logoutContainer}>
           <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
             <Text style={styles.logoutText}>Log Out</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Edit Profile */}
         <View style={styles.editProfileContainer}>
           <TouchableOpacity
             style={styles.editButton}
@@ -96,7 +99,6 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Profile Info */}
         <View style={styles.profileContainer}>
           {avatarUri ? (
             <Image source={{ uri: avatarUri }} style={styles.profilePic} />
@@ -117,40 +119,21 @@ export default function ProfileScreen() {
         </View>
 
         {/* Action Buttons */}
-        <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: '#4CAF50' }]}
-          onPress={() => navigation.navigate('add_waste_log')}
-        >
-          <Text style={styles.actionText}>Add a Waste Log</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: '#2E7D32' }]}
-          onPress={() => navigation.navigate('add_waste_goal')}
-        >
-          <Text style={styles.actionText}>Add a Waste Goal</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: '#2196F3' }]}
-          onPress={() => navigation.navigate('create_post')}
-        >
-          <Text style={styles.actionText}>Create a post</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: '#FF9800' }]}
-          onPress={() => navigation.navigate('leaderboard')}
-        >
-          <Text style={styles.actionText}>Leaderboard</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: '#9C27B0' }]}
-          onPress={() => navigation.navigate('challenges')}
-        >
-          <Text style={styles.actionText}>Challenges</Text>
-        </TouchableOpacity>
+        {[
+          ['Add a Waste Log', 'add_waste_log', '#4CAF50'],
+          ['Add a Waste Goal', 'add_waste_goal', '#2E7D32'],
+          ['Create a post', 'create_post', '#2196F3'],
+          ['Leaderboard', 'leaderboard', '#FF9800'],
+          ['Challenges', 'challenges', '#9C27B0'],
+        ].map(([label, route, color]) => (
+          <TouchableOpacity
+            key={label}
+            style={[styles.actionButton, { backgroundColor: color as string }]}
+            onPress={() => navigation.navigate(route as string)}
+          >
+            <Text style={styles.actionText}>{label}</Text>
+          </TouchableOpacity>
+        ))}
       </View>
     </ParallaxScrollView>
   );
