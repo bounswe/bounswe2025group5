@@ -28,7 +28,8 @@ const mockPosts: Post[] = [
     content: 'This is a short preview of the post content…',
     likes: 12,
     comments: 4,
-    image: 'https://via.placeholder.com/300x150',
+    image: 'https://placehold.co/300x150' 
+,
   },
   {
     id: '2',
@@ -36,7 +37,7 @@ const mockPosts: Post[] = [
     content: 'Another preview text goes here as a placeholder.',
     likes: 8,
     comments: 2,
-    image: 'https://via.placeholder.com/300x150',
+    image: 'https://placehold.co/300x150',
   },
 ];
 

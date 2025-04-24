@@ -13,8 +13,10 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
+
+const API_BASE = 'http://localhost:8080/api/auth';
 
 type Navigation = {
   navigate: (screen: string, params?: any) => void;
@@ -35,115 +37,118 @@ export default function HomeScreen() {
   const [errorVisible, setErrorVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // auto-login if credentials saved
+  // auto-login if token saved
   useEffect(() => {
     (async () => {
-      try {
-        const [u, p] = await Promise.all([
-          AsyncStorage.getItem('username'),
-          AsyncStorage.getItem('password'),
-        ]);
-        if (u && p) {
-          setUsernameInput(u);
-          setPassword(p);
-          setLoggedIn(true);
-          setUserType('user');
-          setUsername(u);
-          navigation.navigate('explore');
-        }
-      } catch (err) {
-        console.error(err);
+      const token = await AsyncStorage.getItem('token');
+      const storedUser = await AsyncStorage.getItem('username');
+      if (token && storedUser) {
+        setUserType('user');
+        setUsername(storedUser);
+        setLoggedIn(true);
+        navigation.navigate('explore');
       }
     })();
   }, []);
 
-  // catch 'error' param and show red box
+  // show any route-passed errors
   useEffect(() => {
     if (route.params?.error) {
       setErrorMessage(route.params.error);
       setErrorVisible(true);
       setTimeout(() => setErrorVisible(false), 5000);
-      if (navigation.setParams) navigation.setParams({ error: undefined });
+      navigation.setParams?.({ error: undefined });
     }
   }, [route.params?.error]);
 
-  const sendRegisterRequest = async (u: string, e: string, p: string) => {
-    // username not empty
-    if (!u.trim()) {
-      setErrorMessage("Username can't be empty");
-      setErrorVisible(true);
-      setTimeout(() => setErrorVisible(false), 5000);
-      return;
-    }
-    // valid email
-    if (!e.includes('@')) {
-      setErrorMessage('Please provide a valid email address');
-      setErrorVisible(true);
-      setTimeout(() => setErrorVisible(false), 5000);
-      return;
-    }
-    // username must not contain '@'
-    if (u.includes('@')) {
-      setErrorMessage('Username cannot contain "@"');
-      setErrorVisible(true);
-      setTimeout(() => setErrorVisible(false), 5000);
-      return;
-    }
-    // password must be at least 8 chars
-    if (p.length < 8) {
-      setErrorMessage('Password must be at least 8 characters long');
-      setErrorVisible(true);
-      setTimeout(() => setErrorVisible(false), 5000);
-      return;
-    }
-    // passwords must match
-    if (p !== confirmPassword) {
-      setErrorMessage("Passwords don't match");
-      setErrorVisible(true);
-      setTimeout(() => setErrorVisible(false), 5000);
-      return;
-    }
-    // proceed if all fields present
-    if (u && e && p) {
-      setLoggedIn(true);
-      setUserType('user');
-      setUsername(u);
-      await AsyncStorage.multiSet([
-        ['username', u],
-        ['email', e],
-        ['password', p],
-      ]);
-      navigation.navigate('explore');
-    } else {
-      setErrorMessage('Registration failed, please try again.');
-      setErrorVisible(true);
-      setTimeout(() => setErrorVisible(false), 5000);
-    }
-  };
+  useFocusEffect(
+    React.useCallback(() => {
+      if (loggedIn) {
+        navigation.navigate('explore');
+      }
+    }, [loggedIn])
+  );
 
-  const sendLoginRequest = async (u: string, p: string) => {
-    if (p.length < 8) {
-      setErrorMessage('Password needs to be secure');
+  // common error handler
+  const showError = (msg: string) => {
+      setErrorMessage(msg);
       setErrorVisible(true);
       setTimeout(() => setErrorVisible(false), 5000);
-      return;
-    }
-    // Mock login for testing purposes
-    if (u === 'test' && p === 'password') {
-      setLoggedIn(true);
-      setUserType('user');
-      setUsername(u);
-      await AsyncStorage.multiSet([
-        ['username', u],
-        ['password', p],
-      ]);
-      navigation.navigate('explore');
-    } else {
-      setErrorMessage('Login failed, please try again.');
-      setErrorVisible(true);
-      setTimeout(() => setErrorVisible(false), 5000);
-    }
-  };
+    };
+
+  const sendLoginRequest = async (emailOrUsername: string, pwd: string) => {
+      if (!emailOrUsername.trim() || pwd.length < 8) {
+        return showError('Please fill in valid credentials');
+      }
+      try {
+        const res = await fetch(`${API_BASE}/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ emailOrUsername, password: pwd }),
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          return showError(err.message || 'Login failed');
+        }
+        const { token, username } = await res.json() as {
+          token: string;
+          username: string;
+        };
+        // store and navigate
+        await AsyncStorage.multiSet([
+          ['token', token],
+          ['username', username],
+        ]);
+        setUserType('user');
+        setUsername(username);
+        setLoggedIn(true);
+      } catch (e) {
+        showError('Network error, please try again');
+      }
+    };
+
+  const sendRegisterRequest = async (
+      regUsername: string,
+      regEmail: string,
+      regPass: string
+    ) => {
+      if (!regUsername.trim() || !regEmail.includes('@') || regPass.length < 8) {
+        return showError('Please fill in valid registration info');
+      }
+      if (regPass !== confirmPassword) {
+        return showError("Passwords don't match");
+      }
+      try {
+        const res = await fetch(`${API_BASE}/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: regUsername,
+            email: regEmail,
+            password: regPass,
+          }),
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          return showError(err.message || 'Registration failed');
+        }
+        const { username: u, email: e, message } =
+          await res.json() as { message: string; username: string; email: string };
+  
+        // Optionally show success message
+        // e.g. alert(message);
+        await AsyncStorage.multiSet([
+          ['username', u],
+          ['email', e],
+        ]);
+  
+        setIsRegistering(false);
+        setUsernameInput(u);
+        showError('Registered! Please log in.');
+      } catch (e) {
+        showError('Network error, please try again');
+      }
+    };
 
   const continueAsGuest = () => {
     setUserType('guest');
@@ -161,27 +166,30 @@ export default function HomeScreen() {
         />
       }
     >
-      <ThemedView style={styles.titleContainer}>
+      <View style={styles.titleContainer}>
         {loggedIn && (
           <ThemedText type="title" style={{ fontSize: 28 }}>
             Welcome to WasteLess
           </ThemedText>
         )}
         <HelloWave />
-      </ThemedView>
+      </View>
 
       <Text style={styles.modeHeader}>
         {isRegistering ? 'Create account' : 'Login here'}
       </Text>
 
+      {/* Username / Email, when Registering, only username since email is requested below*/}
       <TextInput
         style={[styles.input, { color: '#000', backgroundColor: '#fff' }]}
         onChangeText={setUsernameInput}
-        placeholder="Username"
+        placeholder={isRegistering ? 'Username' : 'Email or Username'} 
         placeholderTextColor="#888"
         value={usernameInput}
+        autoCapitalize="none"
       />
 
+      {/* Registration needs Email field */}
       {isRegistering && (
         <TextInput
           style={[styles.input, { color: '#000', backgroundColor: '#fff' }]}
@@ -189,9 +197,11 @@ export default function HomeScreen() {
           placeholder="Email"
           placeholderTextColor="#888"
           value={email}
+          autoCapitalize="none"
         />
       )}
 
+      {/* Password */}
       <TextInput
         style={[styles.input, { color: '#000', backgroundColor: '#fff' }]}
         onChangeText={setPassword}
@@ -212,12 +222,15 @@ export default function HomeScreen() {
         />
       )}
 
+      {/* Buttons */}
       <View style={styles.buttonsColumn}>
         {isRegistering ? (
           <>
             <TouchableOpacity
               style={[styles.authButtonFull, styles.registerAreaFull]}
-              onPress={() => sendRegisterRequest(usernameInput, email, password)}
+              onPress={() =>
+                sendRegisterRequest(usernameInput, email, password)
+              }
             >
               <Text style={styles.authText}>Register</Text>
             </TouchableOpacity>
@@ -244,7 +257,10 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </>
         )}
-        <TouchableOpacity style={styles.continueButton} onPress={continueAsGuest}>
+        <TouchableOpacity
+          style={styles.continueButton}
+          onPress={continueAsGuest}
+        >
           <Text style={styles.authText}>Continue as Guest</Text>
         </TouchableOpacity>
       </View>

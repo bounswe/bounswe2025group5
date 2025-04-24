@@ -55,8 +55,13 @@ export default function ProfileScreen() {
     await AsyncStorage.multiRemove(['username', 'password', 'email']);
     setUserType(null);
     setUsername('');
-    navigation.navigate('index');
+  
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'index' }],
+    });
   };
+  
 
   if (userType !== 'user' || loading) {
     return loading ? <ActivityIndicator style={{ flex: 1 }} /> : null;
