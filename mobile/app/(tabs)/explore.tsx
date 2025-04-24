@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-import React from 'react';
-import { ScrollView, StyleSheet, View, Image } from 'react-native';
-=======
 // app/(tabs)/explore.tsx
 import React, { useContext } from 'react';
 import {
@@ -11,7 +7,6 @@ import {
   Image,
   TextInput,
 } from 'react-native';
->>>>>>> 880011bd67092880e939009b52ae79e348c4e792
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -49,10 +44,6 @@ function PostSkeleton({ post }: { post: Post }) {
   return (
     <View style={styles.postContainer}>
       <Image source={{ uri: post.image }} style={styles.postImage} />
-<<<<<<< HEAD
-
-=======
->>>>>>> 880011bd67092880e939009b52ae79e348c4e792
       <ThemedText type="title" style={styles.postTitle}>
         {post.title}
       </ThemedText>
