@@ -11,7 +11,7 @@ import {
   Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { AuthContext } from '../_layout';
+import { AuthContext } from './_layout';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 const API_BASE = 'http://localhost:8080';
@@ -57,13 +57,13 @@ export default function EditProfileScreen() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, biography: bio, photoUrl: avatarUri }),
       });
-      navigation.navigate('profile')
+      navigation.goBack()
     } catch (e) {
       Alert.alert('Error', 'Failed to update profile.');
     }
   };
 
-  const onCancel = () => navigation.navigate('profile');
+  const onCancel = () => navigation.goBack();
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
