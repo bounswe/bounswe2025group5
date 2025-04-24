@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+// app/(tabs)/index.tsx
+import React, { useState, useEffect, useContext } from 'react';
 import {
   Image,
   StyleSheet,
@@ -12,61 +13,150 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { AuthContext } from '../_layout';
 
 type Navigation = {
-  navigate: (screen: string) => void;
+  navigate: (screen: string, params?: any) => void;
+  setParams?: (params: any) => void;
 };
 
 export default function HomeScreen() {
   const navigation = useNavigation<Navigation>();
-  const [username, setUsername] = useState('');
+  const route = useRoute<any>();
+  const { setUserType, setUsername } = useContext(AuthContext);
+
+  const [usernameInput, setUsernameInput] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [email, setEmail] = useState('');
   const [loggedIn, setLoggedIn] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
-  const [extraInput, setExtraInput] = useState('');
   const [errorVisible, setErrorVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
+  // auto-login if credentials saved
   useEffect(() => {
     (async () => {
       try {
-        const storedUsername = await AsyncStorage.getItem('username');
-        const storedPassword = await AsyncStorage.getItem('password');
-        if (storedUsername && storedPassword) {
-          setUsername(storedUsername);
-          setPassword(storedPassword);
+        const [u, p] = await Promise.all([
+          AsyncStorage.getItem('username'),
+          AsyncStorage.getItem('password'),
+        ]);
+        if (u && p) {
+          setUsernameInput(u);
+          setPassword(p);
           setLoggedIn(true);
+          setUserType('user');
+          setUsername(u);
           navigation.navigate('explore');
         }
-      } catch (error) {
-        console.error('Failed to load credentials:', error);
+      } catch (err) {
+        console.error(err);
       }
     })();
   }, []);
 
-  const sendLoginRequest = async (username: string, password: string) => {
-    if (username === 'test' && password === 'password') {
+  // catch 'error' param and show red box
+  useEffect(() => {
+    if (route.params?.error) {
+      setErrorMessage(route.params.error);
+      setErrorVisible(true);
+      setTimeout(() => setErrorVisible(false), 5000);
+      if (navigation.setParams) navigation.setParams({ error: undefined });
+    }
+  }, [route.params?.error]);
+
+  const sendRegisterRequest = async (u: string, e: string, p: string) => {
+    // username not empty
+    if (!u.trim()) {
+      setErrorMessage("Username can't be empty");
+      setErrorVisible(true);
+      setTimeout(() => setErrorVisible(false), 5000);
+      return;
+    }
+    // valid email
+    if (!e.includes('@')) {
+      setErrorMessage('Please provide a valid email address');
+      setErrorVisible(true);
+      setTimeout(() => setErrorVisible(false), 5000);
+      return;
+    }
+    // username must not contain '@'
+    if (u.includes('@')) {
+      setErrorMessage('Username cannot contain "@"');
+      setErrorVisible(true);
+      setTimeout(() => setErrorVisible(false), 5000);
+      return;
+    }
+    // password must be at least 8 chars
+    if (p.length < 8) {
+      setErrorMessage('Password must be at least 8 characters long');
+      setErrorVisible(true);
+      setTimeout(() => setErrorVisible(false), 5000);
+      return;
+    }
+    // passwords must match
+    if (p !== confirmPassword) {
+      setErrorMessage("Passwords don't match");
+      setErrorVisible(true);
+      setTimeout(() => setErrorVisible(false), 5000);
+      return;
+    }
+    // proceed if all fields present
+    if (u && e && p) {
       setLoggedIn(true);
-      try {
-        await AsyncStorage.setItem('username', username);
-        await AsyncStorage.setItem('password', password);
-      } catch (error) {
-        console.error('Error saving data:', error);
-      }
+      setUserType('user');
+      setUsername(u);
+      await AsyncStorage.multiSet([
+        ['username', u],
+        ['email', e],
+        ['password', p],
+      ]);
       navigation.navigate('explore');
     } else {
-      setLoggedIn(false);
+      setErrorMessage('Registration failed, please try again.');
       setErrorVisible(true);
       setTimeout(() => setErrorVisible(false), 5000);
     }
   };
 
+  const sendLoginRequest = async (u: string, p: string) => {
+    if (p.length < 8) {
+      setErrorMessage('Password needs to be secure');
+      setErrorVisible(true);
+      setTimeout(() => setErrorVisible(false), 5000);
+      return;
+    }
+    // Mock login for testing purposes
+    if (u === 'test' && p === 'password') {
+      setLoggedIn(true);
+      setUserType('user');
+      setUsername(u);
+      await AsyncStorage.multiSet([
+        ['username', u],
+        ['password', p],
+      ]);
+      navigation.navigate('explore');
+    } else {
+      setErrorMessage('Login failed, please try again.');
+      setErrorVisible(true);
+      setTimeout(() => setErrorVisible(false), 5000);
+    }
+  };
+
+  const continueAsGuest = () => {
+    setUserType('guest');
+    setUsername('');
+    navigation.navigate('explore');
+  };
+
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1DCA1', dark: '#1D473D' }}
+      headerBackgroundColor={{ light: '#', dark: '#' }}
       headerImage={
         <Image
-          source={require('@/assets/images/recycle-logo-white.png')}
+          source={require('@/assets/images/wasteless-logo.png')}
           style={styles.recycleLogo}
         />
       }
@@ -80,46 +170,54 @@ export default function HomeScreen() {
         <HelloWave />
       </ThemedView>
 
-      {/* Mode Header */}
       <Text style={styles.modeHeader}>
         {isRegistering ? 'Create account' : 'Login here'}
       </Text>
 
-      {/* Inputs */}
       <TextInput
-        style={styles.input}
-        onChangeText={setUsername}
+        style={[styles.input, { color: '#000', backgroundColor: '#fff' }]}
+        onChangeText={setUsernameInput}
         placeholder="Username"
-        placeholderTextColor="#fff"
-        value={username}
+        placeholderTextColor="#888"
+        value={usernameInput}
       />
 
       {isRegistering && (
         <TextInput
-          style={styles.input}
-          onChangeText={setExtraInput}
+          style={[styles.input, { color: '#000', backgroundColor: '#fff' }]}
+          onChangeText={setEmail}
           placeholder="Email"
-          placeholderTextColor="#fff"
-          value={extraInput}
+          placeholderTextColor="#888"
+          value={email}
         />
       )}
 
       <TextInput
-        style={styles.input}
+        style={[styles.input, { color: '#000', backgroundColor: '#fff' }]}
         onChangeText={setPassword}
         placeholder="Password"
-        placeholderTextColor="#fff"
+        placeholderTextColor="#888"
         secureTextEntry
         value={password}
       />
 
-      {/* Action Buttons */}
+      {isRegistering && (
+        <TextInput
+          style={[styles.input, { color: '#000', backgroundColor: '#fff' }]}
+          onChangeText={setConfirmPassword}
+          placeholder="Confirm password"
+          placeholderTextColor="#888"
+          secureTextEntry
+          value={confirmPassword}
+        />
+      )}
+
       <View style={styles.buttonsColumn}>
         {isRegistering ? (
           <>
             <TouchableOpacity
               style={[styles.authButtonFull, styles.registerAreaFull]}
-              onPress={() => {/* handle registration */}}
+              onPress={() => sendRegisterRequest(usernameInput, email, password)}
             >
               <Text style={styles.authText}>Register</Text>
             </TouchableOpacity>
@@ -134,7 +232,7 @@ export default function HomeScreen() {
           <>
             <TouchableOpacity
               style={[styles.authButtonFull, styles.loginAreaFull]}
-              onPress={() => sendLoginRequest(username, password)}
+              onPress={() => sendLoginRequest(usernameInput, password)}
             >
               <Text style={styles.authText}>Log In</Text>
             </TouchableOpacity>
@@ -146,17 +244,14 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </>
         )}
-        <TouchableOpacity
-          style={styles.continueButton}
-          onPress={() => navigation.navigate('explore')}
-        >
-          <Text style={styles.authText}>Continue to Explore Page</Text>
+        <TouchableOpacity style={styles.continueButton} onPress={continueAsGuest}>
+          <Text style={styles.authText}>Continue as Guest</Text>
         </TouchableOpacity>
       </View>
 
       {errorVisible && (
         <View style={styles.errorBox}>
-          <Text style={styles.errorText}>Login failed, please try again.</Text>
+          <Text style={styles.errorText}>{errorMessage}</Text>
         </View>
       )}
     </ParallaxScrollView>
@@ -204,6 +299,8 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     justifyContent: 'center',
     alignItems: 'center',
+    borderColor: '#fff',
+    borderWidth: 1,
   },
   registerAreaFull: {
     backgroundColor: '#2196F3',
@@ -218,11 +315,13 @@ const styles = StyleSheet.create({
   continueButton: {
     width: '100%',
     height: 40,
-    backgroundColor: '#fff',
+    backgroundColor: '#f9f6ee',
     borderRadius: 4,
     justifyContent: 'center',
     alignItems: 'center',
     marginVertical: 8,
+    borderColor: '#000',
+    borderWidth: 1,
   },
   errorBox: {
     position: 'absolute',

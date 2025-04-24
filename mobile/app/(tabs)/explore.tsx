@@ -1,7 +1,21 @@
+<<<<<<< HEAD
 import React from 'react';
 import { ScrollView, StyleSheet, View, Image } from 'react-native';
+=======
+// app/(tabs)/explore.tsx
+import React, { useContext } from 'react';
+import {
+  ScrollView,
+  StyleSheet,
+  View,
+  Image,
+  TextInput,
+} from 'react-native';
+>>>>>>> 880011bd67092880e939009b52ae79e348c4e792
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { AuthContext } from '../_layout';
 
 type Post = {
   id: string;
@@ -35,7 +49,10 @@ function PostSkeleton({ post }: { post: Post }) {
   return (
     <View style={styles.postContainer}>
       <Image source={{ uri: post.image }} style={styles.postImage} />
+<<<<<<< HEAD
 
+=======
+>>>>>>> 880011bd67092880e939009b52ae79e348c4e792
       <ThemedText type="title" style={styles.postTitle}>
         {post.title}
       </ThemedText>
@@ -54,10 +71,37 @@ function PostSkeleton({ post }: { post: Post }) {
 }
 
 export default function ExploreScreen() {
+  const navigation = useNavigation();
+  const { userType,username } = useContext(AuthContext);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('userType:', userType);
+      console.log('username:', username);
+    }, [userType])
+  );
+
+  React.useEffect(() => {
+    if (!userType) {
+      navigation.navigate('index' as never);
+    }
+  }, [userType]);
+
+  if (!userType) return null;
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <ThemedText type="title">Explore</ThemedText>
+      </View>
+
+      <View style={styles.searchBar}>
+        <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder={Math.random() < 0.5 ? "Search for a specific topic…" : "Find something interesting…"}
+          placeholderTextColor="#888"
+        />
       </View>
 
       {mockPosts.map(post => (
@@ -76,7 +120,25 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 16,
-    marginVertical: 12,
+    marginTop: 48,     
+    marginBottom: 8,
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+    borderRadius: 20,
+    marginHorizontal: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginBottom: 16,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
   },
   postContainer: {
     backgroundColor: '#fff',
