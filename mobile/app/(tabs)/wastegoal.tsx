@@ -20,13 +20,17 @@ import { Picker } from '@react-native-picker/picker';
 const API_BASE = 'http://localhost:8080/api';
 
 type WasteGoal = {
-  id: number;
-  username: string;
+  id?: number;
+  goalId?: number;
+  username?: string;
   unit: string;
   wasteType: string;
   duration: number;
   amount: number;
   createdAt?: string;
+  date?: string;
+  percentOfProgress?: number;
+  completed?: number;
 };
 
 type Navigation = {
@@ -72,6 +76,8 @@ export default function WasteGoalScreen() {
       const token = await AsyncStorage.getItem('token');
       const url = `${API_BASE}/goals/info?username=${username}&size=50`;
       
+      console.log('Fetching goals from URL:', url);
+      
       const response = await fetch(url, {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -83,9 +89,16 @@ export default function WasteGoalScreen() {
       }
       
       const data = await response.json();
-      setGoals(data.goals || []);
+      console.log('Goals API response:', JSON.stringify(data));
+      
+      // If data is already an array, use it directly, otherwise extract goals property
+      const goalsData = Array.isArray(data) ? data : data.goals || [];
+      console.log('Processed goals data:', JSON.stringify(goalsData));
+      
+      setGoals(goalsData);
       
     } catch (err) {
+      console.error('Error fetching goals:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
@@ -99,9 +112,17 @@ export default function WasteGoalScreen() {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
       
-      // Map frontend values to backend enum values
-      const mappedWasteType = wasteType === 'Electronic' ? 'Metal' : wasteType;
-      const mappedUnit = unit === 'Pounds' ? 'Kilograms' : unit === 'Items' ? 'Units' : unit;
+      // Create request body exactly matching the format that works in Postman
+      const requestBody = {
+        username: username,
+        unit: unit,
+        wasteType: wasteType,
+        duration: parseInt(duration),
+        amount: parseFloat(amount)
+      };
+      
+      console.log('Sending request to:', `${API_BASE}/goals/create`);
+      console.log('Request body:', JSON.stringify(requestBody));
       
       const response = await fetch(`${API_BASE}/goals/create`, {
         method: 'POST',
@@ -109,18 +130,14 @@ export default function WasteGoalScreen() {
           'Content-Type': 'application/json',
           Authorization: token ? `Bearer ${token}` : '',
         },
-        body: JSON.stringify({
-          username,
-          unit: mappedUnit,
-          wasteType: mappedWasteType, 
-          duration: parseInt(duration),
-          amount: parseFloat(amount)
-        }),
+        body: JSON.stringify(requestBody),
       });
       
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create waste goal');
+        console.error('Response status:', response.status);
+        const errorText = await response.text();
+        console.error('Response body:', errorText);
+        throw new Error(`Failed to create waste goal: ${response.status} ${errorText}`);
       }
       
       // Refresh goals list
@@ -128,6 +145,7 @@ export default function WasteGoalScreen() {
       resetForm();
       getGoals(); // Call getGoals after creating a new goal
     } catch (err) {
+      console.error('Error creating goal:', err);
       Alert.alert('Error', err instanceof Error ? err.message : 'Failed to create waste goal');
     } finally {
       setLoading(false);
@@ -141,28 +159,37 @@ export default function WasteGoalScreen() {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
       
-      // Map frontend values to backend enum values
-      const mappedWasteType = wasteType === 'Electronic' ? 'Metal' : wasteType;
-      const mappedUnit = unit === 'Pounds' ? 'Kilograms' : unit === 'Items' ? 'Units' : unit;
+      // Create request body exactly matching the format that works in Postman
+      const requestBody = {
+        username: username,
+        unit: unit,
+        wasteType: wasteType,
+        duration: parseInt(duration),
+        amount: parseFloat(amount)
+      };
       
-      const response = await fetch(`${API_BASE}/goals/edit/${editingGoal.id}`, {
+      const goalId = editingGoal.id || editingGoal.goalId;
+      if (!goalId) {
+        throw new Error('Goal ID not found');
+      }
+      
+      console.log('Sending request to:', `${API_BASE}/goals/edit/${goalId}`);
+      console.log('Request body:', JSON.stringify(requestBody));
+      
+      const response = await fetch(`${API_BASE}/goals/edit/${goalId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: token ? `Bearer ${token}` : '',
         },
-        body: JSON.stringify({
-          username,
-          unit: mappedUnit,
-          wasteType: mappedWasteType,
-          duration: parseInt(duration),
-          amount: parseFloat(amount)
-        }),
+        body: JSON.stringify(requestBody),
       });
       
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to edit waste goal');
+        console.error('Response status:', response.status);
+        const errorText = await response.text();
+        console.error('Response body:', errorText);
+        throw new Error(`Failed to edit waste goal: ${response.status} ${errorText}`);
       }
       
       // Refresh goals list
@@ -171,6 +198,7 @@ export default function WasteGoalScreen() {
       resetForm();
       getGoals(); // Call getGoals after editing
     } catch (err) {
+      console.error('Error editing goal:', err);
       Alert.alert('Error', err instanceof Error ? err.message : 'Failed to edit waste goal');
     } finally {
       setLoading(false);
@@ -182,6 +210,8 @@ export default function WasteGoalScreen() {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
       
+      console.log(`Deleting goal with ID: ${goalId}`);
+      
       const response = await fetch(`${API_BASE}/goals/delete/${goalId}`, {
         method: 'DELETE',
         headers: {
@@ -190,13 +220,16 @@ export default function WasteGoalScreen() {
       });
       
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to delete waste goal');
+        console.error('Response status:', response.status);
+        const errorText = await response.text();
+        console.error('Response body:', errorText);
+        throw new Error(`Failed to delete waste goal: ${response.status} ${errorText}`);
       }
       
       // Update local state
       getGoals(); // Refresh the goals list after deletion
     } catch (err) {
+      console.error('Error deleting goal:', err);
       Alert.alert('Error', err instanceof Error ? err.message : 'Failed to delete waste goal');
     } finally {
       setLoading(false);
@@ -219,7 +252,9 @@ export default function WasteGoalScreen() {
     setAmount('5.0');
   };
 
-  const renderGoalItem = ({ item }: { item: WasteGoal }) => (
+  const renderGoalItem = ({ item }: { item: WasteGoal }) => {
+    console.log('Rendering goal item:', item);
+    return (
     <View style={styles.goalItem}>
       <View style={styles.goalHeader}>
         <Text style={styles.goalType}>{item.wasteType}</Text>
@@ -233,14 +268,19 @@ export default function WasteGoalScreen() {
           <TouchableOpacity 
             style={styles.deleteButton} 
             onPress={() => {
-              Alert.alert(
-                'Confirm Delete',
-                'Are you sure you want to delete this waste goal?',
-                [
-                  { text: 'Cancel', style: 'cancel' },
-                  { text: 'Delete', onPress: () => deleteWasteGoal(item.id), style: 'destructive' }
-                ]
-              );
+              const goalId = item.id || item.goalId;
+              if (goalId) {
+                Alert.alert(
+                  'Confirm Delete',
+                  'Are you sure you want to delete this waste goal?',
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Delete', onPress: () => deleteWasteGoal(goalId), style: 'destructive' }
+                  ]
+                );
+              } else {
+                Alert.alert('Error', 'Goal ID not found');
+              }
             }}
           >
             <Text style={styles.buttonText}>Delete</Text>
@@ -250,8 +290,13 @@ export default function WasteGoalScreen() {
       <Text style={styles.goalDetails}>
         Goal: {item.amount} {item.unit} in {item.duration} days
       </Text>
+      {item.percentOfProgress !== undefined && (
+        <Text style={styles.goalProgress}>
+          Progress: {Math.round(item.percentOfProgress * 100) / 100}%
+        </Text>
+      )}
     </View>
-  );
+  )};
 
   return (
     <ThemedView style={styles.container}>
@@ -282,7 +327,7 @@ export default function WasteGoalScreen() {
             <FlatList
               data={goals}
               renderItem={renderGoalItem}
-              keyExtractor={item => item.id.toString()}
+              keyExtractor={item => (item.id || item.goalId || '').toString()}
               contentContainerStyle={styles.listContainer}
               onEndReachedThreshold={0.2}
               ListEmptyComponent={
@@ -528,5 +573,10 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     width: '48%',
     alignItems: 'center',
+  },
+  goalProgress: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 4,
   },
 }); 
