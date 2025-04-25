@@ -16,7 +16,8 @@ import { ThemedView } from '@/components/ThemedView';
 import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
 
-const API_BASE = 'http://localhost:8080/api/auth';
+//const API_BASE = 'http://localhost:8080/api/auth';
+const API_BASE = 'http://34.58.140.184:8080/api/auth';
 
 type Navigation = {
   navigate: (screen: string, params?: any) => void;
@@ -77,6 +78,14 @@ export default function HomeScreen() {
     };
 
   const sendLoginRequest = async (emailOrUsername: string, pwd: string) => {
+      //bypass for testing
+      if (emailOrUsername === 'test' && pwd === 'test') {
+        setUserType('user');
+        setUsername('test');
+        setLoggedIn(true);
+        navigation.navigate('explore');
+        return;
+      }
       if (!emailOrUsername.trim() || pwd.length < 8) {
         return showError('Please fill in valid credentials');
       }
