@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 import logo from '../assets/logo2.png';
 
@@ -20,7 +20,10 @@ function Register(){
                                 <h6 style={{ color: 'red' }}>Left side of '@' cannot empty!</h6>
                                 <h6 style={{ color: 'red' }}>Right side of '.' must contain appropriate top-level domain! (Ex: com,gov,org)</h6>
                          </div>
-    function handleSubmit(page){
+    const successful_registration_message = <div>
+                                                <h1 style={{ color: 'green' }}>Registration is succesful!</h1>
+                                            </div>;
+    const handleSubmit = async (page) =>{
         page.preventDefault();
         if(KVKK == false){
             setError('You must accept the KVKK!'); 
@@ -95,10 +98,29 @@ function Register(){
             return;
         }
 
-
+        
         // Now we need to send the information to the backend
+        const response = await fetch(window.API_URL+"register", {
+            method:"POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username, password, email }),
+          })
+          .catch(API_error => {
+            setError(<div>API Error: {API_error.message}</div>);
+            setMessage(error);
+          });
+        
+        if(response.ok){
+            setMessage(successful_registration_message);
+            window.location.href = window.mainpage_URL;
+        }else{
+            setError(<div><div>Registration failed:</div> <div>{response.status} {response.statusText}</div></div>);
+            setMessage(error);
+            console.log("messageset");
+        }
 
-        window.location.href = window.homepage_URL;
     }
     // Function to prepare the login form to be rendered in the app.js
     return (
@@ -115,7 +137,7 @@ function Register(){
                                     type="text"
                                     placeholder="Username"
                                     value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
+                                    onChange={e => setUsername(e.target.value)}
                                     required
                                 />
                             </div>
@@ -124,7 +146,7 @@ function Register(){
                                     type="password"
                                     placeholder="Password"
                                     value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
+                                    onChange={e => setPassword(e.target.value)}
                                     required
                                 />
                             </div>
@@ -133,7 +155,7 @@ function Register(){
                                     type="password"
                                     placeholder="Password Repeat"
                                     value={password_repeat}
-                                    onChange={(e) => setPassword_repeat(e.target.value)}
+                                    onChange={e => setPassword_repeat(e.target.value)}
                                     required
                                 />
                             </div>
@@ -142,7 +164,7 @@ function Register(){
                                     type="text"
                                     placeholder="Email"
                                     value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    onChange={e => setEmail(e.target.value)}
                                     required
                                 />
                             </div>
@@ -151,7 +173,7 @@ function Register(){
                                 <input 
                                     type="checkbox"
                                     value={KVKK}
-                                    onChange={(e) => setKVKK(e.target.value)}
+                                    onChange={e => setKVKK(e.target.value)}
                                     required
                                 />
                             </div>
