@@ -16,8 +16,8 @@ import { ThemedView } from '@/components/ThemedView';
 import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
 
-//const API_BASE = 'http://localhost:8080/api/auth';
-const API_BASE = 'http://34.58.140.184:8080/api/auth';
+const API_BASE = 'http://localhost:8080/api/auth';
+
 
 type Navigation = {
   navigate: (screen: string, params?: any) => void;

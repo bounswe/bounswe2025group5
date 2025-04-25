@@ -55,26 +55,23 @@ export default function WasteGoalScreen() {
   useFocusEffect(
     React.useCallback(() => {
       if (username) {
-        loadGoals();
+        getGoals();
       } else if (userType === 'guest') {
         setError('Please log in to view and manage waste goals');
       }
     }, [username])
   );
   
-  const loadGoals = async (loadMore = false) => {
-    if (!username || loading || (loadMore && !hasMore)) return;
+  const getGoals = async () => {
+    if (!username || loading) return;
     
     setLoading(true);
     setError('');
     
     try {
-      let url = `${API_BASE}/goals/info?username=${username}&size=10`;
-      if (loadMore && lastGoalId) {
-        url += `&lastGoalId=${lastGoalId}`;
-      }
-      
       const token = await AsyncStorage.getItem('token');
+      const url = `${API_BASE}/goals/info?username=${username}&size=50`;
+      
       const response = await fetch(url, {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -86,18 +83,8 @@ export default function WasteGoalScreen() {
       }
       
       const data = await response.json();
-      const newGoals = data.goals || [];
+      setGoals(data.goals || []);
       
-      if (loadMore) {
-        setGoals([...goals, ...newGoals]);
-      } else {
-        setGoals(newGoals);
-      }
-      
-      setHasMore(newGoals.length === 10);
-      if (newGoals.length > 0) {
-        setLastGoalId(newGoals[newGoals.length - 1].id);
-      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -112,6 +99,10 @@ export default function WasteGoalScreen() {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
       
+      // Map frontend values to backend enum values
+      const mappedWasteType = wasteType === 'Electronic' ? 'Metal' : wasteType;
+      const mappedUnit = unit === 'Pounds' ? 'Kilograms' : unit === 'Items' ? 'Units' : unit;
+      
       const response = await fetch(`${API_BASE}/goals/create`, {
         method: 'POST',
         headers: {
@@ -120,8 +111,8 @@ export default function WasteGoalScreen() {
         },
         body: JSON.stringify({
           username,
-          unit,
-          wasteType, 
+          unit: mappedUnit,
+          wasteType: mappedWasteType, 
           duration: parseInt(duration),
           amount: parseFloat(amount)
         }),
@@ -135,7 +126,7 @@ export default function WasteGoalScreen() {
       // Refresh goals list
       setModalVisible(false);
       resetForm();
-      loadGoals();
+      getGoals(); // Call getGoals after creating a new goal
     } catch (err) {
       Alert.alert('Error', err instanceof Error ? err.message : 'Failed to create waste goal');
     } finally {
@@ -143,12 +134,16 @@ export default function WasteGoalScreen() {
     }
   };
 
-  const editGoal = async () => {
+  const editWasteGoal = async () => {
     if (!username || !editingGoal) return;
     
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
+      
+      // Map frontend values to backend enum values
+      const mappedWasteType = wasteType === 'Electronic' ? 'Metal' : wasteType;
+      const mappedUnit = unit === 'Pounds' ? 'Kilograms' : unit === 'Items' ? 'Units' : unit;
       
       const response = await fetch(`${API_BASE}/goals/edit/${editingGoal.id}`, {
         method: 'PUT',
@@ -158,8 +153,8 @@ export default function WasteGoalScreen() {
         },
         body: JSON.stringify({
           username,
-          unit,
-          wasteType,
+          unit: mappedUnit,
+          wasteType: mappedWasteType,
           duration: parseInt(duration),
           amount: parseFloat(amount)
         }),
@@ -174,7 +169,7 @@ export default function WasteGoalScreen() {
       setModalVisible(false);
       setEditingGoal(null);
       resetForm();
-      loadGoals();
+      getGoals(); // Call getGoals after editing
     } catch (err) {
       Alert.alert('Error', err instanceof Error ? err.message : 'Failed to edit waste goal');
     } finally {
@@ -182,7 +177,7 @@ export default function WasteGoalScreen() {
     }
   };
 
-  const deleteGoal = async (goalId: number) => {
+  const deleteWasteGoal = async (goalId: number) => {
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
@@ -200,7 +195,7 @@ export default function WasteGoalScreen() {
       }
       
       // Update local state
-      setGoals(goals.filter(goal => goal.id !== goalId));
+      getGoals(); // Refresh the goals list after deletion
     } catch (err) {
       Alert.alert('Error', err instanceof Error ? err.message : 'Failed to delete waste goal');
     } finally {
@@ -243,7 +238,7 @@ export default function WasteGoalScreen() {
                 'Are you sure you want to delete this waste goal?',
                 [
                   { text: 'Cancel', style: 'cancel' },
-                  { text: 'Delete', onPress: () => deleteGoal(item.id), style: 'destructive' }
+                  { text: 'Delete', onPress: () => deleteWasteGoal(item.id), style: 'destructive' }
                 ]
               );
             }}
@@ -289,7 +284,6 @@ export default function WasteGoalScreen() {
               renderItem={renderGoalItem}
               keyExtractor={item => item.id.toString()}
               contentContainerStyle={styles.listContainer}
-              onEndReached={() => hasMore && loadGoals(true)}
               onEndReachedThreshold={0.2}
               ListEmptyComponent={
                 !loading ? (
@@ -376,7 +370,7 @@ export default function WasteGoalScreen() {
                   
                   <TouchableOpacity
                     style={styles.saveButton}
-                    onPress={editingGoal ? editGoal : createGoal}
+                    onPress={editingGoal ? editWasteGoal : createGoal}
                     disabled={loading}
                   >
                     <Text style={styles.buttonText}>
