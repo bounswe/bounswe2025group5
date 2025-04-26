@@ -5,6 +5,7 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import Login from './pages/login.js';
 import Register from './pages/register.js';
+import Feed from './pages/feed.js';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -21,7 +22,6 @@ function App() {
 
   return (
 
-
     <div className="App">
       <header className="App-header">
         <div className="content-container">
@@ -30,13 +30,14 @@ function App() {
 
           {/* Navigation Links */}
           <div>
-            <Link to="/login">Login</Link> | <Link to="/register">Register</Link>
+            <Link to="/login">Login</Link> | <Link to="/register">Register</Link> | <Link to="/feed">Feed</Link>
           </div>
 
           {/* Render pages based on the route */}
           <Routes>
             <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/feed" element={<Feed isLoggedIn={isLoggedIn} />} />
           </Routes>
 
           {/* Optional message */}

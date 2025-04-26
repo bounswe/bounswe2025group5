@@ -109,7 +109,6 @@ function Register() {
             setError(data.message || 'Registration failed');
             setMessage(error);
         }
-        window.location.href = window.homepage_URL;
     }
     // Function to prepare the login form to be rendered in the app.js
     return (
