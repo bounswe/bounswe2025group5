@@ -1,3 +1,4 @@
+//app/(tabs)/index.tsx
 import React, { useContext, useEffect, useState } from 'react';
 import {
   ScrollView,

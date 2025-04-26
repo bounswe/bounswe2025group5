@@ -1,3 +1,4 @@
+// app/create_post.tsx
 import React, { useContext, useState } from 'react';
 import {
   View,
