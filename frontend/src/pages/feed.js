@@ -1,8 +1,12 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import PostCard from "../components/PostCard.js"; // Import the PostCard component
+import { Button } from "../components/ui/button.js"; // Import Material-UI Button component
+import LogoutButton from "../components/LogoutButton.js"; // Import LogoutButton component
+import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
 
-function Feed({ isLoggedIn }) {
+function Feed({ isLoggedIn, setIsLoggedIn }) {
+    const navigate = useNavigate(); // Hook to programmatically navigate
     const [posts, setPosts] = useState([]);
     const [error, setError] = useState(null);
     const [message, setMessage] = useState("");
@@ -46,13 +50,16 @@ function Feed({ isLoggedIn }) {
         return <div>Error: {error}</div>; // Show the error message if something goes wrong
     }
 
+
     return (
         <div>
             <h1>Post Feed</h1>
             {posts.map(post => (  // ıterate over posts and render PostCard for each post
                 <PostCard key={post.postId} post={post} isLoggedIn={isLoggedIn} />
             ))}
+            {isLoggedIn && <LogoutButton setIsLoggedIn={setIsLoggedIn} onLogout={()=>navigate('/')}/>} {/* Logout button */}
         </div>
     );
 };
 export default Feed;
+ 

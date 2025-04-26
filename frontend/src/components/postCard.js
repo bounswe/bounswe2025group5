@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import LikeButton from "./LikeButton";
-import SaveButton from "./SaveButton";
+import LikeButton from "./LikeButton.js";
+import SaveButton from "./SaveButton.js";
 import CommentSection from "./comment/index.js"; // Import the CommentSection component
 
 function PostCard({ post, isLoggedIn }) {

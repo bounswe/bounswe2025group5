@@ -32,7 +32,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<Login isLoggedIn = {isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/feed" element={<Feed isLoggedIn={isLoggedIn} />} />
+            <Route path="/feed" element={<Feed isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
           </Routes>
         </div>
       </header>

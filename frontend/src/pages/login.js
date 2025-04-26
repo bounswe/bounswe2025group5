@@ -18,6 +18,7 @@ function Login({ isLoggedIn, setIsLoggedIn }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
+        
 
         try {
             const response = await fetch('/api/auth/login', {
