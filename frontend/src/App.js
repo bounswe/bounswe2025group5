@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import Login from './pages/login.js';
 import Register from './pages/register.js';
 import Feed from './pages/feed.js';
+import HomePage from './pages/homePage.js';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -26,22 +27,13 @@ function App() {
       <header className="App-header">
         <div className="content-container">
           <img src={logo} className="App-logo" alt="logo" />
-          <h1>Welcome, Please Login or Register</h1>
-
-          {/* Navigation Links */}
-          <div>
-            <Link to="/login">Login</Link> | <Link to="/register">Register</Link> | <Link to="/feed">Feed</Link>
-          </div>
-
           {/* Render pages based on the route */}
           <Routes>
-            <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<Login isLoggedIn = {isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/register" element={<Register />} />
             <Route path="/feed" element={<Feed isLoggedIn={isLoggedIn} />} />
           </Routes>
-
-          {/* Optional message */}
-          {isLoggedIn && <h2>You are logged in!</h2>}
         </div>
       </header>
     </div>

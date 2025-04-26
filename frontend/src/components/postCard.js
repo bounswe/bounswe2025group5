@@ -3,7 +3,7 @@ import LikeButton from "./LikeButton";
 import SaveButton from "./SaveButton";
 import CommentSection from "./comment/index.js"; // Import the CommentSection component
 
-function PostCard({ post }) {
+function PostCard({ post, isLoggedIn }) {
     const [comments, setComments] = useState(post.comments || []);
 
     return (
@@ -20,16 +20,19 @@ function PostCard({ post }) {
                 <small>Posted on: {new Date(post.createdAt).toLocaleString()}</small>
             </div>
 
-            <div style={styles.actions}>
-                <LikeButton postId={post.postId} />
-                <SaveButton postId={post.postId} />
-            </div>
+            {isLoggedIn && (
+                <div style={styles.actions}>
+                    <LikeButton postId={post.postId} />
+                    <SaveButton postId={post.postId} />
+                </div>
+            )}
 
             {/* Comment Section */}
             <CommentSection
                 postId={post.postId}
                 comments={comments}
                 setComments={setComments}
+                isLoggedIn={isLoggedIn} // Pass isLoggedIn to CommentSection
             />
         </div>
     );

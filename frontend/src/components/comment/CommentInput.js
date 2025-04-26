@@ -1,43 +1,34 @@
 import React, { useState } from "react";
 
-function CommentInput({ onAddComment }) {
-    const [text, setText] = useState("");
+function CommentInput({ onAddComment, isLoggedIn }) {
+    const [commentText, setCommentText] = useState("");
 
-    const handleSubmit = () => {
-        if (text.trim()) {
-            onAddComment(text);
-            setText("");
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!isLoggedIn) {
+            alert("You must be logged in to post a comment.");
+            return;
+        }
+        if (commentText.trim()) {
+            onAddComment(commentText.trim());
+            setCommentText("");
         }
     };
 
     return (
-        <div style={{ display: "flex", marginBottom: "1rem" }}>
+        <form onSubmit={handleSubmit}>
             <input
                 type="text"
-                value={text}
-                onChange={e => setText(e.target.value)}
-                placeholder="Write a comment..."
-                style={{
-                    flex: 1,
-                    padding: "0.5rem",
-                    border: "1px solid #ccc",
-                    borderRadius: "4px",
-                }}
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder={isLoggedIn ? "Write a comment..." : "Login to comment"}
+                disabled={!isLoggedIn}
+                style={{ width: "80%", padding: "8px" }}
             />
-            <button
-                onClick={handleSubmit}
-                style={{
-                    marginLeft: "0.5rem",
-                    padding: "0.5rem 1rem",
-                    borderRadius: "4px",
-                    backgroundColor: "#007bff",
-                    color: "white",
-                    border: "none",
-                }}
-            >
+            <button type="submit" disabled={!isLoggedIn} style={{ marginLeft: "8px" }}>
                 Post
             </button>
-        </div>
+        </form>
     );
 }
 

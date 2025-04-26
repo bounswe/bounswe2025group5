@@ -50,7 +50,7 @@ function Feed({ isLoggedIn }) {
         <div>
             <h1>Post Feed</h1>
             {posts.map(post => (  // ıterate over posts and render PostCard for each post
-                <PostCard key={post.postId} post={post} />
+                <PostCard key={post.postId} post={post} isLoggedIn={isLoggedIn} />
             ))}
         </div>
     );

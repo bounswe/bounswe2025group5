@@ -1,23 +1,19 @@
-import React from 'react';
+import React, { use } from 'react';
 import { useState } from 'react';
 import { useEffect } from 'react';
-
+import { useNavigate } from 'react-router-dom';
 //login page with username and password fields, exports isloggedin and setisloggedin functions to be used in app.js
 
-function Login({ setIsLoggedIn }) {
+function Login({ isLoggedIn, setIsLoggedIn }) {
     const [emailOrUsername, setEmailOrUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
-    const [token, setToken] = useState("");
-
+    const navigate = useNavigate(); // Hook to programmatically navigate
     useEffect(() => {
-        // Check if the user is already logged in
-        // We assume that it will be valid infinitely for now
-        setToken(localStorage.getItem('token'));
-        if (token) {
-            setIsLoggedIn(true);
+        if (isLoggedIn) {
+            navigate('/feed'); // Redirect to feed page if already logged in
         }
-    }, [setIsLoggedIn]);
+    }, [isLoggedIn]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -32,11 +28,10 @@ function Login({ setIsLoggedIn }) {
             const data = await response.json();
 
             if (response.ok) {
-                localStorage.setItem('token', data.token);
+                localStorage.setItem('username', data.username);
                 setIsLoggedIn(true);
             } else {
                 setError(data.message || 'Login failed');
-                localStorage.removeItem('token');
                 setIsLoggedIn(false);
             }
         } catch (err) {
