@@ -17,5 +17,6 @@ public class GetPostResponse {
     private Timestamp createdAt;
     private Integer likes;
     private String creatorUsername;
+    private String photoUrl;
     private List<CommentResponse> comments;
 }
