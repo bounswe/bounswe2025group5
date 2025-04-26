@@ -39,6 +39,7 @@ public class PostService {
                     postResponse.setLikes(post.getLikes());
                     postResponse.setCreatorUsername(post.getUser().getUsername());
                     postResponse.setComments(getCommentsForPost(post.getPostId()));
+                    postResponse.setPhotoUrl(post.getPhotoUrl());
                     return postResponse;
                 })
                 .collect(Collectors.toList());
