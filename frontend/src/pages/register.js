@@ -1,9 +1,11 @@
 import React from 'react';
 import { useState } from 'react';
 import logo from '../assets/logo2.png';
+import { useNavigate } from 'react-router-dom';
 
 
 function Register() {
+    const navigate = useNavigate(); // Hook to programmatically navigate
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [password_repeat, setPassword_repeat] = useState('');
@@ -105,6 +107,7 @@ function Register() {
         const data = await response.json();
         if (response.ok) {
             setMessage(data.message);
+            navigate('/login'); // Redirect to login page after successful registration
         } else {
             setError(data.message || 'Registration failed');
             setMessage(error);
