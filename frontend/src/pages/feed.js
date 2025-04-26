@@ -1,7 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import PostCard from "../components/PostCard.js"; // Import the PostCard component
-import LikeButton from "../components/LikeButton.js"; // Import the LikeButton component
 
 function Feed({ isLoggedIn }) {
     const [posts, setPosts] = useState([]);
@@ -50,7 +49,7 @@ function Feed({ isLoggedIn }) {
     return (
         <div>
             <h1>Post Feed</h1>
-            {posts.map(post => (
+            {posts.map(post => (  // ıterate over posts and render PostCard for each post
                 <PostCard key={post.postId} post={post} />
             ))}
         </div>

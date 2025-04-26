@@ -1,20 +1,36 @@
-import React from "react";
+import React, { useState } from "react";
+import LikeButton from "./LikeButton";
+import SaveButton from "./SaveButton";
+import CommentSection from "./comment/index.js"; // Import the CommentSection component
 
-//post has a creatorUsername, content, likes, createdAt, postId and optionally a pohotoUrl
 function PostCard({ post }) {
+    const [comments, setComments] = useState(post.comments || []);
+
     return (
         <div style={styles.card}>
             <h3>{post.creatorUsername}</h3>
             <p>{post.content}</p>
-            {post.photoUrl && <img src={post.photoUrl} alt="Post" style={{ maxWidth: "100%" }} />}
-            {/* You can add a like button or comment section here later */}
-            {/* For now, we will just display the likes and createdAt date */}
-            
+
+            {post.photoUrl && (
+                <img src={post.photoUrl} alt="Post" style={{ maxWidth: "60%", marginTop: "10px" }} />
+            )}
+
             <div style={styles.footer}>
                 <small>Likes: {post.likes}</small>
                 <small>Posted on: {new Date(post.createdAt).toLocaleString()}</small>
             </div>
-            {/* You can add comments or like button here later */}
+
+            <div style={styles.actions}>
+                <LikeButton postId={post.postId} />
+                <SaveButton postId={post.postId} />
+            </div>
+
+            {/* Comment Section */}
+            <CommentSection
+                postId={post.postId}
+                comments={comments}
+                setComments={setComments}
+            />
         </div>
     );
 }
@@ -33,6 +49,11 @@ const styles = {
         marginTop: "8px",
         fontSize: "12px",
         color: "#666"
+    },
+    actions: {
+        display: "flex",
+        gap: "10px",
+        marginTop: "10px"
     }
 };
 
