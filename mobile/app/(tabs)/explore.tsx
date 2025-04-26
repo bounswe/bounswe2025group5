@@ -3,6 +3,7 @@ import React, { useContext } from 'react';
 import {
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
   View,
   Image,
   TextInput,
@@ -85,6 +86,15 @@ export default function ExploreScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <ThemedText type="title">Explore</ThemedText>
+                {/* 🔵 Add button for guests */}
+        {userType === 'guest' && (
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={() => navigation.navigate('index' as never)}
+          >
+            <ThemedText style={styles.loginButtonText}>Go to Login</ThemedText>
+          </TouchableOpacity>
+        )}
       </View>
 
       <View style={styles.searchBar}>
@@ -167,4 +177,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginHorizontal: 8,
   },
+  loginButton: {
+    marginTop: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: '#2196F3',
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+    marginLeft: 8,
+  },
+  loginButtonText: {
+    color: '#fff',
+    fontSize: 14,
+  },
+
 });

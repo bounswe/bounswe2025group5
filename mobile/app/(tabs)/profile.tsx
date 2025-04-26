@@ -27,7 +27,10 @@ export default function ProfileScreen() {
   useFocusEffect(
     useCallback(() => {
       if (userType === 'guest') {
-        navigation.navigate('index', { error: 'You need to sign up first!' });
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'index', params: { error: 'You need to sign up first!' } }],
+        });
         return;
       }
   

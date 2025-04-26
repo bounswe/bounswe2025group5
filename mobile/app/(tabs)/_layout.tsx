@@ -24,10 +24,10 @@ export default function TabLayout() {
         tabBarStyle: Platform.select({
           ios: {
             position: 'absolute',
-            display: userType ? 'flex' : 'none',
+            display: userType === 'user' ? 'flex' : 'none',
           },
           default: {
-            display: userType ? 'flex' : 'none',
+            display: userType === 'user' ? 'flex' : 'none',
           },
         }),
       }}

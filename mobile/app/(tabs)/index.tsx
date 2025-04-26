@@ -113,8 +113,8 @@ export default function HomeScreen() {
         setLoggedIn(true);
       } catch (e) {
         showError('Network error, please try again');
-      }
     };
+  }
 
   const sendRegisterRequest = async (
       regUsername: string,
