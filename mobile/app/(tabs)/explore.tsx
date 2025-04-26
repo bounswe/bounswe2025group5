@@ -1,51 +1,31 @@
-// app/(tabs)/explore.tsx
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
-  Image,
   TextInput,
+  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
 
+const API_BASE = 'http://localhost:8080';
+
 type Post = {
-  id: string;
+  id: number;
   title: string;
   content: string;
   likes: number;
   comments: number;
-  image: string;
 };
-
-const mockPosts: Post[] = [
-  {
-    id: '1',
-    title: 'Post Title 1',
-    content: 'This is a short preview of the post content…',
-    likes: 12,
-    comments: 4,
-    image: 'https://placehold.co/300x150' 
-,
-  },
-  {
-    id: '2',
-    title: 'Post Title 2',
-    content: 'Another preview text goes here as a placeholder.',
-    likes: 8,
-    comments: 2,
-    image: 'https://placehold.co/300x150',
-  },
-];
 
 function PostSkeleton({ post }: { post: Post }) {
   return (
     <View style={styles.postContainer}>
-      <Image source={{ uri: post.image }} style={styles.postImage} />
       <ThemedText type="title" style={styles.postTitle}>
         {post.title}
       </ThemedText>
@@ -65,28 +45,110 @@ function PostSkeleton({ post }: { post: Post }) {
 
 export default function ExploreScreen() {
   const navigation = useNavigation();
-  const { userType,username } = useContext(AuthContext);
+  const { userType, username } = useContext(AuthContext);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      console.log('userType:', userType);
-      console.log('username:', username);
-    }, [userType])
-  );
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastPostId, setLastPostId] = useState<number | null>(null);
+  const [error, setError] = useState(false);
+  const [noMorePosts, setNoMorePosts] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false); // 🔥 new for spinner when loading more
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!userType) {
       navigation.navigate('index' as never);
     }
   }, [userType]);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      if (userType) {
+        handleRefresh();
+      }
+    }, [userType])
+  );
+
+  const fetchPosts = async (loadMore = false) => {
+    try {
+      if (loadMore) {
+        setLoadingMore(true);
+      } else {
+        setLoading(true);
+      }
+      const url = loadMore
+        ? `${API_BASE}/api/posts/info?size=5&lastPostId=${lastPostId}`
+        : `${API_BASE}/api/posts/info?size=5`;
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error('Fetch failed');
+      }
+      const data = await res.json();
+
+      if (data.length === 0) {
+        setNoMorePosts(true);
+        return;
+      }
+
+      const mappedPosts: Post[] = data.map((item: any) => ({
+        id: item.postId,
+        title: item.creatorUsername,
+        content: item.content,
+        likes: item.likes,
+        comments: item.comments.length,
+      }));
+
+      if (loadMore) {
+        setPosts(prevPosts => [...prevPosts, ...mappedPosts]);
+      } else {
+        setPosts(mappedPosts);
+      }
+
+      if (mappedPosts.length > 0) {
+        setLastPostId(mappedPosts[mappedPosts.length - 1].id);
+      }
+
+      if (mappedPosts.length < 5) {
+        setNoMorePosts(true);
+      } else {
+        setNoMorePosts(false);
+      }
+
+      setError(false);
+    } catch (err) {
+      console.error('Failed to fetch posts:', err);
+      setError(true);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+      setLoadingMore(false);
+    }
+  };
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setLastPostId(null);
+    setNoMorePosts(false);
+    fetchPosts(false);
+  };
+
+  const handleLoadMore = () => {
+    if (!loading && !loadingMore && lastPostId !== null && !noMorePosts) {
+      fetchPosts(true);
+    }
+  };
+
   if (!userType) return null;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+    >
       <View style={styles.header}>
         <ThemedText type="title">Explore</ThemedText>
-                {/* 🔵 Add button for guests */}
+
         {userType === 'guest' && (
           <TouchableOpacity
             style={styles.loginButton}
@@ -101,17 +163,45 @@ export default function ExploreScreen() {
         <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
-          placeholder={Math.random() < 0.5 ? "Search for a specific topic…" : "Find something interesting…"}
+          placeholder="Search for posts..."
           placeholderTextColor="#888"
         />
       </View>
 
-      {mockPosts.map(post => (
-        <PostSkeleton key={post.id} post={post} />
-      ))}
+    {loading ? (<ActivityIndicator style={{ marginTop: 20 }} />) 
+    : error ? (
+      <View style={styles.errorBox}>
+        <ThemedText style={styles.errorText}>Failed to fetch posts</ThemedText>
+      </View>) 
+    : posts.length > 0 ? (<>{posts.map(post => (
+    <PostSkeleton key={post.id} post={post} />))}
+
+    {!noMorePosts ? (
+    <TouchableOpacity style={styles.loadMoreButton} onPress={handleLoadMore}>
+      {loadingMore ? (
+        <ActivityIndicator color="#fff" />
+      ) : (
+        <ThemedText style={styles.loadMoreText}>Load More Posts</ThemedText>
+      )}
+    </TouchableOpacity>
+    ) : (
+    <View style={styles.noMoreBox}>
+      <ThemedText style={styles.noMoreText}>No more posts available</ThemedText>
+    </View>
+    )}
+    </>
+    ) : (
+    <View style={styles.noMoreBox}>
+      <ThemedText style={styles.noMoreText}>No posts available</ThemedText>
+    </View>
+    )}
+
     </ScrollView>
   );
 }
+
+
+
 
 const styles = StyleSheet.create({
   container: {
@@ -190,5 +280,43 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 14,
   },
-
+  errorBox: {
+    marginTop: 40,
+    marginHorizontal: 20,
+    padding: 12,
+    backgroundColor: '#ffcccc',
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  errorText: {
+    color: '#cc0000',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  noMoreBox: {
+    marginTop: 40,
+    marginHorizontal: 20,
+    padding: 12,
+    backgroundColor: '#e0f7fa',
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  noMoreText: {
+    color: '#00796b',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  loadMoreButton: {
+    marginVertical: 20,
+    marginHorizontal: 40,
+    backgroundColor: '#2196F3',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  loadMoreText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
