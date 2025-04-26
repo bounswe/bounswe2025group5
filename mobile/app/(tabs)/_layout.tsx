@@ -50,6 +50,16 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="wastegoal"
+        options={{
+          title: 'Goals',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="target" color={color} />,
+          tabBarItemStyle: {
+            display: userType === 'user' ? 'flex' : 'none'
+          },
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
