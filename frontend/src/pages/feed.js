@@ -1,6 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import PostCard from "../components/postCard"; // Import the PostCard component
+import PostCard from "../components/PostCard.js"; // Import the PostCard component
+import LikeButton from "../components/LikeButton.js"; // Import the LikeButton component
 
 function Feed({ isLoggedIn }) {
     const [posts, setPosts] = useState([]);
