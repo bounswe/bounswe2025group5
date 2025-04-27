@@ -2,13 +2,12 @@ package com.example.CMPE352.controller;
 
 import com.example.CMPE352.model.request.CommentRequest;
 import com.example.CMPE352.model.response.CommentResponse;
+import com.example.CMPE352.model.response.GetCommentsResponse;
 import com.example.CMPE352.service.CommentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -40,8 +39,8 @@ public class CommentController {
     }
 
     @GetMapping("/post/{postId}")
-    public ResponseEntity<List<CommentResponse>> getCommentsForPost(@PathVariable Integer postId) {
-        List<CommentResponse> comments = commentService.getCommentsForPost(postId);
-        return ResponseEntity.ok(comments);
+    public ResponseEntity<GetCommentsResponse> getCommentsForPost(@PathVariable Integer postId) {
+        GetCommentsResponse getCommentsResponse= commentService.getCommentsForPost(postId);
+        return ResponseEntity.ok(getCommentsResponse);
     }
 }

@@ -6,6 +6,7 @@ import com.example.CMPE352.model.Post;
 import com.example.CMPE352.model.User;
 import com.example.CMPE352.model.request.CommentRequest;
 import com.example.CMPE352.model.response.CommentResponse;
+import com.example.CMPE352.model.response.GetCommentsResponse;
 import com.example.CMPE352.repository.CommentRepository;
 import com.example.CMPE352.repository.PostRepository;
 import com.example.CMPE352.repository.UserRepository;
@@ -66,11 +67,21 @@ public class CommentService {
         return Map.of("success", true);
     }
 
-    public List<CommentResponse> getCommentsForPost(Integer postId) {
+    public GetCommentsResponse getCommentsForPost(Integer postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new InvalidCredentialsException("Post not found with id: " + postId));
+
         List<Comment> comments = commentRepository.findByPostPostId(postId);
-        return comments.stream()
+
+        List<CommentResponse> commentResponses = comments.stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
+
+        return new GetCommentsResponse(
+                postId,
+                post.getComments(),
+                commentResponses
+        );
     }
 
     private CommentResponse convertToResponse(Comment comment) {
