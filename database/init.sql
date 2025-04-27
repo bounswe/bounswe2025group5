@@ -183,3 +183,36 @@ CREATE TABLE IF NOT EXISTS  `userhasbadge` (
   CONSTRAINT `userhasbadge_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
   CONSTRAINT `userhasbadge_ibfk_2` FOREIGN KEY (`badge_id`) REFERENCES `badge` (`badge_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+-- Create post_likes table with proper foreign key constraints
+CREATE TABLE IF NOT EXISTS `post_likes` (
+                                            `user_id` INT NOT NULL,
+                                            `post_id` INT NOT NULL,
+                                            `liked_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                            PRIMARY KEY (`user_id`, `post_id`),
+    FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
+    FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Trigger to increment likes count when a new like is added
+DELIMITER $$
+CREATE TRIGGER `after_like_insert`
+    AFTER INSERT ON `post_likes`
+    FOR EACH ROW
+BEGIN
+    UPDATE `posts`
+    SET `likes` = `likes` + 1
+    WHERE `post_id` = NEW.post_id;
+    END$$
+    DELIMITER ;
+
+-- Trigger to decrement likes count when a like is removed
+DELIMITER $$
+    CREATE TRIGGER `after_like_delete`
+        AFTER DELETE ON `post_likes`
+        FOR EACH ROW
+    BEGIN
+        UPDATE `posts`
+        SET `likes` = `likes` - 1
+        WHERE `post_id` = OLD.post_id;
+        END$$
+        DELIMITER ;

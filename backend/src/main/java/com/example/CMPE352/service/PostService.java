@@ -48,6 +48,7 @@ public class PostService {
         List<Comment> comments = commentRepository.findByPostPostId(postId);
         return comments.stream()
                 .map(comment -> new CommentResponse(
+                        comment.getCommentId(),
                         comment.getContent(),
                         comment.getCreatedAt(),
                         comment.getUser().getUsername()
