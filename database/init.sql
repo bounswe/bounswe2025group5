@@ -56,6 +56,7 @@ CREATE TABLE IF NOT EXISTS  `posts` (
   `content` varchar(1000) NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `likes` int DEFAULT '0',
+  `comments` int DEFAULT '0',
   `photo_url` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`post_id`),
   KEY `feed_id` (`feed_id`),
@@ -216,3 +217,28 @@ DELIMITER $$
         WHERE `post_id` = OLD.post_id;
         END$$
         DELIMITER ;
+
+
+
+DELIMITER $$
+CREATE TRIGGER after_comment_insert
+    AFTER INSERT ON comments
+    FOR EACH ROW
+BEGIN
+    UPDATE posts
+    SET comments = comments + 1
+    WHERE post_id = NEW.post_id;
+END$$
+DELIMITER ;
+
+-- Trigger to decrement comments count when a comment is deleted
+DELIMITER $$
+CREATE TRIGGER after_comment_delete
+    AFTER DELETE ON comments
+    FOR EACH ROW
+BEGIN
+    UPDATE posts
+    SET comments = comments - 1
+    WHERE post_id = OLD.post_id;
+END$$
+DELIMITER ;
