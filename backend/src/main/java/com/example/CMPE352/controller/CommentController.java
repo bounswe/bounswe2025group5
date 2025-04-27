@@ -3,22 +3,20 @@ package com.example.CMPE352.controller;
 import com.example.CMPE352.model.request.CommentRequest;
 import com.example.CMPE352.model.response.CommentResponse;
 import com.example.CMPE352.service.CommentService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/comments")
+@RequiredArgsConstructor
 public class CommentController {
 
     private final CommentService commentService;
-
-    @Autowired
-    public CommentController(CommentService commentService) {
-        this.commentService = commentService;
-    }
 
     @PostMapping
     public ResponseEntity<CommentResponse> addComment(@RequestBody CommentRequest request) {
@@ -35,10 +33,10 @@ public class CommentController {
     }
 
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<Void> deleteComment(
+    public ResponseEntity<Map<String, Boolean>> deleteComment(
             @PathVariable Integer commentId) {
-        commentService.deleteComment(commentId);
-        return ResponseEntity.noContent().build();
+        Map<String, Boolean> response =commentService.deleteComment(commentId);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/post/{postId}")
