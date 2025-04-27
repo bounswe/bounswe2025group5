@@ -1,6 +1,6 @@
 package com.example.CMPE352.service;
 
-import com.example.CMPE352.exception.ProfileAlreadyExistsException;
+import com.example.CMPE352.exception.AlreadyExistsException;
 import com.example.CMPE352.exception.NotFoundException;
 import com.example.CMPE352.model.User;
 import com.example.CMPE352.model.Profile;
@@ -60,7 +60,7 @@ public class ProfileService {
         ;
         Optional<Profile> existingProfile = profileRepository.findByUser(user);
         if (existingProfile.isPresent()) {
-            throw new ProfileAlreadyExistsException("Profile already exists for user: " + user.getUsername());
+            throw new AlreadyExistsException("Profile already exists for user: " + user.getUsername());
         }
         Profile profile = new Profile(user, newProfileInfo.getBiography(), newProfileInfo.getPhotoUrl());
 
