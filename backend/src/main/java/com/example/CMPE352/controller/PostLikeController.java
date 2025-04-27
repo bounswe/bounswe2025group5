@@ -3,31 +3,30 @@ package com.example.CMPE352.controller;
 import com.example.CMPE352.model.request.PostLikeRequest;
 import com.example.CMPE352.model.response.PostLikeResponse;
 import com.example.CMPE352.service.PostLikeService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/posts")
+@RequiredArgsConstructor
 public class PostLikeController {
 
     private final PostLikeService postLikeService;
 
-    @Autowired
-    public PostLikeController(PostLikeService postLikeService) {
-        this.postLikeService = postLikeService;
-    }
-
     @PostMapping("/like")
-    public ResponseEntity<Void> addLike(@RequestBody PostLikeRequest request) {
-        postLikeService.addLike(request.getUsername(), request.getPostId());
-        return ResponseEntity.ok().build();
+    public ResponseEntity<  Map<String, Boolean> > addLike(@RequestBody PostLikeRequest request) {
+        Map<String, Boolean> response = postLikeService.addLike(request.getUsername(), request.getPostId());
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/like")
-    public ResponseEntity<Void> removeLike(@RequestBody PostLikeRequest request) {
-        postLikeService.removeLike(request.getUsername(), request.getPostId());
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Map<String, Boolean>> removeLike(@RequestBody PostLikeRequest request) {
+        Map<String, Boolean> response = postLikeService.removeLike(request.getUsername(), request.getPostId());
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{postId}/likes")

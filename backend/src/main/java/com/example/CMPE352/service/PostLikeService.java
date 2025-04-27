@@ -1,93 +1,73 @@
 package com.example.CMPE352.service;
 
+import com.example.CMPE352.exception.AlreadyExistsException;
+import com.example.CMPE352.exception.InvalidCredentialsException;
 import com.example.CMPE352.model.Post;
 import com.example.CMPE352.model.PostLike;
 import com.example.CMPE352.model.User;
-import com.example.CMPE352.model.request.PostLikeRequest;
 import com.example.CMPE352.model.response.PostLikeResponse;
 import com.example.CMPE352.model.response.UserResponse;
 import com.example.CMPE352.repository.PostLikeRepository;
 import com.example.CMPE352.repository.PostRepository;
 import com.example.CMPE352.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class PostLikeService {
-
     private final PostLikeRepository postLikeRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
-    @Autowired
-    public PostLikeService(PostLikeRepository postLikeRepository,
-                           PostRepository postRepository,
-                           UserRepository userRepository) {
-        this.postLikeRepository = postLikeRepository;
-        this.postRepository = postRepository;
-        this.userRepository = userRepository;
-    }
 
     @Transactional
-    public void addLike(String username, Integer postId) {
-        // Find user by username
+    public Map<String, Boolean> addLike(String username, Integer postId) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+                .orElseThrow(() -> new InvalidCredentialsException("User not found with username: " + username));
 
-        // Verify post exists
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found with id: " + postId));
+        postRepository.findById(postId)
+                .orElseThrow(() -> new InvalidCredentialsException("Post not found with id: " + postId));
 
-        // Check for existing like
         if (postLikeRepository.existsByUserIdAndPostId(user.getId(), postId)) {
-            throw new RuntimeException("User already liked this post");
+            throw new AlreadyExistsException("This post is already liked by " + user.getUsername());
         }
-
-        // Create and save the like
         PostLike like = new PostLike(user.getId(), postId);
         postLikeRepository.save(like);
-
-        postRepository.save(post);
+        return Map.of("success", true);
     }
 
     @Transactional
-    public void removeLike(String username, Integer postId) {
-        // Find user by username
+    public Map<String, Boolean>  removeLike(String username, Integer postId) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
-
-        // Verify like exists
+                .orElseThrow(() -> new InvalidCredentialsException("User not found with username: " + username));
         if (!postLikeRepository.existsByUserIdAndPostId(user.getId(), postId)) {
-            throw new RuntimeException("Like not found for user and post");
+            throw new InvalidCredentialsException("Like not found for this post by user : " + username);
         }
-
-        // Delete the like
         postLikeRepository.deleteByUserIdAndPostId(user.getId(), postId);
-
-        // Update like count (if not using triggers)
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found with id: " + postId));
-        postRepository.save(post);
+        postRepository.findById(postId)
+                .orElseThrow(() -> new InvalidCredentialsException("Post not found with id: " + postId));
+        return Map.of("success", true);
     }
 
     public PostLikeResponse getPostLikes(Integer postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found with id: " + postId));
+                .orElseThrow(() -> new InvalidCredentialsException("Post not found with id: " + postId));
 
         List<PostLike> likes = postLikeRepository.findByPostId(postId);
 
         List<UserResponse> likedByUsers = likes.stream()
                 .map(like -> {
                     User user = userRepository.findById(like.getUserId())
-                            .orElseThrow(() -> new RuntimeException("User not found"));
+                            .orElseThrow(() -> new InvalidCredentialsException("User not found with  id : " + like.getUserId()));
                     return new UserResponse(
                             user.getId(),
-                            user.getUsername(),
-                            user.getEmail()
+                            user.getUsername()
                     );
                 })
                 .collect(Collectors.toList());

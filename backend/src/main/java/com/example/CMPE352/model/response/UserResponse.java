@@ -12,6 +12,4 @@ import java.sql.Timestamp;
 public class UserResponse {
     private Integer userId;
     private String username;
-    private String email;
-
 }
