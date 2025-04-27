@@ -38,7 +38,7 @@ public class PostService {
                     postResponse.setCreatedAt(post.getCreatedAt());
                     postResponse.setLikes(post.getLikes());
                     postResponse.setCreatorUsername(post.getUser().getUsername());
-                    postResponse.setComments(getCommentsForPost(post.getPostId()));
+                    postResponse.setComments(post.getComments());
                     postResponse.setPhotoUrl(post.getPhotoUrl());
                     return postResponse;
                 })
@@ -65,6 +65,7 @@ public class PostService {
                 user,
                 request.getContent(),
                 request.getPhotoUrl(),
+                0,
                 0
         );
         post.setCreatedAt(new Timestamp(System.currentTimeMillis()));
