@@ -14,6 +14,7 @@ import com.example.CMPE352.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -30,19 +31,7 @@ public class PostService {
 
     public List<GetPostResponse> getPosts(int size, Long lastPostId) {
         List<Post> posts = postRepository.findTopPosts(lastPostId, PageRequest.of(0, size));
-        return posts.stream()
-                .map(post -> {
-                    GetPostResponse postResponse = new GetPostResponse();
-                    postResponse.setPostId(post.getPostId());
-                    postResponse.setContent(post.getContent());
-                    postResponse.setCreatedAt(post.getCreatedAt());
-                    postResponse.setLikes(post.getLikes());
-                    postResponse.setCreatorUsername(post.getUser().getUsername());
-                    postResponse.setComments(post.getComments());
-                    postResponse.setPhotoUrl(post.getPhotoUrl());
-                    return postResponse;
-                })
-                .collect(Collectors.toList());
+        return convertToGetPostsResponse(posts);
     }
 
     private List<CommentResponse> getCommentsForPost(Integer postId) {
@@ -56,7 +45,7 @@ public class PostService {
                 ))
                 .collect(Collectors.toList());
     }
-
+    @Transactional
     public CreateOrEditPostResponse createPost(CreatePostRequest request) {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new NotFoundException("User not found: " + request.getUsername()));
@@ -79,7 +68,7 @@ public class PostService {
                 post.getUser().getUsername()
         );
     }
-
+    @Transactional
     public CreateOrEditPostResponse editPost(Integer postId, Post editPostRequest) {
         Optional<Post> existingPostOpt = postRepository.findById(postId);
 
@@ -102,10 +91,34 @@ public class PostService {
         );
     }
 
+    @Transactional
     public void deletePost(Integer postId) {
         if (!postRepository.existsById(postId)) {
             throw new RuntimeException("Post with ID " + postId + " not found.");
         }
         postRepository.deleteById(postId);
+
+    }
+
+    public List<GetPostResponse> getMostLikedPosts(Integer size) {
+        List<Post> posts = postRepository.findMostLikedPosts(PageRequest.of(0, size));
+
+        return convertToGetPostsResponse(posts);
+    }
+
+    private List<GetPostResponse> convertToGetPostsResponse(List<Post> posts) {
+        return posts.stream()
+                .map(post -> {
+                    GetPostResponse postResponse = new GetPostResponse();
+                    postResponse.setPostId(post.getPostId());
+                    postResponse.setContent(post.getContent());
+                    postResponse.setCreatedAt(post.getCreatedAt());
+                    postResponse.setLikes(post.getLikes());
+                    postResponse.setCreatorUsername(post.getUser().getUsername());
+                    postResponse.setComments(post.getComments());
+                    postResponse.setPhotoUrl(post.getPhotoUrl());
+                    return postResponse;
+                })
+                .collect(Collectors.toList());
     }
 }
