@@ -15,12 +15,13 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
+import { ScrollView } from 'react-native';
 
 const API_BASE = 'http://localhost:8080/api/auth';
 
-// 🎉 live counters – replace with real values if you have them
+// 🎉 live counters 
 const USERS_COUNT = 12837;
-const KG_SAVED     = 57492;
+const KG_SAVED     = 57492; // kg of plastic saved
 
 type Navigation = {
   navigate: (screen: string, params?: any) => void;
@@ -191,9 +192,6 @@ export default function HomeScreen() {
         />
       }
     >
-      <View style={styles.titleContainer}>
-        <HelloWave />
-      </View>
 
       {/* ───────────── STATS + BUTTONS (FIRST SCREEN) ───────────── */}
       {!showAuthFields && (
@@ -204,14 +202,42 @@ export default function HomeScreen() {
               <Text style={styles.statNumber}>{USERS_COUNT.toLocaleString()}</Text>{' '}
               users are reducing their wastes with us
             </Text>
-            <Text style={styles.statLine}>
-              <Text style={styles.statNumber}>{KG_SAVED.toLocaleString()}</Text>{' '}
-              kg of plastic has been saved so far
-            </Text>
+                     {/* ───────── Most trending posts ───────── */}
+                     <Text style={styles.sectionTitle}>Trending posts :</Text>
+             <ScrollView
+               horizontal
+               pagingEnabled
+               showsHorizontalScrollIndicator={false}
+               style={styles.trendingContainer}
+             >
+               {/* Mock post #1 */}
+               <View style={styles.postContainer}>
+                 <ThemedText type="title" style={styles.postTitle}>{''}</ThemedText>
+                 <ThemedText style={styles.postContent}>{''}</ThemedText>
+                 <View style={styles.postFooter}>
+                   <Ionicons name="heart-outline" size={16} />
+                   <ThemedText style={styles.footerText}>{0}</ThemedText>
+                   <Ionicons name="chatbubble-outline" size={16} />
+                   <ThemedText style={styles.footerText}>{0}</ThemedText>
+                 </View>
+               </View>
+ 
+               {/* Mock post #2 */}
+               <View style={styles.postContainer}>
+                 <ThemedText type="title" style={styles.postTitle}>{''}</ThemedText>
+                 <ThemedText style={styles.postContent}>{''}</ThemedText>
+                 <View style={styles.postFooter}>
+                   <Ionicons name="heart-outline" size={16} />
+                   <ThemedText style={styles.footerText}>{0}</ThemedText>
+                   <Ionicons name="chatbubble-outline" size={16} />
+                   <ThemedText style={styles.footerText}>{0}</ThemedText>
+                 </View>
+               </View>
+             </ScrollView>
           </View>
 
           {/* Buttons shifted 50 px lower */}
-          <View style={[styles.buttonsColumn, { marginTop: 74 }]}>
+          <View style={[styles.buttonsColumn, { marginTop: 15 }]}>
             <TouchableOpacity
               style={[styles.authButtonFull, styles.loginAreaFull]}
               onPress={() => {
@@ -371,6 +397,22 @@ const styles = StyleSheet.create({
   statLine    : { color: '#fff', fontSize: 18, textAlign: 'center', marginVertical: 4 },
   statNumber  : { fontWeight: 'bold', fontSize: 20, color: '#4CAF50' },
 
+    /* trending posts */
+    sectionTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold', marginTop: 16, marginBottom: 8 },
+    trendingContainer: { height: 200, marginVertical: 8 },
+    postContainer: { 
+      width: 250, 
+      marginRight: 16, 
+      backgroundColor: '#f5f5f5', 
+      borderRadius: 8, 
+      padding: 12,
+      height: '100%' 
+    },
+    postTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 4 },
+    postContent: { fontSize: 14, marginBottom: 8 },
+    postFooter: { flexDirection: 'row', alignItems: 'center', marginTop: 'auto' },
+    footerText: { fontSize: 12, marginHorizontal: 4 },
+    
   modeHeader: {
     fontSize: 20,
     fontWeight: 'bold',
