@@ -15,7 +15,7 @@ CREATE  TABLE IF NOT EXISTS  `users` (
   UNIQUE KEY `username` (`username`)
 ) ;
 
--- 1) WASTE_GOAL (assumed unchanged)
+
 CREATE TABLE IF NOT EXISTS `waste_goal` (
   `goal_id` INT NOT NULL AUTO_INCREMENT,
   `amount` DOUBLE NOT NULL,
@@ -208,11 +208,7 @@ CREATE TABLE IF NOT EXISTS  `userhasbadge` (
   CONSTRAINT `userhasbadge_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
   CONSTRAINT `userhasbadge_ibfk_2` FOREIGN KEY (`badge_id`) REFERENCES `badge` (`badge_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-<<<<<<< Updated upstream
--- Create post_likes table with proper foreign key constraints
-=======
 
->>>>>>> Stashed changes
 CREATE TABLE IF NOT EXISTS `post_likes` (
                                             `user_id` INT NOT NULL,
                                             `post_id` INT NOT NULL,
@@ -222,10 +218,7 @@ CREATE TABLE IF NOT EXISTS `post_likes` (
     FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-<<<<<<< Updated upstream
--- Trigger to increment likes count when a new like is added
-=======
->>>>>>> Stashed changes
+
 DELIMITER $$
 CREATE TRIGGER `after_like_insert`
     AFTER INSERT ON `post_likes`
@@ -237,10 +230,7 @@ BEGIN
     END$$
     DELIMITER ;
 
-<<<<<<< Updated upstream
--- Trigger to decrement likes count when a like is removed
-=======
->>>>>>> Stashed changes
+
 DELIMITER $$
     CREATE TRIGGER `after_like_delete`
         AFTER DELETE ON `post_likes`
@@ -252,11 +242,7 @@ DELIMITER $$
         END$$
         DELIMITER ;
 
-<<<<<<< Updated upstream
 
-
-=======
->>>>>>> Stashed changes
 DELIMITER $$
 CREATE TRIGGER after_comment_insert
     AFTER INSERT ON comments
@@ -269,11 +255,10 @@ BEGIN
 END$$
 DELIMITER ;
 
--- Trigger to decrement comments count when a comment is deleted
-=======
+
 DELIMITER ;
 
->>>>>>> Stashed changes
+
 DELIMITER $$
 CREATE TRIGGER after_comment_delete
     AFTER DELETE ON comments
@@ -284,8 +269,7 @@ BEGIN
     WHERE post_id = OLD.post_id;
 END$$
 DELIMITER ;
-<<<<<<< Updated upstream
-=======
+
 
 
 
@@ -375,8 +359,3 @@ BEGIN
 END$$
 
 DELIMITER ;
-
-
-
-
->>>>>>> Stashed changes
