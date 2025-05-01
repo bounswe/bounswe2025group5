@@ -204,7 +204,10 @@ export default function HomeScreen() {
               <Text style={styles.statNumber}>{USERS_COUNT.toLocaleString()}</Text>{' '}
               users are reducing their wastes with us
             </Text>
-
+            <Text style={styles.statLine}>
+              <Text style={styles.statNumber}>{KG_SAVED.toLocaleString()}</Text>{' '}
+              kg of plastic has been saved so far
+            </Text>
           </View>
 
           {/* Buttons shifted 50 px lower */}
