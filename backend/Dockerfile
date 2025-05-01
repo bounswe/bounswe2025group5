@@ -1,5 +1,5 @@
 # Stage 1: Build
-FROM maven:latest
+FROM maven:latest AS build
 WORKDIR /app
 COPY pom.xml .
 RUN mvn dependency:go-offline
