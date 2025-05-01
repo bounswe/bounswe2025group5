@@ -8,6 +8,7 @@ import com.example.CMPE352.model.wikidata.SparqlBindingValue;
 import com.example.CMPE352.model.wikidata.SparqlResponse;
 import com.example.CMPE352.model.wikidata.WikidataSearchResult;
 import com.example.CMPE352.repository.PostRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ForumSearchService {
 
     private final WikidataLookUpService wikidataLookUpService;
@@ -56,13 +58,6 @@ public class ForumSearchService {
             LIMIT 150
             """;
 
-
-    public ForumSearchService(WikidataLookUpService wikidataService, PostRepository postRepository) {
-
-        this.wikidataLookUpService = wikidataService;
-        this.postRepository = postRepository;
-    }
-
     public List<GetPostResponse> searchPostsSemantic(String query, String language) {
         String trimmedQuery = query.trim();
         if (trimmedQuery.isEmpty()) {
@@ -94,12 +89,12 @@ public class ForumSearchService {
                 sparqlResponseOpt = wikidataLookUpService.executeSparqlQuery(sparqlQuery)
                         .blockOptional(Duration.ofSeconds(50));
             } catch (Exception e) {
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
             if (sparqlResponseOpt.isPresent()) {
                 Set<String> relatedLabels = extractLabelsFromSparqlResponse(sparqlResponseOpt.get());
                 keywords.addAll(relatedLabels);
             }
-        } else {
         }
         return searchPostsByKeywordSet(keywords);
     }
@@ -128,12 +123,9 @@ public class ForumSearchService {
         Set<Post> resultSet = new HashSet<>();
         for (String term : keywords) {
             if (term.length() < 2) continue;
-            try {
-                List<Post> postsFound = postRepository.findByContentContainingIgnoreCase(term);
-                if (!postsFound.isEmpty()) {
-                    resultSet.addAll(postsFound);
-                }
-            } catch (Exception e) {
+            List<Post> postsFound = postRepository.findByContentContainingIgnoreCase(term);
+            if (!postsFound.isEmpty()) {
+                resultSet.addAll(postsFound);
             }
         }
         return resultSet.stream()
@@ -148,20 +140,15 @@ public class ForumSearchService {
             return null;
         }
         String creatorUsername = (post.getUser() != null) ? post.getUser().getUsername() : null;
-        try {
-            return new GetPostResponse(
-                    post.getPostId(),
-                    post.getContent(),
-                    post.getCreatedAt(),
-                    post.getLikes(),
-                    creatorUsername,
-                    post.getPhotoUrl(),
-                    post.getComments()
-            );
-        } catch (NullPointerException npe) {
-            return null;
-        } catch (Exception e) {
-            return null;
-        }
+        return new GetPostResponse(
+                post.getPostId(),
+                post.getContent(),
+                post.getCreatedAt(),
+                post.getLikes(),
+                creatorUsername,
+                post.getPhotoUrl(),
+                post.getComments()
+        );
+
     }
 }
