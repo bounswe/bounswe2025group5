@@ -27,6 +27,14 @@ type Navigation = {
   setParams?: (params: any) => void;
 };
 
+type TrendingPost = {
+  postId        : number;
+  content       : string;
+  likes         : number;
+  comments      : number;
+  creatorUsername: string;
+  photoUrl      : string | null;
+};
 
 // Tiny checkbox component
 function CheckBox({ checked, onPress }: { checked: boolean; onPress: () => void }) {
@@ -56,6 +64,7 @@ export default function HomeScreen() {
   const [errorVisible, setErrorVisible]     = useState(false);
   const [errorMessage, setErrorMessage]     = useState('');
   const [usersCount, setUsersCount] = useState<number>(0);
+  const [trendingPosts, setTrendingPosts] = useState<TrendingPost[]>([]);
 
   /* ─────────────────────────────── EFFECTS */
   useEffect(() => {
@@ -87,6 +96,22 @@ export default function HomeScreen() {
   
     fetchUserCount();
   }, []);
+
+  useEffect(() => {
+    const fetchTrending = async () => {
+      try {
+        const res = await fetch('http://localhost:8080/api/posts/mostLikedPosts?size=4');
+        if (!res.ok) throw new Error('Failed to fetch trending posts');
+        const data = (await res.json()) as TrendingPost[];
+        setTrendingPosts(data);
+      } catch (err) {
+        console.warn('Unable to load trending posts', err);
+      }
+    };
+
+    fetchTrending();
+  }, []);
+
 
   useEffect(() => {
     (async () => {
@@ -241,29 +266,29 @@ export default function HomeScreen() {
                showsHorizontalScrollIndicator={false}
                style={styles.trendingContainer}
              >
-               {/* Mock post #1 */}
-               <View style={styles.postContainer}>
-                 <ThemedText type="title" style={styles.postTitle}>{''}</ThemedText>
-                 <ThemedText style={styles.postContent}>{''}</ThemedText>
-                 <View style={styles.postFooter}>
-                   <Ionicons name="heart-outline" size={16} />
-                   <ThemedText style={styles.footerText}>{0}</ThemedText>
-                   <Ionicons name="chatbubble-outline" size={16} />
-                   <ThemedText style={styles.footerText}>{0}</ThemedText>
-                 </View>
-               </View>
- 
-               {/* Mock post #2 */}
-               <View style={styles.postContainer}>
-                 <ThemedText type="title" style={styles.postTitle}>{''}</ThemedText>
-                 <ThemedText style={styles.postContent}>{''}</ThemedText>
-                 <View style={styles.postFooter}>
-                   <Ionicons name="heart-outline" size={16} />
-                   <ThemedText style={styles.footerText}>{0}</ThemedText>
-                   <Ionicons name="chatbubble-outline" size={16} />
-                   <ThemedText style={styles.footerText}>{0}</ThemedText>
-                 </View>
-               </View>
+              {trendingPosts.map(post => (
+                <View key={post.postId} style={styles.postContainer}>
+                  <ThemedText type="title" style={styles.postTitle}>
+                    {post.creatorUsername}
+                  </ThemedText>
+
+                  <ThemedText style={styles.postContent} numberOfLines={3}>
+                    {post.content}
+                  </ThemedText>
+
+                  {post.photoUrl && (
+                    <Image source={{ uri: post.photoUrl }} style={styles.postImage} />
+                  )}
+
+                  <View style={styles.postFooter}>
+                    <Ionicons name="heart-outline" size={16} />
+                    <ThemedText style={styles.footerText}>{post.likes}</ThemedText>
+                    <Ionicons name="chatbubble-outline" size={16} />
+                    <ThemedText style={styles.footerText}>{post.comments}</ThemedText>
+                  </View>
+                </View>
+              ))}
+
              </ScrollView>
           </View>
 
@@ -440,7 +465,15 @@ const styles = StyleSheet.create({
       height: '100%' 
     },
     postTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 4 },
+    
     postContent: { fontSize: 14, marginBottom: 8 },
+    postImage: {
+      width: '100%',
+      height: 120,
+      borderRadius: 6,
+      marginBottom: 8,
+      resizeMode: 'cover',
+    },
     postFooter: { flexDirection: 'row', alignItems: 'center', marginTop: 'auto' },
     footerText: { fontSize: 12, marginHorizontal: 4 },
     
