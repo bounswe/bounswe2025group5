@@ -217,7 +217,19 @@ CREATE TABLE IF NOT EXISTS `post_likes` (
     FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
     FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
+CREATE TABLE `saved_posts` (
+    `post_id` INT NOT NULL,
+    `user_id` INT NOT NULL,
+    `saved_at` DATETIME(6) DEFAULT NULL,
+    PRIMARY KEY (`post_id`, `user_id`),
+    KEY `FKs9a5ulcshnympbu557ps3qdlv` (`user_id`),
+    CONSTRAINT `FK9poxgdc1595vxdxkyg202x4ge` 
+        FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`),
+    CONSTRAINT `FKs9a5ulcshnympbu557ps3qdlv` 
+        FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+) ENGINE=InnoDB 
+  DEFAULT CHARSET=utf8mb4 
+  COLLATE=utf8mb4_0900_ai_ci;
 
 DELIMITER $$
 CREATE TRIGGER `after_like_insert`
