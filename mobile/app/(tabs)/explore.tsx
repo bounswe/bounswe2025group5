@@ -55,6 +55,10 @@ export default function ExploreScreen() {
   const [error, setError] = useState(false);
   const [noMorePosts, setNoMorePosts] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false); // 🔥 new for spinner when loading more
+  const [searchQuery,   setSearchQuery]   = useState('');
+  const [searchResults, setSearchResults] = useState<Post[]>([]);
+  const [isSearching,   setIsSearching]   = useState(false);
+  const [inSearchMode,  setInSearchMode]  = useState(false);
 
   useEffect(() => {
     if (!userType) {
@@ -139,6 +143,43 @@ export default function ExploreScreen() {
     }
   };
 
+  const performSearch = async () => {
+    const q = searchQuery.trim();
+    if (!q) return;
+
+    try {
+      setIsSearching(true);
+      const res = await fetch(
+        `${API_BASE}/api/search/posts/semantic?query=${encodeURIComponent(q)}&size=5`
+      );
+      if (!res.ok) throw new Error('Search failed');
+      const data = await res.json();
+
+      const mapped: Post[] = data.map((item: any) => ({
+        id: item.postId,
+        title: item.creatorUsername,
+        content: item.content,
+        likes: item.likes,
+        comments: item.comments,          // already a number
+      }));
+
+      setSearchResults(mapped);
+      setInSearchMode(true);
+    } catch (err) {
+      console.error('Search error:', err);
+      setSearchResults([]);
+      setInSearchMode(true);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleBack = () => {
+    setInSearchMode(false);
+    setSearchQuery('');
+    setSearchResults([]);
+  };
+
   if (!userType) return null;
 
   return (
@@ -161,41 +202,78 @@ export default function ExploreScreen() {
       </View>
 
       <View style={styles.searchBar}>
-        <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
+        {inSearchMode && (
+          <TouchableOpacity onPress={handleBack}>
+            <Ionicons
+              name="arrow-back"
+              size={20}
+              color="#888"
+              style={[styles.searchIcon, { marginRight: 4 }]}
+            />
+          </TouchableOpacity>
+        )}
+
+        <TouchableOpacity onPress={performSearch}>
+          <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
+        </TouchableOpacity>
+
         <TextInput
           style={styles.searchInput}
-          placeholder="Search for posts..."
+          placeholder="Search for posts…"
           placeholderTextColor="#888"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          returnKeyType="search"
+          onSubmitEditing={performSearch}
         />
       </View>
 
-    {loading ? (<ActivityIndicator style={{ marginTop: 20 }} />) 
-    : error ? (
-      <View style={styles.errorBox}>
-        <ThemedText style={styles.errorText}>Failed to fetch posts</ThemedText>
-      </View>) 
-    : posts.length > 0 ? (<>{posts.map(post => (
-    <PostSkeleton key={post.id} post={post} />))}
-
-    {!noMorePosts ? (
-    <TouchableOpacity style={styles.loadMoreButton} onPress={handleLoadMore}>
-      {loadingMore ? (
-        <ActivityIndicator color="#fff" />
+      {/* ───────── Main content ───────── */}
+      {inSearchMode ? (
+        /* SEARCH MODE */
+        isSearching ? (
+          <ActivityIndicator style={{ marginTop: 20 }} />
+        ) : searchResults.length > 0 ? (
+          searchResults.map(post => <PostSkeleton key={post.id} post={post} />)
+        ) : (
+          <View style={styles.noMoreBox}>
+            <ThemedText style={styles.noMoreText}>No results found</ThemedText>
+          </View>
+        )
       ) : (
-        <ThemedText style={styles.loadMoreText}>Load More Posts</ThemedText>
+        /* NORMAL FEED */
+        loading ? (
+          <ActivityIndicator style={{ marginTop: 20 }} />
+        ) : error ? (
+          <View style={styles.errorBox}>
+            <ThemedText style={styles.errorText}>Failed to fetch posts</ThemedText>
+          </View>
+        ) : posts.length > 0 ? (
+          <>
+            {posts.map(post => (
+              <PostSkeleton key={post.id} post={post} />
+            ))}
+
+            {!noMorePosts ? (
+              <TouchableOpacity style={styles.loadMoreButton} onPress={handleLoadMore}>
+                {loadingMore ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <ThemedText style={styles.loadMoreText}>Load More Posts</ThemedText>
+                )}
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.noMoreBox}>
+                <ThemedText style={styles.noMoreText}>No more posts available</ThemedText>
+              </View>
+            )}
+          </>
+        ) : (
+          <View style={styles.noMoreBox}>
+            <ThemedText style={styles.noMoreText}>No posts available</ThemedText>
+          </View>
+        )
       )}
-    </TouchableOpacity>
-    ) : (
-    <View style={styles.noMoreBox}>
-      <ThemedText style={styles.noMoreText}>No more posts available</ThemedText>
-    </View>
-    )}
-    </>
-    ) : (
-    <View style={styles.noMoreBox}>
-      <ThemedText style={styles.noMoreText}>No posts available</ThemedText>
-    </View>
-    )}
 
     </ScrollView>
   );
