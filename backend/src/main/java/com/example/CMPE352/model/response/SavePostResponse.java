@@ -12,5 +12,4 @@ import java.sql.Timestamp;
 public class SavePostResponse {
     private Integer userId;
     private Integer postId;
-    private Timestamp savedAt;
 }

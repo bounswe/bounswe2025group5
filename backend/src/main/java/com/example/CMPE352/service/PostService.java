@@ -1,15 +1,20 @@
 package com.example.CMPE352.service;
 
+import com.example.CMPE352.exception.AlreadyExistsException;
 import com.example.CMPE352.exception.NotFoundException;
 import com.example.CMPE352.model.Post;
 import com.example.CMPE352.model.Comment;
+import com.example.CMPE352.model.SavedPost;
 import com.example.CMPE352.model.User;
 import com.example.CMPE352.model.request.CreatePostRequest;
+import com.example.CMPE352.model.request.SavePostRequest;
 import com.example.CMPE352.model.response.CreateOrEditPostResponse;
 import com.example.CMPE352.model.response.GetPostResponse;
 import com.example.CMPE352.model.response.CommentResponse;
+import com.example.CMPE352.model.response.SavePostResponse;
 import com.example.CMPE352.repository.PostRepository;
 import com.example.CMPE352.repository.CommentRepository;
+import com.example.CMPE352.repository.SavedPostRepository;
 import com.example.CMPE352.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -28,6 +34,8 @@ public class PostService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final SavedPostRepository savedPostRepository;
+
 
     public List<GetPostResponse> getPosts(int size, Long lastPostId) {
         List<Post> posts = postRepository.findTopPosts(lastPostId, PageRequest.of(0, size));
@@ -104,6 +112,42 @@ public class PostService {
         List<Post> posts = postRepository.findMostLikedPosts(PageRequest.of(0, size));
 
         return convertToGetPostsResponse(posts);
+    }
+
+
+    @Transactional
+    public SavePostResponse savePost(SavePostRequest request) {
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() ->
+                        new NotFoundException("User not found: " + request.getUserId())
+                );
+        Post post = postRepository.findById(request.getPostId())
+                .orElseThrow(() ->
+                        new NotFoundException("Post not found: " + request.getPostId())
+                );
+
+        SavedPost saved = new SavedPost(request.getUserId(), request.getPostId());
+        if (savedPostRepository.existsById(new SavedPost.SavedPostId(saved.getUserId(),saved.getPostId()))) {
+            throw new AlreadyExistsException("This post is already saved by user" + user.getUsername());
+        }
+        savedPostRepository.save(saved);
+
+        return new SavePostResponse(
+                saved.getUserId(),
+                saved.getPostId()
+        );
+    }
+
+    @Transactional
+    public Map<String, Boolean> deleteSavedPost(Integer userId, Integer postId) {
+        SavedPost.SavedPostId id = new SavedPost.SavedPostId(userId, postId);
+        if (!savedPostRepository.existsById(id)) {
+            throw new NotFoundException(
+                    "Saved‐post entry not found for userId=" + userId + ", postId=" + postId
+            );
+        }
+        savedPostRepository.deleteById(id);
+        return Map.of("deleted", true);
     }
 
     private List<GetPostResponse> convertToGetPostsResponse(List<Post> posts) {
