@@ -1,4 +1,4 @@
-
+DROP DATABASE zero_waste_challenge_dev; 
 CREATE DATABASE  zero_waste_challenge_dev;
 USE zero_waste_challenge_dev;
 
@@ -16,6 +16,32 @@ CREATE  TABLE IF NOT EXISTS  `users` (
 ) ;
 
 
+CREATE TABLE IF NOT EXISTS `waste_goal` (
+  `goal_id` INT NOT NULL AUTO_INCREMENT,
+  `amount` DOUBLE NOT NULL,
+  `completed` BOOLEAN DEFAULT FALSE,
+  `date` DATETIME(6) NOT NULL,              -- end date of the goal
+  `duration` INT NOT NULL,                  -- duration in days
+  `unit` ENUM('Bottles','Grams','Kilograms','Liters','Units') NOT NULL,
+  `waste_type` ENUM('Glass','Metal','Organic','Paper','Plastic') NOT NULL,
+  `user_id` INT NOT NULL,
+  `percent_of_progress` DOUBLE NOT NULL,
+  PRIMARY KEY (`goal_id`),
+  KEY `wg_user` (`user_id`),
+  CONSTRAINT `wg_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE IF NOT EXISTS `waste_log` (
+  `log_id`   INT NOT NULL AUTO_INCREMENT,
+  `amount`   DOUBLE NOT NULL,
+  `date`     DATETIME(6) NOT NULL,
+  `waste_type` ENUM('Glass','Metal','Organic','Paper','Plastic') NOT NULL,
+  `user_id`  INT NOT NULL,
+  PRIMARY KEY (`log_id`),
+  KEY `wl_user` (`user_id`),
+  CONSTRAINT `wl_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 CREATE TABLE IF NOT EXISTS  `challenges` (
   `challenge_id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
@@ -32,6 +58,9 @@ CREATE TABLE IF NOT EXISTS  `forumfeeds` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`feed_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
 CREATE TABLE IF NOT EXISTS  `leaderboards` (
   `leaderboard_id` int NOT NULL AUTO_INCREMENT,
   `location` varchar(50) DEFAULT NULL,
@@ -49,6 +78,9 @@ CREATE TABLE IF NOT EXISTS  `notifications` (
   KEY `user_id` (`user_id`),
   CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
 CREATE TABLE IF NOT EXISTS  `posts` (
   `post_id` int NOT NULL AUTO_INCREMENT,
   `feed_id` int DEFAULT NULL,
@@ -56,6 +88,7 @@ CREATE TABLE IF NOT EXISTS  `posts` (
   `content` varchar(1000) NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `likes` int DEFAULT '0',
+  `comments` int DEFAULT '0',
   `photo_url` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`post_id`),
   KEY `feed_id` (`feed_id`),
@@ -63,6 +96,7 @@ CREATE TABLE IF NOT EXISTS  `posts` (
   CONSTRAINT `posts_ibfk_1` FOREIGN KEY (`feed_id`) REFERENCES `forumfeeds` (`feed_id`) ON DELETE SET NULL,
   CONSTRAINT `posts_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 CREATE TABLE IF NOT EXISTS  `postattachments` (
   `attachment_id` int NOT NULL AUTO_INCREMENT,
   `post_id` int NOT NULL,
@@ -70,6 +104,17 @@ CREATE TABLE IF NOT EXISTS  `postattachments` (
   PRIMARY KEY (`attachment_id`),
   KEY `post_id` (`post_id`),
   CONSTRAINT `postattachments_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE IF NOT EXISTS `user_challenge_progress` (
+  `user_id`       INT NOT NULL,
+  `challenge_id`  INT NOT NULL,
+  `waste_type`    ENUM('Glass','Metal','Organic','Paper','Plastic') NOT NULL,
+  `initial_amount`  DOUBLE NOT NULL DEFAULT 0,
+  `remaining_amount` DOUBLE NOT NULL DEFAULT 100,
+  PRIMARY KEY (`user_id`,`challenge_id`,`waste_type`),
+  CONSTRAINT `ucp_user`      FOREIGN KEY (`user_id`)      REFERENCES `users`      (`user_id`)      ON DELETE CASCADE,
+  CONSTRAINT `ucp_challenge` FOREIGN KEY (`challenge_id`) REFERENCES `challenges` (`challenge_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE  IF NOT EXISTS  `profiles` (
@@ -82,6 +127,8 @@ CREATE TABLE  IF NOT EXISTS  `profiles` (
   UNIQUE KEY `user_id` (`user_id`),
   CONSTRAINT `profiles_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
 CREATE TABLE IF NOT EXISTS  `report` (
   `report_id` int NOT NULL AUTO_INCREMENT,
   `reason` varchar(500) DEFAULT NULL,
@@ -109,6 +156,7 @@ CREATE TABLE IF NOT EXISTS  `user_rewards` (
   CONSTRAINT `FK4ear62j8k2olcikuil4rye8la` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
   CONSTRAINT `FKj53yk8gtooowu02nlq4isx5dd` FOREIGN KEY (`reward_id`) REFERENCES `rewards` (`reward_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 CREATE TABLE  IF NOT EXISTS  `userchallenge` (
   `user_id` int NOT NULL,
   `challenge_id` int NOT NULL,
@@ -118,6 +166,8 @@ CREATE TABLE  IF NOT EXISTS  `userchallenge` (
   CONSTRAINT `userchallenge_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
   CONSTRAINT `userchallenge_ibfk_2` FOREIGN KEY (`challenge_id`) REFERENCES `challenges` (`challenge_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
 CREATE TABLE IF NOT EXISTS  `userleaderboard` (
   `leaderboard_id` int NOT NULL,
   `user_id` int NOT NULL,
@@ -128,33 +178,8 @@ CREATE TABLE IF NOT EXISTS  `userleaderboard` (
   CONSTRAINT `userleaderboard_ibfk_1` FOREIGN KEY (`leaderboard_id`) REFERENCES `leaderboards` (`leaderboard_id`) ON DELETE CASCADE,
   CONSTRAINT `userleaderboard_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-CREATE TABLE IF NOT EXISTS `waste_goal` (
-  `goal_id` int NOT NULL AUTO_INCREMENT,
-  `amount` double NOT NULL,
-  `completed` int DEFAULT NULL,
-  `date` datetime(6) DEFAULT NULL,
-  `duration` int NOT NULL,
-  `unit` enum('Bottles','Grams','Kilograms','Liters','Units') NOT NULL,
-  `waste_type` enum('Glass','Metal','Organic','Paper','Plastic') NOT NULL,
-  `user_id` int NOT NULL,
-  `percent_of_progress` double NOT NULL,
-  PRIMARY KEY (`goal_id`),
-  KEY `FKse1ot0u1fnhydngk6twcr7o9c` (`user_id`),
-  CONSTRAINT `FKse1ot0u1fnhydngk6twcr7o9c` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-CREATE TABLE IF NOT EXISTS  `waste_log` (
-  `log_id` int NOT NULL AUTO_INCREMENT,
-  `amount` double NOT NULL,
-  `date` datetime(6) NOT NULL,
-  `waste_type` enum('Glass','Metal','Organic','Paper','Plastic') NOT NULL,
-  `goal_id` int NOT NULL,
-  `user_id` int NOT NULL,
-  PRIMARY KEY (`log_id`),
-  KEY `FKp4jk44o8g52bo9xgvrtafh6rd` (`goal_id`),
-  KEY `FK1molkjvpagax7fnro61pvmkw1` (`user_id`),
-  CONSTRAINT `FK1molkjvpagax7fnro61pvmkw1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
-  CONSTRAINT `FKp4jk44o8g52bo9xgvrtafh6rd` FOREIGN KEY (`goal_id`) REFERENCES `waste_goal` (`goal_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
 CREATE TABLE  IF NOT EXISTS  `comments` (
   `comment_id` int NOT NULL AUTO_INCREMENT,
   `post_id` int NOT NULL,
@@ -183,3 +208,154 @@ CREATE TABLE IF NOT EXISTS  `userhasbadge` (
   CONSTRAINT `userhasbadge_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
   CONSTRAINT `userhasbadge_ibfk_2` FOREIGN KEY (`badge_id`) REFERENCES `badge` (`badge_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE IF NOT EXISTS `post_likes` (
+                                            `user_id` INT NOT NULL,
+                                            `post_id` INT NOT NULL,
+                                            `liked_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                            PRIMARY KEY (`user_id`, `post_id`),
+    FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
+    FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+DELIMITER $$
+CREATE TRIGGER `after_like_insert`
+    AFTER INSERT ON `post_likes`
+    FOR EACH ROW
+BEGIN
+    UPDATE `posts`
+    SET `likes` = `likes` + 1
+    WHERE `post_id` = NEW.post_id;
+    END$$
+    DELIMITER ;
+
+
+DELIMITER $$
+    CREATE TRIGGER `after_like_delete`
+        AFTER DELETE ON `post_likes`
+        FOR EACH ROW
+    BEGIN
+        UPDATE `posts`
+        SET `likes` = `likes` - 1
+        WHERE `post_id` = OLD.post_id;
+        END$$
+        DELIMITER ;
+
+
+DELIMITER $$
+CREATE TRIGGER after_comment_insert
+    AFTER INSERT ON comments
+    FOR EACH ROW
+BEGIN
+    UPDATE posts
+    SET comments = comments + 1
+    WHERE post_id = NEW.post_id;
+<<<<<<< Updated upstream
+END$$
+DELIMITER ;
+
+
+DELIMITER ;
+
+
+DELIMITER $$
+CREATE TRIGGER after_comment_delete
+    AFTER DELETE ON comments
+    FOR EACH ROW
+BEGIN
+    UPDATE posts
+    SET comments = comments - 1
+    WHERE post_id = OLD.post_id;
+END$$
+DELIMITER ;
+
+
+
+
+DELIMITER $$
+
+CREATE TRIGGER after_waste_log_insert
+AFTER INSERT ON waste_log
+FOR EACH ROW
+BEGIN
+
+  UPDATE user_challenge_progress ucp
+  JOIN challenges c ON ucp.challenge_id = c.challenge_id
+  SET ucp.remaining_amount = ucp.remaining_amount - NEW.amount
+  WHERE ucp.user_id = NEW.user_id
+    AND ucp.waste_type = NEW.waste_type
+    AND c.start_date <= DATE(NEW.date)
+    AND c.end_date   >= DATE(NEW.date);
+
+
+  UPDATE waste_goal wg
+  SET wg.percent_of_progress = LEAST(100, wg.percent_of_progress + (NEW.amount / wg.amount) * 100)
+  WHERE wg.user_id = NEW.user_id
+    AND wg.waste_type = NEW.waste_type
+    AND wg.amount > 0
+    AND DATE(NEW.date) BETWEEN DATE_SUB(DATE(wg.date), INTERVAL wg.duration DAY) AND DATE(wg.date);
+END$$
+
+
+CREATE TRIGGER after_waste_log_delete
+AFTER DELETE ON waste_log
+FOR EACH ROW
+BEGIN
+  UPDATE user_challenge_progress ucp
+  JOIN challenges c ON ucp.challenge_id = c.challenge_id
+  SET ucp.remaining_amount = ucp.remaining_amount + OLD.amount
+  WHERE ucp.user_id = OLD.user_id
+    AND ucp.waste_type = OLD.waste_type
+    AND c.start_date <= DATE(OLD.date)
+    AND c.end_date   >= DATE(OLD.date);
+
+  UPDATE waste_goal wg
+  SET wg.percent_of_progress = GREATEST(0, wg.percent_of_progress - (OLD.amount / wg.amount) * 100)
+  WHERE wg.user_id = OLD.user_id
+    AND wg.waste_type = OLD.waste_type
+    AND wg.amount > 0
+    AND DATE(OLD.date) BETWEEN DATE_SUB(DATE(wg.date), INTERVAL wg.duration DAY) AND DATE(wg.date);
+END$$
+
+
+CREATE TRIGGER after_waste_log_update
+AFTER UPDATE ON waste_log
+FOR EACH ROW
+BEGIN
+
+  UPDATE user_challenge_progress ucp
+  JOIN challenges c ON ucp.challenge_id = c.challenge_id
+  SET ucp.remaining_amount = ucp.remaining_amount + OLD.amount
+  WHERE ucp.user_id = OLD.user_id
+    AND ucp.waste_type = OLD.waste_type
+    AND c.start_date <= DATE(OLD.date)
+    AND c.end_date   >= DATE(OLD.date);
+
+
+  UPDATE user_challenge_progress ucp
+  JOIN challenges c ON ucp.challenge_id = c.challenge_id
+  SET ucp.remaining_amount = ucp.remaining_amount - NEW.amount
+  WHERE ucp.user_id = NEW.user_id
+    AND ucp.waste_type = NEW.waste_type
+    AND c.start_date <= DATE(NEW.date)
+    AND c.end_date   >= DATE(NEW.date);
+
+
+  UPDATE waste_goal wg
+  SET wg.percent_of_progress = GREATEST(0, wg.percent_of_progress - (OLD.amount / wg.amount) * 100)
+  WHERE wg.user_id = OLD.user_id
+    AND wg.waste_type = OLD.waste_type
+    AND wg.amount > 0
+    AND DATE(OLD.date) BETWEEN DATE_SUB(DATE(wg.date), INTERVAL wg.duration DAY) AND DATE(wg.date);
+
+
+  UPDATE waste_goal wg
+  SET wg.percent_of_progress = LEAST(100, wg.percent_of_progress + (NEW.amount / wg.amount) * 100)
+  WHERE wg.user_id = NEW.user_id
+    AND wg.waste_type = NEW.waste_type
+    AND wg.amount > 0
+    AND DATE(NEW.date) BETWEEN DATE_SUB(DATE(wg.date), INTERVAL wg.duration DAY) AND DATE(wg.date);
+END$$
+
+DELIMITER ;

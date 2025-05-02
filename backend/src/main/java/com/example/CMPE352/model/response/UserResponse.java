@@ -9,9 +9,7 @@ import java.sql.Timestamp;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CommentResponse {
-    private Integer commentId;
-    private String content;
-    private Timestamp createdAt;
-    private String creatorUsername;
+public class UserResponse {
+    private Integer userId;
+    private String username;
 }

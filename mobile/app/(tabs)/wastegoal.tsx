@@ -1,3 +1,4 @@
+//app/(tabs)/wastegoal.tsx
 import React, { useState, useEffect, useContext } from 'react';
 import {
   StyleSheet,
