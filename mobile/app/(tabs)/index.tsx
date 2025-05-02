@@ -20,13 +20,13 @@ import { ScrollView } from 'react-native';
 const API_BASE = 'http://localhost:8080/api/auth';
 
 // 🎉 live counters 
-const USERS_COUNT = 12837;
 const KG_SAVED     = 57492; // kg of plastic saved
 
 type Navigation = {
   navigate: (screen: string, params?: any) => void;
   setParams?: (params: any) => void;
 };
+
 
 // Tiny checkbox component
 function CheckBox({ checked, onPress }: { checked: boolean; onPress: () => void }) {
@@ -55,8 +55,39 @@ export default function HomeScreen() {
   const [loggedIn, setLoggedIn]             = useState(false);
   const [errorVisible, setErrorVisible]     = useState(false);
   const [errorMessage, setErrorMessage]     = useState('');
+  const [usersCount, setUsersCount] = useState<number>(0);
 
   /* ─────────────────────────────── EFFECTS */
+  useEffect(() => {
+    const fetchUserCount = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        const res = await fetch(`http://localhost:8080/api/users/count`, {
+          method : 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+  
+        const body = await res.json().catch(() => ({}));
+        console.log('users/count response ➜', body);          // 👈 #1
+  
+        if (!res.ok) {
+          return console.warn(body.message || 'Could not fetch user count');
+        }
+  
+        const userCount = body.userCount ?? 0;
+        console.log('setting usersCount ➜', userCount);       // 👈 #2
+        setUsersCount(userCount);
+      } catch (err) {
+        console.warn('Network error while fetching user count', err);
+      }
+    };
+  
+    fetchUserCount();
+  }, []);
+
   useEffect(() => {
     (async () => {
       const token      = await AsyncStorage.getItem('token');
@@ -199,7 +230,7 @@ export default function HomeScreen() {
           {/* Stats */}
           <View style={styles.statsContainer}>
             <Text style={styles.statLine}>
-              <Text style={styles.statNumber}>{USERS_COUNT.toLocaleString()}</Text>{' '}
+              <Text style={styles.statNumber}>{usersCount}</Text>{' '}
               users are reducing their wastes with us
             </Text>
                      {/* ───────── Most trending posts ───────── */}
