@@ -464,9 +464,9 @@ const styles = StyleSheet.create({
       padding: 12,
       height: '100%' 
     },
-    postTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 4 },
+    postTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 4 , color: '#000'},
     
-    postContent: { fontSize: 14, marginBottom: 8 },
+    postContent: { fontSize: 14, marginBottom: 8 , color: '#000'},
     postImage: {
       width: '100%',
       height: 120,
