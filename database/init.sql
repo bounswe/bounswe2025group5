@@ -42,15 +42,19 @@ CREATE TABLE IF NOT EXISTS `waste_log` (
   CONSTRAINT `wl_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE IF NOT EXISTS  `challenges` (
+ CREATE TABLE `challenges` (
   `challenge_id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` varchar(200) NOT NULL,
   `start_date` date NOT NULL,
   `end_date` date NOT NULL,
   `status` enum('Active','Requested','Ended') DEFAULT NULL,
+  `waste_type` enum('Glass','Metal','Organic','Paper','Plastic') NOT NULL,
+  `amount` double NOT NULL,
   PRIMARY KEY (`challenge_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+
 
 
 CREATE TABLE IF NOT EXISTS  `forumfeeds` (
@@ -106,16 +110,17 @@ CREATE TABLE IF NOT EXISTS  `postattachments` (
   CONSTRAINT `postattachments_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE IF NOT EXISTS `user_challenge_progress` (
-  `user_id`       INT NOT NULL,
-  `challenge_id`  INT NOT NULL,
-  `waste_type`    ENUM('Glass','Metal','Organic','Paper','Plastic') NOT NULL,
-  `initial_amount`  DOUBLE NOT NULL DEFAULT 0,
-  `remaining_amount` DOUBLE NOT NULL DEFAULT 100,
-  PRIMARY KEY (`user_id`,`challenge_id`,`waste_type`),
-  CONSTRAINT `ucp_user`      FOREIGN KEY (`user_id`)      REFERENCES `users`      (`user_id`)      ON DELETE CASCADE,
-  CONSTRAINT `ucp_challenge` FOREIGN KEY (`challenge_id`) REFERENCES `challenges` (`challenge_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+ CREATE TABLE `user_challenge_progress` (
+  `remaining_amount` double DEFAULT NULL,
+  `waste_type` enum('Glass','Metal','Organic','Paper','Plastic') DEFAULT NULL,
+  `challenge_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  PRIMARY KEY (`challenge_id`,`user_id`),
+  KEY `FKoac9ib3121eou06gwlt094e7q` (`user_id`),
+  CONSTRAINT `FKaw0lexcvav1p4svwv76l6o3ga` FOREIGN KEY (`challenge_id`) REFERENCES `challenges` (`challenge_id`),
+  CONSTRAINT `FKoac9ib3121eou06gwlt094e7q` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
 
 CREATE TABLE  IF NOT EXISTS  `profiles` (
   `profile_id` int NOT NULL AUTO_INCREMENT,
@@ -217,7 +222,19 @@ CREATE TABLE IF NOT EXISTS `post_likes` (
     FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
     FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
+CREATE TABLE `saved_posts` (
+    `post_id` INT NOT NULL,
+    `user_id` INT NOT NULL,
+    `saved_at` DATETIME(6) DEFAULT NULL,
+    PRIMARY KEY (`post_id`, `user_id`),
+    KEY `FKs9a5ulcshnympbu557ps3qdlv` (`user_id`),
+    CONSTRAINT `FK9poxgdc1595vxdxkyg202x4ge` 
+        FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`),
+    CONSTRAINT `FKs9a5ulcshnympbu557ps3qdlv` 
+        FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+) ENGINE=InnoDB 
+  DEFAULT CHARSET=utf8mb4 
+  COLLATE=utf8mb4_0900_ai_ci;
 
 DELIMITER $$
 CREATE TRIGGER `after_like_insert`
@@ -269,8 +286,38 @@ BEGIN
     WHERE post_id = OLD.post_id;
 END$$
 DELIMITER ;
+DELIMITER $$
 
+CREATE TRIGGER `after_waste_log_insert_update_active_challenges`
+AFTER INSERT ON `waste_log`
+FOR EACH ROW
+BEGIN
+    UPDATE `user_challenge_progress` ucp
+    JOIN `challenges` c ON ucp.challenge_id = c.challenge_id
+    SET ucp.remaining_amount = ucp.remaining_amount - NEW.amount
+    WHERE ucp.user_id = NEW.user_id            -- Match the user who logged
+      AND c.status = 'Active'                  -- Match only active challenges
+      AND c.waste_type = NEW.waste_type        -- Match the *challenge's* defined type to the log type
+      AND CAST(NEW.date AS DATE) BETWEEN c.start_date AND c.end_date; -- Check log date is within challenge range
+END$$
 
+DELIMITER ;
+DELIMITER $$
+
+CREATE TRIGGER `after_waste_log_delete_update_active_challenges`
+AFTER DELETE ON `waste_log`
+FOR EACH ROW
+BEGIN
+    UPDATE `user_challenge_progress` ucp
+    JOIN `challenges` c ON ucp.challenge_id = c.challenge_id
+    SET ucp.remaining_amount = ucp.remaining_amount + OLD.amount
+    WHERE ucp.user_id = OLD.user_id          -- Match the user whose log was deleted
+      AND c.status = 'Active'                -- Match only active challenges (at the time of trigger execution)
+      AND c.waste_type = OLD.waste_type      -- Match the *challenge's* defined type to the deleted log's type
+      AND CAST(OLD.date AS DATE) BETWEEN c.start_date AND c.end_date; -- Check deleted log's date was within challenge range
+END$$
+
+DELIMITER ;
 
 
 DELIMITER $$
