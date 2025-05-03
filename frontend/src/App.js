@@ -7,6 +7,8 @@ import Login from './pages/login.js';
 import Register from './pages/register.js';
 import Feed from './pages/feed.js';
 import HomePage from './pages/homePage.js';
+import MainPage from './pages/mainPage.js';
+import Navbar from './components/Navbar.js'; // Import the Navbar component
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -25,6 +27,7 @@ function App() {
 
     <div className="App">
       <header className="App-header">
+      {isLoggedIn && <Navbar setIsLoggedIn={setIsLoggedIn} />} {/* Render the Navbar */}
         <div className="content-container">
           <img src={logo} className="App-logo" alt="logo" />
           {/* Render pages based on the route */}
@@ -33,6 +36,10 @@ function App() {
             <Route path="/login" element={<Login isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/register" element={<Register />} />
             <Route path="/feed" element={<Feed isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
+            <Route path="/main" element={<MainPage />} />
+            <Route path="/goals" element={<div>Goals Page</div>} />
+            <Route path="/leaderboard" element={<div>Leaderboard Page</div>} />
+            <Route path="/profile" element={<div>Profile Page</div>} />
           </Routes>
         </div>
       </header>
