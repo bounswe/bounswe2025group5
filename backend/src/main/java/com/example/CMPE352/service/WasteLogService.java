@@ -55,6 +55,7 @@ public class WasteLogService {
         wasteLog.setAmount(request.getAmount());
         wasteLog.setUser(user);
         wasteLog.setGoal(goal);
+        wasteLog.setWasteType(goal.getWasteType());
 
         wasteLogRepository.save(wasteLog);
 
