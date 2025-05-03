@@ -7,10 +7,7 @@ import com.example.CMPE352.model.UserChallengeProgress;
 import com.example.CMPE352.model.UserChallengeProgressId;
 import com.example.CMPE352.model.request.AttendChallengeRequest;
 import com.example.CMPE352.model.request.CreateChallengeRequest;
-import com.example.CMPE352.model.response.AttendChallengeResponse;
-import com.example.CMPE352.model.response.ChallengeResponse;
-import com.example.CMPE352.model.response.EndChallengeResponse;
-import com.example.CMPE352.model.response.LeaveChallengeResponse;
+import com.example.CMPE352.model.response.*;
 import com.example.CMPE352.repository.ChallengeRepository;
 import com.example.CMPE352.repository.UserChallengeProgressRepository;
 import com.example.CMPE352.repository.UserRepository;
@@ -19,14 +16,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ChallengeService {
 
-    private final  ChallengeRepository challengeRepository;
+    private final ChallengeRepository challengeRepository;
     private final UserRepository userRepository;
     private final UserChallengeProgressRepository userChallengeProgressRepository;
 
@@ -65,7 +63,7 @@ public class ChallengeService {
         challenge.setEndDate(LocalDate.now());
         challengeRepository.saveAndFlush(challenge);
 
-        return new EndChallengeResponse(challenge.getChallengeId(),true);
+        return new EndChallengeResponse(challenge.getChallengeId(), true);
     }
 
     @Transactional
@@ -88,6 +86,7 @@ public class ChallengeService {
 
         return new AttendChallengeResponse(user.getUsername(), remainingAmount, challenge.getChallengeId());
     }
+
     @Transactional
     public LeaveChallengeResponse leaveChallenge(String username, int challengeId) {
         User user = userRepository.findByUsername(username)
@@ -103,6 +102,22 @@ public class ChallengeService {
         }
 
         userChallengeProgressRepository.deleteById(id);
-        return new LeaveChallengeResponse(user.getUsername(),challenge.getChallengeId(),true);
+        return new LeaveChallengeResponse(user.getUsername(), challenge.getChallengeId(), true);
+    }
+
+
+    public List<LeaderboardEntry> getLeaderboardForChallenge(Integer challengeId) {
+        challengeRepository.findById(challengeId)
+                .orElseThrow(() -> new NotFoundException("Challenge with ID " + challengeId + " not found"));
+
+        List<UserChallengeProgress> progressList = userChallengeProgressRepository.findById_ChallengeIdOrderByRemainingAmountDesc(challengeId);
+
+        return progressList.stream()
+                .map(progress -> new LeaderboardEntry(
+                        progress.getUser().getId(),
+                        progress.getUser().getUsername(),
+                        progress.getRemainingAmount()
+                ))
+                .collect(Collectors.toList());
     }
 }
