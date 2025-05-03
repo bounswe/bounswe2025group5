@@ -18,5 +18,5 @@ public class GetPostResponse {
     private Integer likes;
     private String creatorUsername;
     private String photoUrl;
-    private List<CommentResponse> comments;
+    private Integer comments;
 }
