@@ -1,8 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { View, FlatList, TouchableOpacity, ActivityIndicator, Switch, TextInput, Modal, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  FlatList,
+  TouchableOpacity,
+  Switch,
+  Modal,
+  TextInput,
+  StyleSheet,
+  GestureResponderEvent,
+} from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
-
-const API_BASE = 'http://localhost:8080';
 
 type Challenge = {
   name: string;
@@ -11,19 +18,59 @@ type Challenge = {
   startDate: string;
   endDate: string;
   wasteType: string;
+  isCreator?: boolean;
+  isAttendee?: boolean;
 };
 
+const mockChallenges: Challenge[] = [
+  {
+    name: 'Plastic Waste Reduction',
+    description: 'A challenge to reduce plastic waste in our community.',
+    amount: 100,
+    startDate: '2025-05-01',
+    endDate: '2025-06-01',
+    wasteType: 'Plastic',
+    isCreator: true,
+    isAttendee: true,
+  },
+  {
+    name: 'Paper Recycling Drive',
+    description: 'Collect and recycle at least 200 kg of paper materials.',
+    amount: 200,
+    startDate: '2025-05-10',
+    endDate: '2025-06-10',
+    wasteType: 'Paper',
+    isCreator: false,
+    isAttendee: false,
+  },
+  {
+    name: 'Glass Reuse Challenge',
+    description: 'Encourage reuse of glass bottles and jars.',
+    amount: 150,
+    startDate: '2025-05-15',
+    endDate: '2025-06-15',
+    wasteType: 'Glass',
+    isCreator: false,
+    isAttendee: true,
+  },
+];
+
 export default function ChallengesScreen() {
-  const [challenges, setChallenges] = useState<Challenge[]>([]);
-  const [attended, setAttended] = useState<Challenge[]>([]);
   const [showAttendedOnly, setShowAttendedOnly] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
   const [expanded, setExpanded] = useState<string[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [newChallenge, setNewChallenge] = useState<Challenge>({
-    name: '', description: '', amount: 0, startDate: '', endDate: '', wasteType: ''
+    name: '',
+    description: '',
+    amount: 0,
+    startDate: '',
+    endDate: '',
+    wasteType: '',
   });
+
+  const challenges = mockChallenges;
+  const attended = mockChallenges.filter(c => c.isAttendee);
+  const dataToShow = showAttendedOnly ? attended : challenges;
 
   const toggleExpand = (name: string) => {
     setExpanded(prev =>
@@ -31,122 +78,96 @@ export default function ChallengesScreen() {
     );
   };
 
-  const fetchData = async () => {
-    setLoading(true);
-    setError(false);
-    try {
-      const [allRes, userRes] = await Promise.all([
-        fetch(`${API_BASE}/api/challenges`),
-        fetch(`${API_BASE}/api/challenges/attended_challenges`),
-      ]);
-      const all = await allRes.json();
-      const user = await userRes.json();
-      setChallenges(all);
-      setAttended(user);
-    } catch (err) {
-      console.error(err);
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
+  const handleAction = (item: Challenge, action: string) => (e: GestureResponderEvent) => {
+    console.log(`${action} pressed for`, item.name);
   };
 
-  const createChallengeAPI = async () => {
-    try {
-      setLoading(true);
-      await fetch(`${API_BASE}/api/challenges/create`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newChallenge),
-      });
-      setModalVisible(false);
-      // reset form
-      setNewChallenge({ name: '', description: '', amount: 0, startDate: '', endDate: '', wasteType: '' });
-      fetchData();
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+  const submitChallenge = () => {
+    console.log('Creating challenge:', newChallenge);
+    // TODO: integrate API
+    setModalVisible(false);
+    // Reset form
+    setNewChallenge({ name: '', description: '', amount: 0, startDate: '', endDate: '', wasteType: '' });
   };
-
-  useEffect(() => { fetchData(); }, []);
-
-  if (loading) return <ActivityIndicator style={styles.center} />;
-
-  const dataToShow = showAttendedOnly ? attended : challenges;
 
   return (
     <View style={styles.container}>
-      <ThemedText type="title" style={styles.title}>Challenges</ThemedText>
+      <ThemedText type="title" style={styles.screenTitle}>Challenges</ThemedText>
 
-      {/* Create */}
-      <TouchableOpacity style={styles.createButton} onPress={() => setModalVisible(true)}>
-        <ThemedText type="default" style={styles.createButtonText}>Create Challenge</ThemedText>
+      <TouchableOpacity style={styles.primaryButton} onPress={() => setModalVisible(true)}>
+        <ThemedText type="default" style={styles.primaryButtonText}>Create Challenge</ThemedText>
       </TouchableOpacity>
 
-      {/* Filter */}
-      <View style={styles.filterRow}>
+      <View style={styles.toggleRow}>
         <Switch value={showAttendedOnly} onValueChange={setShowAttendedOnly} />
-        <ThemedText type="default">Attended only</ThemedText>
+        <ThemedText type="default" style={styles.toggleLabel}>Show attended only</ThemedText>
       </View>
 
-      {/* Error */}
-      {error && <ThemedText type="default" style={styles.errorText}>Failed to load challenges</ThemedText>}
+      <FlatList
+        data={dataToShow}
+        keyExtractor={item => item.name}
+        contentContainerStyle={{ paddingVertical: 8 }}
+        renderItem={({ item }) => (
+          <View style={styles.card}>
+            <TouchableOpacity onPress={() => toggleExpand(item.name)}>
+              <View style={styles.cardHeader}>
+                <ThemedText type="subtitle" style={styles.cardTitle}>{item.name}</ThemedText>
+                <ThemedText type="default" style={styles.cardDate}>
+                  {item.startDate} – {item.endDate}
+                </ThemedText>
+              </View>
+            </TouchableOpacity>
 
-      {/* List or Empty */}
-      {dataToShow.length === 0 ? (
-        <View style={styles.center}><ThemedText type="default">No challenges found.</ThemedText></View>
-      ) : (
-        <FlatList
-          data={dataToShow}
-          keyExtractor={item => item.name}
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              <TouchableOpacity onPress={() => toggleExpand(item.name)}>
-                <View style={styles.header}>
-                  <ThemedText type="title">{item.name}</ThemedText>
-                  <ThemedText type="default">{item.startDate} - {item.endDate}</ThemedText>
-                </View>
-              </TouchableOpacity>
-              {expanded.includes(item.name) && (
-                <View style={styles.details}>
-                  <ThemedText type="default">{item.description}</ThemedText>
-                  <ThemedText type="default">Amount: {item.amount}</ThemedText>
-                  <ThemedText type="default">Type: {item.wasteType}</ThemedText>
-                  <TouchableOpacity style={styles.leaderboardButton} onPress={() => {}}>
-                    <ThemedText type="default" style={styles.leaderboardText}>View Leaderboard</ThemedText>
+            {expanded.includes(item.name) && (
+              <View style={styles.cardBody}>
+                <ThemedText type="default" style={styles.cardDescription}>{item.description}</ThemedText>
+                <ThemedText type="default" style={styles.cardInfo}>Amount: {item.amount} | Type: {item.wasteType}</ThemedText>
+
+                {item.isCreator && (
+                  <TouchableOpacity style={styles.dangerButton} onPress={handleAction(item, 'End Challenge')}>
+                    <ThemedText type="default" style={styles.buttonText}>End Challenge</ThemedText>
                   </TouchableOpacity>
-                </View>
-              )}
-            </View>
-          )}
-        />
-      )}
+                )}
+                {!item.isCreator && (
+                  <TouchableOpacity
+                    style={item.isAttendee ? styles.warningButton : styles.secondaryButton}
+                    onPress={handleAction(item, item.isAttendee ? 'Leave Challenge' : 'Attend Challenge')}
+                  >
+                    <ThemedText type="default" style={styles.buttonText}>{item.isAttendee ? 'Leave Challenge' : 'Attend Challenge'}</ThemedText>
+                  </TouchableOpacity>
+                )}
 
-      {/* Modal for Create */}
+                <TouchableOpacity style={styles.secondaryButton} onPress={handleAction(item, 'View Leaderboard')}>
+                  <ThemedText type="default" style={styles.buttonText}>View Leaderboard</ThemedText>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        )}
+      />
+
       <Modal visible={modalVisible} transparent animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <ThemedText type="title" style={styles.modalTitle}>New Challenge</ThemedText>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <ThemedText type="subtitle" style={styles.modalTitle}>New Challenge</ThemedText>
             {(['name','description','amount','startDate','endDate','wasteType'] as (keyof Challenge)[]).map(key => (
               <TextInput
                 key={key}
-                placeholder={key}
-                value={key === 'amount' ? (newChallenge.amount === 0 ? '' : String(newChallenge.amount)) : String(newChallenge[key])}
+                placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
+                value={key === 'amount' ? (newChallenge.amount === 0 ? '' : String(newChallenge.amount)) : newChallenge[key] as string}
                 onChangeText={text => setNewChallenge(prev => ({
                   ...prev,
-                  [key]: key === 'amount' ? Number(text) : text
+                  [key]: key === 'amount' ? Number(text) : text,
                 }))}
                 keyboardType={key === 'amount' ? 'numeric' : 'default'}
                 style={styles.input}
               />
             ))}
             <View style={styles.modalButtons}>
-              <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalCancel}>
+              <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
                 <ThemedText type="default">Cancel</ThemedText>
               </TouchableOpacity>
-              <TouchableOpacity onPress={createChallengeAPI} style={styles.modalSave}>
+              <TouchableOpacity style={styles.saveButton} onPress={submitChallenge}>
                 <ThemedText type="default">Save</ThemedText>
               </TouchableOpacity>
             </View>
@@ -158,23 +179,28 @@ export default function ChallengesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 16, textAlign: 'center' },
-  createButton: { backgroundColor: '#4CAF50', padding: 12, borderRadius: 6, marginBottom: 12, alignItems: 'center' },
-  createButtonText: { fontSize: 16, color: '#fff' },
-  filterRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginBottom: 8 },
-  errorText: { color: 'red', marginBottom: 12, textAlign: 'center' },
-  card: { borderWidth: 1, borderRadius: 8, borderColor: '#ccc', padding: 12, marginBottom: 12 },
-  header: { marginBottom: 8 },
-  details: { marginTop: 8 },
-  leaderboardButton: { marginTop: 8, padding: 8, backgroundColor: '#2196F3', borderRadius: 4, alignItems: 'center' },
-  leaderboardText: { color: '#fff' },
-  modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
-  modalContent: { width: '90%', backgroundColor: '#fff', borderRadius: 8, padding: 20 },
-  modalTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 12, textAlign: 'center' },
-  input: { borderWidth: 1, borderColor: '#ddd', borderRadius: 4, padding: 8, marginBottom: 10 },
+  container: { flex: 1, backgroundColor: '#F5F5F5', paddingHorizontal: 16 },
+  screenTitle: { fontSize: 22, fontWeight: '600', marginVertical: 12, textAlign: 'center' },
+  primaryButton: { backgroundColor: '#4CAF50', paddingVertical: 12, borderRadius: 8, marginBottom: 12, alignItems: 'center' },
+  primaryButtonText: { fontSize: 16, fontWeight: '600', color: '#FFF' },
+  toggleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginBottom: 8 },
+  toggleLabel: { marginLeft: 8, fontSize: 14 },
+  card: { backgroundColor: '#FFF', borderRadius: 8, padding: 16, marginVertical: 6, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 },
+  cardHeader: { marginBottom: 8 },
+  cardTitle: { fontSize: 18, fontWeight: '600' },
+  cardDate: { fontSize: 12, color: '#666', marginTop: 2 },
+  cardBody: { borderTopWidth: 1, borderTopColor: '#EEE', paddingTop: 12 },
+  cardDescription: { fontSize: 14, color: '#333', marginBottom: 8 },
+  cardInfo: { fontSize: 14, color: '#555', marginBottom: 12 },
+  dangerButton: { backgroundColor: '#E53935', paddingVertical: 8, borderRadius: 6, alignItems: 'center', marginBottom: 8 },
+  secondaryButton: { backgroundColor: '#2196F3', paddingVertical: 8, borderRadius: 6, alignItems: 'center', marginBottom: 8 },
+  warningButton: { backgroundColor: '#FF9800', paddingVertical: 8, borderRadius: 6, alignItems: 'center', marginBottom: 8 },
+  buttonText: { fontSize: 14, color: '#FFF', fontWeight: '500' },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' },
+  modalBox: { width: '90%', backgroundColor: '#FFF', borderRadius: 8, padding: 20 },
+  modalTitle: { fontSize: 16, fontWeight: '600', marginBottom: 12, textAlign: 'center' },
+  input: { borderWidth: 1, borderColor: '#ddd', borderRadius: 4, padding: 10, marginBottom: 10 },
   modalButtons: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 },
-  modalCancel: { padding: 10 },
-  modalSave: { padding: 10 }
+  cancelButton: { padding: 10 },
+  saveButton: { padding: 10 },
 });
