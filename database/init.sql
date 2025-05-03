@@ -304,6 +304,20 @@ END$$
 DELIMITER ;
 DELIMITER $$
 
+CREATE TRIGGER `after_waste_log_delete_update_active_challenges`
+AFTER DELETE ON `waste_log`
+FOR EACH ROW
+BEGIN
+    UPDATE `user_challenge_progress` ucp
+    JOIN `challenges` c ON ucp.challenge_id = c.challenge_id
+    SET ucp.remaining_amount = ucp.remaining_amount + OLD.amount
+    WHERE ucp.user_id = OLD.user_id          -- Match the user whose log was deleted
+      AND c.status = 'Active'                -- Match only active challenges (at the time of trigger execution)
+      AND c.waste_type = OLD.waste_type      -- Match the *challenge's* defined type to the deleted log's type
+      AND CAST(OLD.date AS DATE) BETWEEN c.start_date AND c.end_date; -- Check deleted log's date was within challenge range
+END$$
+
+DELIMITER ;
 
 
 DELIMITER $$
