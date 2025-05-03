@@ -286,7 +286,23 @@ BEGIN
     WHERE post_id = OLD.post_id;
 END$$
 DELIMITER ;
+DELIMITER $$
 
+CREATE TRIGGER `after_waste_log_insert_update_active_challenges`
+AFTER INSERT ON `waste_log`
+FOR EACH ROW
+BEGIN
+    UPDATE `user_challenge_progress` ucp
+    JOIN `challenges` c ON ucp.challenge_id = c.challenge_id
+    SET ucp.remaining_amount = ucp.remaining_amount - NEW.amount
+    WHERE ucp.user_id = NEW.user_id            -- Match the user who logged
+      AND c.status = 'Active'                  -- Match only active challenges
+      AND c.waste_type = NEW.waste_type        -- Match the *challenge's* defined type to the log type
+      AND CAST(NEW.date AS DATE) BETWEEN c.start_date AND c.end_date; -- Check log date is within challenge range
+END$$
+
+DELIMITER ;
+DELIMITER $$
 
 
 
