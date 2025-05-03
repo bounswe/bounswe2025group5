@@ -125,8 +125,7 @@ export default function ProfileScreen() {
         {[
           ['Add a Waste Log', 'add_waste_log', '#4CAF50'],
           ['Add a Waste Goal', 'add_waste_goal', '#2E7D32'],
-          ['Create a post', 'create_post', '#2196F3'],
-          ['Leaderboard', 'leaderboard', '#FF9800'],
+          ['Create a post', 'create_post', '#2196F3']
         ].map(([label, route, color]) => (
           <TouchableOpacity
             key={label}
