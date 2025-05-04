@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 
-function LikeButton({ postId, onLike, liked, likes}) {
+function LikeButton({ postId, onLike, liked, likes }) {
     const [likeCount, setLikeCount] = useState(likes || 0); // Initialize likeCount with the number of likes from the post
     const [error, setError] = useState(null);
     const [username, setUsername] = useState(localStorage.getItem("username") || "");
 
     const toggleLike = async () => {
-        try {
-            const response = await fetch(`/api/posts/like`, {
-                method: "POST",
+        if (liked) {
+            const res = await fetch(`/api/posts/like`, {
+                method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
                     // Authorization: `Bearer ${localStorage.getItem("token")}`, // Uncomment if auth is added later
@@ -18,16 +18,38 @@ function LikeButton({ postId, onLike, liked, likes}) {
                     postId: postId,
                 }),
             });
-            const data = await response.json();
-            if (response.ok) {
-                setLikeCount(prevCount => liked ? prevCount - 1 : prevCount + 1); // Update the like count based on the current state
-                liked = !liked; // Toggle the liked state
+            if (res.ok) {
+                setLikeCount(prevCount => prevCount - 1); // Decrease the like count
+                liked = false; // Set liked to false
                 onLike(); // Call the onLike function passed as a prop to update the parent component
             } else {
-                setError(data.message || "Failed to like the post");
+                const data = await res.json();
+                setError(data.message || "Failed to unlike the post");
             }
-        } catch (err) {
-            setError("An error occurred. Please try again.");
+        } else {
+            try {
+                const response = await fetch(`/api/posts/like`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        // Authorization: `Bearer ${localStorage.getItem("token")}`, // Uncomment if auth is added later
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        postId: postId,
+                    }),
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    setLikeCount(prevCount => liked ? prevCount - 1 : prevCount + 1); // Update the like count based on the current state
+                    liked = !liked; // Toggle the liked state
+                    onLike(); // Call the onLike function passed as a prop to update the parent component
+                } else {
+                    setError(data.message || "Failed to like the post");
+                }
+            } catch (err) {
+                setError("An error occurred. Please try again.");
+            }
         }
     };
 
