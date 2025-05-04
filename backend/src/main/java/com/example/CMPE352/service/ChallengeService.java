@@ -122,7 +122,6 @@ public class ChallengeService {
     }
 
     public List<ChallengeListResponse> getAllChallenges(String username) {
-        // resolve user
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException("User not found: " + username));
         int userId = user.getId();

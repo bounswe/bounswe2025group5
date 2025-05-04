@@ -18,5 +18,5 @@ public class ChallengeListResponse {
     private LocalDate endDate;
     private Challenge.Status status;
     private WasteGoal.wasteType wasteType;
-    private boolean isAttendee;
+    private boolean attendee;
 }
