@@ -12,19 +12,14 @@ import com.example.CMPE352.model.response.CreateOrEditPostResponse;
 import com.example.CMPE352.model.response.GetPostResponse;
 import com.example.CMPE352.model.response.CommentResponse;
 import com.example.CMPE352.model.response.SavePostResponse;
-import com.example.CMPE352.repository.PostRepository;
-import com.example.CMPE352.repository.CommentRepository;
-import com.example.CMPE352.repository.SavedPostRepository;
-import com.example.CMPE352.repository.UserRepository;
+import com.example.CMPE352.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,14 +27,21 @@ import java.util.stream.Collectors;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final PostLikeRepository postLikeRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final SavedPostRepository savedPostRepository;
 
 
-    public List<GetPostResponse> getPosts(int size, Long lastPostId) {
+    public List<GetPostResponse> getPosts(String requestingUsername, int size, Long lastPostId) {
+        Integer requestingUserId = null;
+        if (requestingUsername != null) {
+            User requestingUser = userRepository.findByUsername(requestingUsername)
+                    .orElseThrow(() -> new NotFoundException("User not found: " + requestingUsername));
+            requestingUserId = requestingUser.getId();
+        }
         List<Post> posts = postRepository.findTopPosts(lastPostId, PageRequest.of(0, size));
-        return convertToGetPostsResponse(posts);
+        return convertToGetPostsResponse(posts, requestingUserId);
     }
 
     private List<CommentResponse> getCommentsForPost(Integer postId) {
@@ -53,6 +55,7 @@ public class PostService {
                 ))
                 .collect(Collectors.toList());
     }
+
     @Transactional
     public CreateOrEditPostResponse createPost(CreatePostRequest request) {
         User user = userRepository.findByUsername(request.getUsername())
@@ -76,12 +79,13 @@ public class PostService {
                 post.getUser().getUsername()
         );
     }
+
     @Transactional
     public CreateOrEditPostResponse editPost(Integer postId, Post editPostRequest) {
         Optional<Post> existingPostOpt = postRepository.findById(postId);
 
         if (existingPostOpt.isEmpty()) {
-                throw new NotFoundException("Post not found: " + postId);
+            throw new NotFoundException("Post not found: " + postId);
         }
 
         Post existingPost = existingPostOpt.get();
@@ -108,10 +112,16 @@ public class PostService {
 
     }
 
-    public List<GetPostResponse> getMostLikedPosts(Integer size) {
-        List<Post> posts = postRepository.findMostLikedPosts(PageRequest.of(0, size));
+    public List<GetPostResponse> getMostLikedPosts(Integer size, String username) {
+        Integer userId = null;
+        if (username != null) {
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new NotFoundException("User not found: " + username));
+            userId = user.getId();
+        }
 
-        return convertToGetPostsResponse(posts);
+        List<Post> posts = postRepository.findMostLikedPosts(PageRequest.of(0, size));
+        return convertToGetPostsResponse(posts, userId);
     }
 
 
@@ -127,7 +137,7 @@ public class PostService {
                 );
 
         SavedPost saved = new SavedPost(request.getUserId(), request.getPostId());
-        if (savedPostRepository.existsById(new SavedPost.SavedPostId(saved.getUserId(),saved.getPostId()))) {
+        if (savedPostRepository.existsById(new SavedPost.SavedPostId(saved.getUserId(), saved.getPostId()))) {
             throw new AlreadyExistsException("This post is already saved by user" + user.getUsername());
         }
         savedPostRepository.save(saved);
@@ -150,7 +160,24 @@ public class PostService {
         return Map.of("deleted", true);
     }
 
-    private List<GetPostResponse> convertToGetPostsResponse(List<Post> posts) {
+    private List<GetPostResponse> convertToGetPostsResponse(List<Post> posts, Integer requestingUserId) {
+        if (posts.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Integer> postIds = posts.stream().map(Post::getPostId).collect(Collectors.toList());
+
+        Set<Integer> likedPostIds;
+        Set<Integer> savedPostIds;
+
+        if (requestingUserId != null) {
+            likedPostIds = postLikeRepository.findLikedPostIdsByUserIdAndPostIdIn(requestingUserId, postIds);
+            savedPostIds = savedPostRepository.findSavedPostIdsByUserIdAndPostIdIn(requestingUserId, postIds);
+        } else {
+            savedPostIds = Collections.emptySet();
+            likedPostIds = Collections.emptySet();
+        }
+
         return posts.stream()
                 .map(post -> {
                     GetPostResponse postResponse = new GetPostResponse();
@@ -161,8 +188,11 @@ public class PostService {
                     postResponse.setCreatorUsername(post.getUser().getUsername());
                     postResponse.setComments(post.getComments());
                     postResponse.setPhotoUrl(post.getPhotoUrl());
+                    postResponse.setLiked(likedPostIds.contains(post.getPostId()));
+                    postResponse.setSaved(savedPostIds.contains(post.getPostId()));
                     return postResponse;
                 })
                 .collect(Collectors.toList());
     }
 }
+

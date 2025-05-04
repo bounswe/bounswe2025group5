@@ -24,10 +24,11 @@ public class PostController {
 
     @GetMapping("/info")
     public ResponseEntity<List<GetPostResponse>> getPosts(
+            @RequestParam(required = false) String username,
             @RequestParam int size,
             @RequestParam(required = false) Long lastPostId
     ) {
-        List<GetPostResponse> posts = postService.getPosts(size, lastPostId);
+        List<GetPostResponse> posts = postService.getPosts(username ,size, lastPostId);
         return ResponseEntity.ok(posts);
     }
     @PostMapping("/create")
@@ -51,9 +52,11 @@ public class PostController {
     }
     @GetMapping("/mostLikedPosts")
     public ResponseEntity<List<GetPostResponse>> getMostLikedPosts(
+            @RequestParam(required = false) String username,
             @RequestParam int size
+
     ) {
-        List<GetPostResponse> posts = postService.getMostLikedPosts(size);
+        List<GetPostResponse> posts = postService.getMostLikedPosts(size,username);
         return ResponseEntity.ok(posts);
     }
 
