@@ -33,10 +33,12 @@ export default function Navbar({ setIsLoggedIn }) {
 
 const styles = {
     navbar: {
-        backgroundColor: '#007BFF',
+        backgroundColor: '#10abdb',
         padding: '10px 20px',
         display: 'flex',
         justifyContent: 'center',
+        borderBottomLeftRadius: '20px', // Rounded bottom-left corner
+        borderBottomRightRadius: '20px', // Rounded bottom-right corner
     },
     navList: {
         listStyleType: 'none',
