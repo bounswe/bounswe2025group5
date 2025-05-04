@@ -5,6 +5,7 @@ import com.example.CMPE352.model.request.AttendChallengeRequest;
 import com.example.CMPE352.model.request.CreateChallengeRequest;
 import com.example.CMPE352.model.response.*;
 import com.example.CMPE352.service.ChallengeService;
+import com.example.CMPE352.model.response.ChallengeListResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,5 +50,12 @@ public class ChallengeController {
     public ResponseEntity<List<LeaderboardEntry>> getChallengeLeaderboard(   @RequestParam("id") Integer challengeId) {
         List<LeaderboardEntry> leaderboard = challengeService.getLeaderboardForChallenge(challengeId);
         return ResponseEntity.ok(leaderboard);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ChallengeListResponse>> getAll(
+            @RequestParam("username") String username) {
+        List<ChallengeListResponse> list = challengeService.getAllChallenges(username);
+        return ResponseEntity.ok(list);
     }
 }

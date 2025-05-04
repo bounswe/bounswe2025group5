@@ -1,3 +1,4 @@
+// src/main/java/com/example/CMPE352/config/CorsConfig.java
 package com.example.CMPE352.config;
 
 import org.springframework.context.annotation.Configuration;
@@ -9,11 +10,31 @@ public class CorsConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry
-                .addMapping("/**")
-                .allowedOrigins("http://localhost:8081")  // your Expo web origin
-                .allowedMethods("GET","POST","PUT","DELETE","OPTIONS")
+        registry.addMapping("/**")
+
+                /*  Accept the origins you actually hit in dev.
+                 *  Use patterns instead of allowedOrigins(..) so credentials
+                 *  still work while matching http / https and LAN IPs.
+                 */
+                .allowedOriginPatterns(
+                        "http://localhost:8081",
+                        "http://127.0.0.1:8081",
+                        "http://192.168.*:*"      // Expo on physical device
+                )
+
+                /*  Pre‑flight will fail if PATCH or OPTIONS are missing.  */
+                .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+
+                /*  Let any requested header through; you can whitelist if you prefer. */
                 .allowedHeaders("*")
-                .allowCredentials(true);
+
+                /*  Expose any custom headers you need on the client side. */
+                .exposedHeaders("Authorization", "Content-Disposition")
+
+                /*  Required when you fetch with credentials: 'include'. */
+                .allowCredentials(true)
+
+                /*  Cache the pre‑flight result for one hour. */
+                .maxAge(3600);
     }
 }
