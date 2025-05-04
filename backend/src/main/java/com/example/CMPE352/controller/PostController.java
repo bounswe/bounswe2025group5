@@ -24,7 +24,7 @@ public class PostController {
 
     @GetMapping("/info")
     public ResponseEntity<List<GetPostResponse>> getPosts(
-            @RequestParam String username,
+            @RequestParam(required = false) String username,
             @RequestParam int size,
             @RequestParam(required = false) Long lastPostId
     ) {
@@ -52,7 +52,7 @@ public class PostController {
     }
     @GetMapping("/mostLikedPosts")
     public ResponseEntity<List<GetPostResponse>> getMostLikedPosts(
-            @RequestParam String username,
+            @RequestParam(required = false) String username,
             @RequestParam int size
 
     ) {
