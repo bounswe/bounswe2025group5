@@ -12,4 +12,6 @@ public interface SavedPostRepository extends JpaRepository<SavedPost, SavedPostI
 
     List<SavedPost> findByUserId(Integer userId);
     List<SavedPost> findByPostId(Integer postId);
+    List<SavedPost> findAllByUserIdOrderBySavedAtDesc(Integer userId);
 }
+
