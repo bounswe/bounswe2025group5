@@ -32,7 +32,7 @@ export default function Challenge() {
 
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            <h1>Post Feed</h1>
+            <h1>Challenges</h1>
             {challenges.map(c => (  // ıterate over posts and render PostCard for each post
                 <ChallengeCard key={c.challengeId} challenge={c} onAction={fetchChallenges}/>
             ))}

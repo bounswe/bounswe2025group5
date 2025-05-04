@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom"; // Import useNavigate for naviga
 import LogoutButton from "../components/LogoutButton";
 import PostCard from "../components/PostCard"; // Import PostCard component
 import GoalCard from "../components/GoalCard";
+import ChallengeCard from "../components/ChallengeCard";
 
 
 export default function MainPage({ setIsLoggedIn }) {
@@ -11,10 +12,26 @@ export default function MainPage({ setIsLoggedIn }) {
     const [posts, setPosts] = useState([]);
     const [error, setError] = useState(null);
     const [message, setMessage] = useState("");
-    const [username, setUserName] = useState("");
     const [loading, setLoading] = useState(true);
     const [goals, setGoals] = useState([]);
+    const [challenges, setChallenges] = useState([]);
 
+    const username = localStorage.getItem("username"); // Get the username from local storage
+    const fetchChallenges = async () => {
+        try {
+            const response = await fetch(`/api/challenges?username=${username}`);
+            const data = await response.json();
+            if (response.ok) {
+                setChallenges(data);
+            } else {
+                setError(data.message || "Failed to fetch challenges");
+            }
+        } catch (err) {
+            setError("An error occurred. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
     useEffect(() => {
         const fetchPosts = async () => {
             try {
@@ -60,8 +77,10 @@ export default function MainPage({ setIsLoggedIn }) {
                 setLoading(false); // Set loading to false after fetching data
             }
         };
+        
         fetchPosts();
         fetchGoals(); // Fetch goals when the component mounts
+        fetchChallenges(); // Fetch challenges when the component mounts
     }, []); // Removed token dependency to avoid infinite loop
 
     if (loading) {
@@ -136,6 +155,10 @@ export default function MainPage({ setIsLoggedIn }) {
             {/*goals.length > 0 && goals.map(goal => (  // ıterate over goals and render PostCard for each post
                 <GoalCard key={goal.goalId} goal={goal} onDelete={handleGoalDelete} onToggleComplete={handleGoalComplete} onEdit={handleGoalEdit} />
             ))*/}
+            {challenges.slice(0, 3).map(challenge => (  // Show only the first 3 challenges
+                <ChallengeCard key={challenge.challengeId} challenge={challenge} onAction={fetchChallenges} />
+            ))}
+            {/* {isLoggedIn && <CreatePostButton onPostCreated={fetchPosts} />} */}
             {<LogoutButton setIsLoggedIn={setIsLoggedIn} onLogout={()=>navigate('/')}/>} {/* Logout button */}
         </div>
     );

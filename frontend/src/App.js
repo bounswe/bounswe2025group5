@@ -10,18 +10,21 @@ import HomePage from './pages/homePage.js';
 import MainPage from './pages/mainPage.js';
 import Navbar from './components/Navbar.js'; // Import the Navbar component
 import Challenge from './pages/challenge.js';
+import ProfilePage from './pages/profilePage.js';
+
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUserName] = useState("");
   const location = useLocation(); // Get the current location from React Router
+
   useEffect(() => {
     // Check if the user is already logged in
     // We assume that it will be valid infinitely for now
     const cachedUsername = localStorage.getItem('username');
     if (cachedUsername) {
-      setUserName(cachedUsername);
       setIsLoggedIn(true);
+      setUserName(cachedUsername); // Set the username from local storage
     }
   }, [location]);
 
@@ -40,9 +43,8 @@ function App() {
             <Route path="/feed" element={<Feed isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/main" element={<MainPage />} />
             <Route path="/goals" element={<div>Goals Page</div>} />
-            <Route path="/leaderboard" element={<div>Leaderboard Page</div>} />
-            <Route path="/profile" element={<div>Profile Page</div>} />
-            <Route path="/challenge" element={<Challenge />} />
+            <Route path="/challenge" element={<Challenge/>} />
+            <Route path="/profile" element={<ProfilePage setIsLoggedIn={setIsLoggedIn} username={username}/>} />
           </Routes>
         </div>
       </header>
