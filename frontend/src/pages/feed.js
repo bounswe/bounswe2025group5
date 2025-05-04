@@ -11,7 +11,6 @@ function Feed({ isLoggedIn, setIsLoggedIn }) {
     const [posts, setPosts] = useState([]);
     const [error, setError] = useState(null);
     const [message, setMessage] = useState("");
-    const [token, setToken] = useState("");
     const [loading, setLoading] = useState(true);
 
     const fetchPosts = async () => {
@@ -41,7 +40,7 @@ function Feed({ isLoggedIn, setIsLoggedIn }) {
 
     useEffect(() => {
         fetchPosts(); // Fetch posts when the component mounts
-    }, [token]);
+    }, []);
 
     if (loading) {
         return <div>Loading posts...</div>; // Optional: Show a loading indicator while fetching data
@@ -57,7 +56,7 @@ function Feed({ isLoggedIn, setIsLoggedIn }) {
             <h1>Post Feed</h1>
             {isLoggedIn && <CreatePostButton onPostCreated={fetchPosts} />}
             {posts.map(post => (  // ıterate over posts and render PostCard for each post
-                <PostCard key={post.postId} post={post} isLoggedIn={isLoggedIn} />
+                <PostCard key={post.postId} post={post} isLoggedIn={isLoggedIn} onAction={fetchPosts}/>
             ))}
             {isLoggedIn && <LogoutButton setIsLoggedIn={setIsLoggedIn} onLogout={() => navigate('/')} />} {/* Logout button */}
         </div>

@@ -1,8 +1,6 @@
 import React, { useState } from "react";
-
 function CommentInput({ onAddComment, isLoggedIn }) {
     const [commentText, setCommentText] = useState("");
-
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!isLoggedIn) {

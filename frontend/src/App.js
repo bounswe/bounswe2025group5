@@ -1,7 +1,7 @@
 import logo from './assets/logo2.png';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import './App.css';
-import React from 'react';
+import React, { use } from 'react';
 import { useState, useEffect } from 'react';
 import Login from './pages/login.js';
 import Register from './pages/register.js';
@@ -12,16 +12,19 @@ import Navbar from './components/Navbar.js'; // Import the Navbar component
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [username, setUserName] = useState('');
-
+  const [username, setUserName] = useState("");
+  const location = useLocation(); // Get the current location from React Router
   useEffect(() => {
     // Check if the user is already logged in
     // We assume that it will be valid infinitely for now
-    const token = localStorage.getItem('token');
-    if (token) {
+    const cachedUsername = localStorage.getItem('username');
+    console.log("burdayım", username);
+    if (cachedUsername) {
+      setUserName(cachedUsername);
       setIsLoggedIn(true);
+      console.log("burdayım2", isLoggedIn);
     }
-  }, [setIsLoggedIn]);
+  }, [location]);
 
   return (
 

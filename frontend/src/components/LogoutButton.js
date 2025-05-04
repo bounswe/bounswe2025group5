@@ -4,7 +4,7 @@ import { useState } from "react";
 export default function LogoutButton({ onLogout, setIsLoggedIn }) {
     const handleLogout = () => {
         // Perform logout logic here (e.g., clear tokens, redirect, etc.)
-        localStorage.removeItem("token"); // Remove the token from local storage
+        localStorage.removeItem("username"); // Remove the token from local storage
         setIsLoggedIn(false); // Update the logged-in state in the parent component
         onLogout(); // Call the onLogout function passed as a prop
     };

@@ -1,27 +1,29 @@
 import React, { useState } from "react";
 
-function LikeButton({ postId, initialLikes }) {
-    const [likes, setLikes] = useState(initialLikes);
+function LikeButton({ postId, onLike }) {
+    const [likeCount, setLikeCount] = useState(0); // Initialize like count to 0
     const [liked, setLiked] = useState(false);
     const [error, setError] = useState(null);
+    const [username, setUsername] = useState(localStorage.getItem("username") || "");
 
     const toggleLike = async () => {
         try {
-            const response = await fetch(`/api/posts/${postId}/like`, {
+            const response = await fetch(`/api/posts/like`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     // Authorization: `Bearer ${localStorage.getItem("token")}`, // Uncomment if auth is added later
                 },
+                body: JSON.stringify({
+                    username: username,
+                    postId: postId,
+                }),
             });
 
             if (response.ok) {
-                if (!liked) {
-                    setLikes(prev => prev + 1);
-                } else {
-                    setLikes(prev => prev - 1);
-                }
-                setLiked(!liked);
+                setLikeCount(response.totalLikes);
+                setLiked(true);
+                onLike(); // Call the onLike function passed as a prop to update the parent component
             } else {
                 const data = await response.json();
                 setError(data.message || "Failed to like the post");
@@ -34,7 +36,7 @@ function LikeButton({ postId, initialLikes }) {
     return (
         <div>
             <button onClick={toggleLike} style={styles.button}>
-                {liked ? "❤️" : "🤍"} {likes}
+                {liked ? "❤️" : "🤍"} {likeCount}
             </button>
             {error && <p style={styles.error}>{error}</p>}
         </div>
