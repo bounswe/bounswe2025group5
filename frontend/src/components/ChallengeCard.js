@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export default function ChallengeCard({ challenge, onAction }) {
+export default function ChallengeCard({ challenge, onAction, onCardClick }) {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
 
@@ -18,7 +18,8 @@ export default function ChallengeCard({ challenge, onAction }) {
 
     const username = localStorage.getItem("username");
 
-    const handleJoin = async () => {
+    const handleJoin = async (e) => {
+        e.stopPropagation(); // prevent triggering card click
         if (status !== "Active") {
             setError("Challenge is not active.");
             return;
@@ -31,10 +32,7 @@ export default function ChallengeCard({ challenge, onAction }) {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({
-                    username,
-                    challengeId,
-                }),
+                body: JSON.stringify({ username, challengeId }),
             });
 
             if (res.ok) {
@@ -50,7 +48,8 @@ export default function ChallengeCard({ challenge, onAction }) {
         }
     };
 
-    const handleLeave = async () => {
+    const handleLeave = async (e) => {
+        e.stopPropagation(); // prevent triggering card click
         setLoading(true);
         try {
             const res = await fetch(`/api/challenges/leave/${username}/${challengeId}`, {
@@ -72,6 +71,7 @@ export default function ChallengeCard({ challenge, onAction }) {
 
     return (
         <div
+            onClick={() => onCardClick(challengeId)}
             style={{
                 border: "1px solid #ccc",
                 borderRadius: "8px",
@@ -79,6 +79,7 @@ export default function ChallengeCard({ challenge, onAction }) {
                 backgroundColor: attendee ? "#e0ffe0" : "#fff",
                 marginBottom: "1rem",
                 position: "relative",
+                cursor: "pointer",
             }}
         >
             <h3>{name}</h3>
