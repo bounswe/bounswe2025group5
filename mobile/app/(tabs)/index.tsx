@@ -15,19 +15,26 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
+import { ScrollView } from 'react-native';
 
 const API_BASE = 'http://localhost:8080/api/auth';
 
-// 🎉 live counters – replace with real values if you have them
-const USERS_COUNT = 12837;
-const KG_SAVED     = 57492;
+const KG_SAVED     = 57492; 
 
 type Navigation = {
   navigate: (screen: string, params?: any) => void;
   setParams?: (params: any) => void;
 };
 
-// Tiny checkbox component
+type TrendingPost = {
+  postId        : number;
+  content       : string;
+  likes         : number;
+  comments      : number;
+  creatorUsername: string;
+  photoUrl      : string | null;
+};
+
 function CheckBox({ checked, onPress }: { checked: boolean; onPress: () => void }) {
   return (
     <TouchableOpacity style={styles.checkbox} onPress={onPress}>
@@ -41,7 +48,6 @@ export default function HomeScreen() {
   const route     = useRoute<any>();
   const { setUserType, setUsername } = useContext(AuthContext);
 
-  /* ─────────────────────────────── STATE */
   const [showAuthFields, setShowAuthFields] = useState(false);
   const [isRegistering, setIsRegistering]   = useState(false);
 
@@ -54,8 +60,55 @@ export default function HomeScreen() {
   const [loggedIn, setLoggedIn]             = useState(false);
   const [errorVisible, setErrorVisible]     = useState(false);
   const [errorMessage, setErrorMessage]     = useState('');
+  const [usersCount, setUsersCount] = useState<number>(0);
+  const [trendingPosts, setTrendingPosts] = useState<TrendingPost[]>([]);
 
-  /* ─────────────────────────────── EFFECTS */
+  useEffect(() => {
+    const fetchUserCount = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        const res = await fetch(`http://localhost:8080/api/users/count`, {
+          method : 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+  
+        const body = await res.json().catch(() => ({}));
+        console.log('users/count response ➜', body);          
+  
+        if (!res.ok) {
+          return console.warn(body.message || 'Could not fetch user count');
+        }
+  
+        const userCount = body.userCount ?? 0;
+        console.log('setting usersCount ➜', userCount);       
+        setUsersCount(userCount);
+      } catch (err) {
+        console.warn('Network error while fetching user count', err);
+      }
+    };
+  
+    fetchUserCount();
+  }, []);
+
+  useEffect(() => {
+    const fetchTrending = async () => {
+      try {
+        const res = await fetch('http://localhost:8080/api/posts/mostLikedPosts?size=4');
+        if (!res.ok) throw new Error('Failed to fetch trending posts');
+        const data = (await res.json()) as TrendingPost[];
+        setTrendingPosts(data);
+      } catch (err) {
+        console.warn('Unable to load trending posts', err);
+      }
+    };
+
+    fetchTrending();
+  }, []);
+
+
   useEffect(() => {
     (async () => {
       const token      = await AsyncStorage.getItem('token');
@@ -84,7 +137,6 @@ export default function HomeScreen() {
     }, [loggedIn])
   );
 
-  /* ─────────────────────────────── HELPERS */
   const showError = (msg: string) => {
     setErrorMessage(msg);
     setErrorVisible(true);
@@ -180,7 +232,6 @@ export default function HomeScreen() {
     navigation.navigate('explore');
   };
 
-  /* ─────────────────────────────── RENDER */
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#', dark: '#' }}
@@ -191,27 +242,56 @@ export default function HomeScreen() {
         />
       }
     >
-      <View style={styles.titleContainer}>
-        <HelloWave />
-      </View>
 
-      {/* ───────────── STATS + BUTTONS (FIRST SCREEN) ───────────── */}
       {!showAuthFields && (
         <>
-          {/* Stats */}
           <View style={styles.statsContainer}>
             <Text style={styles.statLine}>
-              <Text style={styles.statNumber}>{USERS_COUNT.toLocaleString()}</Text>{' '}
+              <Text style={styles.statNumber}>{usersCount}</Text>{' '}
               users are reducing their wastes with us
             </Text>
-            <Text style={styles.statLine}>
-              <Text style={styles.statNumber}>{KG_SAVED.toLocaleString()}</Text>{' '}
-              kg of plastic has been saved so far
-            </Text>
+                     <Text style={styles.sectionTitle}>Trending posts :</Text>
+             <ScrollView
+               horizontal
+               pagingEnabled
+               showsHorizontalScrollIndicator={false}
+               style={styles.trendingContainer}
+             >
+              {trendingPosts.map(post => (
+                <View key={post.postId} style={styles.postContainer}>
+                  <ThemedText type="title" style={styles.postTitle}>
+                    {post.creatorUsername}
+                  </ThemedText>
+
+                  <ThemedText style={styles.postContent} numberOfLines={3}>
+                    {post.content}
+                  </ThemedText>
+
+                   {post.photoUrl && (
+                    <Image
+                      source={{
+                        uri: post.photoUrl.startsWith('http')
+                          ? post.photoUrl
+                          : `http://localhost:8080${post.photoUrl}`,
+                      }}
+                      style={styles.postImage}
+                      onError={(e) => console.warn('Image failed to load:', e.nativeEvent.error)}
+                    />
+                  )}
+
+                  <View style={styles.postFooter}>
+                    <Ionicons name="heart-outline" size={16} />
+                    <ThemedText style={styles.footerText}>{post.likes}</ThemedText>
+                    <Ionicons name="chatbubble-outline" size={16} />
+                    <ThemedText style={styles.footerText}>{post.comments}</ThemedText>
+                  </View>
+                </View>
+              ))}
+
+             </ScrollView>
           </View>
 
-          {/* Buttons shifted 50 px lower */}
-          <View style={[styles.buttonsColumn, { marginTop: 74 }]}>
+          <View style={[styles.buttonsColumn, { marginTop: 15 }]}>
             <TouchableOpacity
               style={[styles.authButtonFull, styles.loginAreaFull]}
               onPress={() => {
@@ -239,14 +319,12 @@ export default function HomeScreen() {
         </>
       )}
 
-      {/* ───────────── AUTH FORMS (SECOND SCREEN) ───────────── */}
       {showAuthFields && (
         <>
           <Text style={styles.modeHeader}>
             {isRegistering ? 'Create account' : 'Login here'}
           </Text>
 
-          {/* Username / Email */}
           <TextInput
             style={[styles.input, styles.inputLight]}
             onChangeText={setUsernameInput}
@@ -256,7 +334,6 @@ export default function HomeScreen() {
             autoCapitalize="none"
           />
 
-          {/* Email (registration only) */}
           {isRegistering && (
             <TextInput
               style={[styles.input, styles.inputLight]}
@@ -268,7 +345,6 @@ export default function HomeScreen() {
             />
           )}
 
-          {/* Password */}
           <TextInput
             style={[styles.input, styles.inputLight]}
             onChangeText={setPassword}
@@ -278,7 +354,6 @@ export default function HomeScreen() {
             value={password}
           />
 
-          {/* Confirm password & KVKK */}
           {isRegistering && (
             <>
               <TextInput
@@ -302,7 +377,6 @@ export default function HomeScreen() {
             </>
           )}
 
-          {/* Action buttons */}
           <View style={styles.buttonsColumn}>
             {isRegistering ? (
               <>
@@ -345,7 +419,6 @@ export default function HomeScreen() {
         </>
       )}
 
-      {/* Error toast */}
       {errorVisible && (
         <View style={styles.errorBox}>
           <Text style={styles.errorText}>{errorMessage}</Text>
@@ -355,7 +428,6 @@ export default function HomeScreen() {
   );
 }
 
-/* ─────────────────────────────── STYLES */
 const styles = StyleSheet.create({
   titleContainer: { flexDirection: 'row', alignItems: 'center', gap: 8 },
 
@@ -366,11 +438,35 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
 
-  /* stats */
   statsContainer: { marginTop: 24, marginHorizontal: 16 },
   statLine    : { color: '#fff', fontSize: 18, textAlign: 'center', marginVertical: 4 },
   statNumber  : { fontWeight: 'bold', fontSize: 20, color: '#4CAF50' },
 
+    sectionTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold', marginTop: 16, marginBottom: 8 },
+    trendingContainer: { height: 200, marginVertical: 8 },
+      postContainer: {
+          width: 250,
+          height: 200,        
+          marginRight: 16,
+          backgroundColor: '#f5f5f5',
+          borderRadius: 8,
+          padding: 12,
+          justifyContent: 'space-between',
+          overflow: 'hidden', 
+        },
+    postTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 4 , color: '#000'},
+    
+    postContent: { fontSize: 14, marginBottom: 8 , color: '#000'},
+    
+      postImage: {
+        width: '100%',
+        aspectRatio: 16 / 9, 
+        maxHeight: 100,      
+        borderRadius: 6,
+        marginBottom: 8,
+        resizeMode: 'cover',
+      },
+    postFooter: { flexDirection: 'row', alignItems: 'center', marginTop: 8 },    footerText: { fontSize: 12, marginHorizontal: 4, color: '#000' },    
   modeHeader: {
     fontSize: 20,
     fontWeight: 'bold',

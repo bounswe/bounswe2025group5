@@ -54,7 +54,11 @@ export default function ExploreScreen() {
   const [lastPostId, setLastPostId] = useState<number | null>(null);
   const [error, setError] = useState(false);
   const [noMorePosts, setNoMorePosts] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false); // 🔥 new for spinner when loading more
+  const [loadingMore, setLoadingMore] = useState(false); 
+  const [searchQuery,   setSearchQuery]   = useState('');
+  const [searchResults, setSearchResults] = useState<Post[]>([]);
+  const [isSearching,   setIsSearching]   = useState(false);
+  const [inSearchMode,  setInSearchMode]  = useState(false);
 
   useEffect(() => {
     if (!userType) {
@@ -139,6 +143,43 @@ export default function ExploreScreen() {
     }
   };
 
+  const performSearch = async () => {
+    const q = searchQuery.trim();
+    if (!q) return;
+
+    try {
+      setIsSearching(true);
+      const res = await fetch(
+        `${API_BASE}/api/search/posts/semantic?query=${encodeURIComponent(q)}&size=5`
+      );
+      if (!res.ok) throw new Error('Search failed');
+      const data = await res.json();
+
+      const mapped: Post[] = data.map((item: any) => ({
+        id: item.postId,
+        title: item.creatorUsername,
+        content: item.content,
+        likes: item.likes,
+        comments: item.comments,          // already a number
+      }));
+
+      setSearchResults(mapped);
+      setInSearchMode(true);
+    } catch (err) {
+      console.error('Search error:', err);
+      setSearchResults([]);
+      setInSearchMode(true);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleBack = () => {
+    setInSearchMode(false);
+    setSearchQuery('');
+    setSearchResults([]);
+  };
+
   if (!userType) return null;
 
   return (
@@ -161,41 +202,82 @@ export default function ExploreScreen() {
       </View>
 
       <View style={styles.searchBar}>
-        <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
+        {inSearchMode && (
+          <TouchableOpacity onPress={handleBack}>
+            <Ionicons
+              name="arrow-back"
+              size={25}
+              color="#888"
+              style={[styles.searchIcon, { marginRight: 8 }]}
+            />
+          </TouchableOpacity>
+        )}
+
+           <TouchableOpacity onPress={performSearch} disabled={isSearching}>
+          {isSearching ? (
+            /* small spinner that replaces the icon while the request is in flight */
+            <ActivityIndicator size="small" color="#888" style={styles.searchIcon} />
+          ) : (
+            <Ionicons name="search" size={30} color="#888" style={styles.searchIcon} />
+          )}
+        </TouchableOpacity>
         <TextInput
           style={styles.searchInput}
-          placeholder="Search for posts..."
+          placeholder="Search for posts…"
           placeholderTextColor="#888"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          returnKeyType="search"
+          onSubmitEditing={performSearch}
         />
       </View>
 
-    {loading ? (<ActivityIndicator style={{ marginTop: 20 }} />) 
-    : error ? (
-      <View style={styles.errorBox}>
-        <ThemedText style={styles.errorText}>Failed to fetch posts</ThemedText>
-      </View>) 
-    : posts.length > 0 ? (<>{posts.map(post => (
-    <PostSkeleton key={post.id} post={post} />))}
-
-    {!noMorePosts ? (
-    <TouchableOpacity style={styles.loadMoreButton} onPress={handleLoadMore}>
-      {loadingMore ? (
-        <ActivityIndicator color="#fff" />
+      {/* ───────── Main content ───────── */}
+      {inSearchMode ? (
+        /* SEARCH MODE */
+        isSearching ? (
+          <ActivityIndicator style={{ marginTop: 20 }} />
+        ) : searchResults.length > 0 ? (
+          searchResults.map(post => <PostSkeleton key={post.id} post={post} />)
+        ) : (
+          <View style={styles.noMoreBox}>
+            <ThemedText style={styles.noMoreText}>No results found</ThemedText>
+          </View>
+        )
       ) : (
-        <ThemedText style={styles.loadMoreText}>Load More Posts</ThemedText>
+        /* NORMAL FEED */
+        loading ? (
+          <ActivityIndicator style={{ marginTop: 20 }} />
+        ) : error ? (
+          <View style={styles.errorBox}>
+            <ThemedText style={styles.errorText}>Failed to fetch posts</ThemedText>
+          </View>
+        ) : posts.length > 0 ? (
+          <>
+            {posts.map(post => (
+              <PostSkeleton key={post.id} post={post} />
+            ))}
+
+            {!noMorePosts ? (
+              <TouchableOpacity style={styles.loadMoreButton} onPress={handleLoadMore}>
+                {loadingMore ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <ThemedText style={styles.loadMoreText}>Load More Posts</ThemedText>
+                )}
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.noMoreBox}>
+                <ThemedText style={styles.noMoreText}>No more posts available</ThemedText>
+              </View>
+            )}
+          </>
+        ) : (
+          <View style={styles.noMoreBox}>
+            <ThemedText style={styles.noMoreText}>No posts available</ThemedText>
+          </View>
+        )
       )}
-    </TouchableOpacity>
-    ) : (
-    <View style={styles.noMoreBox}>
-      <ThemedText style={styles.noMoreText}>No more posts available</ThemedText>
-    </View>
-    )}
-    </>
-    ) : (
-    <View style={styles.noMoreBox}>
-      <ThemedText style={styles.noMoreText}>No posts available</ThemedText>
-    </View>
-    )}
 
     </ScrollView>
   );
@@ -214,17 +296,17 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 16,
     marginTop: 48,     
-    marginBottom: 8,
+    marginBottom: 18,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#f0f0f0',
-    borderRadius: 20,
+    borderRadius: 30,
     marginHorizontal: 16,
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginBottom: 16,
+    paddingVertical: 12,
+    marginBottom: 18,
   },
   searchIcon: {
     marginRight: 8,
@@ -254,6 +336,7 @@ const styles = StyleSheet.create({
   postTitle: {
     fontSize: 18,
     marginBottom: 6,
+    color: '#000',
   },
   postContent: {
     fontSize: 14,
@@ -267,6 +350,7 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: 14,
     marginHorizontal: 8,
+    color: '#000',
   },
   loginButton: {
     marginTop: 12,
