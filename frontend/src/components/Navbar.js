@@ -12,7 +12,7 @@ export default function Navbar({ setIsLoggedIn }) {
                     <Link to="/goals" style={styles.navLink}>Goals</Link>
                 </li>
                 <li style={styles.navItem}>
-                    <Link to="/leaderboard" style={styles.navLink}>Leaderboard</Link>
+                    <Link to="/challenge" style={styles.navLink}>Challenge</Link>
                 </li>
                 <li style={styles.navItem}>
                     <Link to="/feed" style={styles.navLink}>Feed</Link>

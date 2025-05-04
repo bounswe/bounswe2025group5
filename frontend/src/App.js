@@ -9,6 +9,7 @@ import Feed from './pages/feed.js';
 import HomePage from './pages/homePage.js';
 import MainPage from './pages/mainPage.js';
 import Navbar from './components/Navbar.js'; // Import the Navbar component
+import Challenge from './pages/challenge.js';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -41,6 +42,7 @@ function App() {
             <Route path="/goals" element={<div>Goals Page</div>} />
             <Route path="/leaderboard" element={<div>Leaderboard Page</div>} />
             <Route path="/profile" element={<div>Profile Page</div>} />
+            <Route path="/challenge" element={<Challenge />} />
           </Routes>
         </div>
       </header>
