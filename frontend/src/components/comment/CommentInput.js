@@ -1,6 +1,17 @@
-import React, { useState } from "react";
-function CommentInput({ onAddComment, isLoggedIn }) {
+import React, { use, useState } from "react";
+import { useEffect } from "react";
+function CommentInput({ onAddComment, isLoggedIn ,commentBeingEdited, onCancelEdit}) {
+
     const [commentText, setCommentText] = useState("");
+    useEffect(() => {
+        if (commentBeingEdited) {
+            setCommentText(commentBeingEdited.content);
+        }else {
+            setCommentText("");
+        }
+    }
+    , [commentBeingEdited]);
+
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!isLoggedIn) {
@@ -13,21 +24,33 @@ function CommentInput({ onAddComment, isLoggedIn }) {
         }
     };
 
-    return (
-        <form onSubmit={handleSubmit}>
-            <input
-                type="text"
+    return isLoggedIn ? (
+        <form onSubmit={handleSubmit} style={{ marginBottom: "1rem" }}>
+            <textarea
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
-                placeholder={isLoggedIn ? "Write a comment..." : "Login to comment"}
-                disabled={!isLoggedIn}
-                style={{ width: "80%", padding: "8px" }}
+                rows={3}
+                style={{ width: "100%" }}
+                placeholder="Write a comment..."
             />
-            <button type="submit" disabled={!isLoggedIn} style={{ marginLeft: "8px" }}>
-                Post
-            </button>
+            <div>
+                <button type="submit" style={{ marginTop: "0.5rem" }}>
+                    {commentBeingEdited ? "Update" : "Post"}
+                </button>
+                {commentBeingEdited && (
+                    <button
+                        type="button"
+                        onClick={onCancelEdit}
+                        style={{ marginLeft: "0.5rem" }}
+                    >
+                        Cancel
+                    </button>
+                )}
+            </div>
         </form>
+    ) : (
+        <p>You must be logged in to comment.</p>
     );
-}
+};
 
 export default CommentInput;

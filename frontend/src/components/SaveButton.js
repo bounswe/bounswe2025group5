@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 
-function SaveButton({ postId, onSave }) {
-    const [saved, setSaved] = useState(false);
+function SaveButton({ postId, onSave, saved }) {
     const [error, setError] = useState(null);
     const username = localStorage.getItem("username"); // Get the username from local storage
 
     const toggleSave = async () => {
         if (saved) {
-            const response = await fetch(`/api/posts/unsave{username}/{postId}`, {
+            const response = await fetch(`/api/posts/unsave${username}/${postId}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -29,7 +28,7 @@ function SaveButton({ postId, onSave }) {
                 });
 
                 if (response.ok) {
-                    setSaved(prev => !prev);
+                    //setSaved(prev => !prev);
                     onSave(); // Call the onSave function to refresh the posts
                 } else {
                     const data = await response.json();

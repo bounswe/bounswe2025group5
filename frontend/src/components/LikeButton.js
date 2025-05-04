@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 
-function LikeButton({ postId, onLike }) {
-    const [likeCount, setLikeCount] = useState(0); // Initialize like count to 0
-    const [liked, setLiked] = useState(false);
+function LikeButton({ postId, onLike, liked, likes}) {
+    const [likeCount, setLikeCount] = useState(likes || 0); // Initialize likeCount with the number of likes from the post
     const [error, setError] = useState(null);
     const [username, setUsername] = useState(localStorage.getItem("username") || "");
 
@@ -19,13 +18,12 @@ function LikeButton({ postId, onLike }) {
                     postId: postId,
                 }),
             });
-
+            const data = await response.json();
             if (response.ok) {
-                setLikeCount(response.totalLikes);
-                setLiked(true);
+                setLikeCount(prevCount => liked ? prevCount - 1 : prevCount + 1); // Update the like count based on the current state
+                liked = !liked; // Toggle the liked state
                 onLike(); // Call the onLike function passed as a prop to update the parent component
             } else {
-                const data = await response.json();
                 setError(data.message || "Failed to like the post");
             }
         } catch (err) {

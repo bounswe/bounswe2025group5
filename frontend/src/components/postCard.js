@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import LikeButton from "./LikeButton.js";
 import SaveButton from "./SaveButton.js";
 import CommentSection from "./comment/index.js"; // Import the CommentSection component
+import EditPostButton from "./EditPostButton.js";
+import DeletePost from "./DeletePost.js"; // Import the DeletePost component
 
 function PostCard({ post, isLoggedIn, onAction }) {
     const [comments, setComments] = useState(post.comments || []);
-    //const [likes, setLikes] = useState(post.likes || 0);
+
     return (
         <div style={styles.card}>
             <h3>{post.creatorUsername}</h3>
@@ -22,18 +24,24 @@ function PostCard({ post, isLoggedIn, onAction }) {
 
             {isLoggedIn && (
                 <div style={styles.actions}>
-                    <LikeButton postId={post.postId} onLike={onAction}/>
-                    <SaveButton postId={post.postId} onSave={onAction}/>
+                    <LikeButton postId={post.postId} onLike={onAction} liked={post.liked} likes={post.likes} />
+                    <SaveButton postId={post.postId} onSave={onAction} saved={post.saved} />
                 </div>
             )}
 
+            {isLoggedIn && post.creatorUsername === localStorage.getItem("username") && (
+                <>
+                <EditPostButton post={post} onPostUpdated={onAction} />
+                <DeletePost postId={post.postId} onDelete={onAction} />
+                </>
+            )}
+            <hr style={{ margin: "2rem 0", borderTop: "2px solid #ccc" }} />
             {/* Comment Section */}
             <CommentSection
                 postId={post.postId}
                 comments={comments}
                 setComments={setComments}
-                isLoggedIn={isLoggedIn} 
-                
+                isLoggedIn={isLoggedIn}
             />
         </div>
     );

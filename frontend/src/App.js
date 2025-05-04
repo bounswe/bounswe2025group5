@@ -18,11 +18,9 @@ function App() {
     // Check if the user is already logged in
     // We assume that it will be valid infinitely for now
     const cachedUsername = localStorage.getItem('username');
-    console.log("burdayım", username);
     if (cachedUsername) {
       setUserName(cachedUsername);
       setIsLoggedIn(true);
-      console.log("burdayım2", isLoggedIn);
     }
   }, [location]);
 

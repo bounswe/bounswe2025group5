@@ -12,10 +12,12 @@ function Feed({ isLoggedIn, setIsLoggedIn }) {
     const [error, setError] = useState(null);
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(true);
+    const fetchSize = 10; // Number of posts to fetch at once
 
     const fetchPosts = async () => {
+        const username = localStorage.getItem("username"); // Get the username from local storage
         try {
-            const response = await fetch("/api/posts/info?size=5", {
+            const response = await fetch(`/api/posts/info?size=${fetchSize}&username=${username}`, {
                 method: "GET",
                 //headers: { Authorization: `Bearer ${token}` },
             });
