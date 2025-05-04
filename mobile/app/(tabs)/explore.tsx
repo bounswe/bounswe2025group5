@@ -332,6 +332,7 @@ const styles = StyleSheet.create({
   postTitle: {
     fontSize: 18,
     marginBottom: 6,
+    color: '#000',
   },
   postContent: {
     fontSize: 14,
@@ -345,6 +346,7 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: 14,
     marginHorizontal: 8,
+    color: '#000',
   },
   loginButton: {
     marginTop: 12,
