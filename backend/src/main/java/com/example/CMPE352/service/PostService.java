@@ -166,11 +166,10 @@ public class PostService {
                 })
                 .collect(Collectors.toList());
     }
+    
     public List<GetSavedPostResponse> getSavedPosts(Integer userId) {
-
         List<SavedPost> savedPosts =
                 savedPostRepository.findAllByUserIdOrderBySavedAtDesc(userId);
-
         return savedPosts.stream()
                 .map(sp -> new GetSavedPostResponse(
                         sp.getPost().getPostId(),
