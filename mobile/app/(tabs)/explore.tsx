@@ -54,7 +54,7 @@ export default function ExploreScreen() {
   const [lastPostId, setLastPostId] = useState<number | null>(null);
   const [error, setError] = useState(false);
   const [noMorePosts, setNoMorePosts] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false); // 🔥 new for spinner when loading more
+  const [loadingMore, setLoadingMore] = useState(false); 
   const [searchQuery,   setSearchQuery]   = useState('');
   const [searchResults, setSearchResults] = useState<Post[]>([]);
   const [isSearching,   setIsSearching]   = useState(false);
@@ -206,17 +206,21 @@ export default function ExploreScreen() {
           <TouchableOpacity onPress={handleBack}>
             <Ionicons
               name="arrow-back"
-              size={20}
+              size={25}
               color="#888"
-              style={[styles.searchIcon, { marginRight: 4 }]}
+              style={[styles.searchIcon, { marginRight: 8 }]}
             />
           </TouchableOpacity>
         )}
 
-        <TouchableOpacity onPress={performSearch}>
-          <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
+           <TouchableOpacity onPress={performSearch} disabled={isSearching}>
+          {isSearching ? (
+            /* small spinner that replaces the icon while the request is in flight */
+            <ActivityIndicator size="small" color="#888" style={styles.searchIcon} />
+          ) : (
+            <Ionicons name="search" size={30} color="#888" style={styles.searchIcon} />
+          )}
         </TouchableOpacity>
-
         <TextInput
           style={styles.searchInput}
           placeholder="Search for posts…"
@@ -292,17 +296,17 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 16,
     marginTop: 48,     
-    marginBottom: 8,
+    marginBottom: 18,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#f0f0f0',
-    borderRadius: 20,
+    borderRadius: 30,
     marginHorizontal: 16,
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginBottom: 16,
+    paddingVertical: 12,
+    marginBottom: 18,
   },
   searchIcon: {
     marginRight: 8,
