@@ -15,7 +15,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-const API_BASE = 'http://localhost:8080';
+const API_BASE = 'http://10.0.2.2:8080'; // Updated to match explore.tsx for consistency
 
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
@@ -23,6 +23,7 @@ export default function ProfileScreen() {
   const [bio, setBio] = useState('');
   const [avatarUri, setAvatarUri] = useState('');
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<number | null>(null); // Add userId state
 
   useFocusEffect(
     useCallback(() => {
@@ -46,10 +47,12 @@ export default function ProfileScreen() {
             const retryData = await retryRes.json();
             setBio(retryData.biography ?? '');
             setAvatarUri(retryData.photoUrl ?? '');
+            setUserId(retryData.userId); // Set userId from profile response
           } else {
             const data = await res.json();
             setBio(data.biography ?? '');
             setAvatarUri(data.photoUrl ?? '');
+            setUserId(data.userId); // Set userId from profile response
           }
         } catch (err) {
           console.error('Failed to fetch or create profile:', err);
@@ -66,6 +69,14 @@ export default function ProfileScreen() {
     setUserType(null);
     setUsername('');
     navigation.reset({ index: 0, routes: [{ name: 'index' }] });
+  };
+
+  const navigateToSavedPosts = () => {
+    if (userId) {
+      navigation.navigate('saved_posts', { userId });
+    } else {
+      console.error('Cannot navigate to saved posts: userId is null');
+    }
   };
 
   if (userType !== 'user' || loading) {
@@ -120,18 +131,19 @@ export default function ProfileScreen() {
 
         {/* Action Buttons */}
         {[
-          ['Add a Waste Log', 'add_waste_log', '#4CAF50'],
-          ['Add a Waste Goal', 'add_waste_goal', '#2E7D32'],
-          ['Create a post', 'create_post', '#2196F3'],
-          ['Leaderboard', 'leaderboard', '#FF9800'],
-          ['Challenges', 'challenges', '#9C27B0'],
-        ].map(([label, route, color]) => (
+          { label: 'Saved Posts', action: navigateToSavedPosts, color: '#3F51B5' }, // Added Saved Posts option
+          { label: 'Add a Waste Log', action: 'add_waste_log', color: '#4CAF50' },
+          { label: 'Add a Waste Goal', action: 'add_waste_goal', color: '#2E7D32' },
+          { label: 'Create a post', action: 'create_post', color: '#2196F3' },
+          { label: 'Leaderboard', action: 'leaderboard', color: '#FF9800' },
+          { label: 'Challenges', action: 'challenges', color: '#9C27B0' },
+        ].map((item) => (
           <TouchableOpacity
-            key={label}
-            style={[styles.actionButton, { backgroundColor: color as string }]}
-            onPress={() => navigation.navigate(route as string)}
+            key={item.label}
+            style={[styles.actionButton, { backgroundColor: item.color }]}
+            onPress={typeof item.action === 'function' ? item.action : () => navigation.navigate(item.action)}
           >
-            <Text style={styles.actionText}>{label}</Text>
+            <Text style={styles.actionText}>{item.label}</Text>
           </TouchableOpacity>
         ))}
       </View>
