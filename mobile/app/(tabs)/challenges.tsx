@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   View,
   FlatList,
@@ -10,6 +10,10 @@ import {
   GestureResponderEvent,
 } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
+import { AuthContext } from '../_layout';
+
+// Placeholder admin type constant; replace with your actual admin identifier
+const ADMIN_TYPE_PLACEHOLDER = 'admin';
 
 type Challenge = {
   name: string;
@@ -18,7 +22,6 @@ type Challenge = {
   startDate: string;
   endDate: string;
   wasteType: string;
-  isCreator?: boolean;
   isAttendee?: boolean;
 };
 
@@ -30,7 +33,6 @@ const mockChallenges: Challenge[] = [
     startDate: '2025-05-01',
     endDate: '2025-06-01',
     wasteType: 'Plastic',
-    isCreator: true,
     isAttendee: true,
   },
   {
@@ -40,7 +42,6 @@ const mockChallenges: Challenge[] = [
     startDate: '2025-05-10',
     endDate: '2025-06-10',
     wasteType: 'Paper',
-    isCreator: false,
     isAttendee: false,
   },
   {
@@ -50,12 +51,12 @@ const mockChallenges: Challenge[] = [
     startDate: '2025-05-15',
     endDate: '2025-06-15',
     wasteType: 'Glass',
-    isCreator: false,
     isAttendee: true,
   },
 ];
 
 export default function ChallengesScreen() {
+  const { userType } = useContext(AuthContext);
   const [showAttendedOnly, setShowAttendedOnly] = useState(false);
   const [expanded, setExpanded] = useState<string[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -72,6 +73,8 @@ export default function ChallengesScreen() {
   const attended = mockChallenges.filter(c => c.isAttendee);
   const dataToShow = showAttendedOnly ? attended : challenges;
 
+  const isAdmin = String(userType) === ADMIN_TYPE_PLACEHOLDER;
+
   const toggleExpand = (name: string) => {
     setExpanded(prev =>
       prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]
@@ -84,9 +87,7 @@ export default function ChallengesScreen() {
 
   const submitChallenge = () => {
     console.log('Creating challenge:', newChallenge);
-    // TODO: integrate API
     setModalVisible(false);
-    // Reset form
     setNewChallenge({ name: '', description: '', amount: 0, startDate: '', endDate: '', wasteType: '' });
   };
 
@@ -94,9 +95,11 @@ export default function ChallengesScreen() {
     <View style={styles.container}>
       <ThemedText type="title" style={styles.screenTitle}>Challenges</ThemedText>
 
-      <TouchableOpacity style={styles.primaryButton} onPress={() => setModalVisible(true)}>
-        <ThemedText type="default" style={styles.primaryButtonText}>Create Challenge</ThemedText>
-      </TouchableOpacity>
+      {isAdmin && (
+        <TouchableOpacity style={styles.primaryButton} onPress={() => setModalVisible(true)}>
+          <ThemedText type="defaultSemiBold" style={styles.primaryButtonText}>Create Challenge</ThemedText>
+        </TouchableOpacity>
+      )}
 
       <View style={styles.toggleRow}>
         <Switch value={showAttendedOnly} onValueChange={setShowAttendedOnly} />
@@ -123,22 +126,23 @@ export default function ChallengesScreen() {
                 <ThemedText type="default" style={styles.cardDescription}>{item.description}</ThemedText>
                 <ThemedText type="default" style={styles.cardInfo}>Amount: {item.amount} | Type: {item.wasteType}</ThemedText>
 
-                {item.isCreator && (
+                {isAdmin && (
                   <TouchableOpacity style={styles.dangerButton} onPress={handleAction(item, 'End Challenge')}>
-                    <ThemedText type="default" style={styles.buttonText}>End Challenge</ThemedText>
+                    <ThemedText type="defaultSemiBold" style={styles.buttonText}>End Challenge</ThemedText>
                   </TouchableOpacity>
                 )}
-                {!item.isCreator && (
+
+                {!isAdmin && (
                   <TouchableOpacity
                     style={item.isAttendee ? styles.warningButton : styles.secondaryButton}
                     onPress={handleAction(item, item.isAttendee ? 'Leave Challenge' : 'Attend Challenge')}
                   >
-                    <ThemedText type="default" style={styles.buttonText}>{item.isAttendee ? 'Leave Challenge' : 'Attend Challenge'}</ThemedText>
+                    <ThemedText type="defaultSemiBold" style={styles.buttonText}>{item.isAttendee ? 'Leave Challenge' : 'Attend Challenge'}</ThemedText>
                   </TouchableOpacity>
                 )}
 
                 <TouchableOpacity style={styles.secondaryButton} onPress={handleAction(item, 'View Leaderboard')}>
-                  <ThemedText type="default" style={styles.buttonText}>View Leaderboard</ThemedText>
+                  <ThemedText type="defaultSemiBold" style={styles.buttonText}>View Leaderboard</ThemedText>
                 </TouchableOpacity>
               </View>
             )}
@@ -165,10 +169,10 @@ export default function ChallengesScreen() {
             ))}
             <View style={styles.modalButtons}>
               <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
-                <ThemedText type="default">Cancel</ThemedText>
+                <ThemedText type="defaultSemiBold">Cancel</ThemedText>
               </TouchableOpacity>
               <TouchableOpacity style={styles.saveButton} onPress={submitChallenge}>
-                <ThemedText type="default">Save</ThemedText>
+                <ThemedText type="defaultSemiBold">Save</ThemedText>
               </TouchableOpacity>
             </View>
           </View>
@@ -182,7 +186,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F5F5', paddingHorizontal: 16 },
   screenTitle: { fontSize: 22, fontWeight: '600', marginVertical: 12, textAlign: 'center' },
   primaryButton: { backgroundColor: '#4CAF50', paddingVertical: 12, borderRadius: 8, marginBottom: 12, alignItems: 'center' },
-  primaryButtonText: { fontSize: 16, fontWeight: '600', color: '#FFF' },
+  primaryButtonText: { fontSize: 16, color: '#FFF' },
   toggleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginBottom: 8 },
   toggleLabel: { marginLeft: 8, fontSize: 14 },
   card: { backgroundColor: '#FFF', borderRadius: 8, padding: 16, marginVertical: 6, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 },
