@@ -19,4 +19,6 @@ public class GetPostResponse {
     private String creatorUsername;
     private String photoUrl;
     private Integer comments;
+    private boolean liked;
+    private boolean saved;
 }
