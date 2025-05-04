@@ -2,12 +2,17 @@ package com.example.CMPE352.service;
 
 
 import com.example.CMPE352.exception.InvalidCredentialsException;
+import com.example.CMPE352.exception.NotFoundException;
 import com.example.CMPE352.model.Post;
+import com.example.CMPE352.model.User;
 import com.example.CMPE352.model.response.GetPostResponse;
 import com.example.CMPE352.model.wikidata.SparqlBindingValue;
 import com.example.CMPE352.model.wikidata.SparqlResponse;
 import com.example.CMPE352.model.wikidata.WikidataSearchResult;
+import com.example.CMPE352.repository.PostLikeRepository;
 import com.example.CMPE352.repository.PostRepository;
+import com.example.CMPE352.repository.SavedPostRepository;
+import com.example.CMPE352.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +22,20 @@ import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.hibernate.internal.util.collections.CollectionHelper.listOf;
+
 @Service
 @RequiredArgsConstructor
 public class ForumSearchService {
 
     private final WikidataLookUpService wikidataLookUpService;
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
+    private final PostLikeRepository postLikeRepository;
+    private final SavedPostRepository savedPostRepository;
+
+
+
 
     private static final String SPARQL_QUERY_TEMPLATE = """
             SELECT DISTINCT ?relatedEntity ?relatedLabel WHERE {
@@ -58,7 +71,9 @@ public class ForumSearchService {
             LIMIT 150
             """;
 
-    public List<GetPostResponse> searchPostsSemantic(String query, String language) {
+    public List<GetPostResponse> searchPostsSemantic(String query, String language, String username) {
+        User requestingUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User not found: " + username));
         String trimmedQuery = query.trim();
         if (trimmedQuery.isEmpty()) {
             throw new InvalidCredentialsException("Null Query");
@@ -96,7 +111,7 @@ public class ForumSearchService {
                 keywords.addAll(relatedLabels);
             }
         }
-        return searchPostsByKeywordSet(keywords);
+        return searchPostsByKeywordSet(keywords,requestingUser.getId());
     }
 
     private Set<String> extractLabelsFromSparqlResponse(SparqlResponse sparqlResponse) {
@@ -115,7 +130,8 @@ public class ForumSearchService {
         return labels;
     }
 
-    private List<GetPostResponse> searchPostsByKeywordSet(Set<String> keywords) {
+    private List<GetPostResponse> searchPostsByKeywordSet(Set<String> keywords,Integer userId) {
+
         if (keywords == null || keywords.isEmpty()) {
             return Collections.emptyList();
         }
@@ -131,15 +147,20 @@ public class ForumSearchService {
         return resultSet.stream()
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(Post::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
-                .map(this::convertToGetResponse)
+                .map(post -> convertToGetPostsResponse(post, userId))
                 .collect(Collectors.toList());
     }
 
-    private GetPostResponse convertToGetResponse(Post post) {
+    private GetPostResponse  convertToGetPostsResponse(Post post, Integer requestingUserId) {
         if (post == null) {
             return null;
         }
         String creatorUsername = (post.getUser() != null) ? post.getUser().getUsername() : null;
+
+        Set<Integer> likedPostIds = postLikeRepository.findLikedPostIdsByUserIdAndPostIdIn(requestingUserId, listOf(post.getPostId()));
+
+        Set<Integer> savedPostIds = savedPostRepository.findSavedPostIdsByUserIdAndPostIdIn(requestingUserId, listOf(post.getPostId()));
+
         return new GetPostResponse(
                 post.getPostId(),
                 post.getContent(),
@@ -147,8 +168,8 @@ public class ForumSearchService {
                 post.getLikes(),
                 creatorUsername,
                 post.getPhotoUrl(),
-                post.getComments()
-        );
-
+                post.getComments(),
+                likedPostIds.contains(post.getPostId()),
+                savedPostIds.contains(post.getPostId()));
     }
 }
