@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   Switch,
   ActivityIndicator,
+  Modal,
   StyleSheet,
   GestureResponderEvent,
 } from 'react-native';
@@ -26,6 +27,12 @@ type Challenge = {
   attendee: boolean;
 };
 
+type LeaderboardEntry = {
+  userId: number;
+  username: string;
+  remainingAmount: number;
+};
+
 export default function ChallengesScreen() {
   const { userType, username } = useContext(AuthContext);
   const isAdmin = String(userType) === ADMIN_TYPE_PLACEHOLDER;
@@ -36,6 +43,12 @@ export default function ChallengesScreen() {
   const [showAttendedOnly, setShowAttendedOnly] = useState(false);
   const [showActiveOnly, setShowActiveOnly] = useState(false);
   const [expanded, setExpanded] = useState<number[]>([]);
+
+  // Leaderboard state
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [lbLoading, setLbLoading] = useState(false);
+  const [lbError, setLbError] = useState('');
+  const [leaderboardVisible, setLeaderboardVisible] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -56,7 +69,6 @@ export default function ChallengesScreen() {
   useEffect(() => { fetchData(); }, []);
 
   const handleAttendLeave = async (challengeId: number, attend: boolean) => {
-    // Optimistic update
     setChallenges(prev =>
       prev.map(ch =>
         ch.challengeId === challengeId ? { ...ch, attendee: attend } : ch
@@ -78,12 +90,30 @@ export default function ChallengesScreen() {
     } catch (err) {
       console.error(err);
       setError('Action failed');
-      // revert change
       setChallenges(prev =>
         prev.map(ch =>
           ch.challengeId === challengeId ? { ...ch, attendee: !attend } : ch
         )
       );
+    }
+  };
+
+  const handleViewLeaderboard = async (challengeId: number) => {
+    setLbLoading(true);
+    setLbError('');
+    try {
+      const res = await fetch(`${API_BASE}/api/challenges/leaderboard?id=${challengeId}`);
+      if (!res.ok) throw new Error(`Status ${res.status}`);
+      const data: LeaderboardEntry[] = await res.json();
+      // Sort ascending by remainingAmount: best performer first
+      data.sort((a, b) => a.remainingAmount - b.remainingAmount);
+      setLeaderboard(data);
+      setLeaderboardVisible(true);
+    } catch (err) {
+      console.error(err);
+      setLbError('Failed to load leaderboard');
+    } finally {
+      setLbLoading(false);
     }
   };
 
@@ -99,7 +129,6 @@ export default function ChallengesScreen() {
     return true;
   });
 
-  // Full-screen loader on initial fetch
   if (loading && challenges.length === 0) {
     return <ActivityIndicator size="large" style={styles.center} />;
   }
@@ -160,7 +189,7 @@ export default function ChallengesScreen() {
                   </TouchableOpacity>
                 )}
 
-                <TouchableOpacity style={styles.secondaryButton} onPress={() => {/* TODO: leaderboard */}}>
+                <TouchableOpacity style={styles.secondaryButton} onPress={() => handleViewLeaderboard(item.challengeId)}>
                   <ThemedText type="defaultSemiBold" style={styles.buttonText}>View Leaderboard</ThemedText>
                 </TouchableOpacity>
               </View>
@@ -168,6 +197,39 @@ export default function ChallengesScreen() {
           </View>
         )}
       />
+
+      <Modal visible={leaderboardVisible} animationType="slide" transparent>
+        <View style={styles.lbOverlay}>
+          <View style={styles.lbContainer}>
+            <ThemedText type="title" style={styles.lbTitle}>Leaderboard</ThemedText>
+            {lbLoading ? (
+              <ActivityIndicator style={styles.center} size="large" />
+            ) : lbError ? (
+              <ThemedText type="default" style={styles.error}>{lbError}</ThemedText>
+            ) : (
+              <>
+                <View style={styles.lbHeaderRow}>
+                  <ThemedText type="defaultSemiBold" style={styles.lbHeaderCell}>Username</ThemedText>
+                  <ThemedText type="defaultSemiBold" style={styles.lbHeaderCell}>Remaining</ThemedText>
+                </View>
+                <FlatList
+                  data={leaderboard}
+                  keyExtractor={item => String(item.userId)}
+                  renderItem={({ item, index }) => (
+                    <View style={styles.lbRow}>
+                      <ThemedText type="defaultSemiBold">{index + 1}. {item.username}</ThemedText>
+                      <ThemedText type="default">{item.remainingAmount}</ThemedText>
+                    </View>
+                  )}
+                />
+              </>
+            )}
+            <TouchableOpacity style={styles.lbCloseButton} onPress={() => setLeaderboardVisible(false)}>
+              <ThemedText type="defaultSemiBold">Close</ThemedText>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -192,4 +254,11 @@ const styles = StyleSheet.create({
   secondaryButton: { backgroundColor: '#2196F3', padding: 10, borderRadius: 6, alignItems: 'center', marginBottom: 8 },
   warningButton: { backgroundColor: '#FF9800', padding: 10, borderRadius: 6, alignItems: 'center', marginBottom: 8 },
   buttonText: { fontSize: 14, color: '#FFF', fontWeight: '500' },
+  lbOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' },
+  lbContainer: { backgroundColor: '#FFF', padding: 16, borderTopLeftRadius: 12, borderTopRightRadius: 12, maxHeight: '60%' },
+  lbTitle: { fontSize: 20, fontWeight: '600', marginBottom: 12, textAlign: 'center' },
+  lbHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 4, borderBottomWidth: 1, borderBottomColor: '#CCC' },
+  lbHeaderCell: { fontSize: 14, color: '#333', flex: 1, textAlign: 'center' },
+  lbRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#EEE' },
+  lbCloseButton: { marginTop: 12, alignItems: 'center' },
 });
