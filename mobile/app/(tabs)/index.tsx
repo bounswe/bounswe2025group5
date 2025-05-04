@@ -19,8 +19,7 @@ import { ScrollView } from 'react-native';
 
 const API_BASE = 'http://localhost:8080/api/auth';
 
-// 🎉 live counters 
-const KG_SAVED     = 57492; // kg of plastic saved
+const KG_SAVED     = 57492; 
 
 type Navigation = {
   navigate: (screen: string, params?: any) => void;
@@ -36,7 +35,6 @@ type TrendingPost = {
   photoUrl      : string | null;
 };
 
-// Tiny checkbox component
 function CheckBox({ checked, onPress }: { checked: boolean; onPress: () => void }) {
   return (
     <TouchableOpacity style={styles.checkbox} onPress={onPress}>
@@ -50,7 +48,6 @@ export default function HomeScreen() {
   const route     = useRoute<any>();
   const { setUserType, setUsername } = useContext(AuthContext);
 
-  /* ─────────────────────────────── STATE */
   const [showAuthFields, setShowAuthFields] = useState(false);
   const [isRegistering, setIsRegistering]   = useState(false);
 
@@ -66,7 +63,6 @@ export default function HomeScreen() {
   const [usersCount, setUsersCount] = useState<number>(0);
   const [trendingPosts, setTrendingPosts] = useState<TrendingPost[]>([]);
 
-  /* ─────────────────────────────── EFFECTS */
   useEffect(() => {
     const fetchUserCount = async () => {
       try {
@@ -80,14 +76,14 @@ export default function HomeScreen() {
         });
   
         const body = await res.json().catch(() => ({}));
-        console.log('users/count response ➜', body);          // 👈 #1
+        console.log('users/count response ➜', body);          
   
         if (!res.ok) {
           return console.warn(body.message || 'Could not fetch user count');
         }
   
         const userCount = body.userCount ?? 0;
-        console.log('setting usersCount ➜', userCount);       // 👈 #2
+        console.log('setting usersCount ➜', userCount);       
         setUsersCount(userCount);
       } catch (err) {
         console.warn('Network error while fetching user count', err);
@@ -141,7 +137,6 @@ export default function HomeScreen() {
     }, [loggedIn])
   );
 
-  /* ─────────────────────────────── HELPERS */
   const showError = (msg: string) => {
     setErrorMessage(msg);
     setErrorVisible(true);
@@ -237,7 +232,6 @@ export default function HomeScreen() {
     navigation.navigate('explore');
   };
 
-  /* ─────────────────────────────── RENDER */
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#', dark: '#' }}
@@ -249,16 +243,13 @@ export default function HomeScreen() {
       }
     >
 
-      {/* ───────────── STATS + BUTTONS (FIRST SCREEN) ───────────── */}
       {!showAuthFields && (
         <>
-          {/* Stats */}
           <View style={styles.statsContainer}>
             <Text style={styles.statLine}>
               <Text style={styles.statNumber}>{usersCount}</Text>{' '}
               users are reducing their wastes with us
             </Text>
-                     {/* ───────── Most trending posts ───────── */}
                      <Text style={styles.sectionTitle}>Trending posts :</Text>
              <ScrollView
                horizontal
@@ -276,8 +267,16 @@ export default function HomeScreen() {
                     {post.content}
                   </ThemedText>
 
-                  {post.photoUrl && (
-                    <Image source={{ uri: post.photoUrl }} style={styles.postImage} />
+                   {post.photoUrl && (
+                    <Image
+                      source={{
+                        uri: post.photoUrl.startsWith('http')
+                          ? post.photoUrl
+                          : `http://localhost:8080${post.photoUrl}`,
+                      }}
+                      style={styles.postImage}
+                      onError={(e) => console.warn('Image failed to load:', e.nativeEvent.error)}
+                    />
                   )}
 
                   <View style={styles.postFooter}>
@@ -292,7 +291,6 @@ export default function HomeScreen() {
              </ScrollView>
           </View>
 
-          {/* Buttons shifted 50 px lower */}
           <View style={[styles.buttonsColumn, { marginTop: 15 }]}>
             <TouchableOpacity
               style={[styles.authButtonFull, styles.loginAreaFull]}
@@ -321,14 +319,12 @@ export default function HomeScreen() {
         </>
       )}
 
-      {/* ───────────── AUTH FORMS (SECOND SCREEN) ───────────── */}
       {showAuthFields && (
         <>
           <Text style={styles.modeHeader}>
             {isRegistering ? 'Create account' : 'Login here'}
           </Text>
 
-          {/* Username / Email */}
           <TextInput
             style={[styles.input, styles.inputLight]}
             onChangeText={setUsernameInput}
@@ -338,7 +334,6 @@ export default function HomeScreen() {
             autoCapitalize="none"
           />
 
-          {/* Email (registration only) */}
           {isRegistering && (
             <TextInput
               style={[styles.input, styles.inputLight]}
@@ -350,7 +345,6 @@ export default function HomeScreen() {
             />
           )}
 
-          {/* Password */}
           <TextInput
             style={[styles.input, styles.inputLight]}
             onChangeText={setPassword}
@@ -360,7 +354,6 @@ export default function HomeScreen() {
             value={password}
           />
 
-          {/* Confirm password & KVKK */}
           {isRegistering && (
             <>
               <TextInput
@@ -384,7 +377,6 @@ export default function HomeScreen() {
             </>
           )}
 
-          {/* Action buttons */}
           <View style={styles.buttonsColumn}>
             {isRegistering ? (
               <>
@@ -427,7 +419,6 @@ export default function HomeScreen() {
         </>
       )}
 
-      {/* Error toast */}
       {errorVisible && (
         <View style={styles.errorBox}>
           <Text style={styles.errorText}>{errorMessage}</Text>
@@ -437,7 +428,6 @@ export default function HomeScreen() {
   );
 }
 
-/* ─────────────────────────────── STYLES */
 const styles = StyleSheet.create({
   titleContainer: { flexDirection: 'row', alignItems: 'center', gap: 8 },
 
@@ -448,35 +438,35 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
 
-  /* stats */
   statsContainer: { marginTop: 24, marginHorizontal: 16 },
   statLine    : { color: '#fff', fontSize: 18, textAlign: 'center', marginVertical: 4 },
   statNumber  : { fontWeight: 'bold', fontSize: 20, color: '#4CAF50' },
 
-    /* trending posts */
     sectionTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold', marginTop: 16, marginBottom: 8 },
     trendingContainer: { height: 200, marginVertical: 8 },
-    postContainer: { 
-      width: 250, 
-      marginRight: 16, 
-      backgroundColor: '#f5f5f5', 
-      borderRadius: 8, 
-      padding: 12,
-      height: '100%' 
-    },
+      postContainer: {
+          width: 250,
+          height: 200,        
+          marginRight: 16,
+          backgroundColor: '#f5f5f5',
+          borderRadius: 8,
+          padding: 12,
+          justifyContent: 'space-between',
+          overflow: 'hidden', 
+        },
     postTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 4 , color: '#000'},
     
     postContent: { fontSize: 14, marginBottom: 8 , color: '#000'},
-    postImage: {
-      width: '100%',
-      height: 120,
-      borderRadius: 6,
-      marginBottom: 8,
-      resizeMode: 'cover',
-    },
-    postFooter: { flexDirection: 'row', alignItems: 'center', marginTop: 'auto' },
-    footerText: { fontSize: 12, marginHorizontal: 4 },
     
+      postImage: {
+        width: '100%',
+        aspectRatio: 16 / 9, 
+        maxHeight: 100,      
+        borderRadius: 6,
+        marginBottom: 8,
+        resizeMode: 'cover',
+      },
+    postFooter: { flexDirection: 'row', alignItems: 'center', marginTop: 8 },    footerText: { fontSize: 12, marginHorizontal: 4, color: '#000' },    
   modeHeader: {
     fontSize: 20,
     fontWeight: 'bold',
