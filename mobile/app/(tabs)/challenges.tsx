@@ -106,7 +106,7 @@ export default function ChallengesScreen() {
       if (!res.ok) throw new Error(`Status ${res.status}`);
       const data: LeaderboardEntry[] = await res.json();
       // Sort ascending by remainingAmount: best performer first
-      data.sort((a, b) => a.remainingAmount - b.remainingAmount);
+      data.sort((a, b) => b.remainingAmount - a.remainingAmount);
       setLeaderboard(data);
       setLeaderboardVisible(true);
     } catch (err) {
