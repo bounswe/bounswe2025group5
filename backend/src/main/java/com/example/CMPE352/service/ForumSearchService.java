@@ -72,8 +72,12 @@ public class ForumSearchService {
             """;
 
     public List<GetPostResponse> searchPostsSemantic(String query, String language, String username) {
-        User requestingUser = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NotFoundException("User not found: " + username));
+        Integer requestingUserId = null;
+        if (username != null) {
+            User requestingUser = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new NotFoundException("User not found: " + username));
+            requestingUserId = requestingUser.getId();
+        }
         String trimmedQuery = query.trim();
         if (trimmedQuery.isEmpty()) {
             throw new InvalidCredentialsException("Null Query");
@@ -111,7 +115,7 @@ public class ForumSearchService {
                 keywords.addAll(relatedLabels);
             }
         }
-        return searchPostsByKeywordSet(keywords,requestingUser.getId());
+        return searchPostsByKeywordSet(keywords,requestingUserId);
     }
 
     private Set<String> extractLabelsFromSparqlResponse(SparqlResponse sparqlResponse) {
@@ -151,15 +155,28 @@ public class ForumSearchService {
                 .collect(Collectors.toList());
     }
 
-    private GetPostResponse  convertToGetPostsResponse(Post post, Integer requestingUserId) {
+    private GetPostResponse convertToGetPostsResponse(Post post, Integer requestingUserId) {
         if (post == null) {
             return null;
         }
+
         String creatorUsername = (post.getUser() != null) ? post.getUser().getUsername() : null;
 
-        Set<Integer> likedPostIds = postLikeRepository.findLikedPostIdsByUserIdAndPostIdIn(requestingUserId, listOf(post.getPostId()));
+        boolean isLiked = false;
+        boolean isSaved = false;
 
-        Set<Integer> savedPostIds = savedPostRepository.findSavedPostIdsByUserIdAndPostIdIn(requestingUserId, listOf(post.getPostId()));
+        if (requestingUserId != null) {
+            Set<Integer> likedPostIds = postLikeRepository.findLikedPostIdsByUserIdAndPostIdIn(
+                    requestingUserId,
+                    List.of(post.getPostId())
+            );
+            Set<Integer> savedPostIds = savedPostRepository.findSavedPostIdsByUserIdAndPostIdIn(
+                    requestingUserId,
+                    List.of(post.getPostId())
+            );
+            isLiked = likedPostIds.contains(post.getPostId());
+            isSaved = savedPostIds.contains(post.getPostId());
+        }
 
         return new GetPostResponse(
                 post.getPostId(),
@@ -169,7 +186,8 @@ public class ForumSearchService {
                 creatorUsername,
                 post.getPhotoUrl(),
                 post.getComments(),
-                likedPostIds.contains(post.getPostId()),
-                savedPostIds.contains(post.getPostId()));
+                isLiked,
+                isSaved
+        );
     }
 }

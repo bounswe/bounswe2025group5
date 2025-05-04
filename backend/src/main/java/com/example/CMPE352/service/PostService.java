@@ -34,10 +34,12 @@ public class PostService {
 
 
     public List<GetPostResponse> getPosts(String requestingUsername, int size, Long lastPostId) {
-        User requestingUser = userRepository.findByUsername(requestingUsername)
-                .orElseThrow(() -> new NotFoundException("User not found: " + requestingUsername));
-        Integer requestingUserId = requestingUser.getId();
-
+        Integer requestingUserId = null;
+        if (requestingUsername != null) {
+            User requestingUser = userRepository.findByUsername(requestingUsername)
+                    .orElseThrow(() -> new NotFoundException("User not found: " + requestingUsername));
+            requestingUserId = requestingUser.getId();
+        }
         List<Post> posts = postRepository.findTopPosts(lastPostId, PageRequest.of(0, size));
         return convertToGetPostsResponse(posts, requestingUserId);
     }
@@ -111,10 +113,15 @@ public class PostService {
     }
 
     public List<GetPostResponse> getMostLikedPosts(Integer size, String username) {
+        Integer userId = null;
+        if (username != null) {
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new NotFoundException("User not found: " + username));
+            userId = user.getId();
+        }
+
         List<Post> posts = postRepository.findMostLikedPosts(PageRequest.of(0, size));
-        User requestingUser = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NotFoundException("User not found: " + username));
-        return convertToGetPostsResponse(posts, requestingUser.getId());
+        return convertToGetPostsResponse(posts, userId);
     }
 
 
@@ -160,9 +167,16 @@ public class PostService {
 
         List<Integer> postIds = posts.stream().map(Post::getPostId).collect(Collectors.toList());
 
-        Set<Integer> likedPostIds = postLikeRepository.findLikedPostIdsByUserIdAndPostIdIn(requestingUserId, postIds);
+        Set<Integer> likedPostIds;
+        Set<Integer> savedPostIds;
 
-        Set<Integer> savedPostIds = savedPostRepository.findSavedPostIdsByUserIdAndPostIdIn(requestingUserId, postIds);
+        if (requestingUserId != null) {
+            likedPostIds = postLikeRepository.findLikedPostIdsByUserIdAndPostIdIn(requestingUserId, postIds);
+            savedPostIds = savedPostRepository.findSavedPostIdsByUserIdAndPostIdIn(requestingUserId, postIds);
+        } else {
+            savedPostIds = Collections.emptySet();
+            likedPostIds = Collections.emptySet();
+        }
 
         return posts.stream()
                 .map(post -> {

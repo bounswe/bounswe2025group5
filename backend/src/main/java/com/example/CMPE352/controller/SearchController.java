@@ -25,7 +25,7 @@ public class SearchController {
     @GetMapping("/posts/semantic")
     public ResponseEntity<List<GetPostResponse>> searchPostsSemanticEndpoint(
             @RequestParam(name = "query") String query,
-            @RequestParam(name = "username") String username,
+            @RequestParam(required = false) String username,
             @RequestParam(name = "lang", defaultValue = "en") String language) {
 
         try {
