@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ChallengeCard from '../components/ChallengeCard';
 import LeaderboardCard from '../components/LeaderboardCard';
 
-export default function Challenge() {
+export default function Challenge({ url }) {
     const [username] = useState(localStorage.getItem("username"));
     const [challenges, setChallenges] = useState([]);
     const [error, setError] = useState(null);
@@ -12,7 +12,7 @@ export default function Challenge() {
 
     const fetchChallenges = async () => {
         try {
-            const response = await fetch(`/api/challenges?username=${username}`);
+            const response = await fetch(`${url}/api/challenges?username=${username}`);
             const data = await response.json();
             if (response.ok) {
                 setChallenges(data);
