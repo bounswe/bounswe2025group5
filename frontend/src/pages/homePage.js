@@ -3,14 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 
-export default function HomePage() {
+export default function HomePage({url}) {
   const navigate = useNavigate();
   const [userCount, setUserCount] = useState(-1);
 
   useEffect(() => {
     async function fetchStats() {
       try {
-        const response = await fetch("http://localhost:8080/api/users/count"); // adjust endpoint accordingly
+        const response = await fetch("${url}/api/users/count"); // adjust endpoint accordingly
         const data = await response.json();
         console.log("Fetched stats:", data);
         setUserCount(data.userCount); // assuming the response has a userCount field
