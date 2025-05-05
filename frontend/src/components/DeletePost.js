@@ -1,9 +1,9 @@
 import React from "react";
 
-function DeletePost({ postId, onDelete }) {
+function DeletePost({ postId, onDelete, url }) {
     const handleDelete = async () => {
         try {
-            const response = await fetch(`/api/posts/delete/${postId}`, {
+            const response = await fetch(`${url}/api/posts/delete/${postId}`, {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",

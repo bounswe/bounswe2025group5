@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function EditPostButton({ post, onPostUpdated }) {
+function EditPostButton({ post, onPostUpdated, url }) {
     const [isEditing, setIsEditing] = useState(false);
     const [content, setContent] = useState(post.content);
     const [photoUrl, setPhotoUrl] = useState(post.photoUrl || "");
@@ -14,7 +14,7 @@ function EditPostButton({ post, onPostUpdated }) {
         };
 
         try {
-            const response = await fetch(`/api/posts/edit/${post.postId}`, {
+            const response = await fetch(`${url}/api/posts/edit/${post.postId}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
