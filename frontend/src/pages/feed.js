@@ -6,7 +6,7 @@ import LogoutButton from "../components/LogoutButton.js"; // Import LogoutButton
 import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
 import CreatePostButton from "../components/CreatePostButton.js"; // Import CreatePostButton component
 
-function Feed({ isLoggedIn, setIsLoggedIn }) {
+function Feed({ isLoggedIn, setIsLoggedIn, url }) {
     const navigate = useNavigate(); // Hook to programmatically navigate
     const [posts, setPosts] = useState([]);
     const [error, setError] = useState(null);
@@ -17,7 +17,7 @@ function Feed({ isLoggedIn, setIsLoggedIn }) {
     const fetchPosts = async () => {
         const username = localStorage.getItem("username"); // Get the username from local storage
         try {
-            const response = await fetch(`/api/posts/info?size=${fetchSize}&username=${username}`, {
+            const response = await fetch(`${url}/api/posts/info?size=${fetchSize}&username=${username}`, {
                 method: "GET",
                 //headers: { Authorization: `Bearer ${token}` },
             });
