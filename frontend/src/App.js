@@ -17,6 +17,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUserName] = useState("");
   const location = useLocation(); // Get the current location from React Router
+  const url = "http://161.35.42.102:8080";
 
   useEffect(() => {
     // Check if the user is already logged in
@@ -37,14 +38,14 @@ function App() {
           <img src={logo} className="App-logo" alt="logo" />
           {/* Render pages based on the route */}
           <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<Login isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/feed" element={<Feed isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
-            <Route path="/main" element={<MainPage />} />
+            <Route path="/" element={<HomePage url = {url}/>} />
+            <Route path="/login" element={<Login isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} url = {url} />} />
+            <Route path="/register" element={<Register url = {url}/>} />
+            <Route path="/feed" element={<Feed isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} url = {url} />} />
+            <Route path="/main" element={<MainPage url = {url}/>} />
             <Route path="/goals" element={<div>Goals Page</div>} />
-            <Route path="/challenge" element={<Challenge/>} />
-            <Route path="/profile" element={<ProfilePage setIsLoggedIn={setIsLoggedIn} username={username}/>} />
+            <Route path="/challenge" element={<Challenge url = {url}/>} />
+            <Route path="/profile" element={<ProfilePage setIsLoggedIn={setIsLoggedIn} username={username} url = {url}/>} />
           </Routes>
         </div>
       </header>
