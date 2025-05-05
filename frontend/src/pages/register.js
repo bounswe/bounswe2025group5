@@ -4,7 +4,7 @@ import logo from '../assets/logo2.png';
 import { useNavigate } from 'react-router-dom';
 
 
-function Register() {
+function Register({url}) {
     const navigate = useNavigate(); // Hook to programmatically navigate
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -99,7 +99,7 @@ function Register() {
 
 
         // Now we need to send the information to the backend
-        const response = await fetch('/api/auth/register', {
+        const response = await fetch('${url}/api/auth/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password, email }),
