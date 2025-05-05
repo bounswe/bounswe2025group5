@@ -7,7 +7,7 @@ import GoalCard from "../components/GoalCard";
 import ChallengeCard from "../components/ChallengeCard";
 
 
-export default function MainPage({ setIsLoggedIn }) {
+export default function MainPage({ setIsLoggedIn, url }) {
     const navigate = useNavigate(); // Hook to programmatically navigate
     const [posts, setPosts] = useState([]);
     const [error, setError] = useState(null);
@@ -19,7 +19,7 @@ export default function MainPage({ setIsLoggedIn }) {
     const username = localStorage.getItem("username"); // Get the username from local storage
     const fetchChallenges = async () => {
         try {
-            const response = await fetch(`/api/challenges?username=${username}`);
+            const response = await fetch(`${url}/api/challenges?username=${username}`);
             const data = await response.json();
             if (response.ok) {
                 setChallenges(data);
@@ -35,7 +35,7 @@ export default function MainPage({ setIsLoggedIn }) {
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                const response = await fetch("/api/posts/info?size=5", {
+                const response = await fetch("${url}/api/posts/info?size=5", {
                     method: "GET",
                     //headers: { Authorization: `Bearer ${token}` },
                 });
@@ -59,7 +59,7 @@ export default function MainPage({ setIsLoggedIn }) {
         };
         const fetchGoals = async () => {
             try {
-                const response = await fetch(`/api/goals/info?username=${username}&size=${5}&lastGoalId=${0}`, {
+                const response = await fetch(`${url}/api/goals/info?username=${username}&size=${5}&lastGoalId=${0}`, {
                     method: "GET",
                     //headers: { Authorization: `Bearer ${token}` },
                 });
@@ -113,7 +113,7 @@ export default function MainPage({ setIsLoggedIn }) {
     const handleGoalComplete = async (goalId) => {
         setGoals((prevGoals) => prevGoals.map((goal) => goal.goal_id === goalId ? { ...goal, isCompleted: !goal.isCompleted } : goal));
         try {
-            const response = await fetch(`/api/goals/${goalId}/complete`, {
+            const response = await fetch(`${url}/api/goals/${goalId}/complete`, {
                 method: "POST",
                 //headers: { Authorization: `Bearer ${token}` },
             });
@@ -130,7 +130,7 @@ export default function MainPage({ setIsLoggedIn }) {
     const handleGoalEdit = async (goalId, updatedGoal) => {
         setGoals((prevGoals) => prevGoals.map((goal) => goal.goal_id === goalId ? { ...goal, ...updatedGoal } : goal));
         try {
-            const response = await fetch(`/api/goals/${goalId}`, {
+            const response = await fetch(`${url}/api/goals/${goalId}`, {
                 method: "PUT",
                 //headers: { Authorization: `Bearer ${token}` },
                 body: JSON.stringify(updatedGoal),
