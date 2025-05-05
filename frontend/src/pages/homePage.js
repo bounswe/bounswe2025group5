@@ -10,7 +10,7 @@ export default function HomePage({url}) {
   useEffect(() => {
     async function fetchStats() {
       try {
-        const response = await fetch("${url}/api/users/count"); // adjust endpoint accordingly
+        const response = await fetch(`${url}/api/users/count`); // adjust endpoint accordingly
         const data = await response.json();
         console.log("Fetched stats:", data);
         setUserCount(data.userCount); // assuming the response has a userCount field
