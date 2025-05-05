@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 //login page with username and password fields, exports isloggedin and setisloggedin functions to be used in app.js
 
-function Login({ isLoggedIn, setIsLoggedIn }) {
+function Login({ isLoggedIn, setIsLoggedIn, url }) {
     const [emailOrUsername, setEmailOrUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
@@ -21,7 +21,7 @@ function Login({ isLoggedIn, setIsLoggedIn }) {
         
 
         try {
-            const response = await fetch('/api/auth/login', {
+            const response = await fetch('${url}/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ emailOrUsername, password }),
