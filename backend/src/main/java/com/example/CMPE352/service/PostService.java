@@ -11,6 +11,7 @@ import com.example.CMPE352.model.request.SavePostRequest;
 import com.example.CMPE352.model.response.CreateOrEditPostResponse;
 import com.example.CMPE352.model.response.GetPostResponse;
 import com.example.CMPE352.model.response.CommentResponse;
+import com.example.CMPE352.model.response.GetSavedPostResponse;
 import com.example.CMPE352.model.response.SavePostResponse;
 import com.example.CMPE352.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -194,5 +195,18 @@ public class PostService {
                 })
                 .collect(Collectors.toList());
     }
+    
+    public List<GetSavedPostResponse> getSavedPosts(Integer userId) {
+        List<SavedPost> savedPosts =
+                savedPostRepository.findAllByUserIdOrderBySavedAtDesc(userId);
+        return savedPosts.stream()
+                .map(sp -> new GetSavedPostResponse(
+                        sp.getPost().getPostId(),
+                        sp.getPost().getContent(),
+                        sp.getPost().getLikes(),
+                        sp.getSavedAt()))
+                .collect(Collectors.toList());
+    }
+
 }
 

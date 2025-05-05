@@ -4,6 +4,7 @@ import com.example.CMPE352.model.Post;
 import com.example.CMPE352.model.request.CreatePostRequest;
 import com.example.CMPE352.model.request.SavePostRequest;
 import com.example.CMPE352.model.response.CreateOrEditPostResponse;
+import com.example.CMPE352.model.response.GetSavedPostResponse;
 import com.example.CMPE352.model.response.DeletePostResponse;
 import com.example.CMPE352.model.response.GetPostResponse;
 import com.example.CMPE352.model.response.SavePostResponse;
@@ -71,5 +72,13 @@ public class PostController {
             @PathVariable Integer postId) {
         Map<String, Boolean> response = postService.deleteSavedPost(userId, postId);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/getSavedPosts")
+    public ResponseEntity<List<GetSavedPostResponse>> getSavedPosts(
+            @RequestParam("userId") Integer userId
+    ) {
+        List<GetSavedPostResponse> savedPosts = postService.getSavedPosts(userId);
+        return ResponseEntity.ok(savedPosts);
     }
 }

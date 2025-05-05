@@ -16,6 +16,7 @@ public interface SavedPostRepository extends JpaRepository<SavedPost, SavedPostI
 
     List<SavedPost> findByUserId(Integer userId);
     List<SavedPost> findByPostId(Integer postId);
+    List<SavedPost> findAllByUserIdOrderBySavedAtDesc(Integer userId);
     @Query("SELECT sp.postId FROM SavedPost sp WHERE sp.userId = :userId AND sp.postId IN :postIds")
     Set<Integer> findSavedPostIdsByUserIdAndPostIdIn(@Param("userId") Integer userId, @Param("postIds") Collection<Integer> postIds);
 }
