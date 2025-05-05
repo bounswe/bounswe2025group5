@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
 import LogoutButton from "../components/LogoutButton";
 
-const ProfilePage = ({ setIsLoggedIn, username }) => {
+const ProfilePage = ({ setIsLoggedIn, username, url }) => {
     const navigate = useNavigate(); // Hook to programmatically navigate
     const [error, setError] = useState(null);
     const [message, setMessage] = useState("");
@@ -19,7 +19,7 @@ const ProfilePage = ({ setIsLoggedIn, username }) => {
         const fetchUser = async () => {
             const usernameToFetch = localStorage.getItem("username"); // Get the username from local storage
             try {
-                const response = await fetch(`/api/profile/info?username=${usernameToFetch}`, {
+                const response = await fetch(`${url}/api/profile/info?username=${usernameToFetch}`, {
                     method: "GET",
                 });
                 const data = await response.json();
@@ -46,7 +46,7 @@ const ProfilePage = ({ setIsLoggedIn, username }) => {
 
     const handleSaveChanges = async () => {
         try {
-            const response = await fetch(`/api/profile/edit`, {
+            const response = await fetch(`${url}/api/profile/edit`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
