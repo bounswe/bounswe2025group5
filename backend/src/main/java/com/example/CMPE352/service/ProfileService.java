@@ -62,7 +62,7 @@ public class ProfileService {
         if (existingProfile.isPresent()) {
             throw new AlreadyExistsException("Profile already exists for user: " + user.getUsername());
         }
-        Profile profile = new Profile(user, newProfileInfo.getBiography(), newProfileInfo.getPhotoUrl());
+        Profile profile = new Profile(user, newProfileInfo.getPhotoUrl(), newProfileInfo.getBiography() );
 
         profileRepository.save(profile);
 
