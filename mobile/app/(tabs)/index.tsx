@@ -7,6 +7,7 @@ import {
   View,
   TouchableOpacity,
   Text,
+  Platform
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,7 +18,9 @@ import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/nativ
 import { AuthContext } from '../_layout';
 import { ScrollView } from 'react-native';
 
-const API_BASE = 'http://localhost:8080/api/auth';
+const HOST = Platform.select({ android: '10.0.2.2', ios: 'localhost' , web: 'localhost' });
+const API_BASE = `http://${HOST}:8080/api/auth`;
+
 
 const KG_SAVED     = 57492; 
 
@@ -67,7 +70,7 @@ export default function HomeScreen() {
     const fetchUserCount = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
-        const res = await fetch(`http://localhost:8080/api/users/count`, {
+        const res = await fetch(`http://${HOST}:8080/api/users/count`, {
           method : 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -96,7 +99,8 @@ export default function HomeScreen() {
   useEffect(() => {
     const fetchTrending = async () => {
       try {
-        const res = await fetch('http://localhost:8080/api/posts/mostLikedPosts?size=4');
+        // const res = await fetch('http://${HOST}:8080/api/posts/mostLikedPosts?size=4');
+        const res = await fetch(`http://${HOST}:8080/api/posts/mostLikedPosts?size=4`);
         if (!res.ok) throw new Error('Failed to fetch trending posts');
         const data = (await res.json()) as TrendingPost[];
         setTrendingPosts(data);
@@ -151,32 +155,55 @@ export default function HomeScreen() {
       navigation.navigate('explore');
       return;
     }
+  
     if (!emailOrUsername.trim() || pwd.length < 8) {
       return showError('Please fill in valid credentials');
     }
+  
     try {
       const res = await fetch(`${API_BASE}/login`, {
-        method : 'POST',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body   : JSON.stringify({ emailOrUsername, password: pwd }),
+        body: JSON.stringify({ emailOrUsername, password: pwd }),
       });
+  
       if (!res.ok) {
-        const err = await res.json();
-        return showError(err.message || 'Login failed');
+        // parse whatever shape your server returns
+        const errBody = await res.json().catch(() => null);
+  
+        // Log to your console for debugging
+        console.error('Login response error:', errBody);
+  
+        // Display the entire error object (or fallback)
+        const fullMsg = errBody
+          ? JSON.stringify(errBody, null, 2)
+          : 'Login failed';
+        return showError(fullMsg);
       }
+  
+      // success path
       const { token, username } = (await res.json()) as {
-        token   : string;
+        token: string;
         username: string;
       };
       await AsyncStorage.multiSet([
-        ['token'   , token],
+        ['token', token],
         ['username', username],
       ]);
       setUserType('user');
       setUsername(username);
       setLoggedIn(true);
-    } catch {
-      showError('Network error, please try again');
+  
+    } catch (error: any) {
+      // Log the full JS error (including stack)
+      console.error('Network/login exception:', error);
+  
+      // Show the entire error (message + stack) if you want:
+      const msg =
+        error instanceof Error
+          ? `${error.message}\n${error.stack}`
+          : JSON.stringify(error, null, 2);
+      showError(msg);
     }
   };
 
@@ -272,7 +299,7 @@ export default function HomeScreen() {
                       source={{
                         uri: post.photoUrl.startsWith('http')
                           ? post.photoUrl
-                          : `http://localhost:8080${post.photoUrl}`,
+                          : `http://${HOST}:8080${post.photoUrl}`,
                       }}
                       style={styles.postImage}
                       onError={(e) => console.warn('Image failed to load:', e.nativeEvent.error)}

@@ -9,7 +9,8 @@ import {
   FlatList,
   Alert,
   ActivityIndicator,
-  Modal
+  Modal,
+  Platform
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemedText } from '@/components/ThemedText';
@@ -18,7 +19,8 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
 import { Picker } from '@react-native-picker/picker';
 
-const API_BASE = 'http://localhost:8080/api';
+const HOST = Platform.select({ android: '10.0.2.2', ios: 'localhost' , web: 'localhost' });
+const API_BASE = `http://${HOST}:8080/api`;
 
 type WasteGoal = {
   id?: number;
