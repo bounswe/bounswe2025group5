@@ -56,9 +56,9 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
     return (
         <div>
             <h1>Post Feed</h1>
-            {isLoggedIn && <CreatePostButton onPostCreated={fetchPosts} />}
+            {isLoggedIn && <CreatePostButton onPostCreated={fetchPosts} url={url}/>}
             {posts.map(post => (  // ıterate over posts and render PostCard for each post
-                <PostCard key={post.postId} post={post} isLoggedIn={isLoggedIn} onAction={fetchPosts}/>
+                <PostCard key={post.postId} post={post} isLoggedIn={isLoggedIn} onAction={fetchPosts} url={url}/>
             ))}
             {isLoggedIn && <LogoutButton setIsLoggedIn={setIsLoggedIn} onLogout={() => navigate('/')} />} {/* Logout button */}
         </div>

@@ -35,7 +35,7 @@ export default function MainPage({ setIsLoggedIn, url }) {
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                const response = await fetch("${url}/api/posts/info?size=5", {
+                const response = await fetch(`${url}/api/posts/info?size=5`, {
                     method: "GET",
                     //headers: { Authorization: `Bearer ${token}` },
                 });
@@ -95,7 +95,7 @@ export default function MainPage({ setIsLoggedIn, url }) {
     const handleGoalDelete = async (goalId) => {
         setGoals((prevGoals) => prevGoals.filter((goal) => goal.goal_id !== goalId));
         try {
-            const response = await fetch(`/api/goals/${goalId}`, {
+            const response = await fetch(`${url}/api/goals/${goalId}`, {
                 method: "DELETE",
                 //headers: { Authorization: `Bearer ${token}` },
             });
@@ -149,14 +149,14 @@ export default function MainPage({ setIsLoggedIn, url }) {
         <div>
             <h1>Post Feed</h1>
             {posts.map(post => (  // ıterate over posts and render PostCard for each post
-                <PostCard key={post.postId} post={post} isLoggedIn={true} />
+                <PostCard key={post.postId} post={post} isLoggedIn={true} url={url}/>
             ))}
             {goals}
             {/*goals.length > 0 && goals.map(goal => (  // ıterate over goals and render PostCard for each post
                 <GoalCard key={goal.goalId} goal={goal} onDelete={handleGoalDelete} onToggleComplete={handleGoalComplete} onEdit={handleGoalEdit} />
             ))*/}
             {challenges.slice(0, 3).map(challenge => (  // Show only the first 3 challenges
-                <ChallengeCard key={challenge.challengeId} challenge={challenge} onAction={fetchChallenges} />
+                <ChallengeCard key={challenge.challengeId} challenge={challenge} onAction={fetchChallenges} url = {url} />
             ))}
             {/* {isLoggedIn && <CreatePostButton onPostCreated={fetchPosts} />} */}
             {<LogoutButton setIsLoggedIn={setIsLoggedIn} onLogout={()=>navigate('/')}/>} {/* Logout button */}

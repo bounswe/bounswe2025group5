@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function CreatePostButton({ onPostCreated}) {
+function CreatePostButton({ onPostCreated, url}) {
     const [content, setContent] = useState("");
     const [photoUrl, setPhotoUrl] = useState("");
     const [error, setError] = useState(null);
@@ -15,7 +15,7 @@ function CreatePostButton({ onPostCreated}) {
         }
 
         try {
-            const response = await fetch("/api/posts/create", {
+            const response = await fetch(`${url}/api/posts/create`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

@@ -99,7 +99,7 @@ function Register({url}) {
 
 
         // Now we need to send the information to the backend
-        const response = await fetch('${url}/api/auth/register', {
+        const response = await fetch(`${url}/api/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password, email }),

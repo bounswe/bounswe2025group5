@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function LeaderboardCard({ challengeId, onClose }) {
+export default function LeaderboardCard({ challengeId, onClose , url}) {
     const [leaderboard, setLeaderboard] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -8,7 +8,7 @@ export default function LeaderboardCard({ challengeId, onClose }) {
     useEffect(() => {
         const fetchLeaderboard = async () => {
             try {
-                const response = await fetch(`/api/challenges/leaderboard?id=${challengeId}`);
+                const response = await fetch(`${url}/api/challenges/leaderboard?id=${challengeId}`);
                 const data = await response.json();
                 if (response.ok) {
                     setLeaderboard(data);

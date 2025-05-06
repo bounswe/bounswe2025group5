@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import CommentInput from "./CommentInput";
 import CommentList from "./CommentList";
 
-function CommentSection({ postId, isLoggedIn }) {
+function CommentSection({ postId, isLoggedIn, url }) {
     const [comments, setComments] = useState([]);
     const [error, setError] = useState(null);
     const [commentBeingEdited, setCommentBeingEdited] = useState(null); // State to track the comment being edited   
@@ -10,7 +10,7 @@ function CommentSection({ postId, isLoggedIn }) {
     useEffect(() => {
         const fetchComments = async () => {
             try {
-                const response = await fetch(`/api/comments/post/${postId}`, { // get comments api url is /api/comments/post/{postId}
+                const response = await fetch(`${url}/api/comments/post/${postId}`, { // get comments api url is /api/comments/post/{postId}
                     method: "GET",
                     headers: { "Content-Type": "application/json" },
                 });
@@ -32,7 +32,7 @@ function CommentSection({ postId, isLoggedIn }) {
         if (commentBeingEdited) {
             commentBeingEdited.content = content; // Update the content of the comment being edited
             try {
-                const response = await fetch(`/api/comments/${commentBeingEdited.commentId}`, {
+                const response = await fetch(`${url}/api/comments/${commentBeingEdited.commentId}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ username, content, postId }),
@@ -50,7 +50,7 @@ function CommentSection({ postId, isLoggedIn }) {
             return;
         } else {
             try {
-                const response = await fetch(`/api/comments`, {
+                const response = await fetch(`${url}/api/comments`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ username, content, postId }),
@@ -70,7 +70,7 @@ function CommentSection({ postId, isLoggedIn }) {
     };
     const handleDelete = (commentId) => {
         setComments(comments.filter((c) => c.commentId !== commentId));
-        fetch(`/api/comments/${commentId}`, {
+        fetch(`${url}/api/comments/${commentId}`, {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
         })
