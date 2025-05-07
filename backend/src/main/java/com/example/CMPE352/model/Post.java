@@ -36,14 +36,21 @@ public class Post {
     @Column(name = "likes", nullable = false)
     private Integer likes;
 
+    @Column(name = "comments", nullable = false)
+    private Integer comments;
+
+
+
     @Column(name = "photo_url")
     private String photoUrl;
 
 
-    public Post(User user, String content, String photoUrl, Integer likes) {
+    public Post(User user, String content, String photoUrl, Integer likes, Integer comments) {
         this.user = user;
         this.content = content;
         this.photoUrl = photoUrl;
         this.likes = likes;
+        this.comments = comments;
+
     }
 }

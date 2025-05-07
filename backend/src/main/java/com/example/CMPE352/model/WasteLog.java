@@ -32,6 +32,10 @@ public class WasteLog {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "waste_type", nullable = false)
+    private WasteGoal.wasteType wasteType;
+
     @PrePersist
     protected void onCreate() {
         this.date = LocalDateTime.now();
