@@ -30,6 +30,7 @@ function Login({ isLoggedIn, setIsLoggedIn, url }) {
 
             if (response.ok) {
                 localStorage.setItem('username', data.username);
+                localStorage.setItem('userId', data.userId); // Store user ID in local storage
                 setIsLoggedIn(true);
             } else {
                 setError(data.message || 'Login failed');

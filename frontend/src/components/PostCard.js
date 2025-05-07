@@ -18,7 +18,9 @@ function PostCard({ post, isLoggedIn, onAction, url }) {
             )}
 
             <div style={styles.footer}>
-                <small>Likes: {post.likes}</small>
+                {!isLoggedIn && (
+                    <small>Likes: {post.likes}</small>
+                )}
                 <small>Posted on: {new Date(post.createdAt).toLocaleString()}</small>
             </div>
 
