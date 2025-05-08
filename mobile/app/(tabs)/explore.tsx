@@ -8,6 +8,9 @@ import {
   TextInput,
   ActivityIndicator,
   RefreshControl,
+  Text,
+  Alert,
+  Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
@@ -24,21 +27,27 @@ type Post = {
   comments: number;
 };
 
-function PostSkeleton({ post }: { post: Post }) {
+type Comment = 
+{
+  commentId: number;
+  content: string;
+  creatorUsername: string;
+  postId: number;
+  createdAt: string;
+}
+
+function PostSkeleton({ post, onPressComments }: { post: Post; onPressComments: () => void }) {
   return (
     <View style={styles.postContainer}>
-      <ThemedText type="title" style={styles.postTitle}>
-        {post.title}
-      </ThemedText>
-      <ThemedText style={styles.postContent}>
-        {post.content}
-      </ThemedText>
-
+      <ThemedText type="title" style={styles.postTitle}>{post.title}</ThemedText>
+      <ThemedText style={styles.postContent}>{post.content}</ThemedText>
       <View style={styles.postFooter}>
         <Ionicons name="heart-outline" size={16} />
         <ThemedText style={styles.footerText}>{post.likes}</ThemedText>
-        <Ionicons name="chatbubble-outline" size={16} />
-        <ThemedText style={styles.footerText}>{post.comments}</ThemedText>
+        <TouchableOpacity onPress={onPressComments} style={styles.commentButton}>
+          <Ionicons name="chatbubble-outline" size={16} />
+          <ThemedText style={styles.footerText}>{post.comments}</ThemedText>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -59,6 +68,14 @@ export default function ExploreScreen() {
   const [searchResults, setSearchResults] = useState<Post[]>([]);
   const [isSearching,   setIsSearching]   = useState(false);
   const [inSearchMode,  setInSearchMode]  = useState(false);
+
+  const [commentsVisible, setCommentsVisible] = useState(false); // State to manage comment visibility
+  const [comments, setComments] = useState<any[]>([]); // State to manage comments
+  const [newComment, setNewComment] = useState(''); // State to manage new comment input
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null); // State to manage selected post ID for comments
+  const [editCommentId, setEditCommentId] = useState<number | null>(null); // State to manage comment ID for editing
+  const [editCommentText, setEditCommentText] = useState(''); // State to manage edited comment text
+
 
   useEffect(() => {
     if (!userType) {
@@ -180,9 +197,116 @@ export default function ExploreScreen() {
     setSearchResults([]);
   };
 
+  const openCommentsModal = async (postId: number) => {
+    setSelectedPostId(postId);
+    setCommentsVisible(true);
+    setComments([]); // Clear previous comments
+    try {
+      const res = await fetch(`${API_BASE}/api/comments/post/${postId}`);
+      if (!res.ok) throw new Error('Failed to fetch comments');
+      const data = await res.json();
+      const mappedComments: Comment[] = data.map((item: any) => ({
+        commentId: item.commentId,
+        content: item.content,
+        creatorUsername: item.user_id,
+        postId: item.post_id,
+        createdAt: item.created_at,
+      }));
+      setComments(mappedComments);
+    } catch (err) {
+      console.error('Failed to fetch comments:', err);
+    }
+  };
+
+  const handleAddComment = async () => {
+    if (!newComment.trim()) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: newComment,
+          postId: selectedPostId,
+          username: username,
+        }),
+      });
+      if (!res.ok) throw new Error('Failed to add comment');
+      const data = await res.json();
+      const newCommentData: Comment = {
+        commentId: data.commentId,
+        content: newComment,
+        creatorUsername: username,
+        postId: selectedPostId!,
+        createdAt: new Date().toISOString(), // Use current date for the new comment
+      };
+      setComments(prevComments => [...prevComments, newCommentData]); // Add new comment to the list
+      setNewComment(''); // Clear input after adding comment
+      setCommentsVisible(false); // Close modal after adding comment
+      openCommentsModal(selectedPostId!); // Refresh comments
+    }
+    catch (err) {
+      console.error('Failed to add comment:', err);
+    }
+  };
+
+  const handleEditComment = async (commentId: number) => {
+    if (!editCommentText.trim() || editCommentId === null) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/comments/${editCommentId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: editCommentText,
+          postId: selectedPostId,
+          username: username,
+        }),
+      });
+      if (!res.ok) throw new Error('Failed to edit comment');
+      const updatedComments = comments.map(comment =>
+        comment.commentId === editCommentId ? { ...comment, content: editCommentText } : comment
+      );
+      setComments(updatedComments);
+      setEditCommentId(null); // Clear edit mode
+      setEditCommentText(''); // Clear input after editing comment
+    } catch (err) {
+      console.error('Failed to edit comment:', err);
+    }
+  };
+
+  const handleDeleteComment = async (commentId: number) => {
+    Alert.alert('Delete Comment', 'Are you sure you want to delete this comment?', [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Delete',
+        onPress: async () => {
+          try {
+            const res = await fetch(`${API_BASE}/api/comments/${commentId}`, {
+              method: 'DELETE',
+            });
+            if (!res.ok) throw new Error('Failed to delete comment');
+            setComments(prevComments => prevComments.filter(comment => comment.commentId !== commentId));
+          } catch (err) {
+            console.error('Failed to delete comment:', err);
+          }
+        },
+      },
+    ])};
+
+
+
+
   if (!userType) return null;
 
   return (
+  <>
+      {/* ───────── Header ───────── */}
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.content}
@@ -280,7 +404,59 @@ export default function ExploreScreen() {
       )}
 
     </ScrollView>
-  );
+ {/* Comment Modal */}
+ <Modal visible={commentsVisible} animationType="slide" onRequestClose={() => setCommentsVisible(false)}>
+ <View style={{ flex: 1, padding: 16 }}>
+   <TouchableOpacity onPress={() => setCommentsVisible(false)} style={{ marginBottom: 12 }}>
+     <Text style={{ fontWeight: 'bold', fontSize: 16 }}>Close</Text>
+   </TouchableOpacity>
+
+   {comments.map(comment => (
+     <View key={comment.commentId} style={styles.commentBox}>
+       <Text style={{ fontWeight: 'bold' }}>{comment.creatorUsername}</Text>
+       {editCommentId === comment.commentId ? (
+         <>
+           <TextInput
+             value={editCommentText}
+             onChangeText={setEditCommentText}
+             style={styles.input}
+           />
+           <TouchableOpacity onPress={handleEditComment}>
+             <Text style={{ color: 'blue' }}>Save</Text>
+           </TouchableOpacity>
+         </>
+       ) : (
+         <Text>{comment.content}</Text>
+       )}
+       {comment.creatorUsername === username && (
+         <View style={{ flexDirection: 'row', gap: 10 }}>
+           <TouchableOpacity onPress={() => {
+             setEditCommentId(comment.commentId);
+             setEditCommentText(comment.content);
+           }}>
+             <Text style={{ color: 'green' }}>Edit</Text>
+           </TouchableOpacity>
+           <TouchableOpacity onPress={() => handleDeleteComment(comment.commentId)}>
+             <Text style={{ color: 'red' }}>Delete</Text>
+           </TouchableOpacity>
+         </View>
+       )}
+     </View>
+   ))}
+
+   <TextInput
+     style={styles.input}
+     placeholder="Add a comment..."
+     value={newComment}
+     onChangeText={setNewComment}
+   />
+   <TouchableOpacity onPress={handleAddComment} style={styles.loginButton}>
+     <Text style={{ color: '#fff' }}>Post Comment</Text>
+   </TouchableOpacity>
+ </View>
+</Modal>
+</>
+);
 }
 
 
@@ -404,4 +580,63 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  commentBox: {
+    backgroundColor: '#f9f9f9',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  input: {
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+  },
+  modalContainer: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: '#fff',
+  },
+  modalHeader: {
+    marginBottom: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  closeButton: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: 'red',
+  },
+  commentAuthor: {
+    fontWeight: 'bold',
+    marginBottom: 6,
+  },
+  editDeleteButtons: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 6,
+  },
+  editButton: {
+    color: 'green',
+  },
+  deleteButton: {
+    color: 'red',
+  },
+  postButton: {
+    backgroundColor: '#2196F3',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignSelf: 'flex-end',
+  },
+  postButtonText: {
+    color: '#fff',
+    fontSize: 16,
+  }
 });
