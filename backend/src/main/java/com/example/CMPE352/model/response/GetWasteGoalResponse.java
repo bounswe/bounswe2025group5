@@ -11,6 +11,7 @@ public class GetWasteGoalResponse {
     private Double amount;
     private Integer duration;
     private String unit;
+    private Double progress;
     private Timestamp createdAt;
     private String creatorUsername;
 }
