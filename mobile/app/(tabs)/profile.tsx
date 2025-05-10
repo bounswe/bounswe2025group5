@@ -33,18 +33,16 @@ export default function ProfileScreen() {
         });
         return;
       }
-  
+
       (async () => {
         try {
           const res = await fetch(`${API_BASE}/api/profile/info?username=${username}`);
           if (res.status === 404) {
-            // Automatically create profile if not found
             await fetch(`${API_BASE}/api/profile/create`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ username, biography: '', photoUrl: '' }),
             });
-            // Now retry
             const retryRes = await fetch(`${API_BASE}/api/profile/info?username=${username}`);
             const retryData = await retryRes.json();
             setBio(retryData.biography ?? '');
@@ -62,7 +60,6 @@ export default function ProfileScreen() {
       })();
     }, [userType])
   );
-  
 
   const handleLogout = async () => {
     await AsyncStorage.multiRemove(['username', 'password', 'email', 'token']);
@@ -121,20 +118,12 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* Action Buttons */}
-        {[
-          ['Add a Waste Log', 'add_waste_log', '#4CAF50'],
-          ['Add a Waste Goal', 'add_waste_goal', '#2E7D32'],
-          ['Create a post', 'create_post', '#2196F3']
-        ].map(([label, route, color]) => (
-          <TouchableOpacity
-            key={label}
-            style={[styles.actionButton, { backgroundColor: color as string }]}
-            onPress={() => navigation.navigate(route as string)}
-          >
-            <Text style={styles.actionText}>{label}</Text>
-          </TouchableOpacity>
-        ))}
+        <TouchableOpacity
+          style={[styles.actionButton, { backgroundColor: '#2196F3' }]}
+          onPress={() => navigation.navigate('create_post')}
+        >
+          <Text style={styles.actionText}>Create a post</Text>
+        </TouchableOpacity>
       </View>
     </ParallaxScrollView>
   );
