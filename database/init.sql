@@ -406,3 +406,20 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+
+
+DELIMITER $$
+
+CREATE TRIGGER `after_user_insert_create_profile`
+AFTER INSERT ON `users`
+FOR EACH ROW
+BEGIN
+    -- Insert a new profile record for the newly inserted user.
+    -- profile_id will auto-increment.
+    -- photo_url and biography will default to NULL as per table definition.
+    -- created_at will default to CURRENT_TIMESTAMP as per table definition.
+    INSERT INTO `profiles` (user_id) VALUES (NEW.user_id);
+END$$
+
+DELIMITER ;

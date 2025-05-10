@@ -7,6 +7,14 @@ services:
       - "8080:8080"
     networks:
       - appnet
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    networks:
+      - appnet
+    depends_on:
+      - backend
 
 networks:
   appnet:
