@@ -445,10 +445,10 @@ const styles = StyleSheet.create({
   statNumber  : { fontWeight: 'bold', fontSize: 20, color: '#4CAF50' },
 
     sectionTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold', marginTop: 16, marginBottom: 8 },
-    trendingContainer: { height: 200, marginVertical: 8 },
+    trendingContainer: { height: 260, marginVertical: 8 },
       postContainer: {
           width: 250,
-          height: 200,        
+          height: 240,        
           marginRight: 16,
           backgroundColor: '#f5f5f5',
           borderRadius: 8,
@@ -456,19 +456,18 @@ const styles = StyleSheet.create({
           justifyContent: 'space-between',
           overflow: 'hidden', 
         },
-    postTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 4 , color: '#000'},
+    postTitle: { fontSize: 16, fontWeight: 'bold', marginTop: -5, color: '#000'},
     
-    postContent: { fontSize: 14, marginBottom: 8 , color: '#000'},
+    postContent: { fontSize: 14, marginTop:-20, color: '#000'},
     
       postImage: {
         width: '100%',
         aspectRatio: 16 / 9, 
-        maxHeight: 100,      
+        maxHeight: 120,      
         borderRadius: 6,
-        marginBottom: 8,
         resizeMode: 'cover',
       },
-    postFooter: { flexDirection: 'row', alignItems: 'center', marginTop: 8 },    footerText: { fontSize: 12, marginHorizontal: 4, color: '#000' },    
+    postFooter: { flexDirection: 'row', alignItems: 'center',  },    footerText: { fontSize: 12, marginHorizontal: 4, color: '#000' },    
   modeHeader: {
     fontSize: 20,
     fontWeight: 'bold',
