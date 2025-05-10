@@ -6,8 +6,8 @@ import {
   View,
   TouchableOpacity,
   Text,
-  FlatList, // Ensure this import is present and correct
-  Alert,
+  FlatList,
+  Alert, // Still useful for simple success/error messages
   ActivityIndicator,
   Modal
 } from 'react-native';
@@ -26,10 +26,10 @@ type WasteGoal = {
   amount: number;
   duration: number;
   unit: string;
-  progress?: number; // Assumed to be a fraction 0.0 to 1.0
+  progress?: number; 
   createdAt: string;
   creatorUsername?: string;
-  id?: number;
+  id?: number; 
   username?: string;
   completed?: number;
 };
@@ -46,6 +46,7 @@ export default function WasteGoalScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Create/Edit Goal Modal
   const [modalVisible, setModalVisible] = useState(false);
   const [editingGoal, setEditingGoal] = useState<WasteGoal | null>(null);
   const [wasteType, setWasteType] = useState('Plastic');
@@ -53,9 +54,15 @@ export default function WasteGoalScreen() {
   const [duration, setDuration] = useState('30');
   const [amount, setAmount] = useState('5.0');
 
+  // Add Waste Log Modal
   const [addLogModalVisible, setAddLogModalVisible] = useState(false);
   const [currentGoalForLog, setCurrentGoalForLog] = useState<WasteGoal | null>(null);
   const [logEntryAmount, setLogEntryAmount] = useState('');
+
+  // Delete Confirmation Modal
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [goalToDelete, setGoalToDelete] = useState<WasteGoal | null>(null);
+
 
   useFocusEffect(
     React.useCallback(() => {
@@ -100,7 +107,7 @@ export default function WasteGoalScreen() {
     }
     const goalIdToLog = currentGoalForLog.goalId;
     if (!goalIdToLog) {
-      Alert.alert('Error', 'Selected goal has no valid ID.');
+      Alert.alert('Error', 'Selected goal has no valid ID for logging.');
       return;
     }
     setLoading(true);
@@ -115,10 +122,7 @@ export default function WasteGoalScreen() {
       const apiEndpoint = `${API_BASE}/waste-logs/create`;
       const response = await fetch(apiEndpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: token ? `Bearer ${token}` : '',
-        },
+        headers: { 'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : '' },
         body: JSON.stringify(requestBody),
       });
       if (!response.ok) {
@@ -143,19 +147,10 @@ export default function WasteGoalScreen() {
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem('token');
-      const requestBody = {
-        username: username,
-        unit: unit,
-        wasteType: wasteType,
-        duration: parseInt(duration),
-        amount: parseFloat(amount)
-      };
+      const requestBody = { username, unit, wasteType, duration: parseInt(duration), amount: parseFloat(amount) };
       const response = await fetch(`${API_BASE}/goals/create`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: token ? `Bearer ${token}` : '',
-        },
+        headers: { 'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : '' },
         body: JSON.stringify(requestBody),
       });
       if (!response.ok) {
@@ -182,20 +177,10 @@ export default function WasteGoalScreen() {
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem('token');
-      const requestBody = {
-        username: username,
-        unit: unit,
-        wasteType: wasteType,
-        duration: parseInt(duration),
-        amount: parseFloat(amount)
-      };
-      const goalIdToEdit = editingGoal.goalId;
-      const response = await fetch(`${API_BASE}/goals/edit/${goalIdToEdit}`, {
+      const requestBody = { username, unit, wasteType, duration: parseInt(duration), amount: parseFloat(amount) };
+      const response = await fetch(`${API_BASE}/goals/edit/${editingGoal.goalId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: token ? `Bearer ${token}` : '',
-        },
+        headers: { 'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : '' },
         body: JSON.stringify(requestBody),
       });
       if (!response.ok) {
@@ -204,8 +189,7 @@ export default function WasteGoalScreen() {
       }
       Alert.alert('Success', 'Waste goal updated successfully.');
       setModalVisible(false);
-      setEditingGoal(null);
-      resetForm();
+      resetForm(); // Will also clear editingGoal
       getGoals();
     } catch (err) {
       console.error('Error editing goal:', err);
@@ -215,12 +199,18 @@ export default function WasteGoalScreen() {
     }
   };
 
-  const deleteWasteGoal = async (goalId: number) => {
-    console.log(`deleteWasteGoal function called for ID: ${goalId}`);
+  const handleDeleteConfirm = async () => {
+    if (!goalToDelete || !goalToDelete.goalId) {
+      Alert.alert('Error', 'No goal selected for deletion or goal ID is missing.');
+      setIsDeleteModalVisible(false);
+      setGoalToDelete(null);
+      return;
+    }
     setLoading(true);
+    setIsDeleteModalVisible(false); // Close modal before API call
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await fetch(`${API_BASE}/goals/delete/${goalId}`, {
+      const response = await fetch(`${API_BASE}/goals/delete/${goalToDelete.goalId}`, {
         method: 'DELETE',
         headers: { Authorization: token ? `Bearer ${token}` : '' },
       });
@@ -234,9 +224,11 @@ export default function WasteGoalScreen() {
       console.error('Error deleting goal:', err);
       Alert.alert('Error', err instanceof Error ? err.message : 'Failed to delete waste goal');
     } finally {
+      setGoalToDelete(null); // Clear the goal to delete
       setLoading(false);
     }
   };
+
 
   const openEditModal = (goal: WasteGoal) => {
     setEditingGoal(goal);
@@ -260,6 +252,12 @@ export default function WasteGoalScreen() {
     setLogEntryAmount('');
     setAddLogModalVisible(true);
   };
+
+  const openDeleteConfirmationModal = (goal: WasteGoal) => {
+    setGoalToDelete(goal);
+    setIsDeleteModalVisible(true);
+  };
+
 
   const renderGoalItem = ({ item }: { item: WasteGoal }) => {
     const progressFraction = item.progress !== undefined ? item.progress : 0;
@@ -287,27 +285,7 @@ export default function WasteGoalScreen() {
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.deleteButton} 
-            onPress={() => {
-              console.log('Delete button pressed for item:', item.goalId, item.wasteType);
-              if (item.goalId) {
-                Alert.alert(
-                  'Confirm Delete',
-                  `Are you sure you want to delete the "${item.wasteType}" goal?`,
-                  [
-                    { text: 'Cancel', style: 'cancel' },
-                    { 
-                      text: 'Delete', 
-                      onPress: () => deleteWasteGoal(item.goalId), 
-                      style: 'destructive' 
-                    }
-                  ],
-                  { cancelable: true }
-                );
-              } else {
-                console.error('Cannot delete: item.goalId is missing or invalid for item:', item);
-                Alert.alert('Error', 'Goal ID not found. Cannot delete.');
-              }
-            }}
+            onPress={() => openDeleteConfirmationModal(item)} // Open new delete modal
           >
             <Text style={styles.buttonText}>Delete</Text>
           </TouchableOpacity>
@@ -348,11 +326,16 @@ export default function WasteGoalScreen() {
           
           {error && !loading && <Text style={styles.errorText}>{error}</Text>}
 
-          {/* Ensure this FlatList block is exactly as below */}
           <FlatList
             data={goals}
             renderItem={renderGoalItem}
-            keyExtractor={item => item.goalId.toString()}
+            keyExtractor={item => {
+                if (!item || typeof item.goalId !== 'number') {
+                    console.warn('Invalid item for keyExtractor:', item);
+                    return `invalid-${Date.now()}-${Math.random()}`;
+                }
+                return item.goalId.toString();
+            }}
             contentContainerStyle={styles.listContainer}
             ListEmptyComponent={
               !loading && !error ? (
@@ -368,6 +351,7 @@ export default function WasteGoalScreen() {
             }
           />
           
+          {/* Goal Create/Edit Modal */}
           <Modal
             visible={modalVisible}
             transparent={true}
@@ -414,6 +398,7 @@ export default function WasteGoalScreen() {
             </View>
           </Modal>
 
+          {/* Add Waste Log Modal */}
           <Modal
             visible={addLogModalVisible}
             transparent={true}
@@ -436,6 +421,49 @@ export default function WasteGoalScreen() {
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.saveButton} onPress={handleAddWasteLog} disabled={loading || !logEntryAmount}>
                     <Text style={styles.buttonText}>{loading ? 'Saving...' : 'Confirm Log'}</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
+
+          {/* Delete Confirmation Modal */}
+          <Modal
+            visible={isDeleteModalVisible}
+            transparent={true}
+            animationType="slide"
+            onRequestClose={() => {
+              setIsDeleteModalVisible(false);
+              setGoalToDelete(null);
+            }}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Confirm Deletion</Text>
+                {goalToDelete && (
+                  <Text style={styles.deleteConfirmText}>
+                    Are you sure you want to delete the goal: {'\n'}
+                    <Text style={{fontWeight: 'bold'}}>{goalToDelete.wasteType}</Text> for <Text style={{fontWeight: 'bold'}}>{goalToDelete.amount} {goalToDelete.unit}</Text>?
+                  </Text>
+                )}
+                <View style={styles.modalButtons}>
+                  <TouchableOpacity
+                    style={styles.cancelButton}
+                    onPress={() => {
+                      setIsDeleteModalVisible(false);
+                      setGoalToDelete(null);
+                    }}
+                  >
+                    <Text style={styles.buttonText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.saveButton, styles.confirmDeleteButton]} // Use saveButton style, add specific style
+                    onPress={handleDeleteConfirm}
+                    disabled={loading}
+                  >
+                    <Text style={styles.buttonText}>
+                      {loading ? 'Deleting...' : 'Delete'}
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -516,7 +544,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   deleteButton: {
-    backgroundColor: '#D32F2F',
+    backgroundColor: '#D32F2F', // Red for delete
     paddingHorizontal: 10, 
     paddingVertical: 8,
     borderRadius: 6,
@@ -603,20 +631,30 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   cancelButton: {
-    backgroundColor: '#757575',
+    backgroundColor: '#757575', // Grey
     paddingVertical: 12,
     paddingHorizontal: 10,
     borderRadius: 8,
     width: '48%',
     alignItems: 'center',
   },
-  saveButton: {
+  saveButton: { // Green for save/update/confirm log
     backgroundColor: '#4CAF50',
     paddingVertical: 12,
     paddingHorizontal: 10,
     borderRadius: 8,
     width: '48%',
     alignItems: 'center',
+  },
+  confirmDeleteButton: { // Specific style for the confirm delete button in the modal
+    backgroundColor: '#D32F2F', // Red
+  },
+  deleteConfirmText: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#333',
+    marginBottom: 20,
+    lineHeight: 24,
   },
   progressBarContainer: {
     height: 12,
