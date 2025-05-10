@@ -10,6 +10,7 @@ import {
   RefreshControl,
   Platform,
   useColorScheme,
+  Image, // Import Image
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
@@ -25,16 +26,27 @@ type Post = {
   content: string;
   likes: number;
   comments: number;
+  photoUrl: string | null; // Add photoUrl to Post type
 };
 
-// PostSkeleton now takes cardBackgroundColor and iconColor as props
 function PostSkeleton({ post, cardBackgroundColor, iconColor }: { post: Post; cardBackgroundColor: string; iconColor: string; }) {
   return (
     <View style={[styles.postContainer, { backgroundColor: cardBackgroundColor }]}>
       <ThemedText type="title" style={styles.postTitle}>
         {post.title}
       </ThemedText>
-      <ThemedText style={styles.postContent}>
+      {post.photoUrl && ( // Add Image display logic
+        <Image
+          source={{
+            uri: post.photoUrl.startsWith('http')
+              ? post.photoUrl
+              : `http://${HOST}:8080${post.photoUrl}`,
+          }}
+          style={styles.postImage}
+          onError={(e) => console.warn('Explore: Image failed to load:', e.nativeEvent.error, post.photoUrl)}
+        />
+      )}
+      <ThemedText style={styles.postContent} numberOfLines={post.photoUrl ? 2 : 5}>
         {post.content}
       </ThemedText>
 
@@ -71,7 +83,7 @@ export default function ExploreScreen() {
   const searchBarBackgroundColor = colorScheme === 'dark' ? '#1C1C1E' : '#FFFFFF';
   const searchInputColor = colorScheme === 'dark' ? '#E5E5E7' : '#000000';
   const searchPlaceholderColor = colorScheme === 'dark' ? '#8E8E93' : '#8E8E93';
-  const iconColor = colorScheme === 'dark' ? '#8E8E93' : '#6C6C70'; // Used for search and post icons
+  const iconColor = colorScheme === 'dark' ? '#8E8E93' : '#6C6C70';
   
   const themedErrorBoxBackgroundColor = colorScheme === 'dark' ? '#5D1F1A' : '#ffcccc';
   const themedErrorBoxTextColor = colorScheme === 'dark' ? '#FFA094' : '#cc0000';
@@ -122,6 +134,7 @@ export default function ExploreScreen() {
         content: item.content,
         likes: item.likes,
         comments: item.comments.length,
+        photoUrl: item.photoUrl, // Map photoUrl
       }));
 
       if (loadMore) {
@@ -182,6 +195,7 @@ export default function ExploreScreen() {
         content: item.content,
         likes: item.likes,
         comments: item.comments,
+        photoUrl: item.photoUrl, // Map photoUrl
       }));
 
       setSearchResults(mapped);
@@ -347,10 +361,12 @@ const styles = StyleSheet.create({
   },
   postImage: { 
     width: '100%',
-    height: 150,
+    aspectRatio: 16 / 9,
+    maxHeight: 150, // Consistent max height for images
     borderRadius: 4,
     marginBottom: 10,
-    backgroundColor: '#eee', 
+    backgroundColor: '#eee', // Placeholder background
+    resizeMode: 'cover',
   },
   postTitle: {
     fontSize: 18,
