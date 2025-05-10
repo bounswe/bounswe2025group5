@@ -21,7 +21,7 @@ import { ScrollView } from 'react-native';
 const HOST = Platform.select({ android: '10.0.2.2', ios: 'localhost' , web: 'localhost' });
 const API_BASE = `http://${HOST}:8080/api/auth`;
 
-const KG_SAVED     = 57492; 
+const KG_SAVED     = 57492;
 
 type Navigation = {
   navigate: (screen: string, params?: any) => void;
@@ -76,22 +76,22 @@ export default function HomeScreen() {
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
         });
-  
+
         const body = await res.json().catch(() => ({}));
-        console.log('users/count response ➜', body);          
-  
+        console.log('users/count response ➜', body);
+
         if (!res.ok) {
           return console.warn(body.message || 'Could not fetch user count');
         }
-  
+
         const userCount = body.userCount ?? 0;
-        console.log('setting usersCount ➜', userCount);       
+        console.log('setting usersCount ➜', userCount);
         setUsersCount(userCount);
       } catch (err) {
         console.warn('Network error while fetching user count', err);
       }
     };
-  
+
     fetchUserCount();
   }, []);
 
@@ -248,11 +248,11 @@ export default function HomeScreen() {
       {!showAuthFields && (
         <>
           <View style={styles.statsContainer}>
-            <Text style={styles.statLine}>
+            <ThemedText style={styles.statLine}>
               <Text style={styles.statNumber}>{usersCount}</Text>{' '}
               users are reducing their wastes with us
-            </Text>
-                     <Text style={styles.sectionTitle}>Trending posts :</Text>
+            </ThemedText>
+                     <ThemedText style={styles.sectionTitle}>Trending posts :</ThemedText>
              <ScrollView
                horizontal
                pagingEnabled
@@ -441,33 +441,45 @@ const styles = StyleSheet.create({
   },
 
   statsContainer: { marginTop: 24, marginHorizontal: 16 },
-  statLine    : { color: '#fff', fontSize: 18, textAlign: 'center', marginVertical: 4 },
+  statLine    : {
+    // color: '#fff', // Removed to allow ThemedText to handle color
+    fontSize: 18,
+    textAlign: 'center',
+    marginVertical: 4
+  },
   statNumber  : { fontWeight: 'bold', fontSize: 20, color: '#4CAF50' },
 
-    sectionTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold', marginTop: 16, marginBottom: 8 },
-    trendingContainer: { height: 260, marginVertical: 8 },
-      postContainer: {
-          width: 250,
-          height: 240,        
-          marginRight: 16,
-          backgroundColor: '#f5f5f5',
-          borderRadius: 8,
-          padding: 12,
-          justifyContent: 'space-between',
-          overflow: 'hidden', 
-        },
-    postTitle: { fontSize: 16, fontWeight: 'bold', marginTop: -5, color: '#000'},
-    
-    postContent: { fontSize: 14, marginTop:-20, color: '#000'},
-    
-      postImage: {
-        width: '100%',
-        aspectRatio: 16 / 9, 
-        maxHeight: 120,      
-        borderRadius: 6,
-        resizeMode: 'cover',
-      },
-    postFooter: { flexDirection: 'row', alignItems: 'center',  },    footerText: { fontSize: 12, marginHorizontal: 4, color: '#000' },    
+  sectionTitle: {
+    // color: '#fff', // Removed to allow ThemedText to handle color
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 16,
+    marginBottom: 8
+  },
+  trendingContainer: { height: 260, marginVertical: 8 },
+  postContainer: {
+      width: 250,
+      height: 240,
+      marginRight: 16,
+      backgroundColor: '#f5f5f5',
+      borderRadius: 8,
+      padding: 12,
+      justifyContent: 'space-between',
+      overflow: 'hidden',
+    },
+  postTitle: { fontSize: 16, fontWeight: 'bold', marginTop: -5, color: '#000'},
+
+  postContent: { fontSize: 14, marginTop:-20, color: '#000'},
+
+  postImage: {
+    width: '100%',
+    aspectRatio: 16 / 9,
+    maxHeight: 120,
+    borderRadius: 6,
+    resizeMode: 'cover',
+  },
+  postFooter: { flexDirection: 'row', alignItems: 'center',  },
+  footerText: { fontSize: 12, marginHorizontal: 4, color: '#000' },
   modeHeader: {
     fontSize: 20,
     fontWeight: 'bold',
