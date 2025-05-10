@@ -21,17 +21,17 @@ import { Picker } from '@react-native-picker/picker';
 const API_BASE = 'http://localhost:8080/api';
 
 type WasteGoal = {
-  id?: number;
-  goalId?: number;
-  username?: string;
-  unit: string;
+  goalId: number; // From API, primary identifier
   wasteType: string;
-  duration: number;
   amount: number;
-  createdAt?: string;
-  date?: string;
-  percentOfProgress?: number;
-  completed?: number;
+  duration: number;
+  unit: string;
+  progress?: number; // From API (e.g., 0.0 for 0%, 0.5 for 50%)
+  createdAt: string; // From API
+  creatorUsername?: string; // From API
+  id?: number; // Fallback or local id if needed
+  username?: string; // Typically the logged-in user setting the goal
+  completed?: number; // If used by other logic
 };
 
 type Navigation = {
@@ -45,9 +45,9 @@ export default function WasteGoalScreen() {
   const [goals, setGoals] = useState<WasteGoal[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [lastGoalId, setLastGoalId] = useState<number | null>(null);
-  const [hasMore, setHasMore] = useState(true);
-  
+  // const [lastGoalId, setLastGoalId] = useState<number | null>(null); // Not currently used
+  // const [hasMore, setHasMore] = useState(true); // Not currently used for pagination
+
   // New goal form
   const [modalVisible, setModalVisible] = useState(false);
   const [editingGoal, setEditingGoal] = useState<WasteGoal | null>(null);
@@ -55,20 +55,22 @@ export default function WasteGoalScreen() {
   const [unit, setUnit] = useState('Kilograms');
   const [duration, setDuration] = useState('30');
   const [amount, setAmount] = useState('5.0');
+
+  // Add Waste Log Modal
   const [addLogModalVisible, setAddLogModalVisible] = useState(false);
   const [currentGoalForLog, setCurrentGoalForLog] = useState<WasteGoal | null>(null);
   const [logEntryAmount, setLogEntryAmount] = useState('');
-  const [logEntryUnit, setLogEntryUnit] = useState('Kilograms')
+  // logEntryUnit state is removed as it's derived from currentGoalForLog.unit
 
-  // Load goals when screen focused or username changes
   useFocusEffect(
     React.useCallback(() => {
       if (username) {
         getGoals();
       } else if (userType === 'guest') {
         setError('Please log in to view and manage waste goals');
+        setGoals([]); // Clear goals if guest
       }
-    }, [username])
+    }, [username, userType]) // Added userType as dependency
   );
   
   const getGoals = async () => {
@@ -79,7 +81,7 @@ export default function WasteGoalScreen() {
     
     try {
       const token = await AsyncStorage.getItem('token');
-      const url = `${API_BASE}/goals/info?username=${username}&size=50`;
+      const url = `${API_BASE}/goals/info?username=${username}&size=50`; // Assuming size 50 is enough for now
       
       console.log('Fetching goals from URL:', url);
       
@@ -90,21 +92,22 @@ export default function WasteGoalScreen() {
       });
       
       if (!response.ok) {
-        throw new Error('Failed to fetch waste goals');
+        const errorText = await response.text();
+        console.error('Failed to fetch waste goals:', response.status, errorText);
+        throw new Error(`Failed to fetch waste goals: ${response.status}`);
       }
       
       const data = await response.json();
       console.log('Goals API response:', JSON.stringify(data));
       
-      // If data is already an array, use it directly, otherwise extract goals property
-      const goalsData = Array.isArray(data) ? data : data.goals || [];
+      const goalsData: WasteGoal[] = Array.isArray(data) ? data : data.goals || [];
       console.log('Processed goals data:', JSON.stringify(goalsData));
       
       setGoals(goalsData);
       
     } catch (err) {
       console.error('Error fetching goals:', err);
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : 'An error occurred while fetching goals');
     } finally {
       setLoading(false);
     }
@@ -112,11 +115,11 @@ export default function WasteGoalScreen() {
 
   const handleAddWasteLog = async () => {
     if (!currentGoalForLog || !username || !logEntryAmount) {
-      Alert.alert('Error', 'Please ensure amount is filled and a goal is selected.');
+      Alert.alert('Error', 'Please ensure an amount is entered and a goal is selected.');
       return;
     }
 
-    const goalIdToLog = currentGoalForLog.id || currentGoalForLog.goalId;
+    const goalIdToLog = currentGoalForLog.goalId; // Use goalId from currentGoalForLog
     if (!goalIdToLog) {
       Alert.alert('Error', 'Selected goal has no valid ID.');
       return;
@@ -130,11 +133,9 @@ export default function WasteGoalScreen() {
         username: username,
         goalId: goalIdToLog,
         amount: parseFloat(logEntryAmount),
-        unit: logEntryUnit,
-        // date: new Date().toISOString(), // Backend usually handles the date
+        unit: currentGoalForLog.unit, // Use unit from the selected goal
       };
 
-      // IMPORTANT: Replace '/api/waste-logs/create' with your actual endpoint
       const apiEndpoint = `${API_BASE}/waste-logs/create`; 
       console.log('Sending request to add waste log:', apiEndpoint);
       console.log('Request body for waste log:', JSON.stringify(requestBody));
@@ -154,15 +155,11 @@ export default function WasteGoalScreen() {
         throw new Error(`Failed to add waste log: ${response.status} ${errorText}`);
       }
       
-      // const responseData = await response.json(); // If your API returns data
-      // console.log('Waste log added successfully:', responseData);
       Alert.alert('Success', 'Waste log added successfully!');
-
       setAddLogModalVisible(false);
-      setCurrentGoalForLog(null); // Clear selected goal
-      setLogEntryAmount(''); // Reset form
-      // Refresh goals to update progress display
-      getGoals(); 
+      setCurrentGoalForLog(null);
+      setLogEntryAmount('');
+      getGoals(); // Refresh goals to update progress
     } catch (err) {
       console.error('Error adding waste log:', err);
       Alert.alert('Error', err instanceof Error ? err.message : 'Failed to add waste log');
@@ -178,7 +175,6 @@ export default function WasteGoalScreen() {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
       
-      // Create request body exactly matching the format that works in Postman
       const requestBody = {
         username: username,
         unit: unit,
@@ -186,9 +182,6 @@ export default function WasteGoalScreen() {
         duration: parseInt(duration),
         amount: parseFloat(amount)
       };
-      
-      console.log('Sending request to:', `${API_BASE}/goals/create`);
-      console.log('Request body:', JSON.stringify(requestBody));
       
       const response = await fetch(`${API_BASE}/goals/create`, {
         method: 'POST',
@@ -200,16 +193,13 @@ export default function WasteGoalScreen() {
       });
       
       if (!response.ok) {
-        console.error('Response status:', response.status);
         const errorText = await response.text();
-        console.error('Response body:', errorText);
         throw new Error(`Failed to create waste goal: ${response.status} ${errorText}`);
       }
       
-      // Refresh goals list
       setModalVisible(false);
       resetForm();
-      getGoals(); // Call getGoals after creating a new goal
+      getGoals();
     } catch (err) {
       console.error('Error creating goal:', err);
       Alert.alert('Error', err instanceof Error ? err.message : 'Failed to create waste goal');
@@ -219,30 +209,26 @@ export default function WasteGoalScreen() {
   };
 
   const editWasteGoal = async () => {
-    if (!username || !editingGoal) return;
+    if (!username || !editingGoal || !editingGoal.goalId) {
+        Alert.alert('Error', 'Goal information is incomplete for editing.');
+        return;
+    }
     
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
       
-      // Create request body exactly matching the format that works in Postman
       const requestBody = {
-        username: username,
+        username: username, // Or editingGoal.creatorUsername if that's intended
         unit: unit,
         wasteType: wasteType,
         duration: parseInt(duration),
         amount: parseFloat(amount)
       };
       
-      const goalId = editingGoal.id || editingGoal.goalId;
-      if (!goalId) {
-        throw new Error('Goal ID not found');
-      }
+      const goalIdToEdit = editingGoal.goalId;
       
-      console.log('Sending request to:', `${API_BASE}/goals/edit/${goalId}`);
-      console.log('Request body:', JSON.stringify(requestBody));
-      
-      const response = await fetch(`${API_BASE}/goals/edit/${goalId}`, {
+      const response = await fetch(`${API_BASE}/goals/edit/${goalIdToEdit}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -252,17 +238,14 @@ export default function WasteGoalScreen() {
       });
       
       if (!response.ok) {
-        console.error('Response status:', response.status);
         const errorText = await response.text();
-        console.error('Response body:', errorText);
         throw new Error(`Failed to edit waste goal: ${response.status} ${errorText}`);
       }
       
-      // Refresh goals list
       setModalVisible(false);
       setEditingGoal(null);
       resetForm();
-      getGoals(); // Call getGoals after editing
+      getGoals();
     } catch (err) {
       console.error('Error editing goal:', err);
       Alert.alert('Error', err instanceof Error ? err.message : 'Failed to edit waste goal');
@@ -276,8 +259,6 @@ export default function WasteGoalScreen() {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
       
-      console.log(`Deleting goal with ID: ${goalId}`);
-      
       const response = await fetch(`${API_BASE}/goals/delete/${goalId}`, {
         method: 'DELETE',
         headers: {
@@ -286,14 +267,11 @@ export default function WasteGoalScreen() {
       });
       
       if (!response.ok) {
-        console.error('Response status:', response.status);
         const errorText = await response.text();
-        console.error('Response body:', errorText);
         throw new Error(`Failed to delete waste goal: ${response.status} ${errorText}`);
       }
       
-      // Update local state
-      getGoals(); // Refresh the goals list after deletion
+      getGoals();
     } catch (err) {
       console.error('Error deleting goal:', err);
       Alert.alert('Error', err instanceof Error ? err.message : 'Failed to delete waste goal');
@@ -316,21 +294,20 @@ export default function WasteGoalScreen() {
     setUnit('Kilograms');
     setDuration('30');
     setAmount('5.0');
+    setEditingGoal(null);
   };
 
   const openAddLogModal = (goal: WasteGoal) => {
     setCurrentGoalForLog(goal);
-    setLogEntryAmount(''); // Reset amount for new log entry
-    // Pre-fill unit from goal, but user can change it as per requirement
-    setLogEntryUnit(goal.unit || 'Kilograms'); 
+    setLogEntryAmount('');
     setAddLogModalVisible(true);
   };
 
   const renderGoalItem = ({ item }: { item: WasteGoal }) => {
-    console.log('Rendering goal item:', item);
-        const progressPercentage = item.percentOfProgress !== undefined 
-      ? Math.max(0, Math.min(100, item.percentOfProgress)) 
-      : 0;
+    // Assuming item.progress is a fraction from 0.0 to 1.0
+    // If item.progress is already a percentage (0-100), remove `* 100`
+    const progressFraction = item.progress !== undefined ? item.progress : 0;
+    const progressPercentage = Math.max(0, Math.min(100, progressFraction * 100));
 
     return (
     <View style={styles.goalItem}>
@@ -338,7 +315,7 @@ export default function WasteGoalScreen() {
         <Text style={styles.goalType}>{item.wasteType}</Text>
         <View style={styles.goalActions}>
           <TouchableOpacity 
-            style={styles.addLogButton} // New style for this button
+            style={styles.addLogButton}
             onPress={() => openAddLogModal(item)}
           >
             <Text style={styles.buttonText}>Add Log</Text>
@@ -352,18 +329,17 @@ export default function WasteGoalScreen() {
           <TouchableOpacity 
             style={styles.deleteButton} 
             onPress={() => {
-              const goalId = item.id || item.goalId;
-              if (goalId) {
+              if (item.goalId) {
                 Alert.alert(
                   'Confirm Delete',
                   'Are you sure you want to delete this waste goal?',
                   [
                     { text: 'Cancel', style: 'cancel' },
-                    { text: 'Delete', onPress: () => deleteWasteGoal(goalId), style: 'destructive' }
+                    { text: 'Delete', onPress: () => deleteWasteGoal(item.goalId), style: 'destructive' }
                   ]
                 );
               } else {
-                Alert.alert('Error', 'Goal ID not found');
+                Alert.alert('Error', 'Goal ID not found for deletion.');
               }
             }}
           >
@@ -374,18 +350,14 @@ export default function WasteGoalScreen() {
       <Text style={styles.goalDetails}>
         Goal: {item.amount} {item.unit} in {item.duration} days
       </Text>
-      {item.percentOfProgress !== undefined && (
-        <>
-          <View style={styles.progressBarContainer}>
-            <View style={[styles.progressBarFill, { width: `${progressPercentage}%` }]} />
-          </View>
-          <Text style={styles.goalProgressText}> 
-            Progress: {progressPercentage.toFixed(2)}% 
-          </Text>
-        </>
-      )}
-
-
+      
+      {/* Always display progress bar and text */}
+      <View style={styles.progressBarContainer}>
+        <View style={[styles.progressBarFill, { width: `${progressPercentage}%` }]} />
+      </View>
+      <Text style={styles.goalProgressText}> 
+        Progress: {progressPercentage.toFixed(2)}% 
+      </Text>
     </View>
   )};
 
@@ -397,51 +369,52 @@ export default function WasteGoalScreen() {
       
       {!username && userType === 'guest' ? (
         <Text style={styles.errorText}>
-          Please log in to view and manage waste goals
+          Please log in to view and manage waste goals.
         </Text>
       ) : (
         <>
           <TouchableOpacity 
             style={styles.createButton}
             onPress={() => {
-              resetForm();
-              setEditingGoal(null);
+              resetForm(); // Ensures editingGoal is null
               setModalVisible(true);
             }}
           >
             <Text style={styles.buttonText}>Create New Goal</Text>
           </TouchableOpacity>
           
-          {error ? (
+          {error && !loading ? ( // Show error only if not loading to avoid overlap
             <Text style={styles.errorText}>{error}</Text>
-          ) : (
-            <FlatList
-              data={goals}
-              renderItem={renderGoalItem}
-              keyExtractor={item => (item.id || item.goalId || '').toString()}
-              contentContainerStyle={styles.listContainer}
-              onEndReachedThreshold={0.2}
-              ListEmptyComponent={
-                !loading ? (
-                  <Text style={styles.emptyText}>
-                    No waste goals found. Create your first goal!
-                  </Text>
-                ) : null
-              }
-              ListFooterComponent={
-                loading ? (
-                  <ActivityIndicator size="large" color="#0000ff" style={styles.loadingSpinner} />
-                ) : null
-              }
-            />
-          )}
+          ) : null}
+
+          <FlatList
+            data={goals}
+            renderItem={renderGoalItem}
+            keyExtractor={item => item.goalId.toString()} // Use goalId as key
+            contentContainerStyle={styles.listContainer}
+            ListEmptyComponent={
+              !loading && !error ? ( // Show empty only if not loading and no error
+                <Text style={styles.emptyText}>
+                  No waste goals found. Create your first goal!
+                </Text>
+              ) : null
+            }
+            ListFooterComponent={
+              loading ? (
+                <ActivityIndicator size="large" color="#4CAF50" style={styles.loadingSpinner} />
+              ) : null
+            }
+          />
           
           {/* Goal Create/Edit Modal */}
           <Modal
             visible={modalVisible}
             transparent={true}
             animationType="slide"
-            onRequestClose={() => setModalVisible(false)}
+            onRequestClose={() => {
+                setModalVisible(false);
+                resetForm(); // Also reset form on modal close by backdrop/swipe
+            }}
           >
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
@@ -484,7 +457,7 @@ export default function WasteGoalScreen() {
                   value={amount}
                   onChangeText={setAmount}
                   keyboardType="numeric"
-                  placeholder="Amount"
+                  placeholder="e.g., 5.0"
                 />
                 
                 <Text style={styles.inputLabel}>Duration (days)</Text>
@@ -493,13 +466,16 @@ export default function WasteGoalScreen() {
                   value={duration}
                   onChangeText={setDuration}
                   keyboardType="numeric"
-                  placeholder="Duration in days"
+                  placeholder="e.g., 30"
                 />
                 
                 <View style={styles.modalButtons}>
                   <TouchableOpacity
                     style={styles.cancelButton}
-                    onPress={() => setModalVisible(false)}
+                    onPress={() => {
+                        setModalVisible(false);
+                        resetForm();
+                    }}
                   >
                     <Text style={styles.buttonText}>Cancel</Text>
                   </TouchableOpacity>
@@ -510,18 +486,24 @@ export default function WasteGoalScreen() {
                     disabled={loading}
                   >
                     <Text style={styles.buttonText}>
-                      {loading ? 'Saving...' : 'Save'}
+                      {loading ? 'Saving...' : (editingGoal ? 'Update' : 'Save')}
                     </Text>
                   </TouchableOpacity>
                 </View>
               </View>
             </View>
           </Modal>
+
+          {/* Add Waste Log Modal */}
           <Modal
             visible={addLogModalVisible}
             transparent={true}
             animationType="slide"
-            onRequestClose={() => setAddLogModalVisible(false)}
+            onRequestClose={() => {
+                setAddLogModalVisible(false);
+                setCurrentGoalForLog(null);
+                setLogEntryAmount('');
+            }}
           >
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
@@ -532,41 +514,33 @@ export default function WasteGoalScreen() {
                   </Text>
                 )}
                 
-                <Text style={styles.inputLabel}>Amount</Text>
+                <Text style={styles.inputLabel}>Amount ({currentGoalForLog?.unit || ''})</Text>
                 <TextInput
                   style={styles.input}
                   value={logEntryAmount}
                   onChangeText={setLogEntryAmount}
                   keyboardType="numeric"
-                  placeholder="e.g., 0.5"
+                  placeholder={`e.g., 0.5 ${currentGoalForLog?.unit || 'units'}`}
                 />
                 
-                <Text style={styles.inputLabel}>Unit for this Log</Text>
-                <View style={styles.pickerContainer}>
-                  <Picker
-                    selectedValue={logEntryUnit}
-                    onValueChange={(value) => setLogEntryUnit(value)}
-                    style={styles.picker}
-                  >
-                    <Picker.Item label="Kilograms" value="Kilograms" />
-                    <Picker.Item label="Pounds" value="Pounds" />
-                    <Picker.Item label="Items" value="Items" />
-                    {/* Add other units relevant to your logs */}
-                  </Picker>
-                </View>
+                {/* Unit Picker for log entry is removed */}
                 
                 <View style={styles.modalButtons}>
                   <TouchableOpacity
                     style={styles.cancelButton}
-                    onPress={() => setAddLogModalVisible(false)}
+                    onPress={() => {
+                        setAddLogModalVisible(false);
+                        setCurrentGoalForLog(null);
+                        setLogEntryAmount('');
+                    }}
                   >
                     <Text style={styles.buttonText}>Cancel</Text>
                   </TouchableOpacity>
                   
                   <TouchableOpacity
-                    style={styles.saveButton} // Can reuse saveButton style or create specific
+                    style={styles.saveButton}
                     onPress={handleAddWasteLog}
-                    disabled={loading}
+                    disabled={loading || !logEntryAmount} // Disable if loading or no amount
                   >
                     <Text style={styles.buttonText}>
                       {loading ? 'Saving...' : 'Confirm Log'}
@@ -586,177 +560,199 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    backgroundColor: '#f5f5f5', // Lighter background for the whole screen
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16,
+    marginBottom: 20, // Increased margin
     textAlign: 'center',
+    color: '#333', // Darker title color
   },
   listContainer: {
     paddingBottom: 20,
   },
   goalItem: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
+    backgroundColor: '#ffffff', // White background for items
+    borderRadius: 10, // Slightly more rounded corners
     padding: 16,
     marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowRadius: 5, // Increased shadow radius
+    elevation: 3, // Increased elevation for Android
   },
   goalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 10, // Increased margin
   },
   goalType: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: '600', // Slightly bolder
+    color: '#2E7D32', // Theme green color for type
   },
   goalDetails: {
-    fontSize: 16,
-    color: '#666',
+    fontSize: 15, // Slightly smaller
+    color: '#555', // Darker grey
+    marginBottom: 8, // Added margin
   },
   goalActions: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 10, // Increased gap
   },
   createButton: {
-    backgroundColor: '#4CAF50',
-    padding: 12,
-    borderRadius: 6,
-    marginBottom: 16,
+    backgroundColor: '#4CAF50', // Standard green
+    paddingVertical: 14, // Increased padding
+    paddingHorizontal: 12,
+    borderRadius: 8, // More rounded
+    marginBottom: 20, // Increased margin
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
   },
   editButton: {
-    backgroundColor: '#2196F3',
+    backgroundColor: '#1976D2', // Darker blue
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 4,
+    paddingVertical: 8, // Balanced padding
+    borderRadius: 6,
   },
   deleteButton: {
-    backgroundColor: '#F44336',
+    backgroundColor: '#D32F2F', // Darker red
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 4,
+    paddingVertical: 8,
+    borderRadius: 6,
+  },
+  addLogButton: {
+    backgroundColor: '#388E3C', // Darker Green from spec
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
   },
   buttonText: {
-    color: '#fff',
+    color: '#ffffff',
     fontWeight: 'bold',
+    fontSize: 14, // Standardized button text size
   },
   errorText: {
-    color: '#F44336',
+    color: '#D32F2F', // Darker red for errors
     textAlign: 'center',
     marginTop: 20,
     padding: 10,
+    backgroundColor: '#FFCDD2', // Light red background for error
+    borderRadius: 6,
   },
   emptyText: {
     textAlign: 'center',
-    color: '#666',
-    marginTop: 30,
+    color: '#757575', // Medium grey
+    marginTop: 40, // Increased margin
+    fontSize: 16,
   },
   loadingSpinner: {
-    marginVertical: 20,
+    marginVertical: 30, // Increased margin
   },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)', // Darker backdrop
   },
   modalContent: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 20,
+    backgroundColor: '#ffffff',
+    borderRadius: 12, // More rounded
+    padding: 25, // Increased padding
     width: '90%',
-    maxWidth: 500,
+    maxWidth: 400, // Max width for larger screens
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 10,
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 22, // Larger title
     fontWeight: 'bold',
-    marginBottom: 16,
+    marginBottom: 20, // Increased margin
     textAlign: 'center',
     color: '#333',
   },
   inputLabel: {
     fontSize: 16,
-    marginBottom: 4,
-    color: '#333',
+    marginBottom: 6, // Increased margin
+    color: '#444', // Slightly lighter than black
+    fontWeight: '500',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 4,
-    padding: 10,
-    marginBottom: 16,
+    borderColor: '#ccc', // Lighter border
+    borderRadius: 6,
+    padding: 12, // Increased padding
+    marginBottom: 18, // Increased margin
     fontSize: 16,
+    backgroundColor: '#f9f9f9', // Very light grey background for input
   },
   pickerContainer: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 4,
-    marginBottom: 16,
+    borderColor: '#ccc',
+    borderRadius: 6,
+    marginBottom: 18,
+    backgroundColor: '#f9f9f9',
   },
   picker: {
-    height: 50,
+    height: 50, // Standard height
+    // color: '#333', // Ensure text color is visible on Android
   },
   modalButtons: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 16,
+    justifyContent: 'space-between', // Or 'flex-end' with gap
+    marginTop: 20, // Increased margin
   },
   cancelButton: {
-    backgroundColor: '#9e9e9e',
-    padding: 12,
-    borderRadius: 6,
+    backgroundColor: '#757575', // Medium grey
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    borderRadius: 8,
     width: '48%',
     alignItems: 'center',
   },
   saveButton: {
-    backgroundColor: '#4CAF50',
-    padding: 12,
-    borderRadius: 6,
+    backgroundColor: '#4CAF50', // Standard green
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    borderRadius: 8,
     width: '48%',
     alignItems: 'center',
   },
-  addLogButton: {
-    backgroundColor: '#388E3C', // Darker Green
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 4,
-  },
   progressBarContainer: {
-    height: 10,
+    height: 12, // Slightly thicker
     backgroundColor: '#e0e0e0',
-    borderRadius: 5,
-    marginTop: 8,
-    overflow: 'hidden', // Ensures the fill stays within bounds
+    borderRadius: 6, // Rounded to match height
+    marginTop: 10, // Increased margin
+    overflow: 'hidden',
   },
   progressBarFill: {
     height: '100%',
-    backgroundColor: '#4CAF50', // Green for progress
-    borderRadius: 5,
+    backgroundColor: '#66BB6A', // Lighter, pleasant green
+    borderRadius: 6,
   },
-  goalProgressText: { // Renamed from goalProgress for clarity
+  goalProgressText: {
     fontSize: 14,
-    color: '#333', // Darker color for better readability
-    marginTop: 4,
-    textAlign: 'right', // Align progress text to the right
+    color: '#4CAF50', // Green to match progress
+    fontWeight: '500',
+    marginTop: 6, // Increased margin
+    textAlign: 'right',
   },
   modalSubtitle: {
     fontSize: 16,
     textAlign: 'center',
-    color: '#555',
-    marginBottom: 16,
+    color: '#666', // Medium grey
+    marginBottom: 18, // Increased margin
+    fontStyle: 'italic',
   },
-  goalProgress: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 4,
-  },
-}); 
+  // goalProgress style is no longer used, goalProgressText is used instead
+});
