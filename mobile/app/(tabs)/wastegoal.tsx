@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Text,
   FlatList,
-  Alert, // Still useful for simple success/error messages
+  Alert,
   ActivityIndicator,
   Modal
 } from 'react-native';
@@ -44,7 +44,7 @@ export default function WasteGoalScreen() {
   
   const [goals, setGoals] = useState<WasteGoal[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(''); // General screen error
 
   // Create/Edit Goal Modal
   const [modalVisible, setModalVisible] = useState(false);
@@ -53,6 +53,7 @@ export default function WasteGoalScreen() {
   const [unit, setUnit] = useState('Kilograms');
   const [duration, setDuration] = useState('30');
   const [amount, setAmount] = useState('5.0');
+  const [formError, setFormError] = useState(''); // Error message for the modal form
 
   // Add Waste Log Modal
   const [addLogModalVisible, setAddLogModalVisible] = useState(false);
@@ -100,6 +101,24 @@ export default function WasteGoalScreen() {
     }
   };
 
+  const validateGoalInput = (): boolean => {
+    setFormError(''); // Clear previous errors
+
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      setFormError('Amount must be a positive number.');
+      return false;
+    }
+
+    const parsedDuration = parseInt(duration, 10);
+    if (isNaN(parsedDuration) || parsedDuration < 1) {
+      setFormError('Duration must be at least 1 day.');
+      return false;
+    }
+    return true;
+  };
+
+
   const handleAddWasteLog = async () => {
     if (!currentGoalForLog || !username || !logEntryAmount) {
       Alert.alert('Error', 'Please ensure an amount is entered and a goal is selected.');
@@ -117,17 +136,20 @@ export default function WasteGoalScreen() {
         username: username,
         goalId: goalIdToLog,
         amount: parseFloat(logEntryAmount),
-        unit: currentGoalForLog.unit,
+        unit: currentGoalForLog.unit, 
       };
-      const apiEndpoint = `${API_BASE}/waste-logs/create`;
+      const apiEndpoint = `${API_BASE}/logs/create`; 
       const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : '' },
         body: JSON.stringify(requestBody),
       });
+      const responseText = await response.text();
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to add waste log: ${response.status} ${errorText}`);
+        let errorMessage = `Failed to add waste log: ${response.status}`;
+        try { const errorJson = JSON.parse(responseText); errorMessage += ` - ${errorJson.message || JSON.stringify(errorJson)}`;}
+        catch (e) { errorMessage += ` - ${responseText}`; }
+        throw new Error(errorMessage);
       }
       Alert.alert('Success', 'Waste log added successfully!');
       setAddLogModalVisible(false);
@@ -144,10 +166,18 @@ export default function WasteGoalScreen() {
 
   const createGoal = async () => {
     if (!username) return;
+    if (!validateGoalInput()) return; // Validate input first
+
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem('token');
-      const requestBody = { username, unit, wasteType, duration: parseInt(duration), amount: parseFloat(amount) };
+      const requestBody = { 
+        username, 
+        unit, 
+        wasteType, 
+        duration: parseInt(duration, 10), 
+        amount: parseFloat(amount) 
+      };
       const response = await fetch(`${API_BASE}/goals/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : '' },
@@ -159,7 +189,7 @@ export default function WasteGoalScreen() {
       }
       Alert.alert('Success', 'Waste goal created successfully.');
       setModalVisible(false);
-      resetForm();
+      resetForm(); // Also clears formError via setFormError('') in resetForm
       getGoals();
     } catch (err) {
       console.error('Error creating goal:', err);
@@ -174,10 +204,18 @@ export default function WasteGoalScreen() {
         Alert.alert('Error', 'Goal information is incomplete for editing.');
         return;
     }
+    if (!validateGoalInput()) return; // Validate input first
+
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem('token');
-      const requestBody = { username, unit, wasteType, duration: parseInt(duration), amount: parseFloat(amount) };
+      const requestBody = { 
+        username, 
+        unit, 
+        wasteType, 
+        duration: parseInt(duration, 10), 
+        amount: parseFloat(amount) 
+      };
       const response = await fetch(`${API_BASE}/goals/edit/${editingGoal.goalId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : '' },
@@ -189,7 +227,7 @@ export default function WasteGoalScreen() {
       }
       Alert.alert('Success', 'Waste goal updated successfully.');
       setModalVisible(false);
-      resetForm(); // Will also clear editingGoal
+      resetForm(); // Also clears formError
       getGoals();
     } catch (err) {
       console.error('Error editing goal:', err);
@@ -207,7 +245,7 @@ export default function WasteGoalScreen() {
       return;
     }
     setLoading(true);
-    setIsDeleteModalVisible(false); // Close modal before API call
+    setIsDeleteModalVisible(false); 
     try {
       const token = await AsyncStorage.getItem('token');
       const response = await fetch(`${API_BASE}/goals/delete/${goalToDelete.goalId}`, {
@@ -224,13 +262,14 @@ export default function WasteGoalScreen() {
       console.error('Error deleting goal:', err);
       Alert.alert('Error', err instanceof Error ? err.message : 'Failed to delete waste goal');
     } finally {
-      setGoalToDelete(null); // Clear the goal to delete
+      setGoalToDelete(null); 
       setLoading(false);
     }
   };
 
 
   const openEditModal = (goal: WasteGoal) => {
+    setFormError(''); // Clear any previous form errors
     setEditingGoal(goal);
     setWasteType(goal.wasteType);
     setUnit(goal.unit);
@@ -245,6 +284,7 @@ export default function WasteGoalScreen() {
     setDuration('30');
     setAmount('5.0');
     setEditingGoal(null);
+    setFormError(''); // Clear form error when resetting
   };
 
   const openAddLogModal = (goal: WasteGoal) => {
@@ -285,7 +325,7 @@ export default function WasteGoalScreen() {
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.deleteButton} 
-            onPress={() => openDeleteConfirmationModal(item)} // Open new delete modal
+            onPress={() => openDeleteConfirmationModal(item)}
           >
             <Text style={styles.buttonText}>Delete</Text>
           </TouchableOpacity>
@@ -319,7 +359,10 @@ export default function WasteGoalScreen() {
         <>
           <TouchableOpacity 
             style={styles.createButton}
-            onPress={() => { resetForm(); setModalVisible(true); }}
+            onPress={() => { 
+              resetForm(); // This now also clears formError
+              setModalVisible(true); 
+            }}
           >
             <Text style={styles.buttonText}>Create New Goal</Text>
           </TouchableOpacity>
@@ -356,7 +399,10 @@ export default function WasteGoalScreen() {
             visible={modalVisible}
             transparent={true}
             animationType="slide"
-            onRequestClose={() => { setModalVisible(false); resetForm(); }}
+            onRequestClose={() => { 
+              setModalVisible(false); 
+              resetForm(); // Clear form and formError on close
+            }}
           >
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
@@ -383,14 +429,42 @@ export default function WasteGoalScreen() {
                   </Picker>
                 </View>
                 <Text style={styles.inputLabel}>Amount</Text>
-                <TextInput style={styles.input} value={amount} onChangeText={setAmount} keyboardType="numeric" placeholder="e.g., 5.0"/>
+                <TextInput 
+                  style={styles.input} 
+                  value={amount} 
+                  onChangeText={setAmount} 
+                  keyboardType="numeric" 
+                  placeholder="e.g., 5.0"
+                />
                 <Text style={styles.inputLabel}>Duration (days)</Text>
-                <TextInput style={styles.input} value={duration} onChangeText={setDuration} keyboardType="numeric" placeholder="e.g., 30"/>
+                <TextInput 
+                  style={styles.input} 
+                  value={duration} 
+                  onChangeText={setDuration} 
+                  keyboardType="numeric" 
+                  placeholder="e.g., 30"
+                />
+                
+                {/* Display Form Error Message */}
+                {formError ? (
+                  <Text style={styles.modalFormErrorText}>{formError}</Text>
+                ) : null}
+
                 <View style={styles.modalButtons}>
-                  <TouchableOpacity style={styles.cancelButton} onPress={() => { setModalVisible(false); resetForm(); }}>
+                  <TouchableOpacity 
+                    style={styles.cancelButton} 
+                    onPress={() => { 
+                      setModalVisible(false); 
+                      resetForm(); // Clear form and formError
+                    }}
+                  >
                     <Text style={styles.buttonText}>Cancel</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.saveButton} onPress={editingGoal ? editWasteGoal : createGoal} disabled={loading}>
+                  <TouchableOpacity 
+                    style={styles.saveButton} 
+                    onPress={editingGoal ? editWasteGoal : createGoal} 
+                    disabled={loading}
+                  >
                     <Text style={styles.buttonText}>{loading ? 'Saving...' : (editingGoal ? 'Update' : 'Save')}</Text>
                   </TouchableOpacity>
                 </View>
@@ -457,7 +531,7 @@ export default function WasteGoalScreen() {
                     <Text style={styles.buttonText}>Cancel</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={[styles.saveButton, styles.confirmDeleteButton]} // Use saveButton style, add specific style
+                    style={[styles.saveButton, styles.confirmDeleteButton]} 
                     onPress={handleDeleteConfirm}
                     disabled={loading}
                   >
@@ -494,7 +568,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderRadius: 10,
     padding: 16,
-    marginBottom: 16,
+    marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -526,7 +600,6 @@ const styles = StyleSheet.create({
   },
   createButton: {
     backgroundColor: '#4CAF50',
-    marginHorizontal:80,
     paddingVertical: 14,
     paddingHorizontal: 12,
     borderRadius: 8,
@@ -545,7 +618,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   deleteButton: {
-    backgroundColor: '#D32F2F', // Red for delete
+    backgroundColor: '#D32F2F', 
     paddingHorizontal: 10, 
     paddingVertical: 8,
     borderRadius: 6,
@@ -561,13 +634,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 13, 
   },
-  errorText: {
+  errorText: { // General screen error
     color: '#D32F2F',
     textAlign: 'center',
     marginTop: 20,
     padding: 10,
     backgroundColor: '#FFCDD2',
     borderRadius: 6,
+  },
+  modalFormErrorText: { // Specific for modal form errors
+    color: '#D32F2F', // Red color for error text
+    textAlign: 'center',
+    marginBottom: 10, // Space before modal buttons
+    fontSize: 14,
   },
   emptyText: {
     textAlign: 'center',
@@ -629,17 +708,17 @@ const styles = StyleSheet.create({
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
+    marginTop: 10, // Reduced margin if error text is present
   },
-  cancelButton: {
-    backgroundColor: '#757575', // Grey
+  cancelButton: { 
+    backgroundColor: '#757575', 
     paddingVertical: 12,
     paddingHorizontal: 10,
     borderRadius: 8,
     width: '48%',
     alignItems: 'center',
   },
-  saveButton: { // Green for save/update/confirm log
+  saveButton: { 
     backgroundColor: '#4CAF50',
     paddingVertical: 12,
     paddingHorizontal: 10,
@@ -647,8 +726,8 @@ const styles = StyleSheet.create({
     width: '48%',
     alignItems: 'center',
   },
-  confirmDeleteButton: { // Specific style for the confirm delete button in the modal
-    backgroundColor: '#D32F2F', // Red
+  confirmDeleteButton: { 
+    backgroundColor: '#D32F2F', 
   },
   deleteConfirmText: {
     fontSize: 16,
