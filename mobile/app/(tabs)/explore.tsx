@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 8,
     padding: 12,
-    marginHorizontal: 16,
+    marginHorizontal: 40,
     marginBottom: 16,
     shadowColor: '#000',
     shadowOpacity: 0.1,
@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
   },
   loadMoreButton: {
     marginVertical: 20,
-    marginHorizontal: 40,
+    marginHorizontal: 120,
     backgroundColor: '#2196F3',
     paddingVertical: 12,
     borderRadius: 8,

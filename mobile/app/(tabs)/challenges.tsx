@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
   filterRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 },
   switchRow: { flexDirection: 'row', alignItems: 'center' },
   switchLabel: { marginLeft: 8, fontSize: 14 },
-  card: { backgroundColor: '#FFF', borderRadius: 8, padding: 16, marginVertical: 6, elevation: 2 },
+  card: { backgroundColor: '#FFF', borderRadius: 8, padding: 16, marginVertical: 6,marginHorizontal: 40, elevation: 2 },
   cardHeader: { marginBottom: 8 },
   cardTitle: { fontSize: 18, fontWeight: '600' },
   cardDate: { fontSize: 12, color: '#666' },
