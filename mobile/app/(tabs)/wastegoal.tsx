@@ -55,6 +55,10 @@ export default function WasteGoalScreen() {
   const [unit, setUnit] = useState('Kilograms');
   const [duration, setDuration] = useState('30');
   const [amount, setAmount] = useState('5.0');
+  const [addLogModalVisible, setAddLogModalVisible] = useState(false);
+  const [currentGoalForLog, setCurrentGoalForLog] = useState<WasteGoal | null>(null);
+  const [logEntryAmount, setLogEntryAmount] = useState('');
+  const [logEntryUnit, setLogEntryUnit] = useState('Kilograms')
 
   // Load goals when screen focused or username changes
   useFocusEffect(
@@ -101,6 +105,67 @@ export default function WasteGoalScreen() {
     } catch (err) {
       console.error('Error fetching goals:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddWasteLog = async () => {
+    if (!currentGoalForLog || !username || !logEntryAmount) {
+      Alert.alert('Error', 'Please ensure amount is filled and a goal is selected.');
+      return;
+    }
+
+    const goalIdToLog = currentGoalForLog.id || currentGoalForLog.goalId;
+    if (!goalIdToLog) {
+      Alert.alert('Error', 'Selected goal has no valid ID.');
+      return;
+    }
+
+    try {
+      setLoading(true); 
+      const token = await AsyncStorage.getItem('token');
+      
+      const requestBody = {
+        username: username,
+        goalId: goalIdToLog,
+        amount: parseFloat(logEntryAmount),
+        unit: logEntryUnit,
+        // date: new Date().toISOString(), // Backend usually handles the date
+      };
+
+      // IMPORTANT: Replace '/api/waste-logs/create' with your actual endpoint
+      const apiEndpoint = `${API_BASE}/waste-logs/create`; 
+      console.log('Sending request to add waste log:', apiEndpoint);
+      console.log('Request body for waste log:', JSON.stringify(requestBody));
+
+      const response = await fetch(apiEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token ? `Bearer ${token}` : '',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Add Waste Log API Error:', response.status, errorText);
+        throw new Error(`Failed to add waste log: ${response.status} ${errorText}`);
+      }
+      
+      // const responseData = await response.json(); // If your API returns data
+      // console.log('Waste log added successfully:', responseData);
+      Alert.alert('Success', 'Waste log added successfully!');
+
+      setAddLogModalVisible(false);
+      setCurrentGoalForLog(null); // Clear selected goal
+      setLogEntryAmount(''); // Reset form
+      // Refresh goals to update progress display
+      getGoals(); 
+    } catch (err) {
+      console.error('Error adding waste log:', err);
+      Alert.alert('Error', err instanceof Error ? err.message : 'Failed to add waste log');
     } finally {
       setLoading(false);
     }
@@ -253,13 +318,31 @@ export default function WasteGoalScreen() {
     setAmount('5.0');
   };
 
+  const openAddLogModal = (goal: WasteGoal) => {
+    setCurrentGoalForLog(goal);
+    setLogEntryAmount(''); // Reset amount for new log entry
+    // Pre-fill unit from goal, but user can change it as per requirement
+    setLogEntryUnit(goal.unit || 'Kilograms'); 
+    setAddLogModalVisible(true);
+  };
+
   const renderGoalItem = ({ item }: { item: WasteGoal }) => {
     console.log('Rendering goal item:', item);
+        const progressPercentage = item.percentOfProgress !== undefined 
+      ? Math.max(0, Math.min(100, item.percentOfProgress)) 
+      : 0;
+
     return (
     <View style={styles.goalItem}>
       <View style={styles.goalHeader}>
         <Text style={styles.goalType}>{item.wasteType}</Text>
         <View style={styles.goalActions}>
+          <TouchableOpacity 
+            style={styles.addLogButton} // New style for this button
+            onPress={() => openAddLogModal(item)}
+          >
+            <Text style={styles.buttonText}>Add Log</Text>
+          </TouchableOpacity>
           <TouchableOpacity 
             style={styles.editButton} 
             onPress={() => openEditModal(item)}
@@ -292,10 +375,17 @@ export default function WasteGoalScreen() {
         Goal: {item.amount} {item.unit} in {item.duration} days
       </Text>
       {item.percentOfProgress !== undefined && (
-        <Text style={styles.goalProgress}>
-          Progress: {Math.round(item.percentOfProgress * 100) / 100}%
-        </Text>
+        <>
+          <View style={styles.progressBarContainer}>
+            <View style={[styles.progressBarFill, { width: `${progressPercentage}%` }]} />
+          </View>
+          <Text style={styles.goalProgressText}> 
+            Progress: {progressPercentage.toFixed(2)}% 
+          </Text>
+        </>
       )}
+
+
     </View>
   )};
 
@@ -421,6 +511,65 @@ export default function WasteGoalScreen() {
                   >
                     <Text style={styles.buttonText}>
                       {loading ? 'Saving...' : 'Save'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
+          <Modal
+            visible={addLogModalVisible}
+            transparent={true}
+            animationType="slide"
+            onRequestClose={() => setAddLogModalVisible(false)}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Add Waste Log</Text>
+                {currentGoalForLog && (
+                  <Text style={styles.modalSubtitle}>
+                    For Goal: {currentGoalForLog.wasteType} ({currentGoalForLog.amount} {currentGoalForLog.unit})
+                  </Text>
+                )}
+                
+                <Text style={styles.inputLabel}>Amount</Text>
+                <TextInput
+                  style={styles.input}
+                  value={logEntryAmount}
+                  onChangeText={setLogEntryAmount}
+                  keyboardType="numeric"
+                  placeholder="e.g., 0.5"
+                />
+                
+                <Text style={styles.inputLabel}>Unit for this Log</Text>
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={logEntryUnit}
+                    onValueChange={(value) => setLogEntryUnit(value)}
+                    style={styles.picker}
+                  >
+                    <Picker.Item label="Kilograms" value="Kilograms" />
+                    <Picker.Item label="Pounds" value="Pounds" />
+                    <Picker.Item label="Items" value="Items" />
+                    {/* Add other units relevant to your logs */}
+                  </Picker>
+                </View>
+                
+                <View style={styles.modalButtons}>
+                  <TouchableOpacity
+                    style={styles.cancelButton}
+                    onPress={() => setAddLogModalVisible(false)}
+                  >
+                    <Text style={styles.buttonText}>Cancel</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity
+                    style={styles.saveButton} // Can reuse saveButton style or create specific
+                    onPress={handleAddWasteLog}
+                    disabled={loading}
+                  >
+                    <Text style={styles.buttonText}>
+                      {loading ? 'Saving...' : 'Confirm Log'}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -574,6 +723,36 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     width: '48%',
     alignItems: 'center',
+  },
+  addLogButton: {
+    backgroundColor: '#388E3C', // Darker Green
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 4,
+  },
+  progressBarContainer: {
+    height: 10,
+    backgroundColor: '#e0e0e0',
+    borderRadius: 5,
+    marginTop: 8,
+    overflow: 'hidden', // Ensures the fill stays within bounds
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: '#4CAF50', // Green for progress
+    borderRadius: 5,
+  },
+  goalProgressText: { // Renamed from goalProgress for clarity
+    fontSize: 14,
+    color: '#333', // Darker color for better readability
+    marginTop: 4,
+    textAlign: 'right', // Align progress text to the right
+  },
+  modalSubtitle: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#555',
+    marginBottom: 16,
   },
   goalProgress: {
     fontSize: 14,
