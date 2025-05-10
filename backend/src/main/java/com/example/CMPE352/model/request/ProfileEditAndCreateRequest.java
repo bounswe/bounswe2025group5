@@ -6,5 +6,4 @@ import lombok.Data;
 public class ProfileEditAndCreateRequest {
     private String username;
     private String biography;
-    private String photoUrl;
 }
