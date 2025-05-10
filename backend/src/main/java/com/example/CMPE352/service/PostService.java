@@ -2,6 +2,7 @@ package com.example.CMPE352.service;
 
 import com.example.CMPE352.exception.AlreadyExistsException;
 import com.example.CMPE352.exception.NotFoundException;
+import com.example.CMPE352.exception.UploadFailedException;
 import com.example.CMPE352.model.Post;
 import com.example.CMPE352.model.Comment;
 import com.example.CMPE352.model.SavedPost;
@@ -15,10 +16,18 @@ import com.example.CMPE352.model.response.GetSavedPostResponse;
 import com.example.CMPE352.model.response.SavePostResponse;
 import com.example.CMPE352.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,6 +41,18 @@ public class PostService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final SavedPostRepository savedPostRepository;
+
+    private final S3Client s3Client;
+
+    @Value("${digitalocean.spaces.bucket-name}")
+    private String bucketName;
+
+    @Value("${digitalocean.spaces.region}")
+    private String region;
+
+    @Value("${digitalocean.spaces.post-photo-folder}")
+    private String postPhotoFolder;
+
 
 
     public List<GetPostResponse> getPosts(String requestingUsername, int size, Long lastPostId) {
@@ -58,31 +79,37 @@ public class PostService {
     }
 
     @Transactional
-    public CreateOrEditPostResponse createPost(CreatePostRequest request) {
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new NotFoundException("User not found: " + request.getUsername()));
+    public CreateOrEditPostResponse createPost(String content ,String username, MultipartFile photoFile) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User not found: " + username));
+
+        String photoUrl = null;
+        if (photoFile != null && !photoFile.isEmpty()) {
+            photoUrl = uploadFileToSpaces(photoFile, postPhotoFolder);
+        }
 
         Post post = new Post(
                 user,
-                request.getContent(),
-                request.getPhotoUrl(),
+                content,
+                photoUrl,
                 0,
                 0
         );
         post.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-
         postRepository.save(post);
 
         return new CreateOrEditPostResponse(
                 post.getPostId(),
                 post.getContent(),
                 post.getCreatedAt(),
-                post.getUser().getUsername()
+                post.getUser().getUsername(),
+                post.getPhotoUrl()
         );
     }
 
+
     @Transactional
-    public CreateOrEditPostResponse editPost(Integer postId, Post editPostRequest) {
+    public CreateOrEditPostResponse editPost(Integer postId,String content,String username, MultipartFile photoFile ) {
         Optional<Post> existingPostOpt = postRepository.findById(postId);
 
         if (existingPostOpt.isEmpty()) {
@@ -90,17 +117,21 @@ public class PostService {
         }
 
         Post existingPost = existingPostOpt.get();
-        if (editPostRequest.getContent() != null) {
-            existingPost.setContent(editPostRequest.getContent());
+        if (content!= null) {
+            existingPost.setContent(content);
         }
-        existingPost.setPhotoUrl(editPostRequest.getPhotoUrl());
+        if (photoFile != null && !photoFile.isEmpty()) {
+            String photoUrl = uploadFileToSpaces(photoFile, postPhotoFolder);
+            existingPost.setPhotoUrl(photoUrl);
+        }
         Post updatedPost = postRepository.saveAndFlush(existingPost);
 
         return new CreateOrEditPostResponse(
                 updatedPost.getPostId(),
                 updatedPost.getContent(),
                 updatedPost.getCreatedAt(),
-                updatedPost.getUser().getUsername()
+                updatedPost.getUser().getUsername(),
+                updatedPost.getPhotoUrl()
         );
     }
 
@@ -207,6 +238,39 @@ public class PostService {
                         sp.getSavedAt()))
                 .collect(Collectors.toList());
     }
+
+    private String uploadFileToSpaces(MultipartFile file, String folder) {
+        if (file.isEmpty()) {
+            return null;
+        }
+
+        String originalFilename = file.getOriginalFilename();
+        String extension = "";
+        if (originalFilename != null && originalFilename.contains(".")) {
+            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        }
+        String uniqueFileName = UUID.randomUUID().toString() + extension;
+        String objectKey = folder + "/" + uniqueFileName;
+
+        try {
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(objectKey)
+                    .contentType(file.getContentType())
+                    .acl(ObjectCannedACL.PUBLIC_READ)
+                    .build();
+
+            s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+
+            return String.format("https://%s.%s.digitaloceanspaces.com/%s",
+                    bucketName, region, objectKey);
+        } catch (IOException e) {
+            throw new UploadFailedException("Failed to read file data for upload: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new UploadFailedException("Failed to upload photo to DigitalOcean Spaces: " + e.getMessage(), e);
+        }
+    }
+
 
 }
 
