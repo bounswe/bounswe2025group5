@@ -10,7 +10,8 @@ import {
   Alert,
   ActivityIndicator,
   Modal,
-  Platform
+  Platform,
+  useColorScheme,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemedText } from '@/components/ThemedText';
@@ -28,10 +29,10 @@ type WasteGoal = {
   amount: number;
   duration: number;
   unit: string;
-  progress?: number; 
+  progress?: number;
   createdAt: string;
   creatorUsername?: string;
-  id?: number; 
+  id?: number;
   username?: string;
   completed?: number;
 };
@@ -43,27 +44,39 @@ type Navigation = {
 export default function WasteGoalScreen() {
   const navigation = useNavigation<Navigation>();
   const { username, userType } = useContext(AuthContext);
-  
+  const colorScheme = useColorScheme();
+
+  const isDarkMode = colorScheme === 'dark';
+  // Define screenBackgroundColor to match explore.tsx
+  const screenBackgroundColor = isDarkMode ? '#151718' : '#F0F2F5';
+  const cardBackgroundColor = isDarkMode ? '#2C2C2E' : '#ffffff';
+  const modalContentBgColor = isDarkMode ? '#1C1C1E' : '#ffffff';
+  const inputBorderColor = isDarkMode ? '#555' : '#ccc';
+  const inputTextColor = isDarkMode ? '#E0E0E0' : '#000000';
+  const placeholderTextColor = isDarkMode ? '#888' : '#aaa';
+  const pickerItemColor = isDarkMode ? '#E0E0E0' : '#000000';
+  const pickerBackgroundColor = isDarkMode ? '#2C2C2E' : '#FFFFFF';
+  const errorTextColor = isDarkMode ? '#FF9494' : '#D32F2F';
+  const errorBackgroundColor = isDarkMode ? '#5D1F1A' : '#FFCDD2';
+  const emptyTextColor = isDarkMode ? '#A0A0A0' : '#757575';
+
   const [goals, setGoals] = useState<WasteGoal[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(''); 
+  const [error, setError] = useState('');
 
-  // Create/Edit Goal Modal
   const [modalVisible, setModalVisible] = useState(false);
   const [editingGoal, setEditingGoal] = useState<WasteGoal | null>(null);
   const [wasteType, setWasteType] = useState('Plastic');
   const [unit, setUnit] = useState('Kilograms');
   const [duration, setDuration] = useState('30');
   const [amount, setAmount] = useState('5.0');
-  const [goalFormError, setGoalFormError] = useState(''); // Renamed for clarity
+  const [goalFormError, setGoalFormError] = useState('');
 
-  // Add Waste Log Modal
   const [addLogModalVisible, setAddLogModalVisible] = useState(false);
   const [currentGoalForLog, setCurrentGoalForLog] = useState<WasteGoal | null>(null);
   const [logEntryAmount, setLogEntryAmount] = useState('');
-  const [logFormError, setLogFormError] = useState(''); // Error for Add Log form
+  const [logFormError, setLogFormError] = useState('');
 
-  // Delete Confirmation Modal
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [goalToDelete, setGoalToDelete] = useState<WasteGoal | null>(null);
 
@@ -78,7 +91,7 @@ export default function WasteGoalScreen() {
       }
     }, [username, userType])
   );
-  
+
   const getGoals = async () => {
     if (!username || loading) return;
     setLoading(true);
@@ -105,14 +118,12 @@ export default function WasteGoalScreen() {
   };
 
   const validateGoalInput = (): boolean => {
-    setGoalFormError(''); 
-
+    setGoalFormError('');
     const parsedAmount = parseFloat(amount);
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
       setGoalFormError('Amount must be a positive number.');
       return false;
     }
-
     const parsedDuration = parseInt(duration, 10);
     if (isNaN(parsedDuration) || parsedDuration < 1) {
       setGoalFormError('Duration must be at least 1 day.');
@@ -122,8 +133,7 @@ export default function WasteGoalScreen() {
   };
 
   const validateLogInput = (): boolean => {
-    setLogFormError(''); // Clear previous log form errors
-
+    setLogFormError('');
     const parsedLogAmount = parseFloat(logEntryAmount);
     if (isNaN(parsedLogAmount) || parsedLogAmount <= 0) {
       setLogFormError('Log amount must be a positive number.');
@@ -134,29 +144,27 @@ export default function WasteGoalScreen() {
 
 
   const handleAddWasteLog = async () => {
-    if (!currentGoalForLog || !username) { // logEntryAmount check is now in validation
+    if (!currentGoalForLog || !username) {
       Alert.alert('Error', 'Goal information is missing.');
       return;
     }
-
-    if (!validateLogInput()) return; // Validate log input
+    if (!validateLogInput()) return;
 
     const goalIdToLog = currentGoalForLog.goalId;
     if (!goalIdToLog) {
       Alert.alert('Error', 'Selected goal has no valid ID for logging.');
       return;
     }
-
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem('token');
       const requestBody = {
         username: username,
         goalId: goalIdToLog,
-        amount: parseFloat(logEntryAmount), // Already validated as number
-        unit: currentGoalForLog.unit, 
+        amount: parseFloat(logEntryAmount),
+        unit: currentGoalForLog.unit,
       };
-      const apiEndpoint = `${API_BASE}/logs/create`; 
+      const apiEndpoint = `${API_BASE}/logs/create`;
       const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : '' },
@@ -173,8 +181,8 @@ export default function WasteGoalScreen() {
       setAddLogModalVisible(false);
       setCurrentGoalForLog(null);
       setLogEntryAmount('');
-      setLogFormError(''); // Clear log form error on success
-      getGoals(); 
+      setLogFormError('');
+      getGoals();
     } catch (err) {
       console.error('Error adding waste log:', err);
       Alert.alert('Error', err instanceof Error ? err.message : 'Failed to add waste log');
@@ -185,17 +193,16 @@ export default function WasteGoalScreen() {
 
   const createGoal = async () => {
     if (!username) return;
-    if (!validateGoalInput()) return; 
-
+    if (!validateGoalInput()) return;
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem('token');
-      const requestBody = { 
-        username, 
-        unit, 
-        wasteType, 
-        duration: parseInt(duration, 10), 
-        amount: parseFloat(amount) 
+      const requestBody = {
+        username,
+        unit,
+        wasteType,
+        duration: parseInt(duration, 10),
+        amount: parseFloat(amount)
       };
       const response = await fetch(`${API_BASE}/goals/create`, {
         method: 'POST',
@@ -208,7 +215,7 @@ export default function WasteGoalScreen() {
       }
       Alert.alert('Success', 'Waste goal created successfully.');
       setModalVisible(false);
-      resetForm(); 
+      resetForm();
       getGoals();
     } catch (err) {
       console.error('Error creating goal:', err);
@@ -223,17 +230,16 @@ export default function WasteGoalScreen() {
         Alert.alert('Error', 'Goal information is incomplete for editing.');
         return;
     }
-    if (!validateGoalInput()) return; 
-
+    if (!validateGoalInput()) return;
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem('token');
-      const requestBody = { 
-        username, 
-        unit, 
-        wasteType, 
-        duration: parseInt(duration, 10), 
-        amount: parseFloat(amount) 
+      const requestBody = {
+        username,
+        unit,
+        wasteType,
+        duration: parseInt(duration, 10),
+        amount: parseFloat(amount)
       };
       const response = await fetch(`${API_BASE}/goals/edit/${editingGoal.goalId}`, {
         method: 'PUT',
@@ -246,7 +252,7 @@ export default function WasteGoalScreen() {
       }
       Alert.alert('Success', 'Waste goal updated successfully.');
       setModalVisible(false);
-      resetForm(); 
+      resetForm();
       getGoals();
     } catch (err) {
       console.error('Error editing goal:', err);
@@ -264,7 +270,7 @@ export default function WasteGoalScreen() {
       return;
     }
     setLoading(true);
-    setIsDeleteModalVisible(false); 
+    setIsDeleteModalVisible(false);
     try {
       const token = await AsyncStorage.getItem('token');
       const response = await fetch(`${API_BASE}/goals/delete/${goalToDelete.goalId}`, {
@@ -276,19 +282,20 @@ export default function WasteGoalScreen() {
         throw new Error(`Failed to delete waste goal: ${response.status} ${errorText}`);
       }
       Alert.alert('Success', 'Waste goal deleted successfully.');
-      getGoals(); 
-    } catch (err) {
+      getGoals();
+    } catch (err)
+{
       console.error('Error deleting goal:', err);
       Alert.alert('Error', err instanceof Error ? err.message : 'Failed to delete waste goal');
     } finally {
-      setGoalToDelete(null); 
+      setGoalToDelete(null);
       setLoading(false);
     }
   };
 
 
   const openEditModal = (goal: WasteGoal) => {
-    setGoalFormError(''); 
+    setGoalFormError('');
     setEditingGoal(goal);
     setWasteType(goal.wasteType);
     setUnit(goal.unit);
@@ -303,13 +310,13 @@ export default function WasteGoalScreen() {
     setDuration('30');
     setAmount('5.0');
     setEditingGoal(null);
-    setGoalFormError(''); 
+    setGoalFormError('');
   };
 
   const openAddLogModal = (goal: WasteGoal) => {
     setCurrentGoalForLog(goal);
     setLogEntryAmount('');
-    setLogFormError(''); // Clear log form error when opening
+    setLogFormError('');
     setAddLogModalVisible(true);
   };
 
@@ -325,69 +332,71 @@ export default function WasteGoalScreen() {
     const isGoalComplete = progressPercentage >= 100;
 
     return (
-    <View style={styles.goalItem}>
+    <View style={[styles.goalItem, { backgroundColor: cardBackgroundColor }]}>
       <View style={styles.goalHeader}>
-        <Text style={styles.goalType}>{item.wasteType}</Text>
+        <ThemedText style={styles.goalType}>{item.wasteType}</ThemedText>
         <View style={styles.goalActions}>
           {!isGoalComplete && (
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.addLogButton}
               onPress={() => openAddLogModal(item)}
             >
               <Text style={styles.buttonText}>Add Log</Text>
             </TouchableOpacity>
           )}
-          <TouchableOpacity 
-            style={styles.editButton} 
+          <TouchableOpacity
+            style={styles.editButton}
             onPress={() => openEditModal(item)}
           >
             <Text style={styles.buttonText}>Edit</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.deleteButton} 
+          <TouchableOpacity
+            style={styles.deleteButton}
             onPress={() => openDeleteConfirmationModal(item)}
           >
             <Text style={styles.buttonText}>Delete</Text>
           </TouchableOpacity>
         </View>
       </View>
-      <Text style={styles.goalDetails}>
+      <ThemedText style={styles.goalDetails}>
         Goal: {item.amount} {item.unit} in {item.duration} days
-      </Text>
-      
+      </ThemedText>
+
       <View style={styles.progressBarContainer}>
         <View style={[styles.progressBarFill, { width: `${progressPercentage}%` }]} />
       </View>
-      <Text style={styles.goalProgressText}> 
-        Progress: {progressPercentage.toFixed(2)}% 
-        {isGoalComplete && <Text style={styles.completedText}> (Completed!)</Text>}
-      </Text>
+      <ThemedText style={styles.goalProgressText}>
+        Progress: {progressPercentage.toFixed(2)}%
+        {isGoalComplete && <ThemedText style={styles.completedText}> (Completed!)</ThemedText>}
+      </ThemedText>
     </View>
   )};
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title" style={styles.title}>
-        Waste Reduction Goals
-      </ThemedText>
-      
+    <ThemedView style={[styles.container, { backgroundColor: screenBackgroundColor }]}>
+      <View style={styles.headerContainer}>
+        <ThemedText type="title">
+          Waste Reduction Goals
+        </ThemedText>
+      </View>
+
       {!username && userType === 'guest' ? (
-        <Text style={styles.errorText}>
+        <ThemedText style={[styles.errorText, { color: errorTextColor, backgroundColor: errorBackgroundColor }]}>
           Please log in to view and manage waste goals.
-        </Text>
+        </ThemedText>
       ) : (
         <>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.createButton}
-            onPress={() => { 
-              resetForm(); 
-              setModalVisible(true); 
+            onPress={() => {
+              resetForm();
+              setModalVisible(true);
             }}
           >
             <Text style={styles.buttonText}>Create New Goal</Text>
           </TouchableOpacity>
-          
-          {error && !loading && <Text style={styles.errorText}>{error}</Text>}
+
+          {error && !loading && <ThemedText style={[styles.errorText, { color: errorTextColor, backgroundColor: errorBackgroundColor }]}>{error}</ThemedText>}
 
           <FlatList
             data={goals}
@@ -402,36 +411,36 @@ export default function WasteGoalScreen() {
             contentContainerStyle={styles.listContainer}
             ListEmptyComponent={
               !loading && !error ? (
-                <Text style={styles.emptyText}>
+                <ThemedText style={[styles.emptyText, {color: emptyTextColor}]}>
                   No waste goals found. Create your first goal!
-                </Text>
+                </ThemedText>
               ) : null
             }
             ListFooterComponent={
               loading ? (
-                <ActivityIndicator size="large" color="#4CAF50" style={styles.loadingSpinner} />
+                <ActivityIndicator size="large" color={isDarkMode ? "#66BB6A" : "#4CAF50"} style={styles.loadingSpinner} />
               ) : null
             }
           />
-          
+
           {/* Goal Create/Edit Modal */}
           <Modal
             visible={modalVisible}
             transparent={true}
             animationType="slide"
-            onRequestClose={() => { 
-              setModalVisible(false); 
-              resetForm(); 
+            onRequestClose={() => {
+              setModalVisible(false);
+              resetForm();
             }}
           >
             <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>
+              <View style={[styles.modalContent, { backgroundColor: modalContentBgColor }]}>
+                <ThemedText style={styles.modalTitle}>
                   {editingGoal ? 'Edit Waste Goal' : 'Create New Waste Goal'}
-                </Text>
-                <Text style={styles.inputLabel}>Waste Type</Text>
-                <View style={styles.pickerContainer}>
-                  <Picker selectedValue={wasteType} onValueChange={setWasteType} style={styles.picker}>
+                </ThemedText>
+                <ThemedText style={styles.inputLabel}>Waste Type</ThemedText>
+                <View style={[styles.pickerContainer, { borderColor: inputBorderColor, backgroundColor: pickerBackgroundColor }]}>
+                  <Picker selectedValue={wasteType} onValueChange={setWasteType} style={[styles.picker, {color: pickerItemColor}]} itemStyle={{ color: pickerItemColor, backgroundColor: pickerBackgroundColor }}>
                     <Picker.Item label="Plastic" value="Plastic" />
                     <Picker.Item label="Paper" value="Paper" />
                     <Picker.Item label="Glass" value="Glass" />
@@ -440,48 +449,50 @@ export default function WasteGoalScreen() {
                     <Picker.Item label="Electronic" value="Electronic" />
                   </Picker>
                 </View>
-                <Text style={styles.inputLabel}>Unit</Text>
-                <View style={styles.pickerContainer}>
-                  <Picker selectedValue={unit} onValueChange={setUnit} style={styles.picker}>
+                <ThemedText style={styles.inputLabel}>Unit</ThemedText>
+                <View style={[styles.pickerContainer, { borderColor: inputBorderColor, backgroundColor: pickerBackgroundColor }]}>
+                  <Picker selectedValue={unit} onValueChange={setUnit} style={[styles.picker, {color: pickerItemColor}]} itemStyle={{ color: pickerItemColor, backgroundColor: pickerBackgroundColor }}>
                     <Picker.Item label="Kilograms" value="Kilograms" />
                     <Picker.Item label="Pounds" value="Pounds" />
                     <Picker.Item label="Items" value="Items" />
                   </Picker>
                 </View>
-                <Text style={styles.inputLabel}>Amount</Text>
-                <TextInput 
-                  style={styles.input} 
-                  value={amount} 
-                  onChangeText={setAmount} 
-                  keyboardType="numeric" 
+                <ThemedText style={styles.inputLabel}>Amount</ThemedText>
+                <TextInput
+                  style={[styles.input, { borderColor: inputBorderColor, color: inputTextColor, backgroundColor: pickerBackgroundColor }]}
+                  value={amount}
+                  onChangeText={setAmount}
+                  keyboardType="numeric"
                   placeholder="e.g., 5.0"
+                  placeholderTextColor={placeholderTextColor}
                 />
-                <Text style={styles.inputLabel}>Duration (days)</Text>
-                <TextInput 
-                  style={styles.input} 
-                  value={duration} 
-                  onChangeText={setDuration} 
-                  keyboardType="numeric" 
+                <ThemedText style={styles.inputLabel}>Duration (days)</ThemedText>
+                <TextInput
+                  style={[styles.input, { borderColor: inputBorderColor, color: inputTextColor, backgroundColor: pickerBackgroundColor }]}
+                  value={duration}
+                  onChangeText={setDuration}
+                  keyboardType="numeric"
                   placeholder="e.g., 30"
+                  placeholderTextColor={placeholderTextColor}
                 />
-                
+
                 {goalFormError ? (
-                  <Text style={styles.modalFormErrorText}>{goalFormError}</Text>
+                  <ThemedText style={[styles.modalFormErrorText, { color: errorTextColor }]}>{goalFormError}</ThemedText>
                 ) : null}
 
                 <View style={styles.modalButtons}>
-                  <TouchableOpacity 
-                    style={styles.cancelButton} 
-                    onPress={() => { 
-                      setModalVisible(false); 
-                      resetForm(); 
+                  <TouchableOpacity
+                    style={styles.cancelButton}
+                    onPress={() => {
+                      setModalVisible(false);
+                      resetForm();
                     }}
                   >
                     <Text style={styles.buttonText}>Cancel</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={styles.saveButton} 
-                    onPress={editingGoal ? editWasteGoal : createGoal} 
+                  <TouchableOpacity
+                    style={styles.saveButton}
+                    onPress={editingGoal ? editWasteGoal : createGoal}
                     disabled={loading}
                   >
                     <Text style={styles.buttonText}>{loading ? 'Saving...' : (editingGoal ? 'Update' : 'Save')}</Text>
@@ -496,50 +507,51 @@ export default function WasteGoalScreen() {
             visible={addLogModalVisible}
             transparent={true}
             animationType="slide"
-            onRequestClose={() => { 
-              setAddLogModalVisible(false); 
-              setCurrentGoalForLog(null); 
-              setLogEntryAmount(''); 
-              setLogFormError(''); // Clear error on close
+            onRequestClose={() => {
+              setAddLogModalVisible(false);
+              setCurrentGoalForLog(null);
+              setLogEntryAmount('');
+              setLogFormError('');
             }}
           >
             <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>Add Waste Log</Text>
+              <View style={[styles.modalContent, { backgroundColor: modalContentBgColor }]}>
+                <ThemedText style={styles.modalTitle}>Add Waste Log</ThemedText>
                 {currentGoalForLog && (
-                  <Text style={styles.modalSubtitle}>
+                  <ThemedText style={styles.modalSubtitle}>
                     For Goal: {currentGoalForLog.wasteType} ({currentGoalForLog.amount} {currentGoalForLog.unit})
-                  </Text>
+                  </ThemedText>
                 )}
-                <Text style={styles.inputLabel}>Amount ({currentGoalForLog?.unit || ''})</Text>
-                <TextInput 
-                  style={styles.input} 
-                  value={logEntryAmount} 
-                  onChangeText={setLogEntryAmount} 
-                  keyboardType="numeric" 
+                <ThemedText style={styles.inputLabel}>Amount ({currentGoalForLog?.unit || ''})</ThemedText>
+                <TextInput
+                  style={[styles.input, { borderColor: inputBorderColor, color: inputTextColor, backgroundColor: pickerBackgroundColor }]}
+                  value={logEntryAmount}
+                  onChangeText={setLogEntryAmount}
+                  keyboardType="numeric"
                   placeholder={`e.g., 0.5 ${currentGoalForLog?.unit || 'units'}`}
+                  placeholderTextColor={placeholderTextColor}
                 />
 
                 {logFormError ? (
-                  <Text style={styles.modalFormErrorText}>{logFormError}</Text>
+                  <ThemedText style={[styles.modalFormErrorText, { color: errorTextColor }]}>{logFormError}</ThemedText>
                 ) : null}
-                
+
                 <View style={styles.modalButtons}>
-                  <TouchableOpacity 
-                    style={styles.cancelButton} 
-                    onPress={() => { 
-                      setAddLogModalVisible(false); 
-                      setCurrentGoalForLog(null); 
-                      setLogEntryAmount(''); 
-                      setLogFormError(''); // Clear error on cancel
+                  <TouchableOpacity
+                    style={styles.cancelButton}
+                    onPress={() => {
+                      setAddLogModalVisible(false);
+                      setCurrentGoalForLog(null);
+                      setLogEntryAmount('');
+                      setLogFormError('');
                     }}
                   >
                     <Text style={styles.buttonText}>Cancel</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={styles.saveButton} 
-                    onPress={handleAddWasteLog} 
-                    disabled={loading} // Removed !logEntryAmount, validation handles empty
+                  <TouchableOpacity
+                    style={styles.saveButton}
+                    onPress={handleAddWasteLog}
+                    disabled={loading}
                   >
                     <Text style={styles.buttonText}>{loading ? 'Saving...' : 'Confirm Log'}</Text>
                   </TouchableOpacity>
@@ -559,13 +571,13 @@ export default function WasteGoalScreen() {
             }}
           >
             <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>Confirm Deletion</Text>
+              <View style={[styles.modalContent, { backgroundColor: modalContentBgColor }]}>
+                <ThemedText style={styles.modalTitle}>Confirm Deletion</ThemedText>
                 {goalToDelete && (
-                  <Text style={styles.deleteConfirmText}>
+                  <ThemedText style={styles.deleteConfirmText}>
                     Are you sure you want to delete the goal: {'\n'}
-                    <Text style={{fontWeight: 'bold'}}>{goalToDelete.wasteType}</Text> for <Text style={{fontWeight: 'bold'}}>{goalToDelete.amount} {goalToDelete.unit}</Text>?
-                  </Text>
+                    <ThemedText type="defaultSemiBold">{goalToDelete.wasteType}</ThemedText> for <ThemedText type="defaultSemiBold">{goalToDelete.amount} {goalToDelete.unit}</ThemedText>?
+                  </ThemedText>
                 )}
                 <View style={styles.modalButtons}>
                   <TouchableOpacity
@@ -578,7 +590,7 @@ export default function WasteGoalScreen() {
                     <Text style={styles.buttonText}>Cancel</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={[styles.saveButton, styles.confirmDeleteButton]} 
+                    style={[styles.saveButton, styles.confirmDeleteButton]}
                     onPress={handleDeleteConfirm}
                     disabled={loading}
                   >
@@ -599,23 +611,19 @@ export default function WasteGoalScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-    color: '#333',
+  headerContainer: {
+    paddingHorizontal: 16,
+    marginTop: 48,
+    marginBottom: 18,
   },
   listContainer: {
+    paddingHorizontal: 16,
     paddingBottom: 20,
   },
   goalItem: {
-    backgroundColor: '#ffffff',
     borderRadius: 10,
     padding: 16,
-    marginHorizontal: 16,
     marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -633,18 +641,17 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: '#2E7D32',
-    flexShrink: 1, 
-    marginRight: 8, 
+    flexShrink: 1,
+    marginRight: 8,
   },
   goalDetails: {
     fontSize: 15,
-    color: '#555',
     marginBottom: 8,
   },
   goalActions: {
     flexDirection: 'row',
-    alignItems: 'center', 
-    gap: 8, 
+    alignItems: 'center',
+    gap: 8,
   },
   createButton: {
     backgroundColor: '#4CAF50',
@@ -662,44 +669,41 @@ const styles = StyleSheet.create({
   },
   editButton: {
     backgroundColor: '#1976D2',
-    paddingHorizontal: 10, 
+    paddingHorizontal: 10,
     paddingVertical: 8,
     borderRadius: 6,
   },
   deleteButton: {
-    backgroundColor: '#D32F2F', 
-    paddingHorizontal: 10, 
+    backgroundColor: '#D32F2F',
+    paddingHorizontal: 10,
     paddingVertical: 8,
     borderRadius: 6,
   },
   addLogButton: {
     backgroundColor: '#388E3C',
-    paddingHorizontal: 10, 
+    paddingHorizontal: 10,
     paddingVertical: 8,
     borderRadius: 6,
   },
   buttonText: {
     color: '#ffffff',
     fontWeight: 'bold',
-    fontSize: 13, 
+    fontSize: 13,
   },
-  errorText: { 
-    color: '#D32F2F',
+  errorText: {
     textAlign: 'center',
     marginTop: 20,
+    marginHorizontal: 16,
     padding: 10,
-    backgroundColor: '#FFCDD2',
     borderRadius: 6,
   },
-  modalFormErrorText: { 
-    color: '#D32F2F', 
+  modalFormErrorText: {
     textAlign: 'center',
-    marginBottom: 10, 
+    marginBottom: 10,
     fontSize: 14,
   },
   emptyText: {
     textAlign: 'center',
-    color: '#757575',
     marginTop: 40,
     fontSize: 16,
   },
@@ -713,7 +717,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
   },
   modalContent: {
-    backgroundColor: '#ffffff',
     borderRadius: 12,
     padding: 25,
     width: '90%',
@@ -729,17 +732,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
-    color: '#333',
   },
   inputLabel: {
     fontSize: 16,
     marginBottom: 6,
-    color: '#444',
     fontWeight: '500',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
     borderRadius: 6,
     padding: 12,
     marginBottom: 18,
@@ -747,9 +747,9 @@ const styles = StyleSheet.create({
   },
   pickerContainer: {
     borderWidth: 1,
-    borderColor: '#ccc',
     borderRadius: 6,
     marginBottom: 18,
+    justifyContent: 'center',
   },
   picker: {
     height: 50,
@@ -757,17 +757,17 @@ const styles = StyleSheet.create({
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 10, 
+    marginTop: 10,
   },
-  cancelButton: { 
-    backgroundColor: '#757575', 
+  cancelButton: {
+    backgroundColor: '#757575',
     paddingVertical: 12,
     paddingHorizontal: 10,
     borderRadius: 8,
     width: '48%',
     alignItems: 'center',
   },
-  saveButton: { 
+  saveButton: {
     backgroundColor: '#4CAF50',
     paddingVertical: 12,
     paddingHorizontal: 10,
@@ -775,13 +775,12 @@ const styles = StyleSheet.create({
     width: '48%',
     alignItems: 'center',
   },
-  confirmDeleteButton: { 
-    backgroundColor: '#D32F2F', 
+  confirmDeleteButton: {
+    backgroundColor: '#D32F2F',
   },
   deleteConfirmText: {
     fontSize: 16,
     textAlign: 'center',
-    color: '#333',
     marginBottom: 20,
     lineHeight: 24,
   },
@@ -804,14 +803,13 @@ const styles = StyleSheet.create({
     marginTop: 6,
     textAlign: 'right',
   },
-  completedText: { 
-    color: '#388E3C', 
+  completedText: {
+    color: '#388E3C',
     fontWeight: 'bold',
   },
   modalSubtitle: {
     fontSize: 16,
     textAlign: 'center',
-    color: '#666',
     marginBottom: 18,
     fontStyle: 'italic',
   },
