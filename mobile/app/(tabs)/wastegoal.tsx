@@ -44,7 +44,7 @@ export default function WasteGoalScreen() {
   
   const [goals, setGoals] = useState<WasteGoal[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(''); // General screen error
+  const [error, setError] = useState(''); 
 
   // Create/Edit Goal Modal
   const [modalVisible, setModalVisible] = useState(false);
@@ -53,12 +53,13 @@ export default function WasteGoalScreen() {
   const [unit, setUnit] = useState('Kilograms');
   const [duration, setDuration] = useState('30');
   const [amount, setAmount] = useState('5.0');
-  const [formError, setFormError] = useState(''); // Error message for the modal form
+  const [goalFormError, setGoalFormError] = useState(''); // Renamed for clarity
 
   // Add Waste Log Modal
   const [addLogModalVisible, setAddLogModalVisible] = useState(false);
   const [currentGoalForLog, setCurrentGoalForLog] = useState<WasteGoal | null>(null);
   const [logEntryAmount, setLogEntryAmount] = useState('');
+  const [logFormError, setLogFormError] = useState(''); // Error for Add Log form
 
   // Delete Confirmation Modal
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
@@ -102,17 +103,28 @@ export default function WasteGoalScreen() {
   };
 
   const validateGoalInput = (): boolean => {
-    setFormError(''); // Clear previous errors
+    setGoalFormError(''); 
 
     const parsedAmount = parseFloat(amount);
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
-      setFormError('Amount must be a positive number.');
+      setGoalFormError('Amount must be a positive number.');
       return false;
     }
 
     const parsedDuration = parseInt(duration, 10);
     if (isNaN(parsedDuration) || parsedDuration < 1) {
-      setFormError('Duration must be at least 1 day.');
+      setGoalFormError('Duration must be at least 1 day.');
+      return false;
+    }
+    return true;
+  };
+
+  const validateLogInput = (): boolean => {
+    setLogFormError(''); // Clear previous log form errors
+
+    const parsedLogAmount = parseFloat(logEntryAmount);
+    if (isNaN(parsedLogAmount) || parsedLogAmount <= 0) {
+      setLogFormError('Log amount must be a positive number.');
       return false;
     }
     return true;
@@ -120,22 +132,26 @@ export default function WasteGoalScreen() {
 
 
   const handleAddWasteLog = async () => {
-    if (!currentGoalForLog || !username || !logEntryAmount) {
-      Alert.alert('Error', 'Please ensure an amount is entered and a goal is selected.');
+    if (!currentGoalForLog || !username) { // logEntryAmount check is now in validation
+      Alert.alert('Error', 'Goal information is missing.');
       return;
     }
+
+    if (!validateLogInput()) return; // Validate log input
+
     const goalIdToLog = currentGoalForLog.goalId;
     if (!goalIdToLog) {
       Alert.alert('Error', 'Selected goal has no valid ID for logging.');
       return;
     }
+
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem('token');
       const requestBody = {
         username: username,
         goalId: goalIdToLog,
-        amount: parseFloat(logEntryAmount),
+        amount: parseFloat(logEntryAmount), // Already validated as number
         unit: currentGoalForLog.unit, 
       };
       const apiEndpoint = `${API_BASE}/logs/create`; 
@@ -155,6 +171,7 @@ export default function WasteGoalScreen() {
       setAddLogModalVisible(false);
       setCurrentGoalForLog(null);
       setLogEntryAmount('');
+      setLogFormError(''); // Clear log form error on success
       getGoals(); 
     } catch (err) {
       console.error('Error adding waste log:', err);
@@ -166,7 +183,7 @@ export default function WasteGoalScreen() {
 
   const createGoal = async () => {
     if (!username) return;
-    if (!validateGoalInput()) return; // Validate input first
+    if (!validateGoalInput()) return; 
 
     setLoading(true);
     try {
@@ -189,7 +206,7 @@ export default function WasteGoalScreen() {
       }
       Alert.alert('Success', 'Waste goal created successfully.');
       setModalVisible(false);
-      resetForm(); // Also clears formError via setFormError('') in resetForm
+      resetForm(); 
       getGoals();
     } catch (err) {
       console.error('Error creating goal:', err);
@@ -204,7 +221,7 @@ export default function WasteGoalScreen() {
         Alert.alert('Error', 'Goal information is incomplete for editing.');
         return;
     }
-    if (!validateGoalInput()) return; // Validate input first
+    if (!validateGoalInput()) return; 
 
     setLoading(true);
     try {
@@ -227,7 +244,7 @@ export default function WasteGoalScreen() {
       }
       Alert.alert('Success', 'Waste goal updated successfully.');
       setModalVisible(false);
-      resetForm(); // Also clears formError
+      resetForm(); 
       getGoals();
     } catch (err) {
       console.error('Error editing goal:', err);
@@ -269,7 +286,7 @@ export default function WasteGoalScreen() {
 
 
   const openEditModal = (goal: WasteGoal) => {
-    setFormError(''); // Clear any previous form errors
+    setGoalFormError(''); 
     setEditingGoal(goal);
     setWasteType(goal.wasteType);
     setUnit(goal.unit);
@@ -284,12 +301,13 @@ export default function WasteGoalScreen() {
     setDuration('30');
     setAmount('5.0');
     setEditingGoal(null);
-    setFormError(''); // Clear form error when resetting
+    setGoalFormError(''); 
   };
 
   const openAddLogModal = (goal: WasteGoal) => {
     setCurrentGoalForLog(goal);
     setLogEntryAmount('');
+    setLogFormError(''); // Clear log form error when opening
     setAddLogModalVisible(true);
   };
 
@@ -360,7 +378,7 @@ export default function WasteGoalScreen() {
           <TouchableOpacity 
             style={styles.createButton}
             onPress={() => { 
-              resetForm(); // This now also clears formError
+              resetForm(); 
               setModalVisible(true); 
             }}
           >
@@ -401,7 +419,7 @@ export default function WasteGoalScreen() {
             animationType="slide"
             onRequestClose={() => { 
               setModalVisible(false); 
-              resetForm(); // Clear form and formError on close
+              resetForm(); 
             }}
           >
             <View style={styles.modalContainer}>
@@ -445,9 +463,8 @@ export default function WasteGoalScreen() {
                   placeholder="e.g., 30"
                 />
                 
-                {/* Display Form Error Message */}
-                {formError ? (
-                  <Text style={styles.modalFormErrorText}>{formError}</Text>
+                {goalFormError ? (
+                  <Text style={styles.modalFormErrorText}>{goalFormError}</Text>
                 ) : null}
 
                 <View style={styles.modalButtons}>
@@ -455,7 +472,7 @@ export default function WasteGoalScreen() {
                     style={styles.cancelButton} 
                     onPress={() => { 
                       setModalVisible(false); 
-                      resetForm(); // Clear form and formError
+                      resetForm(); 
                     }}
                   >
                     <Text style={styles.buttonText}>Cancel</Text>
@@ -477,7 +494,12 @@ export default function WasteGoalScreen() {
             visible={addLogModalVisible}
             transparent={true}
             animationType="slide"
-            onRequestClose={() => { setAddLogModalVisible(false); setCurrentGoalForLog(null); setLogEntryAmount(''); }}
+            onRequestClose={() => { 
+              setAddLogModalVisible(false); 
+              setCurrentGoalForLog(null); 
+              setLogEntryAmount(''); 
+              setLogFormError(''); // Clear error on close
+            }}
           >
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
@@ -488,12 +510,35 @@ export default function WasteGoalScreen() {
                   </Text>
                 )}
                 <Text style={styles.inputLabel}>Amount ({currentGoalForLog?.unit || ''})</Text>
-                <TextInput style={styles.input} value={logEntryAmount} onChangeText={setLogEntryAmount} keyboardType="numeric" placeholder={`e.g., 0.5 ${currentGoalForLog?.unit || 'units'}`}/>
+                <TextInput 
+                  style={styles.input} 
+                  value={logEntryAmount} 
+                  onChangeText={setLogEntryAmount} 
+                  keyboardType="numeric" 
+                  placeholder={`e.g., 0.5 ${currentGoalForLog?.unit || 'units'}`}
+                />
+
+                {logFormError ? (
+                  <Text style={styles.modalFormErrorText}>{logFormError}</Text>
+                ) : null}
+                
                 <View style={styles.modalButtons}>
-                  <TouchableOpacity style={styles.cancelButton} onPress={() => { setAddLogModalVisible(false); setCurrentGoalForLog(null); setLogEntryAmount(''); }}>
+                  <TouchableOpacity 
+                    style={styles.cancelButton} 
+                    onPress={() => { 
+                      setAddLogModalVisible(false); 
+                      setCurrentGoalForLog(null); 
+                      setLogEntryAmount(''); 
+                      setLogFormError(''); // Clear error on cancel
+                    }}
+                  >
                     <Text style={styles.buttonText}>Cancel</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.saveButton} onPress={handleAddWasteLog} disabled={loading || !logEntryAmount}>
+                  <TouchableOpacity 
+                    style={styles.saveButton} 
+                    onPress={handleAddWasteLog} 
+                    disabled={loading} // Removed !logEntryAmount, validation handles empty
+                  >
                     <Text style={styles.buttonText}>{loading ? 'Saving...' : 'Confirm Log'}</Text>
                   </TouchableOpacity>
                 </View>
@@ -634,7 +679,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 13, 
   },
-  errorText: { // General screen error
+  errorText: { 
     color: '#D32F2F',
     textAlign: 'center',
     marginTop: 20,
@@ -642,10 +687,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFCDD2',
     borderRadius: 6,
   },
-  modalFormErrorText: { // Specific for modal form errors
-    color: '#D32F2F', // Red color for error text
+  modalFormErrorText: { 
+    color: '#D32F2F', 
     textAlign: 'center',
-    marginBottom: 10, // Space before modal buttons
+    marginBottom: 10, 
     fontSize: 14,
   },
   emptyText: {
@@ -708,7 +753,7 @@ const styles = StyleSheet.create({
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 10, // Reduced margin if error text is present
+    marginTop: 10, 
   },
   cancelButton: { 
     backgroundColor: '#757575', 
