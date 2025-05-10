@@ -236,7 +236,7 @@ export default function HomeScreen() {
 
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#', dark: '#' }}
+      headerBackgroundColor={{ light: '#FFFFFF', dark: '#000000' }}
       headerImage={
         <Image
           source={require('@/assets/images/wasteless-logo.png')}

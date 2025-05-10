@@ -1,4 +1,4 @@
-//app/(tabs)/index.tsx
+//app/(tabs)/explore.tsx
 import React, { useContext, useEffect, useState } from 'react';
 import {
   ScrollView,
@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   RefreshControl,
   Platform,
+  useColorScheme,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
@@ -26,9 +27,10 @@ type Post = {
   comments: number;
 };
 
-function PostSkeleton({ post }: { post: Post }) {
+// PostSkeleton now takes cardBackgroundColor and iconColor as props
+function PostSkeleton({ post, cardBackgroundColor, iconColor }: { post: Post; cardBackgroundColor: string; iconColor: string; }) {
   return (
-    <View style={styles.postContainer}>
+    <View style={[styles.postContainer, { backgroundColor: cardBackgroundColor }]}>
       <ThemedText type="title" style={styles.postTitle}>
         {post.title}
       </ThemedText>
@@ -37,9 +39,9 @@ function PostSkeleton({ post }: { post: Post }) {
       </ThemedText>
 
       <View style={styles.postFooter}>
-        <Ionicons name="heart-outline" size={16} />
+        <Ionicons name="heart-outline" size={16} color={iconColor} />
         <ThemedText style={styles.footerText}>{post.likes}</ThemedText>
-        <Ionicons name="chatbubble-outline" size={16} />
+        <Ionicons name="chatbubble-outline" size={16} color={iconColor} />
         <ThemedText style={styles.footerText}>{post.comments}</ThemedText>
       </View>
     </View>
@@ -56,11 +58,28 @@ export default function ExploreScreen() {
   const [lastPostId, setLastPostId] = useState<number | null>(null);
   const [error, setError] = useState(false);
   const [noMorePosts, setNoMorePosts] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false); 
+  const [loadingMore, setLoadingMore] = useState(false);
   const [searchQuery,   setSearchQuery]   = useState('');
   const [searchResults, setSearchResults] = useState<Post[]>([]);
   const [isSearching,   setIsSearching]   = useState(false);
   const [inSearchMode,  setInSearchMode]  = useState(false);
+
+  const colorScheme = useColorScheme();
+
+  const screenBackgroundColor = colorScheme === 'dark' ? '#151718' : '#F0F2F5';
+  const cardBackgroundColor = colorScheme === 'dark' ? '#1C1C1E' : '#FFFFFF';
+  const searchBarBackgroundColor = colorScheme === 'dark' ? '#1C1C1E' : '#FFFFFF';
+  const searchInputColor = colorScheme === 'dark' ? '#E5E5E7' : '#000000';
+  const searchPlaceholderColor = colorScheme === 'dark' ? '#8E8E93' : '#8E8E93';
+  const iconColor = colorScheme === 'dark' ? '#8E8E93' : '#6C6C70'; // Used for search and post icons
+  
+  const themedErrorBoxBackgroundColor = colorScheme === 'dark' ? '#5D1F1A' : '#ffcccc';
+  const themedErrorBoxTextColor = colorScheme === 'dark' ? '#FFA094' : '#cc0000';
+  const themedNoMoreBoxBackgroundColor = colorScheme === 'dark' ? '#1A3A4A' : '#e0f7fa';
+  const themedNoMoreBoxTextColor = colorScheme === 'dark' ? '#9EE8FF' : '#00796b';
+  const activityIndicatorColor = colorScheme === 'dark' ? '#FFFFFF' : '#000000';
+  const refreshControlColors = colorScheme === 'dark' ? { tintColor: '#FFFFFF', titleColor: '#FFFFFF'} : { tintColor: '#000000', titleColor: '#000000'};
+
 
   useEffect(() => {
     if (!userType) {
@@ -162,7 +181,7 @@ export default function ExploreScreen() {
         title: item.creatorUsername,
         content: item.content,
         likes: item.likes,
-        comments: item.comments,          // already a number
+        comments: item.comments,
       }));
 
       setSearchResults(mapped);
@@ -186,9 +205,16 @@ export default function ExploreScreen() {
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: screenBackgroundColor }]}
       contentContainerStyle={styles.content}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+      refreshControl={
+        <RefreshControl 
+          refreshing={refreshing} 
+          onRefresh={handleRefresh} 
+          tintColor={refreshControlColors.tintColor}
+          titleColor={refreshControlColors.titleColor}
+        />
+      }
     >
       <View style={styles.header}>
         <ThemedText type="title">Explore</ThemedText>
@@ -203,13 +229,13 @@ export default function ExploreScreen() {
         )}
       </View>
 
-      <View style={styles.searchBar}>
+      <View style={[styles.searchBar, { backgroundColor: searchBarBackgroundColor }]}>
         {inSearchMode && (
           <TouchableOpacity onPress={handleBack}>
             <Ionicons
               name="arrow-back"
               size={25}
-              color="#888"
+              color={iconColor}
               style={[styles.searchIcon, { marginRight: 8 }]}
             />
           </TouchableOpacity>
@@ -217,16 +243,15 @@ export default function ExploreScreen() {
 
            <TouchableOpacity onPress={performSearch} disabled={isSearching}>
           {isSearching ? (
-            /* small spinner that replaces the icon while the request is in flight */
-            <ActivityIndicator size="small" color="#888" style={styles.searchIcon} />
+            <ActivityIndicator size="small" color={iconColor} style={styles.searchIcon} />
           ) : (
-            <Ionicons name="search" size={30} color="#888" style={styles.searchIcon} />
+            <Ionicons name="search" size={30} color={iconColor} style={styles.searchIcon} />
           )}
         </TouchableOpacity>
         <TextInput
-          style={styles.searchInput}
+          style={[styles.searchInput, { color: searchInputColor }]}
           placeholder="Search for posts…"
-          placeholderTextColor="#888"
+          placeholderTextColor={searchPlaceholderColor}
           value={searchQuery}
           onChangeText={setSearchQuery}
           returnKeyType="search"
@@ -234,30 +259,27 @@ export default function ExploreScreen() {
         />
       </View>
 
-      {/* ───────── Main content ───────── */}
       {inSearchMode ? (
-        /* SEARCH MODE */
         isSearching ? (
-          <ActivityIndicator style={{ marginTop: 20 }} />
+          <ActivityIndicator style={{ marginTop: 20 }} color={activityIndicatorColor} />
         ) : searchResults.length > 0 ? (
-          searchResults.map(post => <PostSkeleton key={post.id} post={post} />)
+          searchResults.map(post => <PostSkeleton key={post.id} post={post} cardBackgroundColor={cardBackgroundColor} iconColor={iconColor} />)
         ) : (
-          <View style={styles.noMoreBox}>
-            <ThemedText style={styles.noMoreText}>No results found</ThemedText>
+          <View style={[styles.noMoreBox, { backgroundColor: themedNoMoreBoxBackgroundColor }]}>
+            <ThemedText style={[styles.noMoreText, { color: themedNoMoreBoxTextColor }]}>No results found</ThemedText>
           </View>
         )
       ) : (
-        /* NORMAL FEED */
         loading ? (
-          <ActivityIndicator style={{ marginTop: 20 }} />
+          <ActivityIndicator style={{ marginTop: 20 }} color={activityIndicatorColor} />
         ) : error ? (
-          <View style={styles.errorBox}>
-            <ThemedText style={styles.errorText}>Failed to fetch posts</ThemedText>
+          <View style={[styles.errorBox, { backgroundColor: themedErrorBoxBackgroundColor }]}>
+            <ThemedText style={[styles.errorText, { color: themedErrorBoxTextColor }]}>Failed to fetch posts</ThemedText>
           </View>
         ) : posts.length > 0 ? (
           <>
             {posts.map(post => (
-              <PostSkeleton key={post.id} post={post} />
+              <PostSkeleton key={post.id} post={post} cardBackgroundColor={cardBackgroundColor} iconColor={iconColor} />
             ))}
 
             {!noMorePosts ? (
@@ -269,14 +291,14 @@ export default function ExploreScreen() {
                 )}
               </TouchableOpacity>
             ) : (
-              <View style={styles.noMoreBox}>
-                <ThemedText style={styles.noMoreText}>No more posts available</ThemedText>
+              <View style={[styles.noMoreBox, { backgroundColor: themedNoMoreBoxBackgroundColor }]}>
+                <ThemedText style={[styles.noMoreText, { color: themedNoMoreBoxTextColor }]}>No more posts available</ThemedText>
               </View>
             )}
           </>
         ) : (
-          <View style={styles.noMoreBox}>
-            <ThemedText style={styles.noMoreText}>No posts available</ThemedText>
+          <View style={[styles.noMoreBox, { backgroundColor: themedNoMoreBoxBackgroundColor }]}>
+            <ThemedText style={[styles.noMoreText, { color: themedNoMoreBoxTextColor }]}>No posts available</ThemedText>
           </View>
         )
       )}
@@ -285,12 +307,8 @@ export default function ExploreScreen() {
   );
 }
 
-
-
-
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#151718',
     flex: 1,
   },
   content: {
@@ -298,13 +316,12 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 16,
-    marginTop: 48,     
+    marginTop: 48,
     marginBottom: 18,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f0f0f0',
     borderRadius: 30,
     marginHorizontal: 16,
     paddingHorizontal: 12,
@@ -319,31 +336,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   postContainer: {
-    backgroundColor: '#fff',
     borderRadius: 8,
     padding: 12,
     marginHorizontal: 40,
     marginBottom: 16,
-    shadowColor: '#000',
+    shadowColor: '#000', 
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
   },
-  postImage: {
+  postImage: { 
     width: '100%',
     height: 150,
     borderRadius: 4,
     marginBottom: 10,
-    backgroundColor: '#eee',
+    backgroundColor: '#eee', 
   },
   postTitle: {
     fontSize: 18,
     marginBottom: 6,
-    color: '#000',
   },
   postContent: {
     fontSize: 14,
-    color: '#666',
     marginBottom: 10,
   },
   postFooter: {
@@ -353,9 +367,8 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: 14,
     marginHorizontal: 8,
-    color: '#000',
   },
-  loginButton: {
+  loginButton: { 
     marginTop: 12,
     paddingVertical: 8,
     paddingHorizontal: 16,
@@ -364,7 +377,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginLeft: 8,
   },
-  loginButtonText: {
+  loginButtonText: { 
     color: '#fff',
     fontSize: 14,
   },
@@ -372,12 +385,10 @@ const styles = StyleSheet.create({
     marginTop: 40,
     marginHorizontal: 20,
     padding: 12,
-    backgroundColor: '#ffcccc',
     borderRadius: 8,
     alignItems: 'center',
   },
   errorText: {
-    color: '#cc0000',
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -385,16 +396,14 @@ const styles = StyleSheet.create({
     marginTop: 40,
     marginHorizontal: 20,
     padding: 12,
-    backgroundColor: '#e0f7fa',
     borderRadius: 8,
     alignItems: 'center',
   },
   noMoreText: {
-    color: '#00796b',
     fontSize: 16,
     fontWeight: 'bold',
   },
-  loadMoreButton: {
+  loadMoreButton: { 
     marginVertical: 20,
     marginHorizontal: 120,
     backgroundColor: '#2196F3',
@@ -402,7 +411,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
   },
-  loadMoreText: {
+  loadMoreText: { 
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
