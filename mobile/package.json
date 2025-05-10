@@ -5,12 +5,13 @@
   "proxy": "http://localhost:8080" ,
   "description": "A mobile application built with Expo and React Native.",
   "scripts": {
+    "test": "jest --watchAll",
+    "prestart": "npm run test",
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "test": "jest --watchAll",
     "lint": "expo lint"
   },
   "jest": {
