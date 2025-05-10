@@ -8,13 +8,15 @@ import {
   TextInput,
   ActivityIndicator,
   RefreshControl,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
 
-const API_BASE = 'http://localhost:8080';
+const HOST = Platform.select({ android: '10.0.2.2', ios: 'localhost' , web: 'localhost' });
+const API_BASE = `http://${HOST}:8080`;
 
 type Post = {
   id: number;
@@ -86,7 +88,7 @@ export default function ExploreScreen() {
         : `${API_BASE}/api/posts/info?size=5`;
       const res = await fetch(url);
       if (!res.ok) {
-        throw new Error('Fetch failed');
+        throw new Error(`Fetch failed with status ${res.status}`);
       }
       const data = await res.json();
 

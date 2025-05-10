@@ -7,6 +7,7 @@ import {
   View,
   TouchableOpacity,
   Text,
+  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,7 +18,8 @@ import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/nativ
 import { AuthContext } from '../_layout';
 import { ScrollView } from 'react-native';
 
-const API_BASE = 'http://localhost:8080/api/auth';
+const HOST = Platform.select({ android: '10.0.2.2', ios: 'localhost' , web: 'localhost' });
+const API_BASE = `http://${HOST}:8080/api/auth`;
 
 const KG_SAVED     = 57492; 
 
@@ -67,7 +69,7 @@ export default function HomeScreen() {
     const fetchUserCount = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
-        const res = await fetch(`http://localhost:8080/api/users/count`, {
+        const res = await fetch(`http://${HOST}:8080/api/users/count`, {
           method : 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -96,7 +98,7 @@ export default function HomeScreen() {
   useEffect(() => {
     const fetchTrending = async () => {
       try {
-        const res = await fetch('http://localhost:8080/api/posts/mostLikedPosts?size=4');
+        const res = await fetch(`http://${HOST}:8080/api/posts/mostLikedPosts?size=4`);
         if (!res.ok) throw new Error('Failed to fetch trending posts');
         const data = (await res.json()) as TrendingPost[];
         setTrendingPosts(data);
@@ -272,7 +274,7 @@ export default function HomeScreen() {
                       source={{
                         uri: post.photoUrl.startsWith('http')
                           ? post.photoUrl
-                          : `http://localhost:8080${post.photoUrl}`,
+                          : `http://${HOST}:8080${post.photoUrl}`,
                       }}
                       style={styles.postImage}
                       onError={(e) => console.warn('Image failed to load:', e.nativeEvent.error)}

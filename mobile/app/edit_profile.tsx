@@ -9,12 +9,15 @@ import {
   Image,
   ScrollView,
   Alert,
+  Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from './_layout';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-const API_BASE = 'http://localhost:8080';
+const HOST = Platform.select({ android: '10.0.2.2', ios: 'localhost' , web: 'localhost' });
+const API_BASE = `http://${HOST}:8080`;
+
 
 const isValidImageUrl = (url: string) => {
     return /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(url);

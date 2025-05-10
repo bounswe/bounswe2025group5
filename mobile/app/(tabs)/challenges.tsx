@@ -7,12 +7,13 @@ import {
   ActivityIndicator,
   Modal,
   StyleSheet,
-  GestureResponderEvent,
+  Platform,
 } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { AuthContext } from '../_layout';
 
-const API_BASE = 'http://localhost:8080';
+const HOST = Platform.select({ android: '10.0.2.2', ios: 'localhost' , web: 'localhost' });
+const API_BASE = `http://${HOST}:8080`;
 const ADMIN_TYPE_PLACEHOLDER = 'admin';
 
 type Challenge = {
