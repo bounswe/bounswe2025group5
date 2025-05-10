@@ -288,6 +288,7 @@ export default function ExploreScreen() {
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: '#151718',
     flex: 1,
   },
   content: {

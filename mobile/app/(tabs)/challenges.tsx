@@ -235,7 +235,7 @@ export default function ChallengesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5F5', padding: 16 },
+  container: { flex: 1, backgroundColor: '#151718', padding: 16 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   inlineSpinner: { alignSelf: 'center', marginVertical: 8 },
   title: { fontSize: 24, fontWeight: '600', marginVertical: 12, textAlign: 'center' },
