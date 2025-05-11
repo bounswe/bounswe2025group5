@@ -154,26 +154,41 @@ export default function HomeScreen() {
       navigation.navigate('explore');
       return;
     }
+  
     if (!emailOrUsername.trim() || pwd.length < 8) {
       return showError('Please fill in valid credentials');
     }
+  
     try {
       const res = await fetch(`${API_BASE}/login`, {
-        method : 'POST',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body   : JSON.stringify({ emailOrUsername, password: pwd }),
+        body: JSON.stringify({ emailOrUsername, password: pwd }),
       });
+  
       if (!res.ok) {
-        const err = await res.json();
-        return showError(err.message || 'Login failed');
+        // parse whatever shape your server returns
+        const errBody = await res.json().catch(() => null);
+  
+        // Log to your console for debugging
+        console.error('Login response error:', errBody);
+  
+        // Display the entire error object (or fallback)
+        const fullMsg = errBody
+          ? JSON.stringify(errBody, null, 2)
+          : 'Login failed';
+        return showError(fullMsg);
       }
-      const { token, username, user_id } = (await res.json()) as {
-        token   : string;
+  
+      // success path
+      const { token, username } = (await res.json()) as {
+        token: string;
+
         username: string;
         user_id : string;
       };
       await AsyncStorage.multiSet([
-        ['token'   , token],
+        ['token', token],
         ['username', username],
         ['user_id' , user_id.toString()],
       ]);
@@ -181,8 +196,17 @@ export default function HomeScreen() {
       setUsername(username);
       setUserId(user_id);
       setLoggedIn(true);
-    } catch {
-      showError('Network error, please try again');
+  
+    } catch (error: any) {
+      // Log the full JS error (including stack)
+      console.error('Network/login exception:', error);
+  
+      // Show the entire error (message + stack) if you want:
+      const msg =
+        error instanceof Error
+          ? `${error.message}\n${error.stack}`
+          : JSON.stringify(error, null, 2);
+      showError(msg);
     }
   };
 
