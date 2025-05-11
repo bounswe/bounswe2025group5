@@ -22,7 +22,6 @@ import { AuthContext } from '../_layout';
 const HOST = Platform.select({ android: '10.0.2.2', ios: 'localhost', web: 'localhost' });
 const API_BASE = `http://${HOST}:8080`;
 
-// Frontend Comment Type
 type CommentData = {
   commentId: number;
   content: string;
@@ -40,7 +39,6 @@ type Post = {
   likedByUser: boolean;
 };
 
-// --- CommentItemDisplay Component ---
 interface CommentItemDisplayProps {
   comment: CommentData;
   commentTextColor: string;
@@ -49,7 +47,6 @@ interface CommentItemDisplayProps {
   loggedInUsername: string | null;
   onDeleteComment: (commentId: number) => void;
   deleteIconColor: string;
-  // --- NEW PROPS for edit functionality ---
   editIconColor: string;
   onTriggerEdit: (comment: CommentData) => void;
   isEditingThisComment: boolean;
@@ -58,7 +55,6 @@ interface CommentItemDisplayProps {
   onSaveEditedComment: (commentId: number) => void;
   onCancelEdit: () => void;
   isSavingEdit: boolean;
-  // --- END NEW PROPS for edit ---
 }
 
 function CommentItemDisplay({
@@ -69,7 +65,6 @@ function CommentItemDisplay({
   loggedInUsername,
   onDeleteComment,
   deleteIconColor,
-  // --- NEW PROPS for edit functionality ---
   editIconColor,
   onTriggerEdit,
   isEditingThisComment,
@@ -78,10 +73,9 @@ function CommentItemDisplay({
   onSaveEditedComment,
   onCancelEdit,
   isSavingEdit,
-  // --- END NEW PROPS for edit ---
 }: CommentItemDisplayProps) {
   const isOwner = loggedInUsername && comment.username === loggedInUsername;
-  const colorScheme = useColorScheme(); // For save/cancel button text color
+  const colorScheme = useColorScheme(); 
 
   if (isOwner && isEditingThisComment) {
     return (
@@ -144,8 +138,6 @@ function CommentItemDisplay({
   );
 }
 
-
-// --- PostItem Component ---
 interface PostItemProps {
   post: Post;
   cardBackgroundColor: string;
@@ -162,21 +154,18 @@ interface PostItemProps {
   isExpanded: boolean;
   commentsList: CommentData[];
   isLoadingComments: boolean;
-  commentInputText: string; // For new comments
-  isPostingComment: boolean; // For new comments
+  commentInputText: string; 
+  isPostingComment: boolean; 
   onToggleComments: () => void;
-  onCommentInputChange: (text: string) => void; // For new comments
-  onPostComment: () => void; // For new comments
+  onCommentInputChange: (text: string) => void; 
+  onPostComment: () => void; 
   onDeleteComment: (postId: number, commentId: number) => void;
-
-  // --- NEW PROPS for edit functionality ---
   onTriggerEditComment: (postId: number, comment: CommentData) => void;
-  editingCommentDetailsForPost: { commentId: number; currentText: string; } | null; // Details for *this specific post*
-  onEditCommentContentChange: (newText: string) => void; // Generic handler, ExploreScreen manages which comment text
+  editingCommentDetailsForPost: { commentId: number; currentText: string; } | null; 
+  onEditCommentContentChange: (newText: string) => void; 
   onSaveEditedCommentForPost: (postId: number, commentId: number) => void;
   onCancelCommentEdit: () => void;
-  isSubmittingCommentEditForPost: boolean; // Specific to this post
-  // --- END NEW PROPS for edit ---
+  isSubmittingCommentEditForPost: boolean; 
 }
 
 function PostItem({
@@ -200,14 +189,12 @@ function PostItem({
   onCommentInputChange,
   onPostComment,
   onDeleteComment,
-  // --- NEW PROPS for edit functionality ---
   onTriggerEditComment,
   editingCommentDetailsForPost,
   onEditCommentContentChange,
   onSaveEditedCommentForPost,
   onCancelCommentEdit,
   isSubmittingCommentEditForPost,
-  // --- END NEW PROPS for edit ---
 }: PostItemProps) {
 
   const colorScheme = useColorScheme();
@@ -215,9 +202,7 @@ function PostItem({
   const commentUsernameActualColor = colorScheme === 'dark' ? '#E0E0E0' : '#333333';
   const commentContentActualColor = textColor;
   const deleteIconActualColor = colorScheme === 'dark' ? '#FF8A80' : '#D9534F';
-  // --- NEW: Define edit icon color ---
-  const editIconActualColor = colorScheme === 'dark' ? '#82B1FF' : '#007AFF'; // A themable blue
-  // --- END NEW ---
+  const editIconActualColor = colorScheme === 'dark' ? '#82B1FF' : '#007AFF'; 
 
   const handleLike = () => {
     if (userType === 'guest') {
@@ -227,11 +212,9 @@ function PostItem({
     onLikePress(post.id, post.likedByUser);
   };
 
-  const canPostComment = userType !== 'guest' && loggedInUsername && !editingCommentDetailsForPost; // Disable new comment if editing one in this post
-
+  const canPostComment = userType !== 'guest' && loggedInUsername && !editingCommentDetailsForPost; 
   return (
     <View style={[styles.postContainer, { backgroundColor: cardBackgroundColor }]}>
-      {/* ... Post title, image, content, footer (likes/comment count) ... no changes here */}
       <ThemedText type="title" style={styles.postTitle}>
         {post.title}
       </ThemedText>
@@ -275,7 +258,7 @@ function PostItem({
         <View style={styles.commentsSection}>
           {isLoadingComments ? (
             <ActivityIndicator style={{ marginVertical: 15 }} color={iconColor} />
-          ) : commentsList.length === 0 && !editingCommentDetailsForPost ? ( // Check editing too
+          ) : commentsList.length === 0 && !editingCommentDetailsForPost ? (
             <ThemedText style={[styles.noCommentsText, {color: textColor}]}>No comments yet. Be the first!</ThemedText>
           ) : (
             <View style={styles.commentsListContainer}>
@@ -300,14 +283,12 @@ function PostItem({
                     onSaveEditedComment={() => onSaveEditedCommentForPost(post.id, comment.commentId)}
                     onCancelEdit={onCancelCommentEdit}
                     isSavingEdit={isEditingThisComment && isSubmittingCommentEditForPost}
-                    // --- END Pass props for edit ---
                   />
                 );
               })}
             </View>
           )}
 
-          {/* Add Comment Input Area - only if not guest AND not currently editing a comment in this post */}
           {canPostComment && (
             <View style={[styles.addCommentContainer, { borderTopColor: commentItemBorderColor }]}>
               <TextInput
@@ -324,7 +305,7 @@ function PostItem({
                 value={commentInputText}
                 onChangeText={onCommentInputChange}
                 multiline
-                editable={!isPostingComment} // Keep this, as posting new comment is separate
+                editable={!isPostingComment}
               />
               <TouchableOpacity
                 style={[styles.postCommentButton, isPostingComment || !commentInputText.trim() ? styles.postCommentButtonDisabled : {}]}
@@ -354,7 +335,6 @@ export default function ExploreScreen() {
   const username = authContext?.username;
 
 
-  // ... (existing states for posts, search, etc.) ...
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -367,24 +347,20 @@ export default function ExploreScreen() {
   const [isSearching, setIsSearching] = useState(false);
   const [inSearchMode, setInSearchMode] = useState(false);
 
-  // Comment specific states
   const [expandedPostId, setExpandedPostId] = useState<number | null>(null);
   const [commentsByPostId, setCommentsByPostId] = useState<{ [postId: number]: CommentData[] }>({});
   const [loadingCommentsPostId, setLoadingCommentsPostId] = useState<number | null>(null);
   const [commentInputs, setCommentInputs] = useState<{ [postId: number]: string }>({}); // For NEW comments
   const [postingCommentPostId, setPostingCommentPostId] = useState<number | null>(null);
 
-  // --- NEW State for editing comments ---
   const [editingCommentDetails, setEditingCommentDetails] = useState<{
     postId: number;
     commentId: number;
     currentText: string;
   } | null>(null);
   const [isSubmittingCommentEdit, setIsSubmittingCommentEdit] = useState(false);
-  // --- END NEW State ---
 
   const colorScheme = useColorScheme();
-  // ... (color definitions remain the same) ...
   const screenBackgroundColor = colorScheme === 'dark' ? '#151718' : '#F0F2F5';
   const cardBackgroundColor = colorScheme === 'dark' ? '#1C1C1E' : '#FFFFFF';
   const generalTextColor = colorScheme === 'dark' ? '#E5E5E7' : '#1C1C1E';
@@ -403,9 +379,6 @@ export default function ExploreScreen() {
   const activityIndicatorColor = colorScheme === 'dark' ? '#FFFFFF' : '#000000';
   const refreshControlColors = colorScheme === 'dark' ? { tintColor: '#FFFFFF', titleColor: '#FFFFFF'} : { tintColor: '#000000', titleColor: '#000000'};
   
-  // ... (useEffect, mapApiItemToPost, fetchLikeStatusesForPosts, fetchPosts, useFocusEffect, handleRefresh, handleLoadMore, performSearch, handleBack, handleLikeToggle remain the same) ...
-  // These functions are long, so I'm omitting them here for brevity but they are unchanged from your last version.
-  // Please ensure they are present in your actual file.
 
   useEffect(() => {
     if (!userType && username !== undefined) {
@@ -511,7 +484,7 @@ export default function ExploreScreen() {
     setLastPostId(null);
     setNoMorePosts(false);
     setError(false);
-    setEditingCommentDetails(null); // Cancel any ongoing edit on refresh
+    setEditingCommentDetails(null); 
     fetchPosts(false);
   };
 
@@ -527,7 +500,7 @@ export default function ExploreScreen() {
     try {
       setIsSearching(true);
       setSearchResults([]);
-      setEditingCommentDetails(null); // Cancel edit on new search
+      setEditingCommentDetails(null); 
       const res = await fetch(
         `${API_BASE}/api/search/posts/semantic?query=${encodeURIComponent(q)}&size=5`
       );
@@ -554,7 +527,7 @@ export default function ExploreScreen() {
     setInSearchMode(false);
     setSearchQuery('');
     setSearchResults([]);
-    setEditingCommentDetails(null); // Cancel edit
+    setEditingCommentDetails(null); 
     if (expandedPostId) setExpandedPostId(null);
   };
 
@@ -600,12 +573,10 @@ export default function ExploreScreen() {
     }
   };
 
-  // --- Comment Handlers (Fetch, Toggle, Post New, Delete are largely same) ---
   const fetchCommentsForPost = async (postId: number, forceRefresh = false) => {
     if (commentsByPostId[postId] && !forceRefresh && commentsByPostId[postId].length > 0) {
       return;
     }
-    // If editing a comment within this post, don't refresh comments as it might interrupt edit
     if (editingCommentDetails?.postId === postId && !forceRefresh) {
         return;
     }
@@ -626,12 +597,8 @@ export default function ExploreScreen() {
   const handleToggleComments = (postId: number) => {
     const isCurrentlyExpanded = expandedPostId === postId;
     if (editingCommentDetails && editingCommentDetails.postId === postId && !isCurrentlyExpanded) {
-        // If trying to expand a post while editing one of its comments, allow.
-        // If trying to collapse a post while editing, perhaps cancel edit or prompt?
-        // For now, just toggle. If collapsing, the edit UI will disappear.
     }
     if (isCurrentlyExpanded) {
-      // If collapsing the post where a comment is being edited, cancel the edit.
       if (editingCommentDetails && editingCommentDetails.postId === postId) {
         setEditingCommentDetails(null);
       }
@@ -645,7 +612,6 @@ export default function ExploreScreen() {
   };
 
   const handleCommentInputChange = (postId: number, text: string) => { // For NEW comments
-    // If user starts typing a new comment while editing another in the same post, cancel the edit.
     if (editingCommentDetails && editingCommentDetails.postId === postId) {
         setEditingCommentDetails(null);
     }
@@ -677,7 +643,6 @@ export default function ExploreScreen() {
   };
 
   const handleDeleteComment = async (postId: number, commentId: number) => {
-    // ... (same as before, but also cancel edit if deleting the comment being edited) ...
     if (editingCommentDetails && editingCommentDetails.commentId === commentId) {
         setEditingCommentDetails(null);
     }
@@ -696,17 +661,13 @@ export default function ExploreScreen() {
     }}]);
   };
 
-
-  // --- NEW Handlers for editing comments ---
   const handleStartEditComment = (postId: number, commentToEdit: CommentData) => {
     setEditingCommentDetails({
       postId: postId,
       commentId: commentToEdit.commentId,
       currentText: commentToEdit.content,
     });
-    // Optionally clear the main new comment input for this post
     setCommentInputs(prev => ({ ...prev, [postId]: '' }));
-    // Ensure the post's comments are expanded if not already
     if (expandedPostId !== postId) {
         setExpandedPostId(postId);
     }
@@ -740,13 +701,9 @@ export default function ExploreScreen() {
       const response = await fetch(`${API_BASE}/api/comments/${commentIdToSave}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        // Body depends on your API. Common is just the content.
-        // If your backend needs username for auth in body (less common with token auth):
-        // body: JSON.stringify({ content: newContent, username: username }),
         body: JSON.stringify({ content: newContent }),
       });
 
-      // Assuming API returns the updated comment or just a success status
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: "Failed to update comment."}));
         throw new Error(errorData.message || `Failed to update comment: ${response.status}`);
@@ -772,15 +729,12 @@ export default function ExploreScreen() {
       setIsSubmittingCommentEdit(false);
     }
   };
-  // --- END NEW Handlers ---
-
 
   if (username === undefined && userType === undefined) {
       return <View style={{flex:1, justifyContent:'center', alignItems:'center', backgroundColor: screenBackgroundColor}}><ActivityIndicator size="large" color={activityIndicatorColor} /></View>;
   }
 
   const currentDisplayPosts = inSearchMode ? searchResults : posts;
-  // ... (isContentLoading logic remains the same) ...
   const isContentLoading = (loading && !inSearchMode && currentDisplayPosts.length === 0) || (isSearching && inSearchMode && currentDisplayPosts.length === 0);
 
 
@@ -793,7 +747,6 @@ export default function ExploreScreen() {
         <RefreshControl /* ... */ refreshing={refreshing} onRefresh={handleRefresh} />
       }
     >
-      {/* ... Header, SearchBar ... */}
       <View style={styles.header}>
         <ThemedText type="title">Explore</ThemedText>
         {userType === 'guest' && (
@@ -857,7 +810,6 @@ export default function ExploreScreen() {
               onCommentInputChange={(text) => handleCommentInputChange(post.id, text)}
               onPostComment={() => handlePostComment(post.id)}
               onDeleteComment={handleDeleteComment}
-              // Edit related
               onTriggerEditComment={handleStartEditComment}
               editingCommentDetailsForPost={editingCommentDetails?.postId === post.id ? editingCommentDetails : null}
               onEditCommentContentChange={handleEditingCommentTextChange}
@@ -867,7 +819,7 @@ export default function ExploreScreen() {
             />
           ))
         ) : (
-          <View>...</View> /* No search results */
+          <View>...</View> 
         )
       ) : posts.length > 0 ? (
         <>
@@ -875,12 +827,10 @@ export default function ExploreScreen() {
             <PostItem
               key={`feed-${post.id}`}
               post={post}
-              // ... other common props ...
               cardBackgroundColor={cardBackgroundColor} iconColor={iconColor} textColor={generalTextColor}
               commentInputBorderColor={commentInputBorderColor} commentInputTextColor={commentInputTextColor}
               commentInputPlaceholderColor={commentInputPlaceholderColor} commentInputBackgroundColor={commentInputBackgroundColor}
               onLikePress={handleLikeToggle} userType={userType} loggedInUsername={username}
-              // Comment related
               isExpanded={expandedPostId === post.id}
               commentsList={commentsByPostId[post.id] || []}
               isLoadingComments={loadingCommentsPostId === post.id}
@@ -890,7 +840,6 @@ export default function ExploreScreen() {
               onCommentInputChange={(text) => handleCommentInputChange(post.id, text)}
               onPostComment={() => handlePostComment(post.id)}
               onDeleteComment={handleDeleteComment}
-              // Edit related
               onTriggerEditComment={handleStartEditComment}
               editingCommentDetailsForPost={editingCommentDetails?.postId === post.id ? editingCommentDetails : null}
               onEditCommentContentChange={handleEditingCommentTextChange}
@@ -899,7 +848,6 @@ export default function ExploreScreen() {
               isSubmittingCommentEditForPost={editingCommentDetails?.postId === post.id && isSubmittingCommentEdit}
             />
           ))}
-                {/* ... (Load More and No More Posts JSX remains the same) ... */}
       {!noMorePosts && !refreshing && posts.length > 0 && (
         <TouchableOpacity 
           style={styles.loadMoreButton} 
@@ -959,7 +907,6 @@ const styles = StyleSheet.create({
   commentItemContainer: { paddingVertical: 8, borderBottomWidth: 1 },
   commentHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
   commentUsername: { fontWeight: 'bold', fontSize: 13, flexShrink: 1, marginRight: 8 },
-  // --- MODIFIED/NEW Styles for comment actions and editing ---
   commentOwnerActions: {
     flexDirection: 'row',
   },
@@ -967,7 +914,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6, // Space out icons
     paddingVertical: 4,
   },
-  deleteCommentButton: { // This was old, now using commentActionButton
+  deleteCommentButton: { 
     padding: 4,
   },
   commentEditInput: {
@@ -997,7 +944,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 13,
   },
-  // --- END ---
   commentContent: { fontSize: 14, lineHeight: 18 },
   commentTimestamp: { fontSize: 10, opacity: 0.7, marginTop: 4, textAlign: 'right' },
   noCommentsText: { textAlign: 'center', marginVertical: 15, fontSize: 14, opacity: 0.7 },

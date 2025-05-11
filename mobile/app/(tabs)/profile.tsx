@@ -9,7 +9,7 @@ import {
   Text,
   ActivityIndicator,
   Platform,
-  useColorScheme, // Import useColorScheme
+  useColorScheme, 
 } from 'react-native';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -23,18 +23,17 @@ const API_BASE = `http://${HOST}:8080`;
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
   const { userType, setUserType, username, setUsername, user_id } = useContext(AuthContext);
-  const colorScheme = useColorScheme(); // Get current color scheme
+  const colorScheme = useColorScheme(); 
 
   const [bio, setBio] = useState('');
   const [avatarUri, setAvatarUri] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Dynamic Colors
   const isDarkMode = colorScheme === 'dark';
-  const parallaxHeaderBgColor = isDarkMode ? '#000000' : '#FFFFFF'; // Example colors
+  const parallaxHeaderBgColor = isDarkMode ? '#000000' : '#FFFFFF'; 
   const avatarPlaceholderColor = isDarkMode ? '#5A5A5D' : '#999';
-  const contentBackgroundColor = isDarkMode ? '#151718' : '#F0F2F5'; // Match other screens
-  const buttonTextColor = '#FFFFFF'; // Assuming buttons have solid backgrounds
+  const contentBackgroundColor = isDarkMode ? '#151718' : '#F0F2F5'; 
+  const buttonTextColor = '#FFFFFF'; 
 
   useFocusEffect(
     useCallback(() => {
@@ -143,11 +142,11 @@ export default function ProfileScreen() {
           <Text style={[styles.actionText, {color: buttonTextColor}]}>Create a post</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity // New "My Posts" button
+        <TouchableOpacity 
           style={[styles.actionButton, { backgroundColor: '#00008B' }]} 
           onPress={() => navigation.navigate('posts')} 
         >
-          <Text style={[styles.actionText, {color: buttonTextColor}]}>My Posts</Text>
+          <Text style={[styles.actionText, {color: buttonTextColor}]}>Manage Posts</Text>
         </TouchableOpacity>
       </View>
     </ParallaxScrollView>

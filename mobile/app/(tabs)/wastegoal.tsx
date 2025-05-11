@@ -423,7 +423,6 @@ export default function WasteGoalScreen() {
             }
           />
 
-          {/* Goal Create/Edit Modal */}
           <Modal
             visible={modalVisible}
             transparent={true}
@@ -733,84 +732,18 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
   },
-  inputLabel: {
-    fontSize: 16,
-    marginBottom: 6,
-    fontWeight: '500',
-  },
-  input: {
-    borderWidth: 1,
-    borderRadius: 6,
-    padding: 12,
-    marginBottom: 18,
-    fontSize: 16,
-  },
-  pickerContainer: {
-    borderWidth: 1,
-    borderRadius: 6,
-    marginBottom: 18,
-    justifyContent: 'center',
-  },
-  picker: {
-    height: 50,
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  cancelButton: {
-    backgroundColor: '#757575',
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-    width: '48%',
-    alignItems: 'center',
-  },
-  saveButton: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-    width: '48%',
-    alignItems: 'center',
-  },
-  confirmDeleteButton: {
-    backgroundColor: '#D32F2F',
-  },
-  deleteConfirmText: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 20,
-    lineHeight: 24,
-  },
-  progressBarContainer: {
-    height: 12,
-    backgroundColor: '#e0e0e0',
-    borderRadius: 6,
-    marginTop: 10,
-    overflow: 'hidden',
-  },
-  progressBarFill: {
-    height: '100%',
-    backgroundColor: '#66BB6A',
-    borderRadius: 6,
-  },
-  goalProgressText: {
-    fontSize: 14,
-    color: '#4CAF50',
-    fontWeight: '500',
-    marginTop: 6,
-    textAlign: 'right',
-  },
-  completedText: {
-    color: '#388E3C',
-    fontWeight: 'bold',
-  },
-  modalSubtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 18,
-    fontStyle: 'italic',
-  },
+  inputLabel: {fontSize: 16, marginBottom: 6, fontWeight: '500',},
+  input: {borderWidth: 1, borderRadius: 6, padding: 12, marginBottom: 18, fontSize: 16,},
+  pickerContainer: {borderWidth: 1, borderRadius: 6, marginBottom: 18, justifyContent: 'center' },
+  picker: {height: 50,},
+  modalButtons: {flexDirection: 'row', justifyContent: 'space-between', marginTop: 10,},
+  cancelButton: {backgroundColor: '#757575', paddingVertical: 12, paddingHorizontal: 10, borderRadius: 8,width: '48%', alignItems: 'center',},
+  saveButton: {backgroundColor: '#4CAF50', paddingVertical: 12, paddingHorizontal: 10, borderRadius: 8, width: '48%', alignItems: 'center',},
+  confirmDeleteButton: {backgroundColor: '#D32F2F',},
+  deleteConfirmText: {fontSize: 16, textAlign: 'center', marginBottom: 20, lineHeight: 24,},
+  progressBarContainer: {height: 12, backgroundColor: '#e0e0e0', borderRadius: 6, marginTop: 10, overflow: 'hidden',},
+  progressBarFill: {height: '100%', backgroundColor: '#66BB6A', borderRadius: 6,},
+  goalProgressText: {fontSize: 14, color: '#4CAF50', fontWeight: '500', marginTop: 6, textAlign: 'right',},
+  completedText: {color: '#388E3C', fontWeight: 'bold',},
+  modalSubtitle: {fontSize: 16, textAlign: 'center', marginBottom: 18, fontStyle: 'italic',},
 });
