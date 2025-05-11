@@ -9,6 +9,7 @@ import {
   Text,
   ActivityIndicator,
   Platform,
+  useColorScheme, // Import useColorScheme
 } from 'react-native';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -22,9 +23,18 @@ const API_BASE = `http://${HOST}:8080`;
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
   const { userType, setUserType, username, setUsername } = useContext(AuthContext);
+  const colorScheme = useColorScheme(); // Get current color scheme
+
   const [bio, setBio] = useState('');
   const [avatarUri, setAvatarUri] = useState('');
   const [loading, setLoading] = useState(true);
+
+  // Dynamic Colors
+  const isDarkMode = colorScheme === 'dark';
+  const parallaxHeaderBgColor = isDarkMode ? '#000000' : '#FFFFFF'; // Example colors
+  const avatarPlaceholderColor = isDarkMode ? '#5A5A5D' : '#999';
+  const contentBackgroundColor = isDarkMode ? '#151718' : '#F0F2F5'; // Match other screens
+  const buttonTextColor = '#FFFFFF'; // Assuming buttons have solid backgrounds
 
   useFocusEffect(
     useCallback(() => {
@@ -38,6 +48,7 @@ export default function ProfileScreen() {
 
       (async () => {
         try {
+          setLoading(true); 
           const res = await fetch(`${API_BASE}/api/profile/info?username=${username}`);
           if (res.status === 404) {
             await fetch(`${API_BASE}/api/profile/create`, {
@@ -60,7 +71,7 @@ export default function ProfileScreen() {
           setLoading(false);
         }
       })();
-    }, [userType])
+    }, [userType, username]) 
   );
 
   const handleLogout = async () => {
@@ -71,12 +82,16 @@ export default function ProfileScreen() {
   };
 
   if (userType !== 'user' || loading) {
-    return loading ? <ActivityIndicator style={{ flex: 1 }} /> : null;
+    return loading ? (
+      <View style={[styles.loadingContainer, {backgroundColor: contentBackgroundColor}]}>
+         <ActivityIndicator size="large" color={isDarkMode ? '#FFF' : '#000'} />
+      </View>
+    ) : null;
   }
 
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#fff', dark: '#000' }}
+      headerBackgroundColor={{ light: parallaxHeaderBgColor, dark: parallaxHeaderBgColor }}
       headerImage={
         <Image
           source={require('@/assets/images/wallpaper.png')}
@@ -85,10 +100,10 @@ export default function ProfileScreen() {
         />
       }
     >
-      <View style={styles.contentContainer}>
+      <View style={[styles.contentContainer, {backgroundColor: contentBackgroundColor}]}>
         <View style={styles.logoutContainer}>
           <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-            <Text style={styles.logoutText}>Log Out</Text>
+            <Text style={[styles.logoutText, {color: buttonTextColor}]}>Log Out</Text>
           </TouchableOpacity>
         </View>
 
@@ -97,7 +112,7 @@ export default function ProfileScreen() {
             style={styles.editButton}
             onPress={() => navigation.navigate('edit_profile')}
           >
-            <Text style={styles.editButtonText}>Edit profile</Text>
+            <Text style={[styles.editButtonText, {color: buttonTextColor}]}>Edit profile</Text>
           </TouchableOpacity>
         </View>
 
@@ -105,15 +120,16 @@ export default function ProfileScreen() {
           {avatarUri ? (
             <Image source={{ uri: avatarUri }} style={styles.profilePic} />
           ) : (
-            <Ionicons name="person-circle-outline" size={100} color="#999" />
+            <Ionicons name="person-circle-outline" size={100} color={avatarPlaceholderColor} />
           )}
-          <View style={{ marginLeft: 12 }}>
+          <View style={{ marginLeft: 12, flexShrink: 1 }}>
             <ThemedText type="default" style={{ fontSize: 20 }}>
               Hello, {username}
             </ThemedText>
             <ThemedText
               type="default"
               style={{ marginTop: 4, fontStyle: bio ? 'normal' : 'italic' }}
+              numberOfLines={3}
             >
               {bio || 'No bio yet.'}
             </ThemedText>
@@ -124,7 +140,14 @@ export default function ProfileScreen() {
           style={[styles.actionButton, { backgroundColor: '#2196F3' }]}
           onPress={() => navigation.navigate('create_post')}
         >
-          <Text style={styles.actionText}>Create a post</Text>
+          <Text style={[styles.actionText, {color: buttonTextColor}]}>Create a post</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity // New "My Posts" button
+          style={[styles.actionButton, { backgroundColor: '#00008B' }]} 
+          onPress={() => navigation.navigate('posts')} 
+        >
+          <Text style={[styles.actionText, {color: buttonTextColor}]}>My Posts</Text>
         </TouchableOpacity>
       </View>
     </ParallaxScrollView>
@@ -133,15 +156,16 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   headerImage: { width: '100%', height: undefined, aspectRatio: 0.88 },
-  contentContainer: { flex: 1, padding: 16, marginTop: -20 },
+  contentContainer: { flex: 1, padding: 16, marginTop: -20 }, 
   logoutContainer: { alignItems: 'flex-end' },
   logoutButton: { paddingHorizontal: 20, paddingVertical: 6, borderRadius: 4, backgroundColor: '#E53935' },
-  logoutText: { color: '#fff', fontSize: 14 },
+  logoutText: { fontSize: 14 }, 
   editProfileContainer: { alignItems: 'flex-end', marginVertical: 8 },
   editButton: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 4, backgroundColor: '#007AFF' },
-  editButtonText: { color: '#fff', fontSize: 14 },
+  editButtonText: { fontSize: 14 }, 
   profileContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
-  profilePic: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#ddd' },
+  profilePic: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#ddd' }, 
   actionButton: { width: '100%', paddingVertical: 12, borderRadius: 8, marginBottom: 12, alignItems: 'center' },
-  actionText: { color: '#fff', fontSize: 16 },
+  actionText: { fontSize: 16 }, 
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center',},
 });
