@@ -7,12 +7,14 @@ import {
   ActivityIndicator,
   Modal,
   StyleSheet,
-  GestureResponderEvent,
+  Platform,
+  useColorScheme, // Import useColorScheme
 } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { AuthContext } from '../_layout';
 
-const API_BASE = 'http://localhost:8080';
+const HOST = Platform.select({ android: '10.0.2.2', ios: 'localhost' , web: 'localhost' });
+const API_BASE = `http://${HOST}:8080`;
 const ADMIN_TYPE_PLACEHOLDER = 'admin';
 
 type Challenge = {
@@ -36,6 +38,20 @@ type LeaderboardEntry = {
 export default function ChallengesScreen() {
   const { userType, username } = useContext(AuthContext);
   const isAdmin = String(userType) === ADMIN_TYPE_PLACEHOLDER;
+  const colorScheme = useColorScheme();
+
+  // Dynamic Colors
+  const isDarkMode = colorScheme === 'dark';
+  const screenBackgroundColor = isDarkMode ? '#151718' : '#F0F2F5';
+  const cardBackgroundColor = isDarkMode ? '#1C1C1E' : '#FFFFFF';
+  const subtleTextColor = isDarkMode ? '#A0A0A0' : '#666666'; // For less prominent text like dates
+  const borderColor = isDarkMode ? '#3A3A3C' : '#EEEEEE'; // For borders in cards/modals
+  const modalBackgroundColor = isDarkMode ? '#1C1C1E' : '#FFFFFF';
+  const errorColor = isDarkMode ? '#FF9494' : '#D32F2F'; // Consistent error color
+  const activityIndicatorColor = isDarkMode ? '#FFFFFF' : '#000000';
+  const switchThumbColor = Platform.OS === 'android' ? (isDarkMode ? "#81b0ff" : "#2196F3") : undefined;
+  const switchTrackColor = { false: (isDarkMode ? "#3e3e3e" : "#e0e0e0"), true: (isDarkMode ? "#5c85d6" : "#81b0ff") };
+
 
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [loading, setLoading] = useState(false);
@@ -44,7 +60,6 @@ export default function ChallengesScreen() {
   const [showActiveOnly, setShowActiveOnly] = useState(false);
   const [expanded, setExpanded] = useState<number[]>([]);
 
-  // Leaderboard state
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [lbLoading, setLbLoading] = useState(false);
   const [lbError, setLbError] = useState('');
@@ -105,7 +120,6 @@ export default function ChallengesScreen() {
       const res = await fetch(`${API_BASE}/api/challenges/leaderboard?id=${challengeId}`);
       if (!res.ok) throw new Error(`Status ${res.status}`);
       const data: LeaderboardEntry[] = await res.json();
-      // Sort ascending by remainingAmount: best performer first
       data.sort((a, b) => b.remainingAmount - a.remainingAmount);
       setLeaderboard(data);
       setLeaderboardVisible(true);
@@ -129,23 +143,41 @@ export default function ChallengesScreen() {
     return true;
   });
 
-  if (loading && challenges.length === 0) {
-    return <ActivityIndicator size="large" style={styles.center} />;
+  if (loading && challenges.length === 0) { // Full screen loading
+    return (
+        <View style={[styles.center, { backgroundColor: screenBackgroundColor }]}>
+            <ActivityIndicator size="large" color={activityIndicatorColor} />
+        </View>
+    );
   }
 
   return (
-    <View style={styles.container}>
-      <ThemedText type="title" style={styles.title}>Challenges</ThemedText>
-      {loading && <ActivityIndicator style={styles.inlineSpinner} size="small" />}
-      {error && <ThemedText type="default" style={styles.error}>{error}</ThemedText>}
+    <View style={[styles.container, { backgroundColor: screenBackgroundColor }]}>
+      {/* Header to match Explore and WasteGoal */}
+      <View style={styles.headerContainer}>
+        <ThemedText type="title">Challenges</ThemedText>
+      </View>
+
+      {loading && <ActivityIndicator style={styles.inlineSpinner} size="small" color={activityIndicatorColor} />}
+      {error && <ThemedText type="default" style={[styles.error, {color: errorColor}]}>{error}</ThemedText>}
 
       <View style={styles.filterRow}>
         <View style={styles.switchRow}>
-          <Switch value={showAttendedOnly} onValueChange={setShowAttendedOnly} />
+          <Switch
+            value={showAttendedOnly}
+            onValueChange={setShowAttendedOnly}
+            thumbColor={switchThumbColor}
+            trackColor={switchTrackColor}
+          />
           <ThemedText type="default" style={styles.switchLabel}>Attended only</ThemedText>
         </View>
         <View style={styles.switchRow}>
-          <Switch value={showActiveOnly} onValueChange={setShowActiveOnly} />
+          <Switch
+            value={showActiveOnly}
+            onValueChange={setShowActiveOnly}
+            thumbColor={switchThumbColor}
+            trackColor={switchTrackColor}
+          />
           <ThemedText type="default" style={styles.switchLabel}>Active only</ThemedText>
         </View>
       </View>
@@ -153,20 +185,20 @@ export default function ChallengesScreen() {
       <FlatList
         data={filtered}
         keyExtractor={item => String(item.challengeId)}
-        contentContainerStyle={{ paddingVertical: 8 }}
+        contentContainerStyle={styles.listContentContainer} // Adjusted for new padding structure
         renderItem={({ item }) => (
-          <View style={styles.card}>
+          <View style={[styles.card, { backgroundColor: cardBackgroundColor }]}>
             <TouchableOpacity onPress={() => toggleExpand(item.challengeId)}>
               <View style={styles.cardHeader}>
                 <ThemedText type="subtitle" style={styles.cardTitle}>{item.name}</ThemedText>
-                <ThemedText type="default" style={styles.cardDate}>
+                <ThemedText type="default" style={[styles.cardDate, {color: subtleTextColor}]}>
                   {item.startDate} – {item.endDate}
                 </ThemedText>
               </View>
             </TouchableOpacity>
 
             {expanded.includes(item.challengeId) && (
-              <View style={styles.cardBody}>
+              <View style={[styles.cardBody, {borderTopColor: borderColor}]}>
                 <ThemedText type="default" style={styles.cardDescription}>{item.description}</ThemedText>
                 <ThemedText type="default" style={styles.cardInfo}>
                   Amount: {item.amount} | Type: {item.wasteType}
@@ -196,19 +228,28 @@ export default function ChallengesScreen() {
             )}
           </View>
         )}
+        ListEmptyComponent={
+          !loading && !error ? (
+            <View style={styles.emptyListContainer}>
+              <ThemedText>No challenges match your filters.</ThemedText>
+            </View>
+          ) : null
+        }
       />
 
       <Modal visible={leaderboardVisible} animationType="slide" transparent>
         <View style={styles.lbOverlay}>
-          <View style={styles.lbContainer}>
+          <View style={[styles.lbContainer, {backgroundColor: modalBackgroundColor}]}>
             <ThemedText type="title" style={styles.lbTitle}>Leaderboard</ThemedText>
             {lbLoading ? (
-              <ActivityIndicator style={styles.center} size="large" />
+              <View style={styles.center}>
+                 <ActivityIndicator size="large" color={activityIndicatorColor}/>
+              </View>
             ) : lbError ? (
-              <ThemedText type="default" style={styles.error}>{lbError}</ThemedText>
+              <ThemedText type="default" style={[styles.error, {color: errorColor}]}>{lbError}</ThemedText>
             ) : (
               <>
-                <View style={styles.lbHeaderRow}>
+                <View style={[styles.lbHeaderRow, {borderBottomColor: borderColor}]}>
                   <ThemedText type="defaultSemiBold" style={styles.lbHeaderCell}>Username</ThemedText>
                   <ThemedText type="defaultSemiBold" style={styles.lbHeaderCell}>Remaining</ThemedText>
                 </View>
@@ -216,11 +257,14 @@ export default function ChallengesScreen() {
                   data={leaderboard}
                   keyExtractor={item => String(item.userId)}
                   renderItem={({ item, index }) => (
-                    <View style={styles.lbRow}>
+                    <View style={[styles.lbRow, {borderBottomColor: borderColor}]}>
                       <ThemedText type="defaultSemiBold">{index + 1}. {item.username}</ThemedText>
                       <ThemedText type="default">{item.remainingAmount}</ThemedText>
                     </View>
                   )}
+                   ListEmptyComponent={
+                     <View style={styles.emptyListContainer}><ThemedText>Leaderboard is empty.</ThemedText></View>
+                  }
                 />
               </>
             )}
@@ -233,32 +277,33 @@ export default function ChallengesScreen() {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5F5', padding: 16 },
+  container: { flex: 1 },
+  headerContainer: { paddingHorizontal: 16, marginTop: 48, marginBottom: 18 },
+  listContentContainer: { paddingHorizontal: 16, paddingBottom: 16 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   inlineSpinner: { alignSelf: 'center', marginVertical: 8 },
-  title: { fontSize: 24, fontWeight: '600', marginVertical: 12, textAlign: 'center' },
-  error: { color: 'red', textAlign: 'center', marginBottom: 12 },
-  filterRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 },
+  error: { textAlign: 'center', marginBottom: 12, marginHorizontal: 16 },
+  filterRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12, paddingHorizontal: 16 },
   switchRow: { flexDirection: 'row', alignItems: 'center' },
   switchLabel: { marginLeft: 8, fontSize: 14 },
-  card: { backgroundColor: '#FFF', borderRadius: 8, padding: 16, marginVertical: 6, elevation: 2 },
+  card: { borderRadius: 8, padding: 16, marginVertical: 6, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.2, shadowRadius: 2 },
   cardHeader: { marginBottom: 8 },
   cardTitle: { fontSize: 18, fontWeight: '600' },
-  cardDate: { fontSize: 12, color: '#666' },
-  cardBody: { borderTopWidth: 1, borderTopColor: '#EEE', paddingTop: 12 },
-  cardDescription: { fontSize: 14, color: '#333', marginBottom: 8 },
-  cardInfo: { fontSize: 14, color: '#555', marginBottom: 12 },
+  cardDate: { fontSize: 12 },
+  cardBody: { borderTopWidth: 1, paddingTop: 12 },
+  cardDescription: { fontSize: 14, marginBottom: 8 },
+  cardInfo: { fontSize: 14, marginBottom: 12 },
   dangerButton: { backgroundColor: '#E53935', padding: 10, borderRadius: 6, alignItems: 'center', marginBottom: 8 },
   secondaryButton: { backgroundColor: '#2196F3', padding: 10, borderRadius: 6, alignItems: 'center', marginBottom: 8 },
   warningButton: { backgroundColor: '#FF9800', padding: 10, borderRadius: 6, alignItems: 'center', marginBottom: 8 },
   buttonText: { fontSize: 14, color: '#FFF', fontWeight: '500' },
-  lbOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' },
-  lbContainer: { backgroundColor: '#FFF', padding: 16, borderTopLeftRadius: 12, borderTopRightRadius: 12, maxHeight: '60%' },
+  lbOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
+  lbContainer: { padding: 16, borderTopLeftRadius: 12, borderTopRightRadius: 12, maxHeight: '60%' },
   lbTitle: { fontSize: 20, fontWeight: '600', marginBottom: 12, textAlign: 'center' },
-  lbHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 4, borderBottomWidth: 1, borderBottomColor: '#CCC' },
-  lbHeaderCell: { fontSize: 14, color: '#333', flex: 1, textAlign: 'center' },
-  lbRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#EEE' },
-  lbCloseButton: { marginTop: 12, alignItems: 'center' },
+  lbHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: 1, marginBottom: 4 },
+  lbHeaderCell: { fontSize: 14, flex: 1, textAlign: 'center', fontWeight: '600' },
+  lbRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1 },
+  lbCloseButton: { marginTop: 16, paddingVertical: 10, alignItems: 'center' },
+  emptyListContainer: { alignItems: 'center', marginTop: 20, padding: 16 },
 });

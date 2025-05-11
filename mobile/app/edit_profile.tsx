@@ -1,5 +1,5 @@
 // app/edit_profile.tsx
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useLayoutEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -9,31 +9,54 @@ import {
   Image,
   ScrollView,
   Alert,
+  Platform,
+  useColorScheme,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from './_layout';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-const API_BASE = 'http://localhost:8080';
+const HOST = Platform.select({ android: '10.0.2.2', ios: 'localhost' , web: 'localhost' });
+const API_BASE = `http://${HOST}:8080`;
+
 
 const isValidImageUrl = (url: string) => {
     return /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(url);
   };
-  
+
 export const unstable_settings = {
-  // This tells Expo Router not to show it in the bottom tab bar
   initialRouteName: 'edit_profile',
 };
 
 export const options = {
   tabBarStyle: { display: 'none' },
   tabBarButton: () => null,
+  headerTitle: 'Edit Profile',
 };
 
 
 export default function EditProfileScreen() {
   const navigation = useNavigation<any>();
   const { username } = useContext(AuthContext);
+  const colorScheme = useColorScheme();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: 'Edit Profile',
+    });
+  }, [navigation]);
+
+  const isDarkMode = colorScheme === 'dark';
+  const screenBackgroundColor = isDarkMode ? '#151718' : '#F0F2F5';
+  const inputBackgroundColor = isDarkMode ? '#1C1C1E' : '#FFFFFF';
+  const inputBorderColor = isDarkMode ? '#3A3A3C' : '#ccc';
+  const inputTextColor = isDarkMode ? '#E0E0E0' : '#000000';
+  const placeholderTextColor = isDarkMode ? '#8E8E93' : '#A0A0A0';
+  const avatarPlaceholderColor = isDarkMode ? '#5A5A5D' : '#999';
+  const charCountColor = isDarkMode ? '#8E8E93' : '#666';
+  const cancelButtonBgColor = isDarkMode ? '#3A3A3C' : '#ddd';
+  const cancelButtonTextColor = isDarkMode ? '#E0E0E0' : '#333333';
+
   const [bio, setBio] = useState('');
   const [avatarUri, setAvatarUri] = useState('');
 
@@ -66,37 +89,53 @@ export default function EditProfileScreen() {
   const onCancel = () => navigation.goBack();
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={[styles.container, { backgroundColor: screenBackgroundColor }]}>
       <View style={styles.avatarContainer}>
         {isValidImageUrl(avatarUri) ? (
           <Image source={{ uri: avatarUri }} style={styles.avatar} />
         ) : (
-          <Ionicons name="person-circle-outline" size={120} color="#999" />
+          <Ionicons name="person-circle-outline" size={120} color={avatarPlaceholderColor} />
         )}
       </View>
 
       <TextInput
-        style={styles.avatarUrlInput}
+        style={[
+          styles.avatarUrlInput,
+          {
+            borderColor: inputBorderColor,
+            color: inputTextColor,
+            backgroundColor: inputBackgroundColor,
+          }
+        ]}
         value={avatarUri}
         onChangeText={setAvatarUri}
         placeholder="Paste avatar image URL…"
+        placeholderTextColor={placeholderTextColor}
         autoCapitalize="none"
         keyboardType="url"
       />
 
       <TextInput
-        style={styles.bioInput}
+        style={[
+          styles.bioInput,
+          {
+            borderColor: inputBorderColor,
+            color: inputTextColor,
+            backgroundColor: inputBackgroundColor,
+          }
+        ]}
         value={bio}
         onChangeText={setBio}
         placeholder="Write a short bio…"
+        placeholderTextColor={placeholderTextColor}
         multiline
         maxLength={100}
       />
-      <Text style={styles.charCount}>{bio.length}/100</Text>
+      <Text style={[styles.charCount, { color: charCountColor }]}>{bio.length}/100</Text>
 
       <View style={styles.buttonRow}>
-        <TouchableOpacity style={[styles.btn, styles.cancel]} onPress={onCancel}>
-          <Text style={styles.btnText}>Cancel</Text>
+        <TouchableOpacity style={[styles.btn, styles.cancel, { backgroundColor: cancelButtonBgColor }]} onPress={onCancel}>
+          <Text style={[styles.btnText, { color: cancelButtonTextColor }]}>Cancel</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.btn, styles.save]} onPress={onSave}>
           <Text style={styles.btnText}>Save</Text>
@@ -123,14 +162,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#ddd',
   },
   avatarUrlInput: {
-    borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 6,
     padding: 12,
     marginBottom: 16,
   },
   bioInput: {
-    borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 6,
     padding: 12,
@@ -140,7 +177,6 @@ const styles = StyleSheet.create({
   charCount: {
     textAlign: 'right',
     marginTop: 4,
-    color: '#666',
   },
   buttonRow: {
     flexDirection: 'row',
@@ -154,14 +190,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 4,
   },
-  cancel: {
-    backgroundColor: '#ddd',
-  },
+  cancel: {},
   save: {
     backgroundColor: '#4CAF50',
   },
   btnText: {
-    color: '#fff',
     fontSize: 16,
   },
 });
