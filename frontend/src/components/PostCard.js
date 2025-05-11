@@ -5,7 +5,7 @@ import CommentSection from "./comment/index.js"; // Import the CommentSection co
 import EditPostButton from "./EditPostButton.js";
 import DeletePost from "./DeletePost.js"; // Import the DeletePost component
 
-function PostCard({ post, isLoggedIn, onAction }) {
+function PostCard({ post, isLoggedIn, onAction, url }) {
     const [comments, setComments] = useState(post.comments || []);
 
     return (
@@ -24,15 +24,15 @@ function PostCard({ post, isLoggedIn, onAction }) {
 
             {isLoggedIn && (
                 <div style={styles.actions}>
-                    <LikeButton postId={post.postId} onLike={onAction} liked={post.liked} likes={post.likes} />
-                    <SaveButton postId={post.postId} onSave={onAction} saved={post.saved} />
+                    <LikeButton postId={post.postId} onLike={onAction} liked={post.liked} likes={post.likes} url={url}/>
+                    <SaveButton postId={post.postId} onSave={onAction} saved={post.saved} url={url}/>
                 </div>
             )}
 
             {isLoggedIn && post.creatorUsername === localStorage.getItem("username") && (
                 <>
-                <EditPostButton post={post} onPostUpdated={onAction} />
-                <DeletePost postId={post.postId} onDelete={onAction} />
+                <EditPostButton post={post} onPostUpdated={onAction} url={url} />
+                <DeletePost postId={post.postId} onDelete={onAction} url={url} />
                 </>
             )}
             <hr style={{ margin: "2rem 0", borderTop: "2px solid #ccc" }} />
@@ -42,6 +42,7 @@ function PostCard({ post, isLoggedIn, onAction }) {
                 comments={comments}
                 setComments={setComments}
                 isLoggedIn={isLoggedIn}
+                url={url} // Pass the URL prop to CommentSection
             />
         </div>
     );

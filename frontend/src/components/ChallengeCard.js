@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export default function ChallengeCard({ challenge, onAction, onCardClick }) {
+export default function ChallengeCard({ challenge, onAction, onCardClick, url }) {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
 
@@ -27,7 +27,7 @@ export default function ChallengeCard({ challenge, onAction, onCardClick }) {
 
         setLoading(true);
         try {
-            const res = await fetch(`/api/challenges/attend`, {
+            const res = await fetch(`${url}/api/challenges/attend`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -52,7 +52,7 @@ export default function ChallengeCard({ challenge, onAction, onCardClick }) {
         e.stopPropagation(); // prevent triggering card click
         setLoading(true);
         try {
-            const res = await fetch(`/api/challenges/leave/${username}/${challengeId}`, {
+            const res = await fetch(`${url}/api/challenges/leave/${username}/${challengeId}`, {
                 method: "DELETE",
             });
 

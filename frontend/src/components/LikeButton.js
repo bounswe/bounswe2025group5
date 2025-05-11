@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 
-function LikeButton({ postId, onLike, liked, likes }) {
+function LikeButton({ postId, onLike, liked, likes, url }) {
     const [likeCount, setLikeCount] = useState(likes || 0); // Initialize likeCount with the number of likes from the post
     const [error, setError] = useState(null);
     const [username, setUsername] = useState(localStorage.getItem("username") || "");
 
     const toggleLike = async () => {
         if (liked) {
-            const res = await fetch(`/api/posts/like`, {
+            const res = await fetch(`${url}/api/posts/like`, {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
@@ -28,7 +28,7 @@ function LikeButton({ postId, onLike, liked, likes }) {
             }
         } else {
             try {
-                const response = await fetch(`/api/posts/like`, {
+                const response = await fetch(`${url}/api/posts/like`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

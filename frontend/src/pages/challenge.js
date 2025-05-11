@@ -54,6 +54,7 @@ export default function Challenge({ url }) {
                         challenge={challenge}
                         onAction={fetchChallenges}
                         onCardClick={handleCardClick}
+                        url = {url}  // Pass the URL prop to ChallengeCard
                     />
                 ))}
             </div>
@@ -65,6 +66,7 @@ export default function Challenge({ url }) {
                         <LeaderboardCard
                             challengeId={selectedChallengeId}
                             onClose={handleCloseLeaderboard}
+                            url={url} // Pass the URL prop to LeaderboardCard
                         />
                     </div>
                 </div>
