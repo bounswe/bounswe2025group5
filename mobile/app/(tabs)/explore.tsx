@@ -348,9 +348,11 @@ function PostItem({
 
 export default function ExploreScreen() {
   const navigation = useNavigation();
+
   const authContext = useContext(AuthContext);
   const userType = authContext?.userType;
   const username = authContext?.username;
+
 
   // ... (existing states for posts, search, etc.) ...
   const [posts, setPosts] = useState<Post[]>([]);
