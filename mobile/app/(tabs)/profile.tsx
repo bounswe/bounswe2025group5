@@ -22,7 +22,7 @@ const API_BASE = `http://${HOST}:8080`;
 
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
-  const { userType, setUserType, username, setUsername } = useContext(AuthContext);
+  const { userType, setUserType, username, setUsername, user_id } = useContext(AuthContext);
   const colorScheme = useColorScheme(); // Get current color scheme
 
   const [bio, setBio] = useState('');

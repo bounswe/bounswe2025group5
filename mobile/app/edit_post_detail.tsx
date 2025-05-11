@@ -30,7 +30,7 @@ type EditPostDetailScreenRouteProp = RouteProp<{ params: EditPostDetailRoutePara
 export default function EditPostDetailScreen() {
   const navigation = useNavigation();
   const route = useRoute<EditPostDetailScreenRouteProp>();
-  const { username } = useContext(AuthContext);
+  const { username, user_id } = useContext(AuthContext);
   const colorScheme = useColorScheme();
 
   const postId = route.params?.postId;
