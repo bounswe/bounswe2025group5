@@ -883,7 +883,7 @@ const styles = StyleSheet.create({
   // ... (existing styles) ...
   container: { flex: 1 },
   content: { paddingBottom: 24 },
-  header: { paddingHorizontal: 16, marginTop: Platform.OS === 'ios' ? 48 : 24, marginBottom: 18, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  header: { paddingHorizontal: 16, marginTop: Platform.OS === 'ios' ? 48 : 48, marginBottom: 18, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   searchBar: { flexDirection: 'row', alignItems: 'center', borderRadius: 30, marginHorizontal: 16, paddingHorizontal: 12, paddingVertical: Platform.OS === 'ios' ? 12 : 8, marginBottom: 18, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 },
   searchIcon: { marginRight: 8 },
   searchInput: { flex: 1, fontSize: 16, marginLeft: 5 },
