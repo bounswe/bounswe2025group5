@@ -12,7 +12,7 @@ import {
   useColorScheme,
   Image,
   Alert,
-  Keyboard, // Import Keyboard
+  Keyboard,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
@@ -26,16 +26,16 @@ const API_BASE = `http://${HOST}:8080`;
 type CommentData = {
   commentId: number;
   content: string;
-  createdAt: string; // ISO string, consider formatting for display
-  username: string;  // Username of the commenter
+  createdAt: string;
+  username: string;
 };
 
 type Post = {
   id: number;
-  title: string; // creatorUsername
+  title: string;
   content: string;
   likes: number;
-  comments: number; // This should be the count of comments
+  comments: number;
   photoUrl: string | null;
   likedByUser: boolean;
 };
@@ -46,15 +46,41 @@ interface CommentItemDisplayProps {
   commentTextColor: string;
   commentUsernameColor: string;
   commentBorderColor: string;
+  // --- NEW PROPS for delete functionality ---
+  loggedInUsername: string | null;
+  onDeleteComment: (commentId: number) => void;
+  deleteIconColor: string;
+  // --- END NEW PROPS ---
 }
 
-function CommentItemDisplay({ comment, commentTextColor, commentUsernameColor, commentBorderColor }: CommentItemDisplayProps) {
+function CommentItemDisplay({
+  comment,
+  commentTextColor,
+  commentUsernameColor,
+  commentBorderColor,
+  // --- NEW PROPS for delete functionality ---
+  loggedInUsername,
+  onDeleteComment,
+  deleteIconColor,
+  // --- END NEW PROPS ---
+}: CommentItemDisplayProps) {
+  const isOwner = loggedInUsername && comment.username === loggedInUsername;
+
   return (
     <View style={[styles.commentItemContainer, { borderBottomColor: commentBorderColor }]}>
-      <ThemedText style={[styles.commentUsername, { color: commentUsernameColor }]}>{comment.username}</ThemedText>
+      {/* --- MODIFIED: Comment header to include delete button --- */}
+      <View style={styles.commentHeader}>
+        <ThemedText style={[styles.commentUsername, { color: commentUsernameColor }]}>{comment.username}</ThemedText>
+        {isOwner && (
+          <TouchableOpacity onPress={() => onDeleteComment(comment.commentId)} style={styles.deleteCommentButton}>
+            <Ionicons name="trash-outline" size={18} color={deleteIconColor} />
+          </TouchableOpacity>
+        )}
+      </View>
+      {/* --- END MODIFICATION --- */}
       <ThemedText style={[styles.commentContent, { color: commentTextColor }]}>{comment.content}</ThemedText>
       <ThemedText style={[styles.commentTimestamp, { color: commentTextColor }]}>
-        {new Date(comment.createdAt).toLocaleDateString()} {/* Example formatting */}
+        {new Date(comment.createdAt).toLocaleDateString()}
       </ThemedText>
     </View>
   );
@@ -66,14 +92,14 @@ interface PostItemProps {
   post: Post;
   cardBackgroundColor: string;
   iconColor: string;
-  textColor: string; // General text color for the card
+  textColor: string;
   commentInputBorderColor: string;
   commentInputTextColor: string;
   commentInputPlaceholderColor: string;
   commentInputBackgroundColor: string;
   onLikePress: (postId: number, currentlyLiked: boolean) => void;
   userType: string | null;
-  username: string | null; // Current logged-in username
+  loggedInUsername: string | null; // Renamed from 'username' for clarity
 
   // Comment-specific props
   isExpanded: boolean;
@@ -84,6 +110,9 @@ interface PostItemProps {
   onToggleComments: () => void;
   onCommentInputChange: (text: string) => void;
   onPostComment: () => void;
+  // --- NEW PROP for delete functionality ---
+  onDeleteComment: (postId: number, commentId: number) => void;
+  // --- END NEW PROP ---
 }
 
 function PostItem({
@@ -97,7 +126,7 @@ function PostItem({
   commentInputBackgroundColor,
   onLikePress,
   userType,
-  username,
+  loggedInUsername, // Use renamed prop
   isExpanded,
   commentsList,
   isLoadingComments,
@@ -106,12 +135,16 @@ function PostItem({
   onToggleComments,
   onCommentInputChange,
   onPostComment,
+  onDeleteComment, // New prop
 }: PostItemProps) {
 
   const colorScheme = useColorScheme();
   const commentItemBorderColor = colorScheme === 'dark' ? '#3A3A3C' : '#EAEAEA';
-  const commentUsernameActualColor = colorScheme === 'dark' ? '#E0E0E0' : '#333333'; // Specific for username in comment
-  const commentContentActualColor = textColor; // Use general text color for comment content
+  const commentUsernameActualColor = colorScheme === 'dark' ? '#E0E0E0' : '#333333';
+  const commentContentActualColor = textColor;
+  // --- NEW: Define delete icon color ---
+  const deleteIconActualColor = colorScheme === 'dark' ? '#FF8A80' : '#D9534F'; // A themable red
+  // --- END NEW ---
 
 
   const handleLike = () => {
@@ -122,7 +155,7 @@ function PostItem({
     onLikePress(post.id, post.likedByUser);
   };
 
-  const canPostComment = userType !== 'guest' && username;
+  const canPostComment = userType !== 'guest' && loggedInUsername;
 
   return (
     <View style={[styles.postContainer, { backgroundColor: cardBackgroundColor }]}>
@@ -145,7 +178,6 @@ function PostItem({
       </ThemedText>
 
       <View style={styles.postFooter}>
-        {/* Like Action */}
         <TouchableOpacity onPress={handleLike} style={styles.footerAction}>
           <Ionicons
             name={post.likedByUser ? "heart" : "heart-outline"}
@@ -157,7 +189,6 @@ function PostItem({
           </ThemedText>
         </TouchableOpacity>
 
-        {/* Comment Toggle Action */}
         <TouchableOpacity onPress={onToggleComments} style={[styles.footerAction, { marginLeft: 16 }]}>
           <Ionicons name="chatbubble-outline" size={20} color={iconColor} />
           <ThemedText style={[styles.footerText, { color: iconColor, marginLeft: 4 }]}>
@@ -166,7 +197,6 @@ function PostItem({
         </TouchableOpacity>
       </View>
 
-      {/* Expanded Comments Section */}
       {isExpanded && (
         <View style={styles.commentsSection}>
           {isLoadingComments ? (
@@ -182,12 +212,16 @@ function PostItem({
                   commentTextColor={commentContentActualColor}
                   commentUsernameColor={commentUsernameActualColor}
                   commentBorderColor={commentItemBorderColor}
+                  // --- MODIFIED: Pass props for delete functionality ---
+                  loggedInUsername={loggedInUsername}
+                  onDeleteComment={(commentIdToDelete) => onDeleteComment(post.id, commentIdToDelete)}
+                  deleteIconColor={deleteIconActualColor}
+                  // --- END MODIFICATION ---
                 />
               ))}
             </View>
           )}
 
-          {/* Add Comment Input Area - only if not guest */}
           {canPostComment && (
             <View style={[styles.addCommentContainer, { borderTopColor: commentItemBorderColor }]}>
               <TextInput
@@ -253,6 +287,7 @@ export default function ExploreScreen() {
 
 
   const colorScheme = useColorScheme();
+  // ... (color definitions remain the same) ...
   const screenBackgroundColor = colorScheme === 'dark' ? '#151718' : '#F0F2F5';
   const cardBackgroundColor = colorScheme === 'dark' ? '#1C1C1E' : '#FFFFFF';
   const generalTextColor = colorScheme === 'dark' ? '#E5E5E7' : '#1C1C1E';
@@ -260,18 +295,17 @@ export default function ExploreScreen() {
   const searchInputColor = colorScheme === 'dark' ? '#E5E5E7' : '#000000';
   const searchPlaceholderColor = colorScheme === 'dark' ? '#8E8E93' : '#8E8E93';
   const iconColor = colorScheme === 'dark' ? '#8E8E93' : '#6C6C70';
-  
   const commentInputBorderColor = colorScheme === 'dark' ? '#545458' : '#C7C7CD';
   const commentInputTextColor = generalTextColor;
   const commentInputPlaceholderColor = iconColor;
-  const commentInputBackgroundColor = colorScheme === 'dark' ? '#2C2C2E' : '#F0F2F5'; // Slightly different from card
-
+  const commentInputBackgroundColor = colorScheme === 'dark' ? '#2C2C2E' : '#F0F2F5';
   const themedErrorBoxBackgroundColor = colorScheme === 'dark' ? '#5D1F1A' : '#ffcccc';
   const themedErrorBoxTextColor = colorScheme === 'dark' ? '#FFA094' : '#cc0000';
   const themedNoMoreBoxBackgroundColor = colorScheme === 'dark' ? '#1A3A4A' : '#e0f7fa';
   const themedNoMoreBoxTextColor = colorScheme === 'dark' ? '#9EE8FF' : '#00796b';
   const activityIndicatorColor = colorScheme === 'dark' ? '#FFFFFF' : '#000000';
   const refreshControlColors = colorScheme === 'dark' ? { tintColor: '#FFFFFF', titleColor: '#FFFFFF'} : { tintColor: '#000000', titleColor: '#000000'};
+
 
   useEffect(() => {
     if (!userType && username !== undefined) {
@@ -284,16 +318,13 @@ export default function ExploreScreen() {
     title: item.creatorUsername,
     content: item.content,
     likes: item.likes || 0,
-    // Assuming item.comments from /api/posts/info IS THE COUNT
-    // If item.comments is an array of comment objects, use item.comments.length
-    // From your CommentService: post.getComments() implies it might be a List<Comment>
-    // Let's assume /api/posts/info returns a count or an array for comments
     comments: Array.isArray(item.comments) ? item.comments.length : (Number(item.comments) || 0),
     photoUrl: item.photoUrl,
     likedByUser: false,
   });
 
   const fetchLikeStatusesForPosts = async (currentPostsToUpdate: Post[], currentUsername: string): Promise<Post[]> => {
+    // ... (fetchLikeStatusesForPosts implementation remains the same) ...
     if (!currentUsername || currentPostsToUpdate.length === 0) return currentPostsToUpdate;
     const promises = currentPostsToUpdate.map(async (post) => {
       try {
@@ -307,8 +338,8 @@ export default function ExploreScreen() {
     return Promise.all(promises);
   };
 
-
   const fetchPosts = async (loadMore = false) => {
+    // ... (fetchPosts implementation remains largely the same, ensure it calls fetchCommentsForPost with forceRefresh=true for expanded posts on refresh) ...
     const currentOperation = loadMore ? 'loading more' : 'fetching initial/refresh';
     try {
       if (loadMore) setLoadingMore(true);
@@ -339,10 +370,9 @@ export default function ExploreScreen() {
         setPosts(prevPosts => [...prevPosts, ...processedNewItems]);
       } else {
         setPosts(processedNewItems);
-        // If it's a refresh, and a post was expanded, re-fetch its comments
         if (expandedPostId && processedNewItems.find(p => p.id === expandedPostId)) {
-            fetchCommentsForPost(expandedPostId, true); // force refresh comments
-        } else if (expandedPostId) { // Post no longer in list, collapse
+            fetchCommentsForPost(expandedPostId, true); 
+        } else if (expandedPostId) { 
             setExpandedPostId(null);
             setCommentsByPostId(prev => {
                 const newComments = {...prev};
@@ -369,6 +399,7 @@ export default function ExploreScreen() {
   
   useFocusEffect(
     React.useCallback(() => {
+      // ... (useFocusEffect implementation remains the same) ...
       if (userType) { 
         handleRefresh();
       } else if (username === null || username === '') {
@@ -378,24 +409,24 @@ export default function ExploreScreen() {
     }, [userType, username]) 
   );
 
-
   const handleRefresh = () => {
+    // ... (handleRefresh implementation remains the same) ...
     setRefreshing(true);
     setLastPostId(null);
     setNoMorePosts(false);
     setError(false);
-    // When refreshing, if a post was expanded, we should probably keep its comments
-    // or re-fetch them. `fetchPosts` now handles re-fetching comments for expanded post if it's still in the list.
     fetchPosts(false);
   };
 
   const handleLoadMore = () => {
+    // ... (handleLoadMore implementation remains the same) ...
     if (!loading && !loadingMore && !refreshing && !isSearching && lastPostId !== null && !noMorePosts) {
       fetchPosts(true);
     }
   };
 
   const performSearch = async () => {
+    // ... (performSearch implementation remains the same) ...
     const q = searchQuery.trim();
     if (!q) return;
     try {
@@ -412,7 +443,6 @@ export default function ExploreScreen() {
       }
       setSearchResults(processedResults);
       setInSearchMode(true);
-      // Collapse any expanded comments from main feed when entering search
       if (expandedPostId) setExpandedPostId(null);
 
     } catch (err) {
@@ -425,15 +455,15 @@ export default function ExploreScreen() {
   };
 
   const handleBack = () => {
+    // ... (handleBack implementation remains the same) ...
     setInSearchMode(false);
     setSearchQuery('');
     setSearchResults([]);
-    // Collapse any expanded comments from search results when going back
     if (expandedPostId) setExpandedPostId(null);
   };
 
   const handleLikeToggle = async (postId: number, currentlyLiked: boolean) => {
-    // ... (like logic remains the same)
+    // ... (handleLikeToggle implementation remains the same) ...
     if (userType === 'guest' || !username) {
       Alert.alert("Login Required", "Please log in to like posts.");
       return;
@@ -477,6 +507,7 @@ export default function ExploreScreen() {
 
   // --- Comment Handlers ---
   const fetchCommentsForPost = async (postId: number, forceRefresh = false) => {
+    // ... (fetchCommentsForPost implementation remains the same as your last working version) ...
     if (commentsByPostId[postId] && !forceRefresh) {
       if (!forceRefresh && commentsByPostId[postId] && commentsByPostId[postId].length > 0) {
       return;
@@ -489,21 +520,16 @@ export default function ExploreScreen() {
         const errText = await response.text();
         throw new Error(`Failed to fetch comments: ${response.status} ${errText}`);
       }
-      const apiResponse = await response.json(); // Example: {"comments": [...], "postId": ..., "totalComments": 1}
-      // console.log(`Fetched comments API response for post ${postId}:`, apiResponse);
-
-      // Ensure apiResponse.comments is an array and map it to CommentData
+      const apiResponse = await response.json();
       const fetchedComments: CommentData[] = (apiResponse.comments || []).map((apiComment: any) => ({
         commentId: apiComment.commentId,
         content: apiComment.content,
         createdAt: apiComment.createdAt,
-        username: apiComment.creatorUsername, // Correctly map creatorUsername
+        username: apiComment.creatorUsername,
       }));
 
       setCommentsByPostId(prev => ({ ...prev, [postId]: fetchedComments }));
 
-      // Update the main post's comment count if it's different from what the API reports.
-      // This ensures the count displayed on the post item is accurate.
       if (typeof apiResponse.totalComments === 'number') {
         const listUpdater = (list: Post[]) => list.map(p =>
           p.id === postId && p.comments !== apiResponse.totalComments
@@ -513,12 +539,9 @@ export default function ExploreScreen() {
         setPosts(listUpdater);
         if (inSearchMode) setSearchResults(listUpdater);
       }
-
     } catch (e: any) {
       console.error(`Error fetching comments for post ${postId}:`, e.message);
       Alert.alert("Error", `Could not load comments for post ${postId}.`);
-      // On error, keep existing comments if any, or set to empty if none existed.
-      // This prevents losing currently displayed (possibly stale) comments on a failed refresh.
       setCommentsByPostId(prev => ({ ...prev, [postId]: prev[postId] || [] }));
     } finally {
       setLoadingCommentsPostId(null);
@@ -526,26 +549,26 @@ export default function ExploreScreen() {
   };
 
   const handleToggleComments = (postId: number) => {
+    // ... (handleToggleComments implementation remains the same) ...
     const isCurrentlyExpanded = expandedPostId === postId;
     if (isCurrentlyExpanded) {
       setExpandedPostId(null);
-      // Comments remain cached in commentsByPostId
     } else {
       setExpandedPostId(postId);
-      // Fetch comments if they haven't been fetched yet for this post ID,
-      // or if the existing list for this post is empty (e.g. previous fetch found none, or an error occurred).
       if (!commentsByPostId[postId] || commentsByPostId[postId].length === 0) {
-        fetchCommentsForPost(postId, false); // forceRefresh is false, fetchCommentsForPost will fetch if needed
+        fetchCommentsForPost(postId, false);
       }
     }
   };
 
   const handleCommentInputChange = (postId: number, text: string) => {
+    // ... (handleCommentInputChange implementation remains the same) ...
     setCommentInputs(prev => ({ ...prev, [postId]: text }));
   };
 
   const handlePostComment = async (postId: number) => {
-    if (!username) { // Ensure `username` is from authContext and valid
+    // ... (handlePostComment implementation remains the same as your last working version) ...
+    if (!username) {
       Alert.alert("Login required", "You need to be logged in to comment.");
       return;
     }
@@ -564,35 +587,30 @@ export default function ExploreScreen() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, content, postId }),
       });
-      const apiResponseData = await response.json(); // This should be the newly created comment object from backend
+      const apiResponseData = await response.json();
 
       if (!response.ok) {
         throw new Error(apiResponseData.message || `Failed to post comment: ${response.status}`);
       }
       
-      // Map the backend response for the new comment to our Frontend CommentData type
-      // Assuming backend response for a new comment also uses `creatorUsername`
       const newComment: CommentData = {
         commentId: apiResponseData.commentId,
         content: apiResponseData.content,
         createdAt: apiResponseData.createdAt,
-        username: apiResponseData.creatorUsername || username, // Fallback to logged-in user's name if backend omits it
+        username: apiResponseData.creatorUsername || username,
       };
       
-      // Add new comment to the list for this post (prepend)
       setCommentsByPostId(prev => ({
         ...prev,
         [postId]: [newComment, ...(prev[postId] || [])],
       }));
 
-      // Update comment count on the post itself
       const listUpdater = (list: Post[]) => list.map(p => 
         p.id === postId ? { ...p, comments: p.comments + 1 } : p
       );
       setPosts(listUpdater);
       if (inSearchMode) setSearchResults(listUpdater);
       
-      // Clear input for this post
       setCommentInputs(prev => ({ ...prev, [postId]: '' }));
 
     } catch (e: any) {
@@ -603,6 +621,68 @@ export default function ExploreScreen() {
     }
   };
 
+  // --- NEW: Handler for deleting a comment ---
+  const handleDeleteComment = async (postId: number, commentId: number) => {
+    if (!username) {
+      Alert.alert("Error", "You must be logged in to delete comments.");
+      return;
+    }
+
+    Alert.alert(
+      "Delete Comment",
+      "Are you sure you want to delete this comment?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const response = await fetch(`${API_BASE}/api/comments/${commentId}`, {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json',
+                  // Add Authorization headers if your API requires them
+                  // 'Authorization': `Bearer ${yourAuthToken}` 
+                }
+              });
+
+              if (!response.ok) {
+                const errorText = await response.text();
+                let errorMsg = `Failed to delete comment. Status: ${response.status}`;
+                try { 
+                  const errorData = JSON.parse(errorText); 
+                  errorMsg = errorData.message || errorMsg; 
+                } catch (e) { 
+                  errorMsg += ` Server response: ${errorText.substring(0,100)}`; 
+                }
+                throw new Error(errorMsg);
+              }
+
+              // Comment deleted successfully on the server
+              setCommentsByPostId(prev => ({
+                ...prev,
+                [postId]: (prev[postId] || []).filter(c => c.commentId !== commentId),
+              }));
+
+              // Update comment count on the post
+              const listUpdater = (list: Post[]) => list.map(p => 
+                p.id === postId ? { ...p, comments: Math.max(0, p.comments - 1) } : p
+              );
+              setPosts(listUpdater);
+              if (inSearchMode) setSearchResults(listUpdater);
+
+              Alert.alert("Success", "Comment deleted.");
+            } catch (e: any) {
+              console.error(`Error deleting comment ${commentId} for post ${postId}:`, e.message);
+              Alert.alert("Error", `Could not delete comment: ${e.message}`);
+            }
+          }
+        }
+      ]
+    );
+  };
+  // --- END NEW ---
 
 
   if (username === undefined && userType === undefined) {
@@ -617,7 +697,7 @@ export default function ExploreScreen() {
     <ScrollView
       style={[styles.container, { backgroundColor: screenBackgroundColor }]}
       contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled" // Good for comment input
+      keyboardShouldPersistTaps="handled"
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
@@ -627,6 +707,7 @@ export default function ExploreScreen() {
         />
       }
     >
+      {/* ... (Header and SearchBar JSX remains the same) ... */}
       <View style={styles.header}>
         <ThemedText type="title">Explore</ThemedText>
         {userType === 'guest' && (
@@ -685,7 +766,7 @@ export default function ExploreScreen() {
               commentInputBackgroundColor={commentInputBackgroundColor}
               onLikePress={handleLikeToggle}
               userType={userType}
-              username={username}
+              loggedInUsername={username} // Pass current user's username
               isExpanded={expandedPostId === post.id}
               commentsList={commentsByPostId[post.id] || []}
               isLoadingComments={loadingCommentsPostId === post.id}
@@ -694,6 +775,7 @@ export default function ExploreScreen() {
               onToggleComments={() => handleToggleComments(post.id)}
               onCommentInputChange={(text) => handleCommentInputChange(post.id, text)}
               onPostComment={() => handlePostComment(post.id)}
+              onDeleteComment={handleDeleteComment} // Pass delete handler
             />
           ))
         ) : (
@@ -716,7 +798,7 @@ export default function ExploreScreen() {
               commentInputBackgroundColor={commentInputBackgroundColor}
               onLikePress={handleLikeToggle}
               userType={userType}
-              username={username}
+              loggedInUsername={username} // Pass current user's username
               isExpanded={expandedPostId === post.id}
               commentsList={commentsByPostId[post.id] || []}
               isLoadingComments={loadingCommentsPostId === post.id}
@@ -725,8 +807,10 @@ export default function ExploreScreen() {
               onToggleComments={() => handleToggleComments(post.id)}
               onCommentInputChange={(text) => handleCommentInputChange(post.id, text)}
               onPostComment={() => handlePostComment(post.id)}
+              onDeleteComment={handleDeleteComment} // Pass delete handler
             />
           ))}
+          {/* ... (Load More and No More Posts JSX remains the same) ... */}
           {!noMorePosts && !refreshing && posts.length > 0 && (
             <TouchableOpacity 
               style={styles.loadMoreButton} 
@@ -759,6 +843,7 @@ export default function ExploreScreen() {
 }
 
 const styles = StyleSheet.create({
+  // ... (existing styles up to commentsSection) ...
   container: {
     flex: 1,
   },
@@ -891,25 +976,36 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-  },commentsSection: {
+  },
+  commentsSection: {
     marginTop: 10,
     paddingTop: 10,
-    // borderTopWidth: 1, // Optional: separator line
-    // borderTopColor: '#EAEAEA', // Light mode separator
   },
   commentsListContainer: {
-    maxHeight: 200, // Or some other sensible max height for scrolling if many comments
+    maxHeight: 200,
     marginBottom: 10,
   },
   commentItemContainer: {
     paddingVertical: 8,
     borderBottomWidth: 1,
   },
+  // --- NEW/MODIFIED Styles for comment item ---
+  commentHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between', // Pushes username to left, delete icon to right
+    alignItems: 'center',
+    marginBottom: 4, 
+  },
   commentUsername: {
     fontWeight: 'bold',
     fontSize: 13,
-    marginBottom: 2,
+    flexShrink: 1, // Allows username to shrink if too long
+    marginRight: 8, // Space between username and delete icon
   },
+  deleteCommentButton: {
+    padding: 4, // Makes tap target a bit larger
+  },
+  // --- END NEW/MODIFIED Styles ---
   commentContent: {
     fontSize: 14,
     lineHeight: 18,
@@ -941,16 +1037,16 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     fontSize: 14,
     marginRight: 10,
-    maxHeight: 80, // For multiline
+    maxHeight: 80,
   },
   postCommentButton: {
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: '#007AFF', // Standard blue
+    backgroundColor: '#007AFF',
   },
   postCommentButtonDisabled: {
-    backgroundColor: '#B0C4DE', // Lighter, disabled look
+    backgroundColor: '#B0C4DE',
   },
   postCommentButtonText: {
     color: '#FFFFFF',
