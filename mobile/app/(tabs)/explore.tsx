@@ -478,8 +478,9 @@ export default function ExploreScreen() {
   // --- Comment Handlers ---
   const fetchCommentsForPost = async (postId: number, forceRefresh = false) => {
     if (commentsByPostId[postId] && !forceRefresh) {
-      // Comments already fetched and no force refresh
+      if (!forceRefresh && commentsByPostId[postId] && commentsByPostId[postId].length > 0) {
       return;
+      }
     }
     setLoadingCommentsPostId(postId);
     try {
@@ -488,13 +489,36 @@ export default function ExploreScreen() {
         const errText = await response.text();
         throw new Error(`Failed to fetch comments: ${response.status} ${errText}`);
       }
-      const data = await response.json(); // Expects GetCommentsResponse: { postId, commentsCount (List<Comment>), commentResponses }
-      console.log('Fetched comments:', data);
-      setCommentsByPostId(prev => ({ ...prev, [postId]: data.commentResponses || [] }));
+      const apiResponse = await response.json(); // Example: {"comments": [...], "postId": ..., "totalComments": 1}
+      // console.log(`Fetched comments API response for post ${postId}:`, apiResponse);
+
+      // Ensure apiResponse.comments is an array and map it to CommentData
+      const fetchedComments: CommentData[] = (apiResponse.comments || []).map((apiComment: any) => ({
+        commentId: apiComment.commentId,
+        content: apiComment.content,
+        createdAt: apiComment.createdAt,
+        username: apiComment.creatorUsername, // Correctly map creatorUsername
+      }));
+
+      setCommentsByPostId(prev => ({ ...prev, [postId]: fetchedComments }));
+
+      // Update the main post's comment count if it's different from what the API reports.
+      // This ensures the count displayed on the post item is accurate.
+      if (typeof apiResponse.totalComments === 'number') {
+        const listUpdater = (list: Post[]) => list.map(p =>
+          p.id === postId && p.comments !== apiResponse.totalComments
+            ? { ...p, comments: apiResponse.totalComments }
+            : p
+        );
+        setPosts(listUpdater);
+        if (inSearchMode) setSearchResults(listUpdater);
+      }
+
     } catch (e: any) {
       console.error(`Error fetching comments for post ${postId}:`, e.message);
-      Alert.alert("Error", `Could not load comments: ${e.message}`);
-      // Keep existing comments if any, or set to empty on error
+      Alert.alert("Error", `Could not load comments for post ${postId}.`);
+      // On error, keep existing comments if any, or set to empty if none existed.
+      // This prevents losing currently displayed (possibly stale) comments on a failed refresh.
       setCommentsByPostId(prev => ({ ...prev, [postId]: prev[postId] || [] }));
     } finally {
       setLoadingCommentsPostId(null);
@@ -502,14 +526,16 @@ export default function ExploreScreen() {
   };
 
   const handleToggleComments = (postId: number) => {
-    if (expandedPostId === postId) {
+    const isCurrentlyExpanded = expandedPostId === postId;
+    if (isCurrentlyExpanded) {
       setExpandedPostId(null);
-      // Do not clear comments from commentsByPostId, so they are cached
+      // Comments remain cached in commentsByPostId
     } else {
       setExpandedPostId(postId);
-      // Fetch comments if not already fetched or if a refresh is desired for some reason
-      if (!commentsByPostId[postId]) {
-        fetchCommentsForPost(postId);
+      // Fetch comments if they haven't been fetched yet for this post ID,
+      // or if the existing list for this post is empty (e.g. previous fetch found none, or an error occurred).
+      if (!commentsByPostId[postId] || commentsByPostId[postId].length === 0) {
+        fetchCommentsForPost(postId, false); // forceRefresh is false, fetchCommentsForPost will fetch if needed
       }
     }
   };
@@ -519,7 +545,7 @@ export default function ExploreScreen() {
   };
 
   const handlePostComment = async (postId: number) => {
-    if (!username) {
+    if (!username) { // Ensure `username` is from authContext and valid
       Alert.alert("Login required", "You need to be logged in to comment.");
       return;
     }
@@ -530,7 +556,7 @@ export default function ExploreScreen() {
     }
 
     setPostingCommentPostId(postId);
-    Keyboard.dismiss(); // Dismiss keyboard
+    Keyboard.dismiss();
 
     try {
       const response = await fetch(`${API_BASE}/api/comments`, {
@@ -538,17 +564,27 @@ export default function ExploreScreen() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, content, postId }),
       });
-      const responseData = await response.json(); // This should be CommentResponse
+      const apiResponseData = await response.json(); // This should be the newly created comment object from backend
 
       if (!response.ok) {
-        throw new Error(responseData.message || `Failed to post comment: ${response.status}`);
+        throw new Error(apiResponseData.message || `Failed to post comment: ${response.status}`);
       }
       
-      // Add new comment to the list for this post
+      // Map the backend response for the new comment to our Frontend CommentData type
+      // Assuming backend response for a new comment also uses `creatorUsername`
+      const newComment: CommentData = {
+        commentId: apiResponseData.commentId,
+        content: apiResponseData.content,
+        createdAt: apiResponseData.createdAt,
+        username: apiResponseData.creatorUsername || username, // Fallback to logged-in user's name if backend omits it
+      };
+      
+      // Add new comment to the list for this post (prepend)
       setCommentsByPostId(prev => ({
         ...prev,
-        [postId]: [responseData, ...(prev[postId] || [])], // Prepend new comment
+        [postId]: [newComment, ...(prev[postId] || [])],
       }));
+
       // Update comment count on the post itself
       const listUpdater = (list: Post[]) => list.map(p => 
         p.id === postId ? { ...p, comments: p.comments + 1 } : p
@@ -566,6 +602,7 @@ export default function ExploreScreen() {
       setPostingCommentPostId(null);
     }
   };
+
 
 
   if (username === undefined && userType === undefined) {
