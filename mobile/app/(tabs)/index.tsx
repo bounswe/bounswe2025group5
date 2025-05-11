@@ -115,9 +115,11 @@ export default function HomeScreen() {
     (async () => {
       const token      = await AsyncStorage.getItem('token');
       const storedUser = await AsyncStorage.getItem('username');
-      if (token && storedUser) {
+      const storedUserId = await AsyncStorage.getItem('user_id');
+      if (token && storedUser && storedUserId) {
         setUserType('user');
         setUsername(storedUser);
+        setUserId(storedUserId);
         setLoggedIn(true);
         navigation.navigate('explore');
       }
@@ -181,7 +183,7 @@ export default function HomeScreen() {
       }
   
       // success path
-      const { token, username } = (await res.json()) as {
+      const { token, username, user_id } = (await res.json()) as {
         token: string;
 
         username: string;
@@ -259,6 +261,8 @@ export default function HomeScreen() {
   const continueAsGuest = () => {
     setUserType('guest');
     setUsername('');
+    setUserId('');
+    setLoggedIn(false);
     navigation.navigate('explore');
   };
 
