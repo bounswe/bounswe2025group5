@@ -10,8 +10,10 @@ import com.example.CMPE352.model.response.GetPostResponse;
 import com.example.CMPE352.model.response.SavePostResponse;
 import com.example.CMPE352.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -32,16 +34,21 @@ public class PostController {
         List<GetPostResponse> posts = postService.getPosts(username ,size, lastPostId);
         return ResponseEntity.ok(posts);
     }
-    @PostMapping("/create")
-    public ResponseEntity<CreateOrEditPostResponse> createPost(@RequestBody CreatePostRequest request) {
-        CreateOrEditPostResponse response = postService.createPost(request);
+    @PostMapping(value = "/create", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<CreateOrEditPostResponse> createPost(
+            @RequestParam(value = "content")String content,
+            @RequestParam("username") String username,
+            @RequestParam(value = "photoFile", required = false) MultipartFile photoFile) {
+        CreateOrEditPostResponse response = postService.createPost(content,username, photoFile);
         return ResponseEntity.ok(response);
     }
-    @PutMapping("/edit/{postId}")
+    @PutMapping(value= "/edit/{postId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<CreateOrEditPostResponse> editPost(
             @PathVariable Integer postId,
-            @RequestBody Post editPostRequest) {
-        CreateOrEditPostResponse updatedPostResponse = postService.editPost(postId, editPostRequest);
+            @RequestParam(value = "content", required = false) String content,
+            @RequestParam("username") String username,
+            @RequestParam(value = "photoFile", required = false) MultipartFile photoFile) {
+        CreateOrEditPostResponse updatedPostResponse = postService.editPost(postId, content,username,photoFile);
 
         return ResponseEntity.ok(updatedPostResponse);
     }

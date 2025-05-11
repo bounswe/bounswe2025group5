@@ -1,5 +1,5 @@
-// app/create_post.tsx
-import React, { useContext, useState, useLayoutEffect } from 'react';
+// app/edit_post_detail.tsx
+import React, { useContext, useState, useLayoutEffect, useEffect } from 'react';
 import {
   View,
   TextInput,
@@ -9,33 +9,37 @@ import {
   Platform,
   Alert,
   useColorScheme,
+  ActivityIndicator,
 } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { AuthContext } from './_layout';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HOST = Platform.select({ android: '10.0.2.2', ios: 'localhost' , web: 'localhost' });
 const API_BASE = `http://${HOST}:8080`;
 
-export const unstable_settings = {
-  initialRouteName: 'create_post',
+type EditPostDetailRouteParams = {
+  postId: number;
+  initialContent: string;
+  initialPhotoUrl?: string | null;
 };
 
-export const options = {
-  tabBarStyle: { display: 'none' },
-  tabBarButton: () => null,
-};
+type EditPostDetailScreenRouteProp = RouteProp<{ params: EditPostDetailRouteParams }, 'params'>;
 
-
-export default function CreatePostScreen() {
+export default function EditPostDetailScreen() {
   const navigation = useNavigation();
+  const route = useRoute<EditPostDetailScreenRouteProp>();
   const { username } = useContext(AuthContext);
   const colorScheme = useColorScheme();
 
+  const postId = route.params?.postId;
+  const initialContent = route.params?.initialContent;
+  const initialPhotoUrl = route.params?.initialPhotoUrl;
+
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: 'Create Post',
+      headerTitle: 'Edit Post',
     });
   }, [navigation]);
 
@@ -45,83 +49,83 @@ export default function CreatePostScreen() {
   const inputBorderColor = isDarkMode ? '#3A3A3C' : '#ccc';
   const inputTextColor = isDarkMode ? '#E0E0E0' : '#000000';
   const placeholderTextColor = isDarkMode ? '#8E8E93' : '#A0A0A0';
-  const postButtonBackgroundColor = isDarkMode ? '#0A84FF' : '#2196F3';
-  const postButtonTextColor = '#FFFFFF';
+  const saveButtonBackgroundColor = isDarkMode ? '#0A84FF' : '#2196F3';
+  const saveButtonTextColor = '#FFFFFF';
 
-
-  const [content, setContent] = useState('');
-  const [photoUrl, setPhotoUrl] = useState(''); // This will be sent as 'photoFile' if it's a URL
+  const [content, setContent] = useState(initialContent || '');
+  const [photoUrl, setPhotoUrl] = useState(initialPhotoUrl || '');
   const [loading, setLoading] = useState(false);
 
-  const handleCreatePost = async () => {
-    if (!content.trim()) {
-      Alert.alert('Error', 'Please write something before posting.');
+  useEffect(() => {
+    if (!postId) {
+      Alert.alert('Error', 'Post ID is missing. Cannot edit.');
+      navigation.goBack();
       return;
     }
-    if (!username) {
-      Alert.alert('Error', 'User not identified. Cannot create post.');
+    setContent(initialContent || '');
+    setPhotoUrl(initialPhotoUrl || '');
+  }, [postId, initialContent, initialPhotoUrl, navigation]);
+
+  const handleSaveChanges = async () => {
+    if (!content.trim()) {
+      Alert.alert('Error', 'Post content cannot be empty.');
       return;
+    }
+    if (!postId) {
+        Alert.alert('Error', 'Post ID is missing, cannot save changes.');
+        return;
+    }
+    if (!username) {
+        Alert.alert('Error', 'Username is missing. Cannot save changes.');
+        return;
     }
 
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
 
-      // Create FormData object
       const formData = new FormData();
       formData.append('content', content.trim());
       formData.append('username', username);
 
-      // The Postman screenshot shows 'photoFile' as the key for the file.
-      // If the user provides a URL in the photoUrl input, we send that URL
-      // as the value for 'photoFile'. The backend must be able to handle
-      // receiving a URL string for a field it might expect a file for.
-      // If photoUrl is empty, 'photoFile' is not appended.
       if (photoUrl.trim()) {
         formData.append('photoFile', photoUrl.trim());
       }
-      // If actual file upload is implemented later, photoUrl state might be replaced
-      // with a file object, and that object would be appended to formData.
 
       const headers: HeadersInit = {};
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
-      // Do NOT set 'Content-Type': 'multipart/form-data' manually for FormData.
-      // Fetch API handles this.
 
-      const res = await fetch(`${API_BASE}/api/posts/create`, {
-        method: 'POST',
+      const res = await fetch(`${API_BASE}/api/posts/edit/${postId}`, {
+        method: 'PUT',
         headers: headers,
-        body: formData, // Send FormData
+        body: formData,
       });
 
       if (!res.ok) {
         const errorData = await res.text();
-        console.error("Create post API error:", res.status, errorData);
-        let backendMessage = `Failed to create post (Status: ${res.status})`; // Default message
+        console.error("API Error Data on Save:", errorData);
+        let specificErrorMessage = `Failed to update post. Status: ${res.status}`;
         try {
-            const parsedError = JSON.parse(errorData);
-            // Use more specific messages if available from backend JSON error
-            backendMessage = parsedError.message || parsedError.error || backendMessage;
-        } catch(e) {
-            // errorData was not JSON, or no specific message field.
-            // Append raw errorData if it's short and provides context.
-            if(errorData && errorData.length < 150 && errorData.length > 0) {
-                 backendMessage += `: ${errorData.substring(0,150)}`;
+            const jsonError = JSON.parse(errorData);
+            specificErrorMessage = jsonError.message || jsonError.error || specificErrorMessage;
+        } catch (e) {
+            if (errorData.length < 200) {
+                specificErrorMessage += ` Server response: ${errorData}`;
             }
         }
-        throw new Error(backendMessage);
+        throw new Error(specificErrorMessage);
       }
 
       const data = await res.json();
-      console.log('Post created:', data);
+      console.log('Post updated:', data);
 
-      Alert.alert('Success', 'Your post was created successfully.');
+      Alert.alert('Success', 'Your post was updated successfully.');
       navigation.goBack();
     } catch (err) {
-      console.error('Create post error:', err);
-      Alert.alert('Error', err instanceof Error ? err.message : 'Failed to create post. Please try again.');
+      console.error('Update post error:', err);
+      Alert.alert('Error', `${err instanceof Error ? err.message : 'An unknown error occurred. Please try again.'}`);
     } finally {
       setLoading(false);
     }
@@ -134,7 +138,7 @@ export default function CreatePostScreen() {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
     >
       <ThemedText type="title" style={styles.title}>
-        Create a New Post
+        Edit Your Post
       </ThemedText>
 
       <TextInput
@@ -146,9 +150,10 @@ export default function CreatePostScreen() {
             backgroundColor: inputBackgroundColor,
           }
         ]}
-        placeholder="Write your post here..."
+        placeholder="Edit your post content here..."
         placeholderTextColor={placeholderTextColor}
         multiline
+        numberOfLines={6}
         value={content}
         onChangeText={setContent}
         editable={!loading}
@@ -164,7 +169,7 @@ export default function CreatePostScreen() {
             backgroundColor: inputBackgroundColor,
           }
         ]}
-        placeholder="Photo file URL (Optional)"
+        placeholder="Photo URL (Optional)"
         placeholderTextColor={placeholderTextColor}
         value={photoUrl}
         onChangeText={setPhotoUrl}
@@ -175,15 +180,15 @@ export default function CreatePostScreen() {
 
       <TouchableOpacity
         style={[
-            styles.postButton,
-            { backgroundColor: postButtonBackgroundColor },
+            styles.saveButton,
+            { backgroundColor: saveButtonBackgroundColor },
             loading && { opacity: 0.6 }
         ]}
-        onPress={handleCreatePost}
+        onPress={handleSaveChanges}
         disabled={loading}
       >
-        <ThemedText style={[styles.postButtonText, { color: postButtonTextColor }]}>
-          {loading ? 'Posting...' : 'Post'}
+        <ThemedText style={[styles.saveButtonText, { color: saveButtonTextColor }]}>
+          {loading ? 'Saving...' : 'Save Changes'}
         </ThemedText>
       </TouchableOpacity>
     </KeyboardAvoidingView>
@@ -194,10 +199,9 @@ const styles = StyleSheet.create({
     container: {
       flex: 1,
       padding: 16,
-      justifyContent: 'center',
     },
     title: {
-      marginBottom: 20,
+      marginBottom: 16,
       textAlign: 'center',
     },
     input: {
@@ -209,7 +213,7 @@ const styles = StyleSheet.create({
       textAlignVertical: 'top',
       fontSize: 16,
       marginBottom: 16,
-      minHeight: 150,
+      minHeight: 120,
     },
     photoUrlInput: {
         minHeight: 50,
@@ -217,15 +221,15 @@ const styles = StyleSheet.create({
         marginBottom: 24,
         textAlignVertical: 'center',
     },
-    postButton: {
+    saveButton: {
       paddingVertical: 12,
       paddingHorizontal: 24,
       borderRadius: 8,
       alignSelf: 'center',
       marginTop: 10,
     },
-    postButtonText: {
+    saveButtonText: {
       fontSize: 16,
       fontWeight: 'bold',
     },
-  });
+});
