@@ -16,6 +16,8 @@ export type AuthContextType = {
   setUserType: React.Dispatch<React.SetStateAction<UserType>>;
   username: string;
   setUsername: React.Dispatch<React.SetStateAction<string>>;
+  user_id: string;
+  setUserId: React.Dispatch<React.SetStateAction<string>>;
 };
 
 export const AuthContext = createContext<AuthContextType>({
@@ -23,6 +25,8 @@ export const AuthContext = createContext<AuthContextType>({
   setUserType: () => {},
   username: '',
   setUsername: () => {},
+  user_id: '',
+  setUserId: () => {},
 });
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -36,6 +40,7 @@ export default function RootLayout() {
 
   const [userType, setUserType] = useState<UserType>(null);
   const [username, setUsername] = useState<string>('');
+  const [user_id, setUserId] = useState<string>('');
 
   useEffect(() => {
     if (loaded) {
@@ -47,7 +52,7 @@ export default function RootLayout() {
     return null;
   }
 
-  const authContextValue = { userType, setUserType, username, setUsername };
+  const authContextValue = { userType, setUserType, username, setUsername, user_id, setUserId};
 
   return (
     <AuthContext.Provider value={authContextValue}>

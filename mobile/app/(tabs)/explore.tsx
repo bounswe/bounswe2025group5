@@ -62,7 +62,7 @@ function PostSkeleton({ post, cardBackgroundColor, iconColor }: { post: Post; ca
 
 export default function ExploreScreen() {
   const navigation = useNavigation();
-  const { userType, username } = useContext(AuthContext);
+  const { userType, username, user_id } = useContext(AuthContext);
 
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);

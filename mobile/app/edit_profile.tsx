@@ -37,7 +37,7 @@ export const options = {
 
 export default function EditProfileScreen() {
   const navigation = useNavigation<any>();
-  const { username } = useContext(AuthContext);
+  const { username, user_id } = useContext(AuthContext);
   const colorScheme = useColorScheme();
 
   useLayoutEffect(() => {

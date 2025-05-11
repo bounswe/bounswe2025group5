@@ -11,7 +11,7 @@ import { AuthContext } from '../_layout';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const { userType } = useContext(AuthContext);
+  const { username, userType, user_id } = useContext(AuthContext);
 
   const iconSize = 28;
   const tint = Colors[colorScheme ?? 'light'].tint;
