@@ -147,9 +147,13 @@ export default function MyPostsScreen() {
     fetchAllPostsAndFilter();
   };
 
-  const handleEditPost = (postId: number) => {
-    Alert.alert("Edit Post", `Editing post ID: ${postId}`);
-    // navigation.navigate('edit_post_detail', { postId }); // Future navigation
+    const handleEditPost = (postId: number) => {
+
+    const postToEdit = userPosts.find(p => p.postId === postId);
+    navigation.navigate('edit_post_detail', { 
+        postId: postId,
+
+    });
   };
 
   const handleDeletePost = (postId: number) => {
