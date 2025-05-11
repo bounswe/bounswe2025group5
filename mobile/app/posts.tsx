@@ -20,12 +20,13 @@ import { AuthContext } from './_layout'; // Adjust path if necessary
 const HOST = Platform.select({ android: '10.0.2.2', ios: 'localhost' , web: 'localhost' });
 const API_BASE = `http://${HOST}:8080`;
 
+// Re-using Post type from explore.tsx if it's identical, or define locally
 type PostData = {
   postId: number;
   creatorUsername: string;
   content: string;
   likes: number;
-  comments: any[]; // Assuming comments is an array, adjust if it's just a count
+  comments: any[]; // Assuming comments is an array, or adjust to number if it's a count
   photoUrl: string | null;
 };
 
@@ -49,7 +50,7 @@ function UserPostCard({
           source={{
             uri: post.photoUrl.startsWith('http')
               ? post.photoUrl
-              : `${API_BASE}${post.photoUrl}`,
+              : `${API_BASE}${post.photoUrl}`, // Assuming API_BASE serves static files if not full URL
           }}
           style={styles.postImage}
           onError={(e) => console.warn('User Post: Image failed to load:', e.nativeEvent.error, post.photoUrl)}
@@ -64,7 +65,7 @@ function UserPostCard({
             <Ionicons name="heart-outline" size={16} color={iconColor} />
             <ThemedText style={styles.footerText}>{post.likes}</ThemedText>
             <Ionicons name="chatbubble-outline" size={16} color={iconColor} />
-            <ThemedText style={styles.footerText}>{post.comments.length}</ThemedText>
+            <ThemedText style={styles.footerText}>{Array.isArray(post.comments) ? post.comments.length : post.comments}</ThemedText>
         </View>
         <View style={styles.postActions}>
             <TouchableOpacity onPress={() => onEdit(post.postId)} style={styles.actionIcon}>
@@ -90,7 +91,8 @@ export default function MyPostsScreen() {
     });
   }, [navigation]);
 
-  const [posts, setPosts] = useState<PostData[]>([]);
+  const [allPosts, setAllPosts] = useState<PostData[]>([]); // Store all fetched posts
+  const [userPosts, setUserPosts] = useState<PostData[]>([]); // Store filtered user posts
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
@@ -103,23 +105,30 @@ export default function MyPostsScreen() {
   const refreshControlColors = isDarkMode ? { tintColor: '#FFFFFF', titleColor: '#FFFFFF'} : { tintColor: '#000000', titleColor: '#000000'};
   const errorTextColor = isDarkMode ? '#FF9494' : '#D32F2F';
 
-  const fetchUserPosts = useCallback(async () => {
+  const fetchAllPostsAndFilter = useCallback(async () => {
     if (!username) {
-        setError("Username not found. Cannot fetch posts.");
+        setError("Username not found. Cannot filter posts.");
         setLoading(false);
+        setRefreshing(false);
         return;
     }
     setLoading(true);
     setError('');
     try {
-      const response = await fetch(`${API_BASE}/api/posts/user/${username}?size=50`); // Adjust size as needed
+      // Fetch all posts - adjust endpoint if needed, e.g., /api/posts/info?size=100 for more posts
+      const response = await fetch(`${API_BASE}/api/posts/info?size=100`); // Fetch a larger batch of posts
       if (!response.ok) {
-        throw new Error(`Failed to fetch user posts: ${response.status}`);
+        throw new Error(`Failed to fetch all posts: ${response.status}`);
       }
       const data: PostData[] = await response.json();
-      setPosts(data);
+      setAllPosts(data); // Store all posts
+
+      // Filter for user's posts
+      const filteredPosts = data.filter(post => post.creatorUsername === username);
+      setUserPosts(filteredPosts);
+
     } catch (err) {
-      console.error('Error fetching user posts:', err);
+      console.error('Error fetching or filtering posts:', err);
       setError(err instanceof Error ? err.message : 'An unknown error occurred.');
     } finally {
       setLoading(false);
@@ -129,20 +138,18 @@ export default function MyPostsScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      fetchUserPosts();
-    }, [fetchUserPosts])
+      fetchAllPostsAndFilter();
+    }, [fetchAllPostsAndFilter])
   );
 
   const handleRefresh = () => {
     setRefreshing(true);
-    fetchUserPosts();
+    fetchAllPostsAndFilter();
   };
 
   const handleEditPost = (postId: number) => {
-    // Navigate to an edit post screen (to be created)
-    // For now, an alert or log
     Alert.alert("Edit Post", `Editing post ID: ${postId}`);
-    // navigation.navigate('edit_post_detail', { postId }); // Example navigation
+    // navigation.navigate('edit_post_detail', { postId }); // Future navigation
   };
 
   const handleDeletePost = (postId: number) => {
@@ -155,13 +162,12 @@ export default function MyPostsScreen() {
           try {
             const response = await fetch(`${API_BASE}/api/posts/delete/${postId}`, {
               method: 'DELETE',
-              // Add Authorization headers if required by your API
             });
             if (!response.ok) {
               throw new Error(`Failed to delete post: ${response.status}`);
             }
             Alert.alert("Success", "Post deleted successfully.");
-            fetchUserPosts(); // Refresh posts list
+            fetchAllPostsAndFilter(); 
           } catch (err) {
             console.error("Error deleting post:", err);
             Alert.alert("Error", "Could not delete post.");
@@ -171,7 +177,7 @@ export default function MyPostsScreen() {
     );
   };
 
-  if (loading && posts.length === 0) {
+  if (loading && userPosts.length === 0) {
     return (
       <View style={[styles.loadingContainer, { backgroundColor: screenBackgroundColor }]}>
         <ActivityIndicator size="large" color={activityIndicatorColor} />
@@ -196,9 +202,9 @@ export default function MyPostsScreen() {
         <View style={styles.centeredMessageContainer}>
             <ThemedText style={{color: errorTextColor}}>{error}</ThemedText>
         </View>
-      ) : posts.length === 0 && !loading ? (
+      ) : userPosts.length === 0 && !loading ? (
         <View style={styles.centeredMessageContainer}>
-            <ThemedText>You haven't created any posts yet.</ThemedText>
+            <ThemedText>You haven't created any posts yet or no posts match.</ThemedText>
             <TouchableOpacity
                 style={styles.createPostButton}
                 onPress={() => navigation.navigate('create_post')}
@@ -207,7 +213,7 @@ export default function MyPostsScreen() {
             </TouchableOpacity>
         </View>
       ) : (
-        posts.map(post => (
+        userPosts.map(post => (
           <UserPostCard
             key={post.postId}
             post={post}
@@ -233,7 +239,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
-    paddingBottom: 24, // Ensure space for last item
+    paddingBottom: 24,
   },
   postContainer: {
     borderRadius: 8,
@@ -262,7 +268,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: '#eee', // Consider theming this border
+    borderTopColor: '#eee',
     paddingTop: 8,
     marginTop: 8,
   },
@@ -279,7 +285,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   actionIcon: {
-    padding: 6, // Make icons easier to tap
+    padding: 6,
     marginLeft: 10,
   },
   centeredMessageContainer: {
@@ -287,10 +293,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    minHeight: 200, // Ensure it takes some space
   },
   createPostButton: {
     marginTop: 20,
-    backgroundColor: '#2196F3', // Example color
+    backgroundColor: '#2196F3',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
@@ -301,4 +308,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   }
 });
-
