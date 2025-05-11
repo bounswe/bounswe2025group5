@@ -9,32 +9,28 @@ import {
   Platform,
   Alert,
   useColorScheme,
-  ActivityIndicator, // Keep for save operation
+  ActivityIndicator,
 } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { AuthContext } from './_layout'; // Adjust if your AuthContext is elsewhere
-import AsyncStorage from '@react-native-async-storage/async-storage'; // For token if API needs it
+import { AuthContext } from './_layout';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HOST = Platform.select({ android: '10.0.2.2', ios: 'localhost' , web: 'localhost' });
 const API_BASE = `http://${HOST}:8080`;
 
-// Define the type for the route params
-// Ensure these match what you pass from MyPostsScreen
 type EditPostDetailRouteParams = {
   postId: number;
   initialContent: string;
-  initialPhotoUrl?: string | null; // photoUrl can be optional or null
+  initialPhotoUrl?: string | null;
 };
 
-// Define the type for the route prop
 type EditPostDetailScreenRouteProp = RouteProp<{ params: EditPostDetailRouteParams }, 'params'>;
-
 
 export default function EditPostDetailScreen() {
   const navigation = useNavigation();
   const route = useRoute<EditPostDetailScreenRouteProp>();
-  const { username } = useContext(AuthContext); // We need username for the PUT request body
+  const { username } = useContext(AuthContext);
   const colorScheme = useColorScheme();
 
   const postId = route.params?.postId;
@@ -55,14 +51,10 @@ export default function EditPostDetailScreen() {
   const placeholderTextColor = isDarkMode ? '#8E8E93' : '#A0A0A0';
   const saveButtonBackgroundColor = isDarkMode ? '#0A84FF' : '#2196F3';
   const saveButtonTextColor = '#FFFFFF';
-  // activityIndicatorColor is not used if fetchingPost is removed, but keep if save has its own indicator
-  // const activityIndicatorColor = isDarkMode ? '#FFFFFF' : '#000000';
 
-
-  // Initialize state with passed parameters
   const [content, setContent] = useState(initialContent || '');
   const [photoUrl, setPhotoUrl] = useState(initialPhotoUrl || '');
-  const [loading, setLoading] = useState(false); // For the save operation
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!postId) {
@@ -70,11 +62,9 @@ export default function EditPostDetailScreen() {
       navigation.goBack();
       return;
     }
-    // Pre-fill state based on navigation params
     setContent(initialContent || '');
     setPhotoUrl(initialPhotoUrl || '');
   }, [postId, initialContent, initialPhotoUrl, navigation]);
-
 
   const handleSaveChanges = async () => {
     if (!content.trim()) {
@@ -92,67 +82,54 @@ export default function EditPostDetailScreen() {
 
     try {
       setLoading(true);
-      const token = await AsyncStorage.getItem('token'); // Get token if API needs auth for PUT
-      
-      // Construct body as per Postman screenshot (form-data)
-      // For React Native fetch with form-data (especially for files), you'd use FormData.
-      // However, your Postman uses form-data for text and a file.
-      // If photoFile is truly a file, this approach needs to change to FormData.
-      // If photoFile is meant to be a URL and the backend handles it, then JSON is fine.
-      // Given the API returns `photoUrl`, I'll assume for now we are still sending `photoUrl` in JSON
-      // and the backend handles the "file" part based on this URL or if no file is provided.
-      // If photoFile *must* be a file upload from the client, this needs a different approach.
+      const token = await AsyncStorage.getItem('token');
 
-      const body = {
-        content: content.trim(),
-        username: username,
-        // If your API strictly expects 'photoFile' as a key, even for a URL or null:
-        // photoFile: photoUrl.trim() || null, 
-        // Or, if it expects 'photoUrl' when no actual file is uploaded:
-        photoUrl: photoUrl.trim() || null,
-      };
-      
-      const headers: HeadersInit = {
-        // If sending JSON:
-        'Content-Type': 'application/json',
-        // If sending FormData, 'Content-Type': 'multipart/form-data' is set automatically by fetch
-      };
+      const formData = new FormData();
+      formData.append('content', content.trim());
+      formData.append('username', username);
+
+      if (photoUrl.trim()) {
+        formData.append('photoFile', photoUrl.trim());
+      }
+
+      const headers: HeadersInit = {};
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      // The Postman screenshot shows form-data. If you are NOT uploading an actual file,
-      // sending JSON is usually simpler if the backend supports it for text fields.
-      // If the backend *requires* form-data even for text and URL (as photoFile),
-      // then you'd construct a FormData object.
-      // For now, assuming JSON is acceptable if no actual file upload from client.
       const res = await fetch(`${API_BASE}/api/posts/edit/${postId}`, {
         method: 'PUT',
         headers: headers,
-        body: JSON.stringify(body), // Sending as JSON
+        body: formData,
       });
 
       if (!res.ok) {
         const errorData = await res.text();
         console.error("API Error Data on Save:", errorData);
-        throw new Error(`Failed to update post. Status: ${res.status}`);
+        let specificErrorMessage = `Failed to update post. Status: ${res.status}`;
+        try {
+            const jsonError = JSON.parse(errorData);
+            specificErrorMessage = jsonError.message || jsonError.error || specificErrorMessage;
+        } catch (e) {
+            if (errorData.length < 200) {
+                specificErrorMessage += ` Server response: ${errorData}`;
+            }
+        }
+        throw new Error(specificErrorMessage);
       }
 
       const data = await res.json();
       console.log('Post updated:', data);
 
       Alert.alert('Success', 'Your post was updated successfully.');
-      navigation.goBack(); // Or navigate to MyPosts and trigger a refresh
+      navigation.goBack();
     } catch (err) {
       console.error('Update post error:', err);
-      Alert.alert('Error', `Failed to update post. ${err instanceof Error ? err.message : 'Please try again.'}`);
+      Alert.alert('Error', `${err instanceof Error ? err.message : 'An unknown error occurred. Please try again.'}`);
     } finally {
       setLoading(false);
     }
   };
-
-  // No initial fetchingPost loader needed if data is passed via params
-  // if (fetchingPost) { ... } removed
 
   return (
     <KeyboardAvoidingView
@@ -223,7 +200,6 @@ const styles = StyleSheet.create({
       flex: 1,
       padding: 16,
     },
-    // loadingContainer removed as initial fetch is removed
     title: {
       marginBottom: 16,
       textAlign: 'center',
