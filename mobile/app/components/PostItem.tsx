@@ -222,6 +222,7 @@ function PostItem({
                   editable={!isPostingComment} // Keep this, as posting new comment is separate
                 />
                 <TouchableOpacity
+                  testID="post-comment-button"
                   style={[styles.postCommentButton, isPostingComment || !commentInputText.trim() ? styles.postCommentButtonDisabled : {}]}
                   onPress={onPostComment}
                   disabled={isPostingComment || !commentInputText.trim()}
