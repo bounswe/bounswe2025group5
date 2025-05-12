@@ -144,27 +144,17 @@ export default function MyPostsScreen() {
     useCallback(() => {
       // Fetch posts when the screen comes into focus
       fetchAllPostsAndFilter();
-      // Optional: Return a cleanup function if needed, though not strictly necessary here
-      // return () => {};
     }, [fetchAllPostsAndFilter]) // fetchAllPostsAndFilter already includes its dependencies
   );
 
   const handleRefresh = () => {
     setRefreshing(true);
-    // No need to call fetchAllPostsAndFilter here, the change in 'refreshing' state
-    // combined with its inclusion in fetchAllPostsAndFilter's dependency array
-    // should trigger the effect if fetchAllPostsAndFilter is memoized correctly.
-    // However, explicitly calling it ensures it runs immediately upon refresh action.
     fetchAllPostsAndFilter();
   };
 
     const handleEditPost = (postId: number) => {
-    // No need to find postToEdit here unless passing more data
-    // const postToEdit = userPosts.find(p => p.postId === postId);
     navigation.navigate('edit_post_detail', {
         postId: postId,
-        // Optionally pass other post data if needed by the edit screen immediately
-        // content: postToEdit?.content, // Example
     });
   };
 
@@ -180,7 +170,7 @@ export default function MyPostsScreen() {
               method: 'DELETE',
             });
             if (!response.ok) {
-                 const errorBody = await response.text(); // Try to get more error info
+                 const errorBody = await response.text(); 
                  console.error("Delete failed response:", errorBody);
                  throw new Error(`Failed to delete post: ${response.status} - ${errorBody || 'No details'}`);
             }
@@ -208,16 +198,13 @@ export default function MyPostsScreen() {
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: screenBackgroundColor }]}
-      contentContainerStyle={styles.content} // Apply the updated style here
+      contentContainerStyle={styles.content} 
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
           onRefresh={handleRefresh}
           tintColor={refreshControlColors.tintColor}
           titleColor={refreshControlColors.titleColor}
-          // Use colors prop for Android consistency if needed
-          // colors={[refreshControlColors.tintColor]}
-          // progressBackgroundColor={cardBackgroundColor} // Optional: background for spinner
         />
       }
       // Add keyboardShouldPersistTaps='handled' if there were input fields causing issues
@@ -231,12 +218,11 @@ export default function MyPostsScreen() {
             <ThemedText style={{color: errorTextColor}}>{error}</ThemedText>
         </View>
       ) : userPosts.length === 0 && !loading ? (
-        // Ensure the 'no posts' message container also doesn't break scrolling
         <View style={styles.centeredMessageContainer}>
             <ThemedText>You haven't created any posts yet.</ThemedText>
             <TouchableOpacity
                 style={styles.createPostButton}
-                onPress={() => navigation.navigate('create_post')} // Ensure 'create_post' is the correct route name
+                onPress={() => navigation.navigate('create_post')}
             >
                 <ThemedText style={styles.createPostButtonText}>Create Your First Post</ThemedText>
             </TouchableOpacity>
@@ -279,11 +265,11 @@ const styles = StyleSheet.create({
   postContainer: {
     borderRadius: 8,
     padding: 12,
-    marginBottom: 16, // Space between post cards
+    marginBottom: 16,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 2, // Android shadow
+    elevation: 2, 
   },
   postImage: {
     width: '100%',
@@ -303,7 +289,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: '#eee', // Consider using dynamic color for dark mode: isDarkMode ? '#333' : '#eee'
+    borderTopColor: '#eee', 
     paddingTop: 8,
     marginTop: 8,
   },
@@ -320,7 +306,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   actionIcon: {
-    padding: 6, // Increases touchable area
+    padding: 6, 
     marginLeft: 10,
   },
   centeredMessageContainer: {
@@ -330,13 +316,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     minHeight: 200, // Ensure it takes some space even without flex: 1
-    // If you want this centered message to take the full screen height when it's the *only* content:
-    // you might need separate logic outside the ScrollView or adjust parent container styles.
-    // But for just displaying a message within the scrollable area, this is better.
   },
   createPostButton: {
     marginTop: 20,
-    backgroundColor: '#2196F3', // Consider a dynamic color
+    backgroundColor: '#2196F3', 
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
