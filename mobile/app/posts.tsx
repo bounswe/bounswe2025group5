@@ -87,7 +87,7 @@ export default function MyPostsScreen() {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: 'My Posts',
+      headerTitle: 'Manage Posts',
     });
   }, [navigation]);
 
