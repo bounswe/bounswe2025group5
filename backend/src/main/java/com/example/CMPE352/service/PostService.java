@@ -159,33 +159,37 @@ public class PostService {
 
     @Transactional
     public SavePostResponse savePost(SavePostRequest request) {
-        User user = userRepository.findById(request.getUserId())
+        User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() ->
-                        new NotFoundException("User not found: " + request.getUserId())
+                        new NotFoundException("User not found: " + request.getUsername())
                 );
         Post post = postRepository.findById(request.getPostId())
                 .orElseThrow(() ->
                         new NotFoundException("Post not found: " + request.getPostId())
                 );
 
-        SavedPost saved = new SavedPost(request.getUserId(), request.getPostId());
+        SavedPost saved = new SavedPost(user.getId(), request.getPostId());
         if (savedPostRepository.existsById(new SavedPost.SavedPostId(saved.getUserId(), saved.getPostId()))) {
             throw new AlreadyExistsException("This post is already saved by user" + user.getUsername());
         }
         savedPostRepository.save(saved);
 
         return new SavePostResponse(
-                saved.getUserId(),
+                request.getUsername(),
                 saved.getPostId()
         );
     }
 
     @Transactional
-    public Map<String, Boolean> deleteSavedPost(Integer userId, Integer postId) {
-        SavedPost.SavedPostId id = new SavedPost.SavedPostId(userId, postId);
+    public Map<String, Boolean> deleteSavedPost(String username, Integer postId) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() ->
+                        new NotFoundException("User not found: " + username)
+                );
+        SavedPost.SavedPostId id = new SavedPost.SavedPostId(user.getId(), postId);
         if (!savedPostRepository.existsById(id)) {
             throw new NotFoundException(
-                    "Saved‐post entry not found for userId=" + userId + ", postId=" + postId
+                    "Saved‐post entry not found for userId=" + user.getId() + ", postId=" + postId
             );
         }
         savedPostRepository.deleteById(id);
@@ -227,16 +231,27 @@ public class PostService {
                 .collect(Collectors.toList());
     }
     
-    public List<GetSavedPostResponse> getSavedPosts(Integer userId) {
+    public List<GetSavedPostResponse> getSavedPosts(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User not found: " + username));
         List<SavedPost> savedPosts =
-                savedPostRepository.findAllByUserIdOrderBySavedAtDesc(userId);
+                savedPostRepository.findAllByUserIdOrderBySavedAtDesc(user.getId());
         return savedPosts.stream()
                 .map(sp -> new GetSavedPostResponse(
                         sp.getPost().getPostId(),
                         sp.getPost().getContent(),
                         sp.getPost().getLikes(),
-                        sp.getSavedAt()))
+                        sp.getSavedAt(),
+                        sp.getPost().getPhotoUrl()) )
                 .collect(Collectors.toList());
+    }
+    public List<GetPostResponse> getPostsForUser(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User not found: " + username));
+
+        List<Post> posts = postRepository.findByUserId(user.getId());
+
+        return convertToGetPostsResponse(posts, user.getId());
     }
 
     private String uploadFileToSpaces(MultipartFile file, String folder) {

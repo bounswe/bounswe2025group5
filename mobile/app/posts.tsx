@@ -15,18 +15,18 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { AuthContext } from './_layout'; // Adjust path if necessary
+import { AuthContext } from './_layout'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HOST = Platform.select({ android: '10.0.2.2', ios: 'localhost' , web: 'localhost' });
 const API_BASE = `http://${HOST}:8080`;
 
-// Re-using Post type from explore.tsx if it's identical, or define locally
 type PostData = {
   postId: number;
   creatorUsername: string;
   content: string;
   likes: number;
-  comments: any[]; // Assuming comments is an array, or adjust to number if it's a count
+  comments: any[]; 
   photoUrl: string | null;
 };
 
@@ -40,7 +40,7 @@ function UserPostCard({
     post: PostData;
     cardBackgroundColor: string;
     iconColor: string;
-    onEdit: (postId: number) => void;
+    onEdit: (post: PostData) => void; // Changed to pass whole post
     onDelete: (postId: number) => void;
 }) {
   return (
@@ -50,7 +50,7 @@ function UserPostCard({
           source={{
             uri: post.photoUrl.startsWith('http')
               ? post.photoUrl
-              : `${API_BASE}${post.photoUrl}`, // Assuming API_BASE serves static files if not full URL
+              : `${API_BASE}${post.photoUrl}`, 
           }}
           style={styles.postImage}
           onError={(e) => console.warn('User Post: Image failed to load:', e.nativeEvent.error, post.photoUrl)}
@@ -68,7 +68,7 @@ function UserPostCard({
             <ThemedText style={styles.footerText}>{Array.isArray(post.comments) ? post.comments.length : post.comments}</ThemedText>
         </View>
         <View style={styles.postActions}>
-            <TouchableOpacity onPress={() => onEdit(post.postId)} style={styles.actionIcon}>
+            <TouchableOpacity onPress={() => onEdit(post)} style={styles.actionIcon}>
                 <Ionicons name="pencil" size={20} color={iconColor} />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => onDelete(post.postId)} style={styles.actionIcon}>
@@ -82,17 +82,17 @@ function UserPostCard({
 
 export default function MyPostsScreen() {
   const navigation = useNavigation<any>();
-  const { username, user_id } = useContext(AuthContext);
+  const { username } = useContext(AuthContext); // user_id removed as not used in this direct logic
   const colorScheme = useColorScheme();
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: 'My Posts',
+      headerTitle: 'Manage Posts',
     });
   }, [navigation]);
 
-  const [allPosts, setAllPosts] = useState<PostData[]>([]); // Store all fetched posts
-  const [userPosts, setUserPosts] = useState<PostData[]>([]); // Store filtered user posts
+  const [allPosts, setAllPosts] = useState<PostData[]>([]); 
+  const [userPosts, setUserPosts] = useState<PostData[]>([]); 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
@@ -115,17 +115,16 @@ export default function MyPostsScreen() {
     setLoading(true);
     setError('');
     try {
-      // Fetch all posts - adjust endpoint if needed, e.g., /api/posts/info?size=100 for more posts
-      const response = await fetch(`${API_BASE}/api/posts/info?size=100`); // Fetch a larger batch of posts
+      const response = await fetch(`${API_BASE}/api/posts/getPostsForUser?username=${encodeURIComponent(username)}`); 
+      
       if (!response.ok) {
-        throw new Error(`Failed to fetch all posts: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`Failed to fetch posts: ${response.status} - ${errorText}`); // Updated error message
       }
       const data: PostData[] = await response.json();
-      setAllPosts(data); // Store all posts
-
-      // Filter for user's posts
-      const filteredPosts = data.filter(post => post.creatorUsername === username);
-      setUserPosts(filteredPosts);
+      
+      setAllPosts(data); 
+      setUserPosts(data); 
 
     } catch (err) {
       console.error('Error fetching or filtering posts:', err);
@@ -135,6 +134,7 @@ export default function MyPostsScreen() {
       setRefreshing(false);
     }
   }, [username]);
+
 
   useFocusEffect(
     useCallback(() => {
@@ -147,12 +147,11 @@ export default function MyPostsScreen() {
     fetchAllPostsAndFilter();
   };
 
-    const handleEditPost = (postId: number) => {
-
-    const postToEdit = userPosts.find(p => p.postId === postId);
+  const handleEditPost = (postToEdit: PostData) => { 
     navigation.navigate('edit_post_detail', { 
-        postId: postId,
-
+        postId: postToEdit.postId,
+        initialContent: postToEdit.content,
+        initialPhotoUrl: postToEdit.photoUrl,
     });
   };
 
@@ -164,11 +163,18 @@ export default function MyPostsScreen() {
         { text: "Cancel", style: "cancel" },
         { text: "Delete", style: "destructive", onPress: async () => {
           try {
+            const token = await AsyncStorage.getItem('token');
+            const headers: HeadersInit = {};
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
             const response = await fetch(`${API_BASE}/api/posts/delete/${postId}`, {
               method: 'DELETE',
+              headers: headers,
             });
             if (!response.ok) {
-              throw new Error(`Failed to delete post: ${response.status}`);
+              const errorText = await response.text();
+              throw new Error(`Failed to delete post: ${response.status} - ${errorText}`);
             }
             Alert.alert("Success", "Post deleted successfully.");
             fetchAllPostsAndFilter(); 
@@ -208,7 +214,7 @@ export default function MyPostsScreen() {
         </View>
       ) : userPosts.length === 0 && !loading ? (
         <View style={styles.centeredMessageContainer}>
-            <ThemedText>You haven't created any posts yet or no posts match.</ThemedText>
+            <ThemedText>You haven't created any posts yet.</ThemedText>
             <TouchableOpacity
                 style={styles.createPostButton}
                 onPress={() => navigation.navigate('create_post')}
@@ -297,7 +303,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    minHeight: 200, // Ensure it takes some space
+    minHeight: 200,
   },
   createPostButton: {
     marginTop: 20,

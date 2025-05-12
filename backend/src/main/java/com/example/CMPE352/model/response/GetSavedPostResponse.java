@@ -12,4 +12,5 @@ public class GetSavedPostResponse {
     private String   content;
     private Integer  likeCount;
     private Timestamp savedAt;
+    private String photoUrl;
 }

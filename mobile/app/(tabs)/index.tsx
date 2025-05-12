@@ -183,20 +183,18 @@ export default function HomeScreen() {
       }
   
       // success path
-      const { token, username, user_id } = (await res.json()) as {
+      const { token, username,  } = (await res.json()) as {
         token: string;
 
         username: string;
-        user_id : string;
       };
       await AsyncStorage.multiSet([
         ['token', token],
         ['username', username],
-        ['user_id' , user_id.toString()],
+
       ]);
       setUserType('user');
       setUsername(username);
-      setUserId(user_id);
       setLoggedIn(true);
   
     } catch (error: any) {

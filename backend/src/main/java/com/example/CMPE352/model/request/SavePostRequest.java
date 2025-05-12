@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SavePostRequest {
-    private Integer userId;
+    private String username;
     private Integer postId;
 }
