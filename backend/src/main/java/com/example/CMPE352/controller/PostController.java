@@ -83,9 +83,9 @@ public class PostController {
 
     @GetMapping("/getSavedPosts")
     public ResponseEntity<List<GetSavedPostResponse>> getSavedPosts(
-            @RequestParam("userId") Integer userId
+            @RequestParam("username") String username
     ) {
-        List<GetSavedPostResponse> savedPosts = postService.getSavedPosts(userId);
+        List<GetSavedPostResponse> savedPosts = postService.getSavedPosts(username);
         return ResponseEntity.ok(savedPosts);
     }
 
