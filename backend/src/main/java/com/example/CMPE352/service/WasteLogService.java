@@ -7,11 +7,15 @@ import com.example.CMPE352.model.request.UpdateWasteLogRequest;
 import com.example.CMPE352.model.response.CreateOrEditWasteLogResponse;
 import com.example.CMPE352.model.response.DeleteWasteLogResponse;
 import com.example.CMPE352.model.response.GetWasteLogResponse;
+import com.example.CMPE352.model.response.TotalLogResponse;
 import com.example.CMPE352.repository.*;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,7 +43,7 @@ public class WasteLogService {
                 })
                 .collect(Collectors.toList());
     }
-
+    @Transactional
     public CreateOrEditWasteLogResponse createWasteLog(CreateWasteLogRequest request) {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new NotFoundException("User not found: " + request.getUsername()));
@@ -51,12 +55,13 @@ public class WasteLogService {
         wasteLog.setAmount(request.getAmount());
         wasteLog.setUser(user);
         wasteLog.setGoal(goal);
+        wasteLog.setWasteType(goal.getWasteType());
 
         wasteLogRepository.save(wasteLog);
 
         return new CreateOrEditWasteLogResponse(wasteLog.getLogId(), wasteLog.getAmount(), wasteLog.getDate());
     }
-
+    @Transactional
     public CreateOrEditWasteLogResponse updateWasteLog(Integer logId, UpdateWasteLogRequest request) {
         WasteLog existingLog = wasteLogRepository.findById(logId)
                 .orElseThrow(() -> new NotFoundException("WasteLog not found: " + logId));
@@ -65,11 +70,16 @@ public class WasteLogService {
 
         return new CreateOrEditWasteLogResponse(existingLog.getLogId(), existingLog.getAmount(), existingLog.getDate());
     }
-
+   @Transactional
     public DeleteWasteLogResponse deleteWasteLog(Integer logId) {
         WasteLog wasteLog = wasteLogRepository.findById(logId)
                 .orElseThrow(() -> new NotFoundException("WasteLog not found: " + logId));
         wasteLogRepository.delete(wasteLog);
         return new DeleteWasteLogResponse(logId);
+    }
+
+    public TotalLogResponse getTotalWasteAmountByTypeAndInterval(WasteGoal.wasteType wasteType, LocalDateTime startDate, LocalDateTime endDate) {
+        Double totalAmount = wasteLogRepository.findTotalAmountByDateRange(wasteType, startDate, endDate);
+        return new TotalLogResponse(wasteType,totalAmount);
     }
 }

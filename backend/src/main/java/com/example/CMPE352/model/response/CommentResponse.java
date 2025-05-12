@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CommentResponse {
-
+    private Integer commentId;
     private String content;
     private Timestamp createdAt;
     private String creatorUsername;

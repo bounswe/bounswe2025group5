@@ -1,9 +1,6 @@
 package com.example.CMPE352.model;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
@@ -12,9 +9,10 @@ import java.util.List;
 @Entity
 @Table(name = "Users")
 @Data
-@ToString(exclude = {"goals","profile" })
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(exclude = {"profile", "notifications", "userRewards", "goals", "logs"})
+@EqualsAndHashCode(exclude = {"profile", "notifications", "userRewards", "goals", "logs"})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -48,7 +48,7 @@ public class AuthService {
 
         String token = jwtService.generateToken(user);
 
-        return new LoginResponse(token, user.getUsername(), user.getIsAdmin(), user.getIsModerator());
+        return new LoginResponse(token, user.getId(),user.getUsername(), user.getIsAdmin(), user.getIsModerator());
     }
 
     public RegisterResponse register(RegisterRequest request) {

@@ -1,11 +1,13 @@
-// app/(tabs)/explore.tsx
-import React, { useContext, useState, useEffect } from 'react';
+//app/(tabs)/index.tsx
+import React, { useContext, useEffect, useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
   View,
-  Image,
   TextInput,
+  ActivityIndicator,
+  RefreshControl,
   TouchableOpacity,
   Alert,
   ActivityIndicator,
@@ -15,42 +17,35 @@ import { ThemedText } from '@/components/ThemedText';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
 
+const API_BASE = 'http://localhost:8080';
+
 type Post = {
-  id: string;
+  id: number;
   title: string;
   content: string;
   likes: number;
   comments: number;
-  image: string;
   isLiked?: boolean;
   isSaved?: boolean;
 };
 
-// Update to your actual backend URL - adjust this based on your setup
-// If running on physical device, use your computer's IP instead of localhost
-const BASE_URL = 'http://10.0.2.2:8080'; // For Android emulator
-// const BASE_URL = 'http://localhost:8080'; // For iOS simulator or web
-
 const mockPosts: Post[] = [
   {
-    id: '9', // Updated to match database ID
+    id: '1',
     title: 'Post Title 1',
     content: 'This is a short preview of the post content…',
     likes: 12,
     comments: 4,
-    image: 'https://placehold.co/300x150',
-    isLiked: false,
-    isSaved: false,
+    image: 'https://placehold.co/300x150' 
+,
   },
   {
-    id: '10', // Updated ID
+    id: '2',
     title: 'Post Title 2',
     content: 'Another preview text goes here as a placeholder.',
     likes: 8,
     comments: 2,
     image: 'https://placehold.co/300x150',
-    isLiked: false,
-    isSaved: false,
   },
 ];
 
@@ -93,7 +88,6 @@ function PostSkeleton({
 
   return (
     <View style={styles.postContainer}>
-      <Image source={{ uri: post.image }} style={styles.postImage} />
       <ThemedText type="title" style={styles.postTitle}>
         {post.title}
       </ThemedText>
@@ -156,18 +150,137 @@ export default function ExploreScreen() {
   //TODO: Mock user ID, how to get it?
   const userId = 2;
 
-  useFocusEffect(
-    React.useCallback(() => {
-      console.log('userType:', userType);
-      console.log('username:', username);
-    }, [userType])
-  );
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastPostId, setLastPostId] = useState<number | null>(null);
+  const [error, setError] = useState(false);
+  const [noMorePosts, setNoMorePosts] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false); 
+  const [searchQuery,   setSearchQuery]   = useState('');
+  const [searchResults, setSearchResults] = useState<Post[]>([]);
+  const [isSearching,   setIsSearching]   = useState(false);
+  const [inSearchMode,  setInSearchMode]  = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!userType) {
       navigation.navigate('index' as never);
     }
   }, [userType]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (userType) {
+        handleRefresh();
+      }
+    }, [userType])
+  );
+
+  const fetchPosts = async (loadMore = false) => {
+    try {
+      if (loadMore) {
+        setLoadingMore(true);
+      } else {
+        setLoading(true);
+      }
+      const url = loadMore
+        ? `${API_BASE}/api/posts/info?size=5&lastPostId=${lastPostId}`
+        : `${API_BASE}/api/posts/info?size=5`;
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error('Fetch failed');
+      }
+      const data = await res.json();
+
+      if (data.length === 0) {
+        setNoMorePosts(true);
+        return;
+      }
+
+      const mappedPosts: Post[] = data.map((item: any) => ({
+        id: item.postId,
+        title: item.creatorUsername,
+        content: item.content,
+        likes: item.likes,
+        comments: item.comments.length,
+      }));
+
+      if (loadMore) {
+        setPosts(prevPosts => [...prevPosts, ...mappedPosts]);
+      } else {
+        setPosts(mappedPosts);
+      }
+
+      if (mappedPosts.length > 0) {
+        setLastPostId(mappedPosts[mappedPosts.length - 1].id);
+      }
+
+      if (mappedPosts.length < 5) {
+        setNoMorePosts(true);
+      } else {
+        setNoMorePosts(false);
+      }
+
+      setError(false);
+    } catch (err) {
+      console.error('Failed to fetch posts:', err);
+      setError(true);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+      setLoadingMore(false);
+    }
+  };
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setLastPostId(null);
+    setNoMorePosts(false);
+    fetchPosts(false);
+  };
+
+  const handleLoadMore = () => {
+    if (!loading && !loadingMore && lastPostId !== null && !noMorePosts) {
+      fetchPosts(true);
+    }
+  };
+
+  const performSearch = async () => {
+    const q = searchQuery.trim();
+    if (!q) return;
+
+    try {
+      setIsSearching(true);
+      const res = await fetch(
+        `${API_BASE}/api/search/posts/semantic?query=${encodeURIComponent(q)}&size=5`
+      );
+      if (!res.ok) throw new Error('Search failed');
+      const data = await res.json();
+
+      const mapped: Post[] = data.map((item: any) => ({
+        id: item.postId,
+        title: item.creatorUsername,
+        content: item.content,
+        likes: item.likes,
+        comments: item.comments,          // already a number
+      }));
+
+      setSearchResults(mapped);
+      setInSearchMode(true);
+    } catch (err) {
+      console.error('Search error:', err);
+      setSearchResults([]);
+      setInSearchMode(true);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleBack = () => {
+    setInSearchMode(false);
+    setSearchQuery('');
+    setSearchResults([]);
+  };
 
   const likePost = async (postId: string) => {
     if (!username) {
@@ -376,35 +489,108 @@ export default function ExploreScreen() {
   if (!userType) return null;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+    >
       <View style={styles.header}>
         <ThemedText type="title">Explore</ThemedText>
+
+        {userType === 'guest' && (
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={() => navigation.navigate('index' as never)}
+          >
+            <ThemedText style={styles.loginButtonText}>Go to Login</ThemedText>
+          </TouchableOpacity>
+        )}
       </View>
 
       <View style={styles.searchBar}>
-        <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
+        {inSearchMode && (
+          <TouchableOpacity onPress={handleBack}>
+            <Ionicons
+              name="arrow-back"
+              size={25}
+              color="#888"
+              style={[styles.searchIcon, { marginRight: 8 }]}
+            />
+          </TouchableOpacity>
+        )}
+
+           <TouchableOpacity onPress={performSearch} disabled={isSearching}>
+          {isSearching ? (
+            /* small spinner that replaces the icon while the request is in flight */
+            <ActivityIndicator size="small" color="#888" style={styles.searchIcon} />
+          ) : (
+            <Ionicons name="search" size={30} color="#888" style={styles.searchIcon} />
+          )}
+        </TouchableOpacity>
         <TextInput
           style={styles.searchInput}
-          placeholder={Math.random() < 0.5 ? "Search for a specific topic…" : "Find something interesting…"}
+          placeholder="Search for posts…"
           placeholderTextColor="#888"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          returnKeyType="search"
+          onSubmitEditing={performSearch}
         />
       </View>
 
-      {posts.map(post => (
-        <PostSkeleton 
-          key={post.id} 
-          post={post} 
-          onLike={likePost}
-          onUnlike={unlikePost}
-          onSave={savePost}
-          onUnsave={unsavePost}
-          isLoading={loadingPostId === post.id}
-          isSaveLoading={savingPostId === post.id}
-        />
-      ))}
+      {/* ───────── Main content ───────── */}
+      {inSearchMode ? (
+        /* SEARCH MODE */
+        isSearching ? (
+          <ActivityIndicator style={{ marginTop: 20 }} />
+        ) : searchResults.length > 0 ? (
+          searchResults.map(post => <PostSkeleton key={post.id} post={post} />)
+        ) : (
+          <View style={styles.noMoreBox}>
+            <ThemedText style={styles.noMoreText}>No results found</ThemedText>
+          </View>
+        )
+      ) : (
+        /* NORMAL FEED */
+        loading ? (
+          <ActivityIndicator style={{ marginTop: 20 }} />
+        ) : error ? (
+          <View style={styles.errorBox}>
+            <ThemedText style={styles.errorText}>Failed to fetch posts</ThemedText>
+          </View>
+        ) : posts.length > 0 ? (
+          <>
+            {posts.map(post => (
+              <PostSkeleton key={post.id} post={post} />
+            ))}
+
+            {!noMorePosts ? (
+              <TouchableOpacity style={styles.loadMoreButton} onPress={handleLoadMore}>
+                {loadingMore ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <ThemedText style={styles.loadMoreText}>Load More Posts</ThemedText>
+                )}
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.noMoreBox}>
+                <ThemedText style={styles.noMoreText}>No more posts available</ThemedText>
+              </View>
+            )}
+          </>
+        ) : (
+          <View style={styles.noMoreBox}>
+            <ThemedText style={styles.noMoreText}>No posts available</ThemedText>
+          </View>
+        )
+      )}
+
     </ScrollView>
   );
 }
+
+
+
 
 const styles = StyleSheet.create({
   container: {
@@ -416,17 +602,17 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 16,
     marginTop: 48,     
-    marginBottom: 8,
+    marginBottom: 18,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#f0f0f0',
-    borderRadius: 20,
+    borderRadius: 30,
     marginHorizontal: 16,
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginBottom: 16,
+    paddingVertical: 12,
+    marginBottom: 18,
   },
   searchIcon: {
     marginRight: 8,
@@ -456,6 +642,7 @@ const styles = StyleSheet.create({
   postTitle: {
     fontSize: 18,
     marginBottom: 6,
+    color: '#000',
   },
   postContent: {
     fontSize: 14,
@@ -474,5 +661,58 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: 14,
     marginHorizontal: 8,
+    color: '#000',
+  },
+  loginButton: {
+    marginTop: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: '#2196F3',
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+    marginLeft: 8,
+  },
+  loginButtonText: {
+    color: '#fff',
+    fontSize: 14,
+  },
+  errorBox: {
+    marginTop: 40,
+    marginHorizontal: 20,
+    padding: 12,
+    backgroundColor: '#ffcccc',
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  errorText: {
+    color: '#cc0000',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  noMoreBox: {
+    marginTop: 40,
+    marginHorizontal: 20,
+    padding: 12,
+    backgroundColor: '#e0f7fa',
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  noMoreText: {
+    color: '#00796b',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  loadMoreButton: {
+    marginVertical: 20,
+    marginHorizontal: 40,
+    backgroundColor: '#2196F3',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  loadMoreText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

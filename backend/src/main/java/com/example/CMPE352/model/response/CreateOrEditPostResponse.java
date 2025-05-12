@@ -14,4 +14,5 @@ public class CreateOrEditPostResponse {
     private String content;
     private Timestamp createdAt;
     private String creatorUsername;
+    private String photoUrl;
 }

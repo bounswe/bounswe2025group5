@@ -9,6 +9,5 @@ import java.util.List;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
 
-    // Fetch comments by postId (to retrieve all comments for a specific post)
     List<Comment> findByPostPostId(Integer postId);
 }

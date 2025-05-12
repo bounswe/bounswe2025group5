@@ -39,6 +39,7 @@ public class WasteGoalService {
                     goalResponse.setAmount(goal.getAmount());
                     goalResponse.setDuration(goal.getDuration());
                     goalResponse.setUnit(goal.getUnit().name());
+                    goalResponse.setProgress(goal.getPercentOfProgress());
                     goalResponse.setCreatedAt(goal.getDate());
                     goalResponse.setCreatorUsername(goal.getOwner().getUsername());
                     return goalResponse;

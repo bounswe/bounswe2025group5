@@ -1,4 +1,4 @@
-// app/(tabs)/edit_profile.tsx
+// app/edit_profile.tsx
 import React, { useState, useEffect, useContext } from 'react';
 import {
   StyleSheet,

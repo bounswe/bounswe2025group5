@@ -24,10 +24,10 @@ export default function TabLayout() {
         tabBarStyle: Platform.select({
           ios: {
             position: 'absolute',
-            display: userType ? 'flex' : 'none',
+            display: userType === 'user' ? 'flex' : 'none',
           },
           default: {
-            display: userType ? 'flex' : 'none',
+            display: userType === 'user' ? 'flex' : 'none',
           },
         }),
       }}
@@ -47,6 +47,23 @@ export default function TabLayout() {
         options={{
           title: 'Explore',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="wastegoal"
+        options={{
+          title: 'Goals',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="target" color={color} />,
+          tabBarItemStyle: {
+            display: userType === 'user' ? 'flex' : 'none'
+          },
+        }}
+      />
+      <Tabs.Screen
+        name="challenges"
+        options={{
+          title: 'Challenges',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="flag" color={color} />,
         }}
       />
       <Tabs.Screen
