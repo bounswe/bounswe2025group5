@@ -231,15 +231,18 @@ public class PostService {
                 .collect(Collectors.toList());
     }
     
-    public List<GetSavedPostResponse> getSavedPosts(Integer userId) {
+    public List<GetSavedPostResponse> getSavedPosts(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User not found: " + username));
         List<SavedPost> savedPosts =
-                savedPostRepository.findAllByUserIdOrderBySavedAtDesc(userId);
+                savedPostRepository.findAllByUserIdOrderBySavedAtDesc(user.getId());
         return savedPosts.stream()
                 .map(sp -> new GetSavedPostResponse(
                         sp.getPost().getPostId(),
                         sp.getPost().getContent(),
                         sp.getPost().getLikes(),
-                        sp.getSavedAt()))
+                        sp.getSavedAt(),
+                        sp.getPost().getPhotoUrl()) )
                 .collect(Collectors.toList());
     }
     public List<GetPostResponse> getPostsForUser(String username) {
