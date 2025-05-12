@@ -73,11 +73,11 @@ public class PostController {
         SavePostResponse response = postService.savePost(request);
         return ResponseEntity.ok(response);
     }
-    @DeleteMapping("/unsave{userId}/{postId}")
+    @DeleteMapping("/unsave{username}/{postId}")
     public ResponseEntity<Map<String, Boolean>> deleteSavedPost(
-            @PathVariable Integer userId,
+            @PathVariable String username,
             @PathVariable Integer postId) {
-        Map<String, Boolean> response = postService.deleteSavedPost(userId, postId);
+        Map<String, Boolean> response = postService.deleteSavedPost(username, postId);
         return ResponseEntity.ok(response);
     }
 
