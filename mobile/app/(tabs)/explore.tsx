@@ -744,7 +744,7 @@ export default function ExploreScreen() {
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
       refreshControl={
-        <RefreshControl /* ... */ refreshing={refreshing} onRefresh={handleRefresh} />
+        <RefreshControl /* ... */ refreshing={refreshing} onRefresh={handleRefresh}  progressViewOffset={36}/>
       }
     >
       <View style={styles.header}>
