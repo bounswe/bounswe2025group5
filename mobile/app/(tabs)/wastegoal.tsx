@@ -43,7 +43,7 @@ type Navigation = {
 
 export default function WasteGoalScreen() {
   const navigation = useNavigation<Navigation>();
-  const { username, userType } = useContext(AuthContext); // Removed user_id as it wasn't used
+  const { username, userType } = useContext(AuthContext);
   const colorScheme = useColorScheme();
 
   const isDarkMode = colorScheme === 'dark';
@@ -326,35 +326,38 @@ export default function WasteGoalScreen() {
 
   const getProgressBarColor = (percentage: number) => {
     if (percentage < 14.3) {
-      return '#2E7D32'; // Dark Green - Excellent
+      return '#2E7D32';
     } else if (percentage < 28.6) {
-      return '#66BB6A'; // Green - Very Good
+      return '#66BB6A';
     } else if (percentage < 42.9) {
-      return '#9CCC65'; // Light Green - Good
+      return '#9CCC65';
     } else if (percentage < 57.1) {
-      return '#FFC107'; // Amber - Moderate (more visible yellow)
+      return '#FFC107';
     } else if (percentage < 71.4) {
-      return '#FFA726'; // Orange - Concerning
+      return '#FFA726';
     } else if (percentage < 85.7) {
-      return '#FF7043'; // Deep Orange - Bad
+      return '#FF7043';
     } else {
-      return '#E53935'; // Red - Very Bad
+      return '#E53935';
     }
   };
 
 
   const renderGoalItem = ({ item }: { item: WasteGoal }) => {
-    const progressFraction = item.progress !== undefined ? item.progress : 0;
-    const progressPercentage = Math.max(0, Math.min(100, progressFraction)); 
-    const displayProgressPercentage = progressFraction; 
-    const progressBarColor = getProgressBarColor(displayProgressPercentage);
+    const progressPercentage = item.progress !== undefined ? item.progress : 0;
+    const progressBarWidthPercentage = Math.max(0, Math.min(100, progressPercentage));
+    const progressBarColor = getProgressBarColor(progressPercentage);
+
+    const accumulatedWaste = (progressPercentage / 100) * item.amount;
+    const remainingQuota = Math.max(0, item.amount - accumulatedWaste);
+
 
     return (
     <View style={[styles.goalItem, { backgroundColor: cardBackgroundColor }]}>
       <View style={styles.goalHeader}>
         <ThemedText style={styles.goalType}>{item.wasteType}</ThemedText>
         <View style={styles.goalActions}>
-          {displayProgressPercentage < 100 && ( 
+          {progressPercentage < 100 && (
             <TouchableOpacity
               style={styles.addLogButton}
               onPress={() => openAddLogModal(item)}
@@ -381,11 +384,16 @@ export default function WasteGoalScreen() {
       </ThemedText>
 
       <View style={styles.progressBarContainer}>
-        <View style={[styles.progressBarFill, { width: `${progressPercentage}%`, backgroundColor: progressBarColor }]} />
+        <View style={[styles.progressBarFill, { width: `${progressBarWidthPercentage}%`, backgroundColor: progressBarColor }]} />
       </View>
-      <ThemedText style={[styles.goalProgressText, { color: progressBarColor }]}>
-        Waste Load: {displayProgressPercentage.toFixed(1)}%
-      </ThemedText>
+      <View style={styles.progressTextsContainer}>
+        <ThemedText style={[styles.goalProgressText, styles.remainingQuotaText, { color: progressBarColor }]}>
+          Remaining Quota:                                {remainingQuota.toFixed(1)} {item.unit} in {item.duration} days                              
+        </ThemedText>
+        <ThemedText style={[styles.goalProgressText, { color: progressBarColor, textAlign: 'right' }]}>
+          Waste Load: {progressPercentage.toFixed(1)}%
+        </ThemedText>
+      </View>
     </View>
   )};
 
@@ -654,7 +662,9 @@ const styles = StyleSheet.create({
   confirmDeleteButton: {backgroundColor: '#D32F2F',},
   deleteConfirmText: {fontSize: 16, textAlign: 'center', marginBottom: 20, lineHeight: 24,},
   progressBarContainer: {height: 12, backgroundColor: '#e0e0e0', borderRadius: 6, marginTop: 10, overflow: 'hidden',},
-  progressBarFill: {height: '100%', borderRadius: 6,}, 
-  goalProgressText: {fontSize: 14, fontWeight: '500', marginTop: 6, textAlign: 'right',}, // color removed here
+  progressBarFill: {height: '100%', borderRadius: 6,},
+  progressTextsContainer: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 6, },
+  goalProgressText: {fontSize: 14, fontWeight: '500', flex: 1,}, 
+  remainingQuotaText: { textAlign: 'left', },
   modalSubtitle: {fontSize: 16, textAlign: 'center', marginBottom: 18, fontStyle: 'italic',},
 });
