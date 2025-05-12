@@ -17,7 +17,8 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUserName] = useState("");
   const location = useLocation(); // Get the current location from React Router
-  const url = "http://161.35.42.102:8080";
+  //const url = "http://161.35.42.102:8080";
+  const url = ""; // Uncomment this line to use localhost
 
   useEffect(() => {
     // Check if the user is already logged in

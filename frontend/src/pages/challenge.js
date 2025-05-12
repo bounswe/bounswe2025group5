@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ChallengeCard from '../components/ChallengeCard';
 import LeaderboardCard from '../components/LeaderboardCard';
+import CreateChallengeCard from '../components/CreateChallengeCard';
 
 export default function Challenge({ url }) {
     const [username] = useState(localStorage.getItem("username"));
@@ -9,7 +10,7 @@ export default function Challenge({ url }) {
     const [loading, setLoading] = useState(true);
     const [selectedChallengeId, setSelectedChallengeId] = useState(null);
     const [showLeaderboard, setShowLeaderboard] = useState(false);
-
+    const isAdmin = localStorage.getItem("isAdmin");
     const fetchChallenges = async () => {
         try {
             const response = await fetch(`${url}/api/challenges?username=${username}`);
@@ -45,6 +46,7 @@ export default function Challenge({ url }) {
 
     return (
         <div>
+            {isAdmin && <CreateChallengeCard onAction={fetchChallenges} url={url} />}
             <h1>Active Challenges</h1>
 
             <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>

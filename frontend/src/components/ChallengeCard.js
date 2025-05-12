@@ -3,6 +3,7 @@ import React, { useState } from "react";
 export default function ChallengeCard({ challenge, onAction, onCardClick, url }) {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+    const isAdmin = localStorage.getItem("isAdmin");
 
     const {
         challengeId,
@@ -69,6 +70,27 @@ export default function ChallengeCard({ challenge, onAction, onCardClick, url })
         }
     };
 
+    const handleEndChallenge = async (e) => {
+        e.stopPropagation(); // prevent triggering card click
+        setLoading(true);
+        try {
+            const res = await fetch(`${url}/api/challenges/end/${challengeId}`, {
+                method: "PUT",
+            });
+
+            if (res.ok) {
+                onAction();
+            } else {
+                const data = await res.json();
+                setError(data.message || "Failed to end challenge.");
+            }
+        } catch (err) {
+            setError("End error occurred.");
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return (
         <div
             onClick={() => onCardClick(challengeId)}
@@ -96,6 +118,7 @@ export default function ChallengeCard({ challenge, onAction, onCardClick, url })
             ) : (
                 <button onClick={handleJoin}>Join</button>
             )}
+            {isAdmin && <button onClick={handleEndChallenge}>End Challenge</button>}
 
             {error && <p style={{ color: "red" }}>{error}</p>}
         </div>

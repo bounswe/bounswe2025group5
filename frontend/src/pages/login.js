@@ -31,6 +31,8 @@ function Login({ isLoggedIn, setIsLoggedIn, url }) {
             if (response.ok) {
                 localStorage.setItem('username', data.username);
                 localStorage.setItem('userId', data.userId); // Store user ID in local storage
+                localStorage.setItem('isAdmin', data.isAdmin); // Store admin status in local storage
+                localStorage.setItem('isModerator', data.isModerator); // Store moderator status in local storage
                 setIsLoggedIn(true);
             } else {
                 setError(data.message || 'Login failed');
