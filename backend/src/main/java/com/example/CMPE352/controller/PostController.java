@@ -91,9 +91,9 @@ public class PostController {
 
     @GetMapping("/getPostsForUser")
     public ResponseEntity<List<GetPostResponse>> getPostsForUser(
-            @RequestParam("userId") Integer userId
+            @RequestParam("username") String username
     ) {
-        List<GetPostResponse> postsForUser = postService.getPostsForUser(userId);
+        List<GetPostResponse> postsForUser = postService.getPostsForUser(username);
         return ResponseEntity.ok(postsForUser);
     }
 }
