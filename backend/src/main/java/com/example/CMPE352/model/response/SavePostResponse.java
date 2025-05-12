@@ -10,6 +10,6 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SavePostResponse {
-    private Integer userId;
+    private String username;
     private Integer postId;
 }
