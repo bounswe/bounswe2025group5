@@ -38,6 +38,7 @@ type Post = {
   comments: number;
   photoUrl: string | null;
   likedByUser: boolean;
+  savedByUser: boolean;
 };
 
 // --- CommentItemDisplay Component ---
@@ -156,6 +157,7 @@ interface PostItemProps {
   commentInputPlaceholderColor: string;
   commentInputBackgroundColor: string;
   onLikePress: (postId: number, currentlyLiked: boolean) => void;
+  onSavePress: (postId: number, currentlySaved: boolean) => void;
   userType: string | null;
   loggedInUsername: string | null;
 
@@ -189,6 +191,7 @@ function PostItem({
   commentInputPlaceholderColor,
   commentInputBackgroundColor,
   onLikePress,
+  onSavePress,
   userType,
   loggedInUsername,
   isExpanded,
@@ -227,6 +230,15 @@ function PostItem({
     onLikePress(post.id, post.likedByUser);
   };
 
+  const handleSave = () => {
+    if (userType === 'guest') {
+      Alert.alert("Login Required", "Please log in to save posts.");
+      return;
+    }
+    onSavePress(post.id, post.savedByUser);
+  };
+
+
   const canPostComment = userType !== 'guest' && loggedInUsername && !editingCommentDetailsForPost; // Disable new comment if editing one in this post
 
   return (
@@ -261,6 +273,19 @@ function PostItem({
             {post.likes}
           </ThemedText>
         </TouchableOpacity>
+
+        <TouchableOpacity onPress={handleSave} style={[styles.footerAction, { marginLeft: 16 }]}>
+          <Ionicons
+            name={post.savedByUser ? "bookmark" : "bookmark-outline"}
+            size={20}
+            color={post.savedByUser ? 'blue' : iconColor}
+          />
+          <ThemedText style={[styles.footerText, { color: post.savedByUser ? 'blue' : iconColor, marginLeft: 4 }]}>
+            {post.savedByUser ? 'Saved' : 'Save'}
+          </ThemedText>
+        </TouchableOpacity>
+
+        
 
         <TouchableOpacity onPress={onToggleComments} style={[styles.footerAction, { marginLeft: 16 }]}>
           <Ionicons name="chatbubble-outline" size={20} color={iconColor} />
@@ -421,6 +446,7 @@ export default function ExploreScreen() {
     comments: Array.isArray(item.comments) ? item.comments.length : (Number(item.comments) || 0),
     photoUrl: item.photoUrl,
     likedByUser: false,
+    savedByUser: false,
   });
 
   const fetchLikeStatusesForPosts = async (currentPostsToUpdate: Post[], currentUsername: string): Promise<Post[]> => {
@@ -436,6 +462,26 @@ export default function ExploreScreen() {
     });
     return Promise.all(promises);
   };
+
+  const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentUsername: string): Promise<Post[]> => {
+    if (!currentUsername || currentPostsToUpdate.length === 0) return currentPostsToUpdate;
+      try {
+        const res = await fetch(`${API_BASE}/api/posts/getSavedPosts?username=${currentUsername}`); 
+        if (!res.ok) return currentPostsToUpdate;
+        const savedPostsData = await res.json();
+        const savedPostIds = new Set(savedPostsData.map((post: any) => post.postId));
+        return currentPostsToUpdate.map(post => ({
+          ...post,
+          savedByUser: savedPostIds.has(post.id), 
+        }));
+      } catch (e) { 
+        console.error('Error fetching saved statuses:', e);
+        return currentPostsToUpdate;
+      }
+  }
+        
+  
+//addsave
 
   const fetchPosts = async (loadMore = false) => {
     const currentOperation = loadMore ? 'loading more' : 'fetching initial/refresh';
@@ -461,7 +507,8 @@ export default function ExploreScreen() {
       let processedNewItems: Post[] = data.map(mapApiItemToPost);
 
       if (username && userType === 'user' && processedNewItems.length > 0) {
-        processedNewItems = await fetchLikeStatusesForPosts(processedNewItems, username);
+        processedNewItems = await fetchLikeStatusesForPosts(processedNewItems, username); 
+        processedNewItems = await fetchSavedStatusesForPosts(processedNewItems, username);
       }
 
       if (loadMore) {
@@ -535,7 +582,8 @@ export default function ExploreScreen() {
       const data = await res.json();
       let processedResults: Post[] = data.map(mapApiItemToPost);
       if (username && userType === 'user' && processedResults.length > 0) {
-        processedResults = await fetchLikeStatusesForPosts(processedResults, username);
+        processedResults = await fetchLikeStatusesForPosts(processedResults, username); 
+        processedResults = await fetchSavedStatusesForPosts(processedResults, username);
       }
       setSearchResults(processedResults);
       setInSearchMode(true);
@@ -599,6 +647,56 @@ export default function ExploreScreen() {
       );
     }
   };
+
+  const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
+    if (userType === 'guest' || !username) {
+      Alert.alert("Login Required", "Please log in to save posts.");
+      return;
+    }
+    const listToUpdate = inSearchMode ? searchResults : posts;
+    const setListFunction = inSearchMode ? setSearchResults : setPosts;
+    setListFunction(currentList =>
+      currentList.map(p =>
+        p.id === postId
+          ? { ...p, savedByUser: !currentlySaved }
+          : p
+      )
+    );
+    
+    // api call for save POST {{base_url}}/api/posts/save
+    // api call for unsave DELETE {{base_url}}/api/posts/unsave{{user_id}}/{{post_id}}
+    try {
+      const url = currentlySaved
+        ? `${API_BASE}/api/posts/unsave/${username}/${postId}`
+        : `${API_BASE}/api/posts/save`;
+      const method = currentlySaved ? 'DELETE' : 'POST';
+      const body = currentlySaved ? null : JSON.stringify({ username, postId });
+      const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body });
+      const responseBodyText = await response.text();
+      if (!response.ok) {
+        let errorMsg = `Failed to ${currentlySaved ? 'unsave' : 'save'}. Status: ${response.status}`;
+        try { const errorData = JSON.parse(responseBodyText); errorMsg = errorData.message || errorMsg; }
+        catch (e) { errorMsg += ` Response: ${responseBodyText.substring(0,100)}`; }
+        throw new Error(errorMsg);
+      }
+      const result = JSON.parse(responseBodyText);
+      if (!result.success) throw new Error(result.message || `Backend error on ${currentlySaved ? 'unsave' : 'save'}.`);
+    } catch (err: any) {
+      console.error('Failed to toggle save:', err.message);
+      Alert.alert("Error", err.message || "Could not update save status.");
+      setListFunction(currentList =>
+        currentList.map(p =>
+          p.id === postId
+            ? { ...p, savedByUser: currentlySaved }
+            : p
+        )
+      );
+    }
+  };
+
+
+
+
 
   // --- Comment Handlers (Fetch, Toggle, Post New, Delete are largely same) ---
   const fetchCommentsForPost = async (postId: number, forceRefresh = false) => {
@@ -846,7 +944,8 @@ export default function ExploreScreen() {
               cardBackgroundColor={cardBackgroundColor} iconColor={iconColor} textColor={generalTextColor}
               commentInputBorderColor={commentInputBorderColor} commentInputTextColor={commentInputTextColor}
               commentInputPlaceholderColor={commentInputPlaceholderColor} commentInputBackgroundColor={commentInputBackgroundColor}
-              onLikePress={handleLikeToggle} userType={userType} loggedInUsername={username}
+              onLikePress={handleLikeToggle} userType={userType} loggedInUsername={username} 
+              onSavePress={handleSaveToggle}
               // Comment related
               isExpanded={expandedPostId === post.id}
               commentsList={commentsByPostId[post.id] || []}
@@ -880,6 +979,7 @@ export default function ExploreScreen() {
               commentInputBorderColor={commentInputBorderColor} commentInputTextColor={commentInputTextColor}
               commentInputPlaceholderColor={commentInputPlaceholderColor} commentInputBackgroundColor={commentInputBackgroundColor}
               onLikePress={handleLikeToggle} userType={userType} loggedInUsername={username}
+              onSavePress={handleSaveToggle} 
               // Comment related
               isExpanded={expandedPostId === post.id}
               commentsList={commentsByPostId[post.id] || []}

@@ -43,7 +43,7 @@ type Navigation = {
 
 export default function WasteGoalScreen() {
   const navigation = useNavigation<Navigation>();
-  const { username, userType, user_id } = useContext(AuthContext);
+  const { username, userType} = useContext(AuthContext);
   const colorScheme = useColorScheme();
 
   const isDarkMode = colorScheme === 'dark';

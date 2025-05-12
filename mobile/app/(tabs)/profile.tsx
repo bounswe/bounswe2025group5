@@ -22,7 +22,7 @@ const API_BASE = `http://${HOST}:8080`;
 
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
-  const { userType, setUserType, username, setUsername, user_id } = useContext(AuthContext);
+  const { userType, setUserType, username, setUsername} = useContext(AuthContext);
   const colorScheme = useColorScheme(); // Get current color scheme
 
   const [bio, setBio] = useState('');
@@ -149,6 +149,14 @@ export default function ProfileScreen() {
         >
           <Text style={[styles.actionText, {color: buttonTextColor}]}>My Posts</Text>
         </TouchableOpacity>
+        
+        <TouchableOpacity
+          style={[styles.actionButton, { backgroundColor: '#4CAF50' }]}
+          onPress={() => navigation.navigate('saved_posts')}
+        >
+          <Text style={[styles.actionText, {color: buttonTextColor}]}>Saved posts</Text>
+        </TouchableOpacity>
+
       </View>
     </ParallaxScrollView>
   );

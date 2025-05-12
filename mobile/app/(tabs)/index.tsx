@@ -48,7 +48,7 @@ function CheckBox({ checked, onPress }: { checked: boolean; onPress: () => void 
 export default function HomeScreen() {
   const navigation = useNavigation<Navigation>();
   const route     = useRoute<any>();
-  const { setUserType, setUsername, setUserId } = useContext(AuthContext);
+  const { setUserType, setUsername} = useContext(AuthContext);
 
   const [showAuthFields, setShowAuthFields] = useState(false);
   const [isRegistering, setIsRegistering]   = useState(false);
@@ -115,11 +115,9 @@ export default function HomeScreen() {
     (async () => {
       const token      = await AsyncStorage.getItem('token');
       const storedUser = await AsyncStorage.getItem('username');
-      const storedUserId = await AsyncStorage.getItem('user_id');
-      if (token && storedUser && storedUserId) {
+      if (token && storedUser) {
         setUserType('user');
         setUsername(storedUser);
-        setUserId(storedUserId);
         setLoggedIn(true);
         navigation.navigate('explore');
       }
@@ -151,7 +149,6 @@ export default function HomeScreen() {
     if (emailOrUsername === 'test' && pwd === 'test') {
       setUserType('user');
       setUsername('test');
-      setUserId('test');
       setLoggedIn(true);
       navigation.navigate('explore');
       return;
@@ -183,20 +180,17 @@ export default function HomeScreen() {
       }
   
       // success path
-      const { token, username, user_id } = (await res.json()) as {
+      const { token, username } = (await res.json()) as {
         token: string;
 
         username: string;
-        user_id : string;
       };
       await AsyncStorage.multiSet([
         ['token', token],
-        ['username', username],
-        ['user_id' , user_id.toString()],
+        ['username', username]
       ]);
       setUserType('user');
       setUsername(username);
-      setUserId(user_id);
       setLoggedIn(true);
   
     } catch (error: any) {
@@ -261,7 +255,6 @@ export default function HomeScreen() {
   const continueAsGuest = () => {
     setUserType('guest');
     setUsername('');
-    setUserId('');
     setLoggedIn(false);
     navigation.navigate('explore');
   };
@@ -315,7 +308,7 @@ export default function HomeScreen() {
 
                   <View style={styles.postFooter}>
                     <Ionicons name="heart-outline" size={16} />
-                    <ThemedText style={styles.footerText}>{post.likes}</ThemedText>
+                    <ThemedText style={styles.footerText}>{post.likes}</ThemedText>      //addsave
                     <Ionicons name="chatbubble-outline" size={16} />
                     <ThemedText style={styles.footerText}>{post.comments}</ThemedText>
                   </View>

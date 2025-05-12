@@ -30,7 +30,7 @@ export const options = {
 
 export default function CreatePostScreen() {
   const navigation = useNavigation();
-  const { username, user_id } = useContext(AuthContext);
+  const { username } = useContext(AuthContext);
   const colorScheme = useColorScheme();
 
   useLayoutEffect(() => {

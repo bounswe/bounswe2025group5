@@ -36,7 +36,7 @@ type LeaderboardEntry = {
 };
 
 export default function ChallengesScreen() {
-  const { userType, username, user_id } = useContext(AuthContext);
+  const { userType, username } = useContext(AuthContext);
   const isAdmin = String(userType) === ADMIN_TYPE_PLACEHOLDER;
   const colorScheme = useColorScheme();
 
