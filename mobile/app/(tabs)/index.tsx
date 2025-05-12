@@ -176,15 +176,14 @@ export default function HomeScreen() {
       }
   
       // success path
-      const { token, username,  } = (await res.json()) as {
+      const { token, username } = (await res.json()) as {
         token: string;
 
         username: string;
       };
       await AsyncStorage.multiSet([
         ['token', token],
-        ['username', username],
-
+        ['username', username]
       ]);
       setUserType('user');
       setUsername(username);
@@ -318,6 +317,7 @@ export default function HomeScreen() {
 
           <View style={[styles.buttonsColumn, { marginTop: 15 }]}>
             <TouchableOpacity
+              testID="main-login-button"
               style={[styles.authButtonFull, styles.loginAreaFull]}
               onPress={() => {
                 setShowAuthFields(true);
@@ -328,6 +328,7 @@ export default function HomeScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity
+              testID="main-register-button"
               style={[styles.authButtonFull, styles.registerAreaFull]}
               onPress={() => {
                 setShowAuthFields(true);
@@ -337,7 +338,7 @@ export default function HomeScreen() {
               <Text style={styles.authText}>Register</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.continueButton} onPress={continueAsGuest}>
+            <TouchableOpacity style={styles.continueButton} testID="main-guest-button" onPress={continueAsGuest}>
               <Text style={styles.authText}>Continue as Guest</Text>
             </TouchableOpacity>
           </View>
@@ -406,6 +407,7 @@ export default function HomeScreen() {
             {isRegistering ? (
               <>
                 <TouchableOpacity
+                  testID="form-register-button"
                   style={[styles.authButtonFull, styles.registerAreaFull]}
                   onPress={() =>
                     sendRegisterRequest(usernameInput, email, password)
@@ -414,6 +416,7 @@ export default function HomeScreen() {
                   <Text style={styles.authText}>Register</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
+                  testID="form-back-to-login-button"
                   style={[styles.authButtonFull, styles.loginAreaFull]}
                   onPress={() => setIsRegistering(false)}
                 >
@@ -423,12 +426,14 @@ export default function HomeScreen() {
             ) : (
               <>
                 <TouchableOpacity
+                  testID="form-login-button" 
                   style={[styles.authButtonFull, styles.loginAreaFull]}
                   onPress={() => sendLoginRequest(usernameInput, password)}
                 >
                   <Text style={styles.authText}>Log In</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
+                  testID="form-register-switch-button"
                   style={[styles.authButtonFull, styles.registerAreaFull]}
                   onPress={() => setIsRegistering(true)}
                 >
