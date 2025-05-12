@@ -17,6 +17,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
 import { ScrollView } from 'react-native';
+import CheckBox from '../components/CheckBox';
 
 const HOST = Platform.select({ android: '10.0.2.2', ios: 'localhost' , web: 'localhost' });
 const API_BASE = `http://${HOST}:8080/api/auth`;
@@ -37,13 +38,7 @@ type TrendingPost = {
   photoUrl      : string | null;
 };
 
-function CheckBox({ checked, onPress }: { checked: boolean; onPress: () => void }) {
-  return (
-    <TouchableOpacity style={styles.checkbox} onPress={onPress}>
-      {checked && <Ionicons name="checkmark" size={16} color="#fff" />}
-    </TouchableOpacity>
-  );
-}
+
 
 export default function HomeScreen() {
   const navigation = useNavigation<Navigation>();
@@ -187,7 +182,8 @@ export default function HomeScreen() {
       };
       await AsyncStorage.multiSet([
         ['token', token],
-        ['username', username]
+        ['username', username],
+
       ]);
       setUserType('user');
       setUsername(username);
@@ -308,7 +304,7 @@ export default function HomeScreen() {
 
                   <View style={styles.postFooter}>
                     <Ionicons name="heart-outline" size={16} />
-                    <ThemedText style={styles.footerText}>{post.likes}</ThemedText>      //addsave
+                    <ThemedText style={styles.footerText}>{post.likes}</ThemedText>     
                     <Ionicons name="chatbubble-outline" size={16} />
                     <ThemedText style={styles.footerText}>{post.comments}</ThemedText>
                   </View>
@@ -560,14 +556,6 @@ const styles = StyleSheet.create({
     marginTop     : 4,
   },
   kvkkText: { marginLeft: 8, color: '#fff' },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderWidth: 1,
-    borderColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
 
   errorBox: {
     position: 'absolute',

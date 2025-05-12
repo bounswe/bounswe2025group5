@@ -15,18 +15,18 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { AuthContext } from './_layout'; // Adjust path if necessary
+import { AuthContext } from './_layout'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HOST = Platform.select({ android: '10.0.2.2', ios: 'localhost' , web: 'localhost' });
 const API_BASE = `http://${HOST}:8080`;
 
-// Re-using Post type from explore.tsx if it's identical, or define locally
 type PostData = {
   postId: number;
   creatorUsername: string;
   content: string;
   likes: number;
-  comments: any[]; // Assuming comments is an array, or adjust to number if it's a count
+  comments: any[]; 
   photoUrl: string | null;
 };
 
@@ -40,7 +40,7 @@ function UserPostCard({
     post: PostData;
     cardBackgroundColor: string;
     iconColor: string;
-    onEdit: (postId: number) => void;
+    onEdit: (post: PostData) => void; // Changed to pass whole post
     onDelete: (postId: number) => void;
 }) {
   return (
@@ -50,7 +50,7 @@ function UserPostCard({
           source={{
             uri: post.photoUrl.startsWith('http')
               ? post.photoUrl
-              : `${API_BASE}${post.photoUrl}`, // Assuming API_BASE serves static files if not full URL
+              : `${API_BASE}${post.photoUrl}`, 
           }}
           style={styles.postImage}
           onError={(e) => console.warn('User Post: Image failed to load:', e.nativeEvent.error, post.photoUrl)}
@@ -68,7 +68,7 @@ function UserPostCard({
             <ThemedText style={styles.footerText}>{Array.isArray(post.comments) ? post.comments.length : post.comments}</ThemedText>
         </View>
         <View style={styles.postActions}>
-            <TouchableOpacity onPress={() => onEdit(post.postId)} style={styles.actionIcon}>
+            <TouchableOpacity onPress={() => onEdit(post)} style={styles.actionIcon}>
                 <Ionicons name="pencil" size={20} color={iconColor} />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => onDelete(post.postId)} style={styles.actionIcon}>
@@ -87,12 +87,12 @@ export default function MyPostsScreen() {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: 'My Posts',
+      headerTitle: 'Manage Posts',
     });
   }, [navigation]);
 
-  const [allPosts, setAllPosts] = useState<PostData[]>([]); // Store all fetched posts
-  const [userPosts, setUserPosts] = useState<PostData[]>([]); // Store filtered user posts
+  const [allPosts, setAllPosts] = useState<PostData[]>([]); 
+  const [userPosts, setUserPosts] = useState<PostData[]>([]); 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
@@ -112,34 +112,41 @@ export default function MyPostsScreen() {
         setRefreshing(false);
         return;
     }
-    setLoading(true);
+    // Keep existing posts while loading new ones if refreshing
+    if (!refreshing) {
+        setLoading(true);
+    }
     setError('');
     try {
-      // Fetch all posts - adjust endpoint if needed, e.g., /api/posts/info?size=100 for more posts
-      const response = await fetch(`${API_BASE}/api/posts/info?size=100`); // Fetch a larger batch of posts
+      const response = await fetch(`${API_BASE}/api/posts/getPostsForUser?username=${encodeURIComponent(username)}`); 
+      
       if (!response.ok) {
-        throw new Error(`Failed to fetch all posts: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`Failed to fetch posts: ${response.status} - ${errorText}`); // Updated error message
       }
       const data: PostData[] = await response.json();
       setAllPosts(data); // Store all posts
 
       // Filter for user's posts
       const filteredPosts = data.filter(post => post.creatorUsername === username);
-      setUserPosts(filteredPosts);
+      setUserPosts(filteredPosts); // Update the user posts
 
     } catch (err) {
       console.error('Error fetching or filtering posts:', err);
       setError(err instanceof Error ? err.message : 'An unknown error occurred.');
+      setUserPosts([]); // Clear posts on error
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [username]);
+  }, [username, refreshing]); // Added refreshing dependency
+
 
   useFocusEffect(
     useCallback(() => {
+      // Fetch posts when the screen comes into focus
       fetchAllPostsAndFilter();
-    }, [fetchAllPostsAndFilter])
+    }, [fetchAllPostsAndFilter]) // fetchAllPostsAndFilter already includes its dependencies
   );
 
   const handleRefresh = () => {
@@ -147,12 +154,11 @@ export default function MyPostsScreen() {
     fetchAllPostsAndFilter();
   };
 
-    const handleEditPost = (postId: number) => {
-
-    const postToEdit = userPosts.find(p => p.postId === postId);
+  const handleEditPost = (postToEdit: PostData) => { 
     navigation.navigate('edit_post_detail', { 
-        postId: postId,
-
+        postId: postToEdit.postId,
+        initialContent: postToEdit.content,
+        initialPhotoUrl: postToEdit.photoUrl,
     });
   };
 
@@ -164,23 +170,33 @@ export default function MyPostsScreen() {
         { text: "Cancel", style: "cancel" },
         { text: "Delete", style: "destructive", onPress: async () => {
           try {
+            const token = await AsyncStorage.getItem('token');
+            const headers: HeadersInit = {};
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
             const response = await fetch(`${API_BASE}/api/posts/delete/${postId}`, {
               method: 'DELETE',
+              headers: headers,
             });
             if (!response.ok) {
-              throw new Error(`Failed to delete post: ${response.status}`);
+                 const errorBody = await response.text(); 
+                 console.error("Delete failed response:", errorBody);
+                 throw new Error(`Failed to delete post: ${response.status} - ${errorBody || 'No details'}`);
             }
             Alert.alert("Success", "Post deleted successfully.");
-            fetchAllPostsAndFilter(); 
+            // Refresh the list after deletion
+            fetchAllPostsAndFilter();
           } catch (err) {
             console.error("Error deleting post:", err);
-            Alert.alert("Error", "Could not delete post.");
+            Alert.alert("Error", `Could not delete post. ${err instanceof Error ? err.message : ''}`);
           }
         }}
       ]
     );
   };
 
+  // Show loading indicator only on initial load, not during refresh if posts are already shown
   if (loading && userPosts.length === 0) {
     return (
       <View style={[styles.loadingContainer, { backgroundColor: screenBackgroundColor }]}>
@@ -192,7 +208,7 @@ export default function MyPostsScreen() {
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: screenBackgroundColor }]}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={styles.content} 
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
@@ -201,14 +217,19 @@ export default function MyPostsScreen() {
           titleColor={refreshControlColors.titleColor}
         />
       }
+      // Add keyboardShouldPersistTaps='handled' if there were input fields causing issues
+      keyboardShouldPersistTaps='handled' // Good practice for scroll views with touchables
+      // Add scrollIndicatorInsets if there's a known bottom inset like a tab bar
+      // scrollIndicatorInsets={{ bottom: 50 }} // Example value, adjust as needed
     >
       {error ? (
+        // Ensure the error message container doesn't break scrolling if content is also present
         <View style={styles.centeredMessageContainer}>
             <ThemedText style={{color: errorTextColor}}>{error}</ThemedText>
         </View>
       ) : userPosts.length === 0 && !loading ? (
         <View style={styles.centeredMessageContainer}>
-            <ThemedText>You haven't created any posts yet or no posts match.</ThemedText>
+            <ThemedText>You haven't created any posts yet.</ThemedText>
             <TouchableOpacity
                 style={styles.createPostButton}
                 onPress={() => navigation.navigate('create_post')}
@@ -217,6 +238,7 @@ export default function MyPostsScreen() {
             </TouchableOpacity>
         </View>
       ) : (
+        // Render the list of user posts
         userPosts.map(post => (
           <UserPostCard
             key={post.postId}
@@ -234,7 +256,7 @@ export default function MyPostsScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 1, // Allows ScrollView to fill the screen
   },
   loadingContainer: {
     flex: 1,
@@ -242,8 +264,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   content: {
+    // Styles for the content *inside* the ScrollView
     padding: 16,
-    paddingBottom: 24,
+    paddingBottom: 120, // <<< Increased padding at the bottom significantly MORE
+                       // This ensures the last item can be scrolled fully into view
+    flexGrow: 1,      // Ensures the container grows to at least fill the screen height,
+                      // useful for centering content vertically when it's short,
+                      // and helps with layout consistency.
   },
   postContainer: {
     borderRadius: 8,
@@ -252,7 +279,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 2,
+    elevation: 2, 
   },
   postImage: {
     width: '100%',
@@ -272,7 +299,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: '#eee',
+    borderTopColor: '#eee', 
     paddingTop: 8,
     marginTop: 8,
   },
@@ -289,19 +316,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   actionIcon: {
-    padding: 6,
+    padding: 6, 
     marginLeft: 10,
   },
   centeredMessageContainer: {
-    flex: 1,
+    // Removed flex: 1 from here as it's inside a ScrollView now.
+    // Rely on flexGrow: 1 in contentContainerStyle instead for vertical filling if needed.
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    minHeight: 200, // Ensure it takes some space
+    minHeight: 200, // Ensure it takes some space even without flex: 1
   },
   createPostButton: {
     marginTop: 20,
-    backgroundColor: '#2196F3',
+    backgroundColor: '#2196F3', 
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,

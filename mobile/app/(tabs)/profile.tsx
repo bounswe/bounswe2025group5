@@ -9,7 +9,7 @@ import {
   Text,
   ActivityIndicator,
   Platform,
-  useColorScheme, // Import useColorScheme
+  useColorScheme,
 } from 'react-native';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -29,12 +29,12 @@ export default function ProfileScreen() {
   const [avatarUri, setAvatarUri] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Dynamic Colors
   const isDarkMode = colorScheme === 'dark';
-  const parallaxHeaderBgColor = isDarkMode ? '#000000' : '#FFFFFF'; // Example colors
+  const parallaxHeaderBgColor = isDarkMode ? '#151718' : '#F0F2F5';
+  const contentBackgroundColor = isDarkMode ? '#151718' : '#F0F2F5';
   const avatarPlaceholderColor = isDarkMode ? '#5A5A5D' : '#999';
-  const contentBackgroundColor = isDarkMode ? '#151718' : '#F0F2F5'; // Match other screens
-  const buttonTextColor = '#FFFFFF'; // Assuming buttons have solid backgrounds
+  const buttonTextColor = '#FFFFFF';
+  const activityIndicatorColor = isDarkMode ? '#FFF' : '#000';
 
   useFocusEffect(
     useCallback(() => {
@@ -46,36 +46,56 @@ export default function ProfileScreen() {
         return;
       }
 
-      (async () => {
+      if (!username) {
+        setLoading(false);
+        return;
+      }
+
+      const fetchProfileData = async () => {
+        setLoading(true);
         try {
-          setLoading(true); 
-          const res = await fetch(`${API_BASE}/api/profile/info?username=${username}`);
+          const res = await fetch(`${API_BASE}/api/profile/info?username=${encodeURIComponent(username)}`);
+
           if (res.status === 404) {
-            await fetch(`${API_BASE}/api/profile/create`, {
+            const createRes = await fetch(`${API_BASE}/api/profile/create`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ username, biography: '', photoUrl: '' }),
             });
-            const retryRes = await fetch(`${API_BASE}/api/profile/info?username=${username}`);
+            if (!createRes.ok) {
+                const errorText = await createRes.text();
+                throw new Error(`Failed to create profile: ${createRes.status} ${errorText}`);
+            }
+            const retryRes = await fetch(`${API_BASE}/api/profile/info?username=${encodeURIComponent(username)}`);
+            if (!retryRes.ok) {
+                const errorText = await retryRes.text();
+                throw new Error(`Failed to fetch profile after creation: ${retryRes.status} ${errorText}`);
+            }
             const retryData = await retryRes.json();
             setBio(retryData.biography ?? '');
             setAvatarUri(retryData.photoUrl ?? '');
-          } else {
+          } else if (res.ok) {
             const data = await res.json();
             setBio(data.biography ?? '');
             setAvatarUri(data.photoUrl ?? '');
+          } else {
+            const errorText = await res.text();
+            console.error('Failed to fetch profile, status:', res.status, errorText);
+            throw new Error(`Failed to fetch profile: ${res.status}`);
           }
         } catch (err) {
-          console.error('Failed to fetch or create profile:', err);
+          console.error('Error in profile data handling:', err);
         } finally {
           setLoading(false);
         }
-      })();
-    }, [userType, username]) 
+      };
+
+      fetchProfileData();
+    }, [userType, username, navigation])
   );
 
   const handleLogout = async () => {
-    await AsyncStorage.multiRemove(['username', 'password', 'email', 'token']);
+    await AsyncStorage.multiRemove(['username', 'userType', 'token']);
     setUserType(null);
     setUsername('');
     navigation.reset({ index: 0, routes: [{ name: 'index' }] });
@@ -84,14 +104,17 @@ export default function ProfileScreen() {
   if (userType !== 'user' || loading) {
     return loading ? (
       <View style={[styles.loadingContainer, {backgroundColor: contentBackgroundColor}]}>
-         <ActivityIndicator size="large" color={isDarkMode ? '#FFF' : '#000'} />
+         <ActivityIndicator size="large" color={activityIndicatorColor} />
       </View>
     ) : null;
   }
 
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: parallaxHeaderBgColor, dark: parallaxHeaderBgColor }}
+      headerBackgroundColor={{
+        light: parallaxHeaderBgColor,
+        dark: parallaxHeaderBgColor
+      }}
       headerImage={
         <Image
           source={require('@/assets/images/wallpaper.png')}
@@ -100,55 +123,63 @@ export default function ProfileScreen() {
         />
       }
     >
-      <View style={[styles.contentContainer, {backgroundColor: contentBackgroundColor}]}>
-        <View style={styles.logoutContainer}>
-          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-            <Text style={[styles.logoutText, {color: buttonTextColor}]}>Log Out</Text>
-          </TouchableOpacity>
-        </View>
+      <View style={[styles.innerContentWrapper, { backgroundColor: contentBackgroundColor }]}>
+        <View style={styles.contentContainer}>
+            <View style={styles.logoutContainer}>
+            <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+                <Text style={[styles.logoutText, {color: buttonTextColor}]}>Log Out</Text>
+            </TouchableOpacity>
+            </View>
 
-        <View style={styles.editProfileContainer}>
-          <TouchableOpacity
-            style={styles.editButton}
-            onPress={() => navigation.navigate('edit_profile')}
-          >
-            <Text style={[styles.editButtonText, {color: buttonTextColor}]}>Edit profile</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.profileContainer}>
-          {avatarUri ? (
-            <Image source={{ uri: avatarUri }} style={styles.profilePic} />
-          ) : (
-            <Ionicons name="person-circle-outline" size={100} color={avatarPlaceholderColor} />
-          )}
-          <View style={{ marginLeft: 12, flexShrink: 1 }}>
-            <ThemedText type="default" style={{ fontSize: 20 }}>
-              Hello, {username}
-            </ThemedText>
-            <ThemedText
-              type="default"
-              style={{ marginTop: 4, fontStyle: bio ? 'normal' : 'italic' }}
-              numberOfLines={3}
+            <View style={styles.editProfileContainer}>
+            <TouchableOpacity
+                style={styles.editButton}
+                onPress={() => navigation.navigate('edit_profile')}
             >
-              {bio || 'No bio yet.'}
-            </ThemedText>
-          </View>
-        </View>
+                <Text style={[styles.editButtonText, {color: buttonTextColor}]}>Edit profile</Text>
+            </TouchableOpacity>
+            </View>
 
-        <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: '#2196F3' }]}
-          onPress={() => navigation.navigate('create_post')}
-        >
-          <Text style={[styles.actionText, {color: buttonTextColor}]}>Create a post</Text>
-        </TouchableOpacity>
+            <View style={styles.profileContainer}>
+            {avatarUri ? (
+                <Image
+                    source={{ uri: avatarUri }}
+                    style={styles.profilePic}
+                    onError={(e) => {
+                        console.warn("Failed to load profile image:", avatarUri, e.nativeEvent.error);
+                        setAvatarUri('');
+                    }}
+                />
+            ) : (
+                <Ionicons name="person-circle-outline" size={100} color={avatarPlaceholderColor} />
+            )}
+            <View style={{ marginLeft: 12, flexShrink: 1 }}>
+                <ThemedText type="default" style={{ fontSize: 20 }}>
+                Hello, {username}
+                </ThemedText>
+                <ThemedText
+                type="default"
+                style={{ marginTop: 4, fontStyle: bio ? 'normal' : 'italic' }}
+                numberOfLines={3}
+                >
+                {bio || 'No bio yet.'}
+                </ThemedText>
+            </View>
+            </View>
 
-        <TouchableOpacity // New "My Posts" button
-          style={[styles.actionButton, { backgroundColor: '#00008B' }]} 
-          onPress={() => navigation.navigate('posts')} 
-        >
-          <Text style={[styles.actionText, {color: buttonTextColor}]}>My Posts</Text>
-        </TouchableOpacity>
+            <TouchableOpacity
+            style={[styles.actionButton, { backgroundColor: '#2196F3' }]}
+            onPress={() => navigation.navigate('create_post')}
+            >
+            <Text style={[styles.actionText, {color: buttonTextColor}]}>Create a post</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+            style={[styles.actionButton, { backgroundColor: '#00008B' }]}
+            onPress={() => navigation.navigate('posts')}
+            >
+            <Text style={[styles.actionText, {color: buttonTextColor}]}>Manage Posts</Text>
+            </TouchableOpacity>
         
         <TouchableOpacity
           style={[styles.actionButton, { backgroundColor: '#4CAF50' }]}
@@ -157,6 +188,7 @@ export default function ProfileScreen() {
           <Text style={[styles.actionText, {color: buttonTextColor}]}>Saved posts</Text>
         </TouchableOpacity>
 
+        </View>
       </View>
     </ParallaxScrollView>
   );
@@ -164,16 +196,26 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   headerImage: { width: '100%', height: undefined, aspectRatio: 0.88 },
-  contentContainer: { flex: 1, padding: 16, marginTop: -20 }, 
+  innerContentWrapper: {
+    flex: 1,
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 16,
+  },
   logoutContainer: { alignItems: 'flex-end' },
   logoutButton: { paddingHorizontal: 20, paddingVertical: 6, borderRadius: 4, backgroundColor: '#E53935' },
-  logoutText: { fontSize: 14 }, 
+  logoutText: { fontSize: 14 },
   editProfileContainer: { alignItems: 'flex-end', marginVertical: 8 },
   editButton: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 4, backgroundColor: '#007AFF' },
-  editButtonText: { fontSize: 14 }, 
+  editButtonText: { fontSize: 14 },
   profileContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
-  profilePic: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#ddd' }, 
+  profilePic: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#ddd' },
   actionButton: { width: '100%', paddingVertical: 12, borderRadius: 8, marginBottom: 12, alignItems: 'center' },
-  actionText: { fontSize: 16 }, 
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center',},
+  actionText: { fontSize: 16 },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
