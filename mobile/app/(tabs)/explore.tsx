@@ -665,7 +665,7 @@ export default function ExploreScreen() {
     // api call for unsave DELETE {{base_url}}/api/posts/unsave{{username}}/{{post_id}} no body
     try {
       const url = currentlySaved
-        ? `${API_BASE}/api/posts/unsave/${username}/${postId}`
+        ? `${API_BASE}/api/posts/unsave${username}/${postId}`
         : `${API_BASE}/api/posts/save`;
       const method = currentlySaved ? 'DELETE' : 'POST';
       const body = currentlySaved ? null : JSON.stringify({ username, postId });

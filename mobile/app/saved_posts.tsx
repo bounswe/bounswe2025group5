@@ -223,7 +223,7 @@ export default function SavedPostsScreen() {
 
     try {
         // --- Use your DELETE endpoint ---
-        const response = await fetch(`${API_BASE}/api/posts/unsave/${username}/${postId}`, {
+        const response = await fetch(`${API_BASE}/api/posts/unsave${username}/${postId}`, {
             method: 'DELETE',
         });
 
