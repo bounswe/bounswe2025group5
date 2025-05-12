@@ -238,6 +238,14 @@ public class PostService {
                         sp.getSavedAt()))
                 .collect(Collectors.toList());
     }
+    public List<GetPostResponse> getPostsForUser(Integer userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException("User not found with ID: " + userId);
+        }
+        List<Post> posts = postRepository.findByUserId(userId);
+
+        return convertToGetPostsResponse(posts, userId);
+    }
 
     private String uploadFileToSpaces(MultipartFile file, String folder) {
         if (file.isEmpty()) {
