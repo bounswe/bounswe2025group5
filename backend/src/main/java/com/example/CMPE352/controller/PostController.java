@@ -88,4 +88,12 @@ public class PostController {
         List<GetSavedPostResponse> savedPosts = postService.getSavedPosts(userId);
         return ResponseEntity.ok(savedPosts);
     }
+
+    @GetMapping("/getPostsForUser")
+    public ResponseEntity<List<GetPostResponse>> getPostsForUser(
+            @RequestParam("username") String username
+    ) {
+        List<GetPostResponse> postsForUser = postService.getPostsForUser(username);
+        return ResponseEntity.ok(postsForUser);
+    }
 }
