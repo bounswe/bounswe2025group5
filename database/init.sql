@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS `waste_goal` (
 
 CREATE TABLE IF NOT EXISTS `waste_log` (
   `log_id`   INT NOT NULL AUTO_INCREMENT,
+    `goal_id` INT NOT NULL,
   `amount`   DOUBLE NOT NULL,
   `date`     DATETIME(6) NOT NULL,
   `waste_type` ENUM('Glass','Metal','Organic','Paper','Plastic') NOT NULL,
@@ -421,5 +422,123 @@ BEGIN
     -- created_at will default to CURRENT_TIMESTAMP as per table definition.
     INSERT INTO `profiles` (user_id) VALUES (NEW.user_id);
 END$$
+
+DELIMITER ;
+
+
+
+
+
+
+DELIMITER //
+
+-- Trigger for INSERT on waste_log
+CREATE TRIGGER after_waste_log_insert
+AFTER INSERT ON waste_log
+FOR EACH ROW
+BEGIN
+    DECLARE total_logged DOUBLE;
+    DECLARE goal_amount DOUBLE;
+    
+    -- Calculate total logged amount for this specific goal
+    SELECT COALESCE(SUM(amount), 0) INTO total_logged
+    FROM waste_log
+    WHERE goal_id = NEW.goal_id;
+    
+    -- Get the goal amount
+    SELECT amount INTO goal_amount
+    FROM waste_goal
+    WHERE goal_id = NEW.goal_id;
+    
+    -- Update progress for this specific goal
+    UPDATE waste_goal
+    SET percent_of_progress = 
+        CASE 
+            WHEN goal_amount > 0 THEN LEAST(total_logged / goal_amount * 100, 100)
+            ELSE 0
+        END,
+        completed = CASE WHEN total_logged >= goal_amount THEN TRUE ELSE FALSE END
+    WHERE goal_id = NEW.goal_id;
+END//
+
+-- Trigger for UPDATE on waste_log
+CREATE TRIGGER after_waste_log_update
+AFTER UPDATE ON waste_log
+FOR EACH ROW
+BEGIN
+    -- First update the old goal (if goal_id was changed)
+    IF OLD.goal_id IS NOT NULL AND (NEW.goal_id != OLD.goal_id) THEN
+        BEGIN
+            DECLARE old_total_logged DOUBLE;
+            DECLARE old_goal_amount DOUBLE;
+            
+            SELECT COALESCE(SUM(amount), 0) INTO old_total_logged
+            FROM waste_log
+            WHERE goal_id = OLD.goal_id;
+            
+            SELECT amount INTO old_goal_amount
+            FROM waste_goal
+            WHERE goal_id = OLD.goal_id;
+            
+            UPDATE waste_goal
+            SET percent_of_progress = 
+                CASE 
+                    WHEN old_goal_amount > 0 THEN LEAST(old_total_logged / old_goal_amount * 100, 100)
+                    ELSE 0
+                END,
+                completed = CASE WHEN old_total_logged >= old_goal_amount THEN TRUE ELSE FALSE END
+            WHERE goal_id = OLD.goal_id;
+        END;
+    END IF;
+    
+    -- Then update the new goal (or same goal if amount changed)
+    BEGIN
+        DECLARE new_total_logged DOUBLE;
+        DECLARE new_goal_amount DOUBLE;
+        
+        SELECT COALESCE(SUM(amount), 0) INTO new_total_logged
+        FROM waste_log
+        WHERE goal_id = NEW.goal_id;
+        
+        SELECT amount INTO new_goal_amount
+        FROM waste_goal
+        WHERE goal_id = NEW.goal_id;
+        
+        UPDATE waste_goal
+        SET percent_of_progress = 
+            CASE 
+                WHEN new_goal_amount > 0 THEN LEAST(new_total_logged / new_goal_amount * 100, 100)
+                ELSE 0
+            END,
+            completed = CASE WHEN new_total_logged >= new_goal_amount THEN TRUE ELSE FALSE END
+        WHERE goal_id = NEW.goal_id;
+    END;
+END//
+
+-- Trigger for DELETE on waste_log
+CREATE TRIGGER after_waste_log_delete
+AFTER DELETE ON waste_log
+FOR EACH ROW
+BEGIN
+    DECLARE total_logged DOUBLE;
+    DECLARE goal_amount DOUBLE;
+    
+    SELECT COALESCE(SUM(amount), 0) INTO total_logged
+    FROM waste_log
+    WHERE goal_id = OLD.goal_id;
+    
+    SELECT amount INTO goal_amount
+    FROM waste_goal
+    WHERE goal_id = OLD.goal_id;
+    
+    UPDATE waste_goal
+    SET percent_of_progress = 
+        CASE 
+            WHEN goal_amount > 0 THEN LEAST(total_logged / goal_amount * 100, 100)
+            ELSE 0
+        END,
+        completed = CASE WHEN total_logged >= goal_amount THEN TRUE ELSE FALSE END
+    WHERE goal_id = OLD.goal_id;
+END//
 
 DELIMITER ;

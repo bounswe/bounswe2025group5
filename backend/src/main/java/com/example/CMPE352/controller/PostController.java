@@ -73,19 +73,27 @@ public class PostController {
         SavePostResponse response = postService.savePost(request);
         return ResponseEntity.ok(response);
     }
-    @DeleteMapping("/unsave{userId}/{postId}")
+    @DeleteMapping("/unsave{username}/{postId}")
     public ResponseEntity<Map<String, Boolean>> deleteSavedPost(
-            @PathVariable Integer userId,
+            @PathVariable String username,
             @PathVariable Integer postId) {
-        Map<String, Boolean> response = postService.deleteSavedPost(userId, postId);
+        Map<String, Boolean> response = postService.deleteSavedPost(username, postId);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/getSavedPosts")
     public ResponseEntity<List<GetSavedPostResponse>> getSavedPosts(
-            @RequestParam("userId") Integer userId
+            @RequestParam("username") String username
     ) {
-        List<GetSavedPostResponse> savedPosts = postService.getSavedPosts(userId);
+        List<GetSavedPostResponse> savedPosts = postService.getSavedPosts(username);
         return ResponseEntity.ok(savedPosts);
+    }
+
+    @GetMapping("/getPostsForUser")
+    public ResponseEntity<List<GetPostResponse>> getPostsForUser(
+            @RequestParam("username") String username
+    ) {
+        List<GetPostResponse> postsForUser = postService.getPostsForUser(username);
+        return ResponseEntity.ok(postsForUser);
     }
 }
