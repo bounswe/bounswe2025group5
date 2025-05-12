@@ -20,4 +20,14 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     """)
     List<Post> findTopPosts(@Param("lastPostId") Long lastPostId, Pageable pageable);
 
+    @Query("SELECT p FROM Post p ORDER BY p.likes DESC")
+    List<Post> findMostLikedPosts(Pageable pageable);
+
+
+    List<Post> findByUserId(Integer userId);
+
+    List<Post> findByContentContainingIgnoreCase(String searchTerm);
+
+
+
 }

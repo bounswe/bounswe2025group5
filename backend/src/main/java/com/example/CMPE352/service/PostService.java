@@ -1,23 +1,35 @@
 package com.example.CMPE352.service;
 
+import com.example.CMPE352.exception.AlreadyExistsException;
 import com.example.CMPE352.exception.NotFoundException;
+import com.example.CMPE352.exception.UploadFailedException;
 import com.example.CMPE352.model.Post;
 import com.example.CMPE352.model.Comment;
+import com.example.CMPE352.model.SavedPost;
 import com.example.CMPE352.model.User;
 import com.example.CMPE352.model.request.CreatePostRequest;
+import com.example.CMPE352.model.request.SavePostRequest;
 import com.example.CMPE352.model.response.CreateOrEditPostResponse;
 import com.example.CMPE352.model.response.GetPostResponse;
 import com.example.CMPE352.model.response.CommentResponse;
-import com.example.CMPE352.repository.PostRepository;
-import com.example.CMPE352.repository.CommentRepository;
-import com.example.CMPE352.repository.UserRepository;
+import com.example.CMPE352.model.response.GetSavedPostResponse;
+import com.example.CMPE352.model.response.SavePostResponse;
+import com.example.CMPE352.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+
+import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,11 +37,183 @@ import java.util.stream.Collectors;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final PostLikeRepository postLikeRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final SavedPostRepository savedPostRepository;
 
-    public List<GetPostResponse> getPosts(int size, Long lastPostId) {
+    private final S3Client s3Client;
+
+    @Value("${digitalocean.spaces.bucket-name}")
+    private String bucketName;
+
+    @Value("${digitalocean.spaces.region}")
+    private String region;
+
+    @Value("${digitalocean.spaces.post-photo-folder}")
+    private String postPhotoFolder;
+
+
+
+    public List<GetPostResponse> getPosts(String requestingUsername, int size, Long lastPostId) {
+        Integer requestingUserId = null;
+        if (requestingUsername != null) {
+            User requestingUser = userRepository.findByUsername(requestingUsername)
+                    .orElseThrow(() -> new NotFoundException("User not found: " + requestingUsername));
+            requestingUserId = requestingUser.getId();
+        }
         List<Post> posts = postRepository.findTopPosts(lastPostId, PageRequest.of(0, size));
+        return convertToGetPostsResponse(posts, requestingUserId);
+    }
+
+    private List<CommentResponse> getCommentsForPost(Integer postId) {
+        List<Comment> comments = commentRepository.findByPostPostId(postId);
+        return comments.stream()
+                .map(comment -> new CommentResponse(
+                        comment.getCommentId(),
+                        comment.getContent(),
+                        comment.getCreatedAt(),
+                        comment.getUser().getUsername()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public CreateOrEditPostResponse createPost(String content ,String username, MultipartFile photoFile) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User not found: " + username));
+
+        String photoUrl = null;
+        if (photoFile != null && !photoFile.isEmpty()) {
+            photoUrl = uploadFileToSpaces(photoFile, postPhotoFolder);
+        }
+
+        Post post = new Post(
+                user,
+                content,
+                photoUrl,
+                0,
+                0
+        );
+        post.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        postRepository.save(post);
+
+        return new CreateOrEditPostResponse(
+                post.getPostId(),
+                post.getContent(),
+                post.getCreatedAt(),
+                post.getUser().getUsername(),
+                post.getPhotoUrl()
+        );
+    }
+
+
+    @Transactional
+    public CreateOrEditPostResponse editPost(Integer postId,String content,String username, MultipartFile photoFile ) {
+        Optional<Post> existingPostOpt = postRepository.findById(postId);
+
+        if (existingPostOpt.isEmpty()) {
+            throw new NotFoundException("Post not found: " + postId);
+        }
+
+        Post existingPost = existingPostOpt.get();
+        if (content!= null) {
+            existingPost.setContent(content);
+        }
+        if (photoFile != null && !photoFile.isEmpty()) {
+            String photoUrl = uploadFileToSpaces(photoFile, postPhotoFolder);
+            existingPost.setPhotoUrl(photoUrl);
+        }
+        Post updatedPost = postRepository.saveAndFlush(existingPost);
+
+        return new CreateOrEditPostResponse(
+                updatedPost.getPostId(),
+                updatedPost.getContent(),
+                updatedPost.getCreatedAt(),
+                updatedPost.getUser().getUsername(),
+                updatedPost.getPhotoUrl()
+        );
+    }
+
+    @Transactional
+    public void deletePost(Integer postId) {
+        if (!postRepository.existsById(postId)) {
+            throw new RuntimeException("Post with ID " + postId + " not found.");
+        }
+        postRepository.deleteById(postId);
+
+    }
+
+    public List<GetPostResponse> getMostLikedPosts(Integer size, String username) {
+        Integer userId = null;
+        if (username != null) {
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new NotFoundException("User not found: " + username));
+            userId = user.getId();
+        }
+
+        List<Post> posts = postRepository.findMostLikedPosts(PageRequest.of(0, size));
+        return convertToGetPostsResponse(posts, userId);
+    }
+
+
+    @Transactional
+    public SavePostResponse savePost(SavePostRequest request) {
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() ->
+                        new NotFoundException("User not found: " + request.getUsername())
+                );
+        Post post = postRepository.findById(request.getPostId())
+                .orElseThrow(() ->
+                        new NotFoundException("Post not found: " + request.getPostId())
+                );
+
+        SavedPost saved = new SavedPost(user.getId(), request.getPostId());
+        if (savedPostRepository.existsById(new SavedPost.SavedPostId(saved.getUserId(), saved.getPostId()))) {
+            throw new AlreadyExistsException("This post is already saved by user" + user.getUsername());
+        }
+        savedPostRepository.save(saved);
+
+        return new SavePostResponse(
+                request.getUsername(),
+                saved.getPostId()
+        );
+    }
+
+    @Transactional
+    public Map<String, Boolean> deleteSavedPost(String username, Integer postId) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() ->
+                        new NotFoundException("User not found: " + username)
+                );
+        SavedPost.SavedPostId id = new SavedPost.SavedPostId(user.getId(), postId);
+        if (!savedPostRepository.existsById(id)) {
+            throw new NotFoundException(
+                    "Saved‐post entry not found for userId=" + user.getId() + ", postId=" + postId
+            );
+        }
+        savedPostRepository.deleteById(id);
+        return Map.of("deleted", true);
+    }
+
+    private List<GetPostResponse> convertToGetPostsResponse(List<Post> posts, Integer requestingUserId) {
+        if (posts.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Integer> postIds = posts.stream().map(Post::getPostId).collect(Collectors.toList());
+
+        Set<Integer> likedPostIds;
+        Set<Integer> savedPostIds;
+
+        if (requestingUserId != null) {
+            likedPostIds = postLikeRepository.findLikedPostIdsByUserIdAndPostIdIn(requestingUserId, postIds);
+            savedPostIds = savedPostRepository.findSavedPostIdsByUserIdAndPostIdIn(requestingUserId, postIds);
+        } else {
+            savedPostIds = Collections.emptySet();
+            likedPostIds = Collections.emptySet();
+        }
+
         return posts.stream()
                 .map(post -> {
                     GetPostResponse postResponse = new GetPostResponse();
@@ -38,71 +222,70 @@ public class PostService {
                     postResponse.setCreatedAt(post.getCreatedAt());
                     postResponse.setLikes(post.getLikes());
                     postResponse.setCreatorUsername(post.getUser().getUsername());
-                    postResponse.setComments(getCommentsForPost(post.getPostId()));
+                    postResponse.setComments(post.getComments());
+                    postResponse.setPhotoUrl(post.getPhotoUrl());
+                    postResponse.setLiked(likedPostIds.contains(post.getPostId()));
+                    postResponse.setSaved(savedPostIds.contains(post.getPostId()));
                     return postResponse;
                 })
                 .collect(Collectors.toList());
     }
-
-    private List<CommentResponse> getCommentsForPost(Integer postId) {
-        List<Comment> comments = commentRepository.findByPostPostId(postId);
-        return comments.stream()
-                .map(comment -> new CommentResponse(
-                        comment.getContent(),
-                        comment.getCreatedAt(),
-                        comment.getUser().getUsername()
-                ))
+    
+    public List<GetSavedPostResponse> getSavedPosts(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User not found: " + username));
+        List<SavedPost> savedPosts =
+                savedPostRepository.findAllByUserIdOrderBySavedAtDesc(user.getId());
+        return savedPosts.stream()
+                .map(sp -> new GetSavedPostResponse(
+                        sp.getPost().getPostId(),
+                        sp.getPost().getContent(),
+                        sp.getPost().getLikes(),
+                        sp.getSavedAt(),
+                        sp.getPost().getPhotoUrl()) )
                 .collect(Collectors.toList());
     }
+    public List<GetPostResponse> getPostsForUser(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User not found: " + username));
 
-    public CreateOrEditPostResponse createPost(CreatePostRequest request) {
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new NotFoundException("User not found: " + request.getUsername()));
+        List<Post> posts = postRepository.findByUserId(user.getId());
 
-        Post post = new Post(
-                user,
-                request.getContent(),
-                request.getPhotoUrl(),
-                0
-        );
-        post.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-
-        postRepository.save(post);
-
-        return new CreateOrEditPostResponse(
-                post.getPostId(),
-                post.getContent(),
-                post.getCreatedAt(),
-                post.getUser().getUsername()
-        );
+        return convertToGetPostsResponse(posts, user.getId());
     }
 
-    public CreateOrEditPostResponse editPost(Integer postId, Post editPostRequest) {
-        Optional<Post> existingPostOpt = postRepository.findById(postId);
-
-        if (existingPostOpt.isEmpty()) {
-                throw new NotFoundException("Post not found: " + postId);
+    private String uploadFileToSpaces(MultipartFile file, String folder) {
+        if (file.isEmpty()) {
+            return null;
         }
 
-        Post existingPost = existingPostOpt.get();
-        if (editPostRequest.getContent() != null) {
-            existingPost.setContent(editPostRequest.getContent());
+        String originalFilename = file.getOriginalFilename();
+        String extension = "";
+        if (originalFilename != null && originalFilename.contains(".")) {
+            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
         }
-        existingPost.setPhotoUrl(editPostRequest.getPhotoUrl());
-        Post updatedPost = postRepository.saveAndFlush(existingPost);
+        String uniqueFileName = UUID.randomUUID().toString() + extension;
+        String objectKey = folder + "/" + uniqueFileName;
 
-        return new CreateOrEditPostResponse(
-                updatedPost.getPostId(),
-                updatedPost.getContent(),
-                updatedPost.getCreatedAt(),
-                updatedPost.getUser().getUsername()
-        );
+        try {
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(objectKey)
+                    .contentType(file.getContentType())
+                    .acl(ObjectCannedACL.PUBLIC_READ)
+                    .build();
+
+            s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+
+            return String.format("https://%s.%s.digitaloceanspaces.com/%s",
+                    bucketName, region, objectKey);
+        } catch (IOException e) {
+            throw new UploadFailedException("Failed to read file data for upload: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new UploadFailedException("Failed to upload photo to DigitalOcean Spaces: " + e.getMessage(), e);
+        }
     }
 
-    public void deletePost(Integer postId) {
-        if (!postRepository.existsById(postId)) {
-            throw new RuntimeException("Post with ID " + postId + " not found.");
-        }
-        postRepository.deleteById(postId);
-    }
+
 }
+
