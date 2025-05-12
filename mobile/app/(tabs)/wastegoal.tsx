@@ -43,11 +43,10 @@ type Navigation = {
 
 export default function WasteGoalScreen() {
   const navigation = useNavigation<Navigation>();
-  const { username, userType, user_id } = useContext(AuthContext);
+  const { username, userType } = useContext(AuthContext); // Removed user_id as it wasn't used
   const colorScheme = useColorScheme();
 
   const isDarkMode = colorScheme === 'dark';
-  // Define screenBackgroundColor to match explore.tsx
   const screenBackgroundColor = isDarkMode ? '#151718' : '#F0F2F5';
   const cardBackgroundColor = isDarkMode ? '#2C2C2E' : '#ffffff';
   const modalContentBgColor = isDarkMode ? '#1C1C1E' : '#ffffff';
@@ -325,18 +324,37 @@ export default function WasteGoalScreen() {
     setIsDeleteModalVisible(true);
   };
 
+  const getProgressBarColor = (percentage: number) => {
+    if (percentage < 14.3) {
+      return '#2E7D32'; // Dark Green - Excellent
+    } else if (percentage < 28.6) {
+      return '#66BB6A'; // Green - Very Good
+    } else if (percentage < 42.9) {
+      return '#9CCC65'; // Light Green - Good
+    } else if (percentage < 57.1) {
+      return '#FFC107'; // Amber - Moderate (more visible yellow)
+    } else if (percentage < 71.4) {
+      return '#FFA726'; // Orange - Concerning
+    } else if (percentage < 85.7) {
+      return '#FF7043'; // Deep Orange - Bad
+    } else {
+      return '#E53935'; // Red - Very Bad
+    }
+  };
+
 
   const renderGoalItem = ({ item }: { item: WasteGoal }) => {
     const progressFraction = item.progress !== undefined ? item.progress : 0;
-    const progressPercentage = Math.max(0, Math.min(100, progressFraction * 100));
-    const isGoalComplete = progressPercentage >= 100;
+    const progressPercentage = Math.max(0, Math.min(100, progressFraction)); 
+    const displayProgressPercentage = progressFraction; 
+    const progressBarColor = getProgressBarColor(displayProgressPercentage);
 
     return (
     <View style={[styles.goalItem, { backgroundColor: cardBackgroundColor }]}>
       <View style={styles.goalHeader}>
         <ThemedText style={styles.goalType}>{item.wasteType}</ThemedText>
         <View style={styles.goalActions}>
-          {!isGoalComplete && (
+          {displayProgressPercentage < 100 && ( 
             <TouchableOpacity
               style={styles.addLogButton}
               onPress={() => openAddLogModal(item)}
@@ -359,15 +377,14 @@ export default function WasteGoalScreen() {
         </View>
       </View>
       <ThemedText style={styles.goalDetails}>
-        Goal: {item.amount} {item.unit} in {item.duration} days
+        Target: {item.amount} {item.unit} in {item.duration} days
       </ThemedText>
 
       <View style={styles.progressBarContainer}>
-        <View style={[styles.progressBarFill, { width: `${progressPercentage}%` }]} />
+        <View style={[styles.progressBarFill, { width: `${progressPercentage}%`, backgroundColor: progressBarColor }]} />
       </View>
-      <ThemedText style={styles.goalProgressText}>
-        Progress: {progressPercentage.toFixed(2)}%
-        {isGoalComplete && <ThemedText style={styles.completedText}> (Completed!)</ThemedText>}
+      <ThemedText style={[styles.goalProgressText, { color: progressBarColor }]}>
+        Waste Load: {displayProgressPercentage.toFixed(1)}%
       </ThemedText>
     </View>
   )};
@@ -445,15 +462,16 @@ export default function WasteGoalScreen() {
                     <Picker.Item label="Glass" value="Glass" />
                     <Picker.Item label="Metal" value="Metal" />
                     <Picker.Item label="Organic" value="Organic" />
-                    <Picker.Item label="Electronic" value="Electronic" />
                   </Picker>
                 </View>
                 <ThemedText style={styles.inputLabel}>Unit</ThemedText>
                 <View style={[styles.pickerContainer, { borderColor: inputBorderColor, backgroundColor: pickerBackgroundColor }]}>
                   <Picker selectedValue={unit} onValueChange={setUnit} style={[styles.picker, {color: pickerItemColor}]} itemStyle={{ color: pickerItemColor, backgroundColor: pickerBackgroundColor }}>
                     <Picker.Item label="Kilograms" value="Kilograms" />
-                    <Picker.Item label="Pounds" value="Pounds" />
-                    <Picker.Item label="Items" value="Items" />
+                    <Picker.Item label="Grams" value="Grams" />
+                    <Picker.Item label="Liters" value="Liters" />
+                    <Picker.Item label="Units" value="Units" />
+                    <Picker.Item label="Bottles" value="Bottles" />
                   </Picker>
                 </View>
                 <ThemedText style={styles.inputLabel}>Amount</ThemedText>
@@ -501,7 +519,6 @@ export default function WasteGoalScreen() {
             </View>
           </Modal>
 
-          {/* Add Waste Log Modal */}
           <Modal
             visible={addLogModalVisible}
             transparent={true}
@@ -559,7 +576,6 @@ export default function WasteGoalScreen() {
             </View>
           </Modal>
 
-          {/* Delete Confirmation Modal */}
           <Modal
             visible={isDeleteModalVisible}
             transparent={true}
@@ -608,130 +624,26 @@ export default function WasteGoalScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  headerContainer: {
-    paddingHorizontal: 16,
-    marginTop: 48,
-    marginBottom: 18,
-  },
-  listContainer: {
-    paddingHorizontal: 16,
-    paddingBottom: 20,
-  },
-  goalItem: {
-    borderRadius: 10,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
-  },
-  goalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  goalType: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#2E7D32',
-    flexShrink: 1,
-    marginRight: 8,
-  },
-  goalDetails: {
-    fontSize: 15,
-    marginBottom: 8,
-  },
-  goalActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  createButton: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 14,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    marginHorizontal: 80,
-    marginBottom: 24,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  editButton: {
-    backgroundColor: '#1976D2',
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 6,
-  },
-  deleteButton: {
-    backgroundColor: '#D32F2F',
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 6,
-  },
-  addLogButton: {
-    backgroundColor: '#388E3C',
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 6,
-  },
-  buttonText: {
-    color: '#ffffff',
-    fontWeight: 'bold',
-    fontSize: 13,
-  },
-  errorText: {
-    textAlign: 'center',
-    marginTop: 20,
-    marginHorizontal: 16,
-    padding: 10,
-    borderRadius: 6,
-  },
-  modalFormErrorText: {
-    textAlign: 'center',
-    marginBottom: 10,
-    fontSize: 14,
-  },
-  emptyText: {
-    textAlign: 'center',
-    marginTop: 40,
-    fontSize: 16,
-  },
-  loadingSpinner: {
-    marginVertical: 30,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-  },
-  modalContent: {
-    borderRadius: 12,
-    padding: 25,
-    width: '90%',
-    maxWidth: 400,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 10,
-  },
-  modalTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
+  container: { flex: 1, },
+  headerContainer: { paddingHorizontal: 16, marginTop: 48, marginBottom: 18, },
+  listContainer: { paddingHorizontal: 16, paddingBottom: 20, },
+  goalItem: { borderRadius: 10, padding: 16, marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 5, elevation: 3, },
+  goalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, },
+  goalType: { fontSize: 18, fontWeight: '600', color: '#2E7D32', flexShrink: 1, marginRight: 8, },
+  goalDetails: { fontSize: 15, marginBottom: 8, },
+  goalActions: { flexDirection: 'row', alignItems: 'center', gap: 8, },
+  createButton: { backgroundColor: '#4CAF50', paddingVertical: 14, paddingHorizontal: 12, borderRadius: 8, marginHorizontal: 80, marginBottom: 24, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.2, shadowRadius: 2, elevation: 2, },
+  editButton: { backgroundColor: '#1976D2', paddingHorizontal: 10, paddingVertical: 8, borderRadius: 6, },
+  deleteButton: { backgroundColor: '#D32F2F', paddingHorizontal: 10, paddingVertical: 8, borderRadius: 6, },
+  addLogButton: { backgroundColor: '#388E3C', paddingHorizontal: 10, paddingVertical: 8, borderRadius: 6, },
+  buttonText: { color: '#ffffff', fontWeight: 'bold', fontSize: 13, },
+  errorText: { textAlign: 'center', marginTop: 20, marginHorizontal: 16, padding: 10, borderRadius: 6, },
+  modalFormErrorText: { textAlign: 'center', marginBottom: 10, fontSize: 14, },
+  emptyText: { textAlign: 'center', marginTop: 40, fontSize: 16, },
+  loadingSpinner: { marginVertical: 30, },
+  modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.6)', },
+  modalContent: { borderRadius: 12, padding: 25, width: '90%', maxWidth: 400, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 8, elevation: 10, },
+  modalTitle: { fontSize: 22, fontWeight: 'bold', marginBottom: 20, textAlign: 'center', },
   inputLabel: {fontSize: 16, marginBottom: 6, fontWeight: '500',},
   input: {borderWidth: 1, borderRadius: 6, padding: 12, marginBottom: 18, fontSize: 16,},
   pickerContainer: {borderWidth: 1, borderRadius: 6, marginBottom: 18, justifyContent: 'center' },
@@ -742,8 +654,7 @@ const styles = StyleSheet.create({
   confirmDeleteButton: {backgroundColor: '#D32F2F',},
   deleteConfirmText: {fontSize: 16, textAlign: 'center', marginBottom: 20, lineHeight: 24,},
   progressBarContainer: {height: 12, backgroundColor: '#e0e0e0', borderRadius: 6, marginTop: 10, overflow: 'hidden',},
-  progressBarFill: {height: '100%', backgroundColor: '#66BB6A', borderRadius: 6,},
-  goalProgressText: {fontSize: 14, color: '#4CAF50', fontWeight: '500', marginTop: 6, textAlign: 'right',},
-  completedText: {color: '#388E3C', fontWeight: 'bold',},
+  progressBarFill: {height: '100%', borderRadius: 6,}, 
+  goalProgressText: {fontSize: 14, fontWeight: '500', marginTop: 6, textAlign: 'right',}, // color removed here
   modalSubtitle: {fontSize: 16, textAlign: 'center', marginBottom: 18, fontStyle: 'italic',},
 });
