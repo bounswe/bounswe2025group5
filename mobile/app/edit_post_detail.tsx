@@ -217,7 +217,7 @@ export default function EditPostDetailScreen() {
         <TouchableOpacity onPress={pickImage} style={styles.imagePickerButton}>
           <Ionicons name="attach" size={28} color={iconColor} />
           <ThemedText style={[styles.imagePickerText, {color: inputTextColor}]}>
-            {newImage ? 'Change Image' : (currentPhotoDisplayUrl ? 'Change Image' : 'Add Image')}
+            {newImage ? 'Change Image' : (currentPhotoDisplayUrl ? 'Change Image' : 'Add New Image')}
           </ThemedText>
         </TouchableOpacity>
         {currentPhotoDisplayUrl && (
@@ -229,13 +229,10 @@ export default function EditPostDetailScreen() {
                     setCurrentPhotoDisplayUrl(null); // Clear display
                     // setNewImage(null); // newImage is already null or will be replaced by pickImage
                 }} 
-                style={styles.removeImageButton}
             >
-                <ThemedText style={styles.removeImageText}>Remove Image</ThemedText>
             </TouchableOpacity>
         )}
       </View>
-
 
       <TouchableOpacity
         style={[
