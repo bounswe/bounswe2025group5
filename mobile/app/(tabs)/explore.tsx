@@ -273,26 +273,25 @@ function PostItem({
             {post.likes}
           </ThemedText>
         </TouchableOpacity>
-
-        <TouchableOpacity onPress={handleSave} style={[styles.footerAction, { marginLeft: 16 }]}>
-          <Ionicons
-            name={post.savedByUser ? "bookmark" : "bookmark-outline"}
-            size={20}
-            color={post.savedByUser ? 'blue' : iconColor}
-          />
-          <ThemedText style={[styles.footerText, { color: post.savedByUser ? 'blue' : iconColor, marginLeft: 4 }]}>
-            {post.savedByUser ? 'Saved' : 'Save'}
-          </ThemedText>
-        </TouchableOpacity>
-
         
-
         <TouchableOpacity onPress={onToggleComments} style={[styles.footerAction, { marginLeft: 16 }]}>
           <Ionicons name="chatbubble-outline" size={20} color={iconColor} />
           <ThemedText style={[styles.footerText, { color: iconColor, marginLeft: 4 }]}>
             {post.comments}
           </ThemedText>
         </TouchableOpacity>
+
+        <TouchableOpacity onPress={handleSave} style={[styles.footerAction, { marginLeft: 16 }]}>
+            <Ionicons
+              name={post.savedByUser ? "bookmark" : "bookmark-outline"}
+              size={20}
+              color={post.savedByUser ? 'blue' : iconColor}
+            />
+            <ThemedText style={[styles.footerText, { color: post.savedByUser ? 'blue' : iconColor, marginLeft: 4 }]}>
+              {post.savedByUser ? 'Saved' : 'Save'}
+            </ThemedText>
+          </TouchableOpacity>
+
       </View>
 
 
@@ -480,8 +479,7 @@ export default function ExploreScreen() {
       }
   }
         
-  
-//addsave
+
 
   const fetchPosts = async (loadMore = false) => {
     const currentOperation = loadMore ? 'loading more' : 'fetching initial/refresh';
@@ -663,15 +661,15 @@ export default function ExploreScreen() {
       )
     );
     
-    // api call for save POST {{base_url}}/api/posts/save
-    // api call for unsave DELETE {{base_url}}/api/posts/unsave{{user_id}}/{{post_id}}
+    // api call for save POST {{base_url}}/api/posts/save with body { "username": "{{username} }", "postId": {{post_id}} } and header Content-Type: application/json
+    // api call for unsave DELETE {{base_url}}/api/posts/unsave{{username}}/{{post_id}} no body
     try {
       const url = currentlySaved
         ? `${API_BASE}/api/posts/unsave/${username}/${postId}`
         : `${API_BASE}/api/posts/save`;
       const method = currentlySaved ? 'DELETE' : 'POST';
       const body = currentlySaved ? null : JSON.stringify({ username, postId });
-      const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body });
+      const response = currentlySaved ? await fetch(url, { method }) : await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body });
       const responseBodyText = await response.text();
       if (!response.ok) {
         let errorMsg = `Failed to ${currentlySaved ? 'unsave' : 'save'}. Status: ${response.status}`;
