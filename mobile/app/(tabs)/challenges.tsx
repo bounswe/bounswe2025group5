@@ -146,7 +146,7 @@ export default function ChallengesScreen() {
   if (loading && challenges.length === 0) { // Full screen loading
     return (
         <View style={[styles.center, { backgroundColor: screenBackgroundColor }]}>
-            <ActivityIndicator size="large" color={activityIndicatorColor} />
+            <ActivityIndicator testID="full-screen-loading" size="large" color={activityIndicatorColor} />
         </View>
     );
   }
@@ -164,6 +164,7 @@ export default function ChallengesScreen() {
       <View style={styles.filterRow}>
         <View style={styles.switchRow}>
           <Switch
+            testID="attended-only-switch"
             value={showAttendedOnly}
             onValueChange={setShowAttendedOnly}
             thumbColor={switchThumbColor}
@@ -173,6 +174,7 @@ export default function ChallengesScreen() {
         </View>
         <View style={styles.switchRow}>
           <Switch
+            testID="active-only-switch"
             value={showActiveOnly}
             onValueChange={setShowActiveOnly}
             thumbColor={switchThumbColor}
@@ -183,6 +185,7 @@ export default function ChallengesScreen() {
       </View>
 
       <FlatList
+        testID="challenges-list"
         data={filtered}
         keyExtractor={item => String(item.challengeId)}
         contentContainerStyle={styles.listContentContainer} // Adjusted for new padding structure
@@ -206,6 +209,7 @@ export default function ChallengesScreen() {
 
                 {!isAdmin && item.status === 'Active' && (
                   <TouchableOpacity
+                    testID={`attend-leave-button-${item.challengeId}`}
                     style={item.attendee ? styles.warningButton : styles.secondaryButton}
                     onPress={() => handleAttendLeave(item.challengeId, !item.attendee)}
                   >
@@ -221,7 +225,8 @@ export default function ChallengesScreen() {
                   </TouchableOpacity>
                 )}
 
-                <TouchableOpacity style={styles.secondaryButton} onPress={() => handleViewLeaderboard(item.challengeId)}>
+                <TouchableOpacity style={styles.secondaryButton} testID={`view-leaderboard-button-${item.challengeId}`} onPress={() => handleViewLeaderboard(item.challengeId)}>
+                
                   <ThemedText type="defaultSemiBold" style={styles.buttonText}>View Leaderboard</ThemedText>
                 </TouchableOpacity>
               </View>
@@ -237,7 +242,7 @@ export default function ChallengesScreen() {
         }
       />
 
-      <Modal visible={leaderboardVisible} animationType="slide" transparent>
+      <Modal visible={leaderboardVisible} testID="leaderboard-modal" animationType="slide" transparent>
         <View style={styles.lbOverlay}>
           <View style={[styles.lbContainer, {backgroundColor: modalBackgroundColor}]}>
             <ThemedText type="title" style={styles.lbTitle}>Leaderboard</ThemedText>
@@ -268,15 +273,21 @@ export default function ChallengesScreen() {
                 />
               </>
             )}
-            <TouchableOpacity style={styles.lbCloseButton} onPress={() => setLeaderboardVisible(false)}>
+            <TouchableOpacity style={styles.lbCloseButton} testID="leaderboard-close-button" onPress={() => setLeaderboardVisible(false)}>
               <ThemedText type="defaultSemiBold">Close</ThemedText>
             </TouchableOpacity>
+
+            <ActivityIndicator testID="full-screen-loading" size="large" color={activityIndicatorColor} />
+            <ActivityIndicator testID="inline-loading" style={styles.inlineSpinner} size="small" color={activityIndicatorColor} />
+            <ActivityIndicator testID="leaderboard-loading" size="large" color={activityIndicatorColor}/>
           </View>
         </View>
       </Modal>
     </View>
   );
 }
+
+
 const styles = StyleSheet.create({
   container: { flex: 1 },
   headerContainer: { paddingHorizontal: 16, marginTop: 48, marginBottom: 18 },
