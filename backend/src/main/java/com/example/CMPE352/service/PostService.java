@@ -241,6 +241,8 @@ public class PostService {
                         sp.getPost().getPostId(),
                         sp.getPost().getContent(),
                         sp.getPost().getLikes(),
+                        sp.getPost().getComments(),
+                        sp.getPost().getUser().getUsername(),
                         sp.getSavedAt(),
                         sp.getPost().getPhotoUrl()) )
                 .collect(Collectors.toList());
