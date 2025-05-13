@@ -94,10 +94,11 @@ export default function HomeScreen() {
     if (usersCount > 0) {              // wait until we actually have a number
       const fetchTrivia = async () => {
         try {
-          const res = await fetch(`http://${HOST}:8080/api/number/${usersCount}`);
+          const res = await fetch(`http://${HOST}:8080/api/home/number/${usersCount}`);
           if (!res.ok) throw new Error('Failed to fetch number trivia');
           const data = await res.json();
           setNumberTrivia(data.text);   // ← save just the text
+          console.log(data.text)
         } catch (err) {
           console.warn('Unable to load number trivia', err);
         }
