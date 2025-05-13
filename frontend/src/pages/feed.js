@@ -32,7 +32,12 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
 
       if (response.ok) {
         if (data.length > 0) {
-          setPosts((prev) => [...prev, ...data]);
+          setPosts((prev) => {
+            const existingIds = new Set(prev.map(p => p.postId));
+            const newPosts = data.filter(post => !existingIds.has(post.postId));
+            return [...prev, ...newPosts];
+          });
+
           setLastPostId(data[data.length - 1].postId); // <- track last post ID
           if (data.length < fetchSize) {
             setHasMorePosts(false); // No more posts
@@ -106,13 +111,13 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
       )}
 
       {isLoggedIn && (
-        <div className="text-center">   
+        <div className="text-center">
           <Button
             className="btn btn-info"
             onClick={() => {
               setShowCreatePost(!showCreatePost);
             }}
-            >
+          >
             {showCreatePost ? "Cancel" : "Create Post"}
           </Button>
         </div>
@@ -121,7 +126,7 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
       {isLoggedIn && showCreatePost && (
         <CreatePostButton
           onPostCreated={() => {
-            setPosts([]); 
+            setPosts([]);
             setLastPostId(null);
             setHasMorePosts(true);
             setLoading(true);
