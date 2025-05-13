@@ -22,8 +22,8 @@ const API_BASE = `http://${HOST}:8080`;
 
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
-  const { userType, setUserType, username, setUsername } = useContext(AuthContext); // Removed user_id as it's not used in this version
-  const colorScheme = useColorScheme();
+  const { userType, setUserType, username, setUsername} = useContext(AuthContext);
+  const colorScheme = useColorScheme(); // Get current color scheme
 
   const [bio, setBio] = useState('');
   const [avatarUri, setAvatarUri] = useState('');
@@ -171,7 +171,7 @@ export default function ProfileScreen() {
             style={[styles.actionButton, { backgroundColor: '#2196F3' }]}
             onPress={() => navigation.navigate('create_post')}
             >
-            <Text style={[styles.actionText, {color: buttonTextColor}]}>Create a post</Text>
+            <Text style={[styles.actionText, {color: buttonTextColor}]}>Create Post</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -180,6 +180,14 @@ export default function ProfileScreen() {
             >
             <Text style={[styles.actionText, {color: buttonTextColor}]}>Manage Posts</Text>
             </TouchableOpacity>
+        
+        <TouchableOpacity
+          style={[styles.actionButton, { backgroundColor: '#D4AF37' }]}
+          onPress={() => navigation.navigate('saved_posts')}
+        >
+          <Text style={[styles.actionText, {color: buttonTextColor}]}>Saved Posts</Text>
+        </TouchableOpacity>
+
         </View>
       </View>
     </ParallaxScrollView>

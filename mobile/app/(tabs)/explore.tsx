@@ -38,6 +38,7 @@ type Post = {
   comments: number;
   photoUrl: string | null;
   likedByUser: boolean;
+  savedByUser: boolean;
 };
 
 export default function ExploreScreen() {
@@ -107,6 +108,7 @@ export default function ExploreScreen() {
     comments: Array.isArray(item.comments) ? item.comments.length : (Number(item.comments) || 0),
     photoUrl: item.photoUrl,
     likedByUser: false,
+    savedByUser: false,
   });
 
   const fetchLikeStatusesForPosts = async (currentPostsToUpdate: Post[], currentUsername: string): Promise<Post[]> => {
@@ -122,6 +124,25 @@ export default function ExploreScreen() {
     });
     return Promise.all(promises);
   };
+
+  const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentUsername: string): Promise<Post[]> => {
+    if (!currentUsername || currentPostsToUpdate.length === 0) return currentPostsToUpdate;
+      try {
+        const res = await fetch(`${API_BASE}/api/posts/getSavedPosts?username=${currentUsername}`); 
+        if (!res.ok) return currentPostsToUpdate;
+        const savedPostsData = await res.json();
+        const savedPostIds = new Set(savedPostsData.map((post: any) => post.postId));
+        return currentPostsToUpdate.map(post => ({
+          ...post,
+          savedByUser: savedPostIds.has(post.id), 
+        }));
+      } catch (e) { 
+        console.error('Error fetching saved statuses:', e);
+        return currentPostsToUpdate;
+      }
+  }
+        
+
 
   const fetchPosts = async (loadMore = false) => {
     const currentOperation = loadMore ? 'loading more' : 'fetching initial/refresh';
@@ -147,7 +168,8 @@ export default function ExploreScreen() {
       let processedNewItems: Post[] = data.map(mapApiItemToPost);
 
       if (username && userType === 'user' && processedNewItems.length > 0) {
-        processedNewItems = await fetchLikeStatusesForPosts(processedNewItems, username);
+        processedNewItems = await fetchLikeStatusesForPosts(processedNewItems, username); 
+        processedNewItems = await fetchSavedStatusesForPosts(processedNewItems, username);
       }
 
       if (loadMore) {
@@ -221,7 +243,8 @@ export default function ExploreScreen() {
       const data = await res.json();
       let processedResults: Post[] = data.map(mapApiItemToPost);
       if (username && userType === 'user' && processedResults.length > 0) {
-        processedResults = await fetchLikeStatusesForPosts(processedResults, username);
+        processedResults = await fetchLikeStatusesForPosts(processedResults, username); 
+        processedResults = await fetchSavedStatusesForPosts(processedResults, username);
       }
       setSearchResults(processedResults);
       setInSearchMode(true);
@@ -280,6 +303,60 @@ export default function ExploreScreen() {
         currentList.map(p =>
           p.id === postId
             ? { ...p, likedByUser: currentlyLiked, likes: currentlyLiked ? p.likes + 1 : Math.max(0, p.likes - 1) }
+            : p
+        )
+      );
+    }
+  };
+
+
+
+const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
+    if (userType === 'guest' || !username) {
+      Alert.alert("Login Required", "Please log in to save posts.");
+      return;
+    }
+    const listToUpdate = inSearchMode ? searchResults : posts;
+    const setListFunction = inSearchMode ? setSearchResults : setPosts;
+
+    setListFunction(currentList =>
+      currentList.map(p =>
+        p.id === postId
+          ? { ...p, savedByUser: !currentlySaved }
+          : p
+      )
+    );
+    
+    // api call for save POST {{base_url}}/api/posts/save with body { "username": "{{username} }", "postId": {{post_id}} } and header Content-Type: application/json
+    // api call for unsave DELETE {{base_url}}/api/posts/unsave{{username}}/{{post_id}} no body
+    try {
+      const url = currentlySaved
+        ? `${API_BASE}/api/posts/unsave${username}/${postId}`
+        : `${API_BASE}/api/posts/save`;
+      const method = currentlySaved ? 'DELETE' : 'POST';
+      const body = currentlySaved ? null : JSON.stringify({ username, postId });
+      const response = currentlySaved ? await fetch(url, { method }) : await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body });
+      const responseBodyText = await response.text();
+      if (!response.ok) {
+        let errorMsg = `Failed to ${currentlySaved ? 'unsave' : 'save'}. Status: ${response.status}`;
+        try { const errorData = JSON.parse(responseBodyText); errorMsg = errorData.message || errorMsg; }
+        catch (e) { errorMsg += ` Response: ${responseBodyText.substring(0,100)}`; }
+        throw new Error(errorMsg);
+      }
+      const result = JSON.parse(responseBodyText);
+      if (currentlySaved) {
+        if (!result.deleted) throw new Error(result.message || `Backend error on unsave.`);
+      }
+      else {
+        if (!result.username) throw new Error(result.message || `Backend error on save.`);
+      }
+    } catch (err: any) {
+      console.error('Failed to toggle save:', err.message);
+      Alert.alert("Error", err.message || "Could not update save status.");
+      setListFunction(currentList =>
+        currentList.map(p =>
+          p.id === postId
+            ? { ...p, savedByUser: currentlySaved }
             : p
         )
       );
@@ -508,8 +585,11 @@ export default function ExploreScreen() {
               cardBackgroundColor={cardBackgroundColor} iconColor={iconColor} textColor={generalTextColor}
               commentInputBorderColor={commentInputBorderColor} commentInputTextColor={commentInputTextColor}
               commentInputPlaceholderColor={commentInputPlaceholderColor} commentInputBackgroundColor={commentInputBackgroundColor}
-              onLikePress={handleLikeToggle} userType={userType} loggedInUsername={username}
-              isExpanded={expandedPostId === post.id}
+
+              onLikePress={handleLikeToggle} userType={userType} loggedInUsername={username} 
+              onSavePress={handleSaveToggle}
+
+        isExpanded={expandedPostId === post.id}
               commentsList={commentsByPostId[post.id] || []}
               isLoadingComments={loadingCommentsPostId === post.id}
               commentInputText={editingCommentDetails?.postId === post.id ? '' : (commentInputs[post.id] || '')} 
@@ -538,7 +618,8 @@ export default function ExploreScreen() {
               cardBackgroundColor={cardBackgroundColor} iconColor={iconColor} textColor={generalTextColor}
               commentInputBorderColor={commentInputBorderColor} commentInputTextColor={commentInputTextColor}
               commentInputPlaceholderColor={commentInputPlaceholderColor} commentInputBackgroundColor={commentInputBackgroundColor}
-              onLikePress={handleLikeToggle} userType={userType} loggedInUsername={username}
+              onLikePress={handleLikeToggle} onSavePress={handleSaveToggle}
+              userType={userType} loggedInUsername={username}
               isExpanded={expandedPostId === post.id}
               commentsList={commentsByPostId[post.id] || []}
               isLoadingComments={loadingCommentsPostId === post.id}

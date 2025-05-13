@@ -43,7 +43,7 @@ type TrendingPost = {
 export default function HomeScreen() {
   const navigation = useNavigation<Navigation>();
   const route     = useRoute<any>();
-  const { setUserType, setUsername, setUserId } = useContext(AuthContext);
+  const { setUserType, setUsername} = useContext(AuthContext);
 
   const [showAuthFields, setShowAuthFields] = useState(false);
   const [isRegistering, setIsRegistering]   = useState(false);
@@ -160,7 +160,6 @@ export default function HomeScreen() {
     if (emailOrUsername === 'test' && pwd === 'test') {
       setUserType('user');
       setUsername('test');
-      setUserId('test');
       setLoggedIn(true);
       navigation.navigate('explore');
       return;
@@ -192,7 +191,7 @@ export default function HomeScreen() {
       }
   
       // success path
-      const { token, username,  } = (await res.json()) as {
+      const { token, username } = (await res.json()) as {
         token: string;
 
         username: string;
@@ -268,7 +267,6 @@ export default function HomeScreen() {
   const continueAsGuest = () => {
     setUserType('guest');
     setUsername('');
-    setUserId('');
     setLoggedIn(false);
     navigation.navigate('explore');
   };
@@ -322,7 +320,7 @@ export default function HomeScreen() {
 
                   <View style={styles.postFooter}>
                     <Ionicons name="heart-outline" size={16} />
-                    <ThemedText style={styles.footerText}>{post.likes}</ThemedText>
+                    <ThemedText style={styles.footerText}>{post.likes}</ThemedText>     
                     <Ionicons name="chatbubble-outline" size={16} />
                     <ThemedText style={styles.footerText}>{post.comments}</ThemedText>
                   </View>
