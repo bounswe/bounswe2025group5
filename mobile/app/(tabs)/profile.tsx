@@ -120,12 +120,6 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
 
-            <TouchableOpacity
-            style={[styles.actionButton, { backgroundColor: '#2196F3' }]}
-            onPress={() => navigation.navigate('create_post')}
-            >
-            <Text style={[styles.actionText, {color: buttonTextColor}]}>Create Post</Text>
-            </TouchableOpacity>
 
         <View style={styles.profileContainer}>
           {avatarUri ? (
@@ -143,13 +137,16 @@ export default function ProfileScreen() {
               style={{ marginTop: 4, fontStyle: bio ? 'normal' : 'italic' }}
               numberOfLines={3}
             >
-
               {bio || 'No bio yet.'}
             </ThemedText>
           </View>
 
-            <Text style={[styles.actionText, {color: buttonTextColor}]}>Manage Posts</Text>
-            </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.actionButton, { backgroundColor: '#D4AF37' }]}
+          onPress={() => navigation.navigate('posts')}
+        >
+          <Text style={[styles.actionText, {color: buttonTextColor}]}>Manage Posts</Text>
+        </TouchableOpacity>
         
         <TouchableOpacity
           style={[styles.actionButton, { backgroundColor: '#D4AF37' }]}
