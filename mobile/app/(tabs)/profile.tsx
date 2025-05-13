@@ -171,7 +171,7 @@ export default function ProfileScreen() {
             style={[styles.actionButton, { backgroundColor: '#2196F3' }]}
             onPress={() => navigation.navigate('create_post')}
             >
-            <Text style={[styles.actionText, {color: buttonTextColor}]}>Create a post</Text>
+            <Text style={[styles.actionText, {color: buttonTextColor}]}>Create Post</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -182,10 +182,10 @@ export default function ProfileScreen() {
             </TouchableOpacity>
         
         <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: '#4CAF50' }]}
+          style={[styles.actionButton, { backgroundColor: '#D4AF37' }]}
           onPress={() => navigation.navigate('saved_posts')}
         >
-          <Text style={[styles.actionText, {color: buttonTextColor}]}>Saved posts</Text>
+          <Text style={[styles.actionText, {color: buttonTextColor}]}>Saved Posts</Text>
         </TouchableOpacity>
 
         </View>
