@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
 import ChallengeCard from '../components/ChallengeCard';
-import LeaderboardCard from '../components/LeaderboardCard';
 import CreateChallengeCard from '../components/CreateChallengeCard';
 import Loader from '../components/ui/spinner';
 
@@ -75,13 +74,7 @@ export default function Challenge({ url }) {
         ))}
       </div>
 
-      {showLeaderboard && selectedChallengeId && (
-        <LeaderboardCard
-          challengeId={selectedChallengeId}
-          onClose={handleCloseLeaderboard}
-          url={url}
-        />
-      )}
+      
     </div>
   );
 }
