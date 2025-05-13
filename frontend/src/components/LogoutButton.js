@@ -13,7 +13,7 @@ export default function LogoutButton({ onLogout, setIsLoggedIn }) {
     };
 
     return (
-        <Button onClick={handleLogout} className="bg-red-600 hover:bg-red-700">
+        <Button onClick={handleLogout} >
             Log Out
         </Button>
     );

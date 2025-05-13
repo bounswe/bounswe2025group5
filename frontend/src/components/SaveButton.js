@@ -4,7 +4,6 @@ function SaveButton({ postId, onSave, saved, url }) {
     const [savedState, setSaved] = useState(saved); // Initialize saved state
     const [error, setError] = useState(null);
     const username = localStorage.getItem("username"); // Get the username from local storage
-    const userId = localStorage.getItem("userId"); // Get the userId from local storage
     const [isPending, setIsPending] = useState(false);
     const toggleSave = async () => {
         if (isPending) return; // Prevent multiple clicks while pending
@@ -12,7 +11,7 @@ function SaveButton({ postId, onSave, saved, url }) {
         setSaved(!savedState); // Toggle the saved state
         if (savedState) {
             try {
-                const response = await fetch(`${url}/api/posts/unsave${userId}/${postId}`, {
+                const response = await fetch(`${url}/api/posts/unsave${username}/${postId}`, {
                     method: "DELETE",
                     headers: {
                         "Content-Type": "application/json",
@@ -42,7 +41,7 @@ function SaveButton({ postId, onSave, saved, url }) {
                     },
                     body: JSON.stringify({
                         postId: postId,
-                        userId: userId, // Send userId with the request
+                        username: username, // Send userId with the request
                     }),
                 });
 

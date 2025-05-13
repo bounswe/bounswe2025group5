@@ -41,7 +41,13 @@ export default function Challenge({ url }) {
         setSelectedChallengeId(null);
     };
 
-    if (loading) return <p>Loading challenges...</p>;
+    if (loading) {
+        return (
+            <div>
+                <Loader size='50px' message="Loading Challenges..." /> {/* Show loading spinner */}
+            </div>
+        );
+    }
     if (error) return <p style={{ color: "red" }}>{error}</p>;
 
     return (

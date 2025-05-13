@@ -1,75 +1,90 @@
 import React, { useState } from "react";
+import { Card, Accordion } from "react-bootstrap";
 import LikeButton from "./LikeButton.js";
 import SaveButton from "./SaveButton.js";
-import CommentSection from "./comment/index.js"; // Import the CommentSection component
+import CommentSection from "./comment/index.js";
 import EditPostButton from "./EditPostButton.js";
-import DeletePost from "./DeletePost.js"; // Import the DeletePost component
+import DeletePost from "./DeletePost.js";
+import { useEffect } from "react";
 
 function PostCard({ post, isLoggedIn, onAction, url }) {
-    const [comments, setComments] = useState(post.comments || []);
+  const [comments, setComments] = useState(post.comments || []);
+  const isOwner = isLoggedIn && post.creatorUsername === localStorage.getItem("username");
 
-    return (
-        <div style={styles.card}>
-            <h3>{post.creatorUsername}</h3>
-            <p>{post.content}</p>
+  return (
+    <Card className="mb-4 shadow rounded-4">
+      {post.photoUrl && (
+        <Card.Img
+          variant="top"
+          src={post.photoUrl}
+          alt="Post"
+          className="rounded-4" // Apply rounded class to the image
+        />
+      )}
 
-            {post.photoUrl && (
-                <img src={post.photoUrl} alt="Post" style={{ maxWidth: "60%", marginTop: "10px" }} />
-            )}
+      <Card.Body>
+        {/* Content Box */}
+        <div className="p-5 rounded bg-light mb-3 rounded-4 w-100" style={{ width: "10%" }}>
+          {post.content}
+        </div>
 
-            <div style={styles.footer}>
-                {!isLoggedIn && (
-                    <small>Likes: {post.likes}</small>
-                )}
-                <small>Posted on: {new Date(post.createdAt).toLocaleString()}</small>
+        {/* Username and Post Info Row */}
+        <div className="d-flex justify-content-between">
+          <div>
+            <h5 className="fw-semibold">@{post.creatorUsername}</h5>
+          </div>
+          <div className="text-muted" style={{ fontSize: '0.8rem' }}>
+            {!isLoggedIn && <div>Likes: {post.likes}</div>}
+            <div>Posted on: {new Date(post.createdAt).toLocaleString()}</div>
+          </div>
+        </div>
+
+        {/* Action Buttons Row for Logged-in User and Post Owner */}
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          {isLoggedIn && (
+            <div className="d-flex gap-2">
+              <LikeButton
+                postId={post.postId}
+                onLike={onAction}
+                liked={post.liked}
+                likes={post.likes}
+                url={url}
+              />
+              <SaveButton
+                postId={post.postId}
+                onSave={onAction}
+                saved={post.saved}
+                url={url}
+              />
             </div>
+          )}
 
-            {isLoggedIn && (
-                <div style={styles.actions}>
-                    <LikeButton postId={post.postId} onLike={onAction} liked={post.liked} likes={post.likes} url={url}/>
-                    <SaveButton postId={post.postId} onSave={onAction} saved={post.saved} url={url}/>
-                </div>
-            )}
+          {isOwner && (
+            <div className="d-flex gap-2">
+              <EditPostButton post={post} onPostUpdated={onAction} url={url} />
+              <DeletePost postId={post.postId} onDelete={onAction} url={url} />
+            </div>
+          )}
+        </div>
 
-            {isLoggedIn && post.creatorUsername === localStorage.getItem("username") && (
-                <>
-                <EditPostButton post={post} onPostUpdated={onAction} url={url} />
-                <DeletePost postId={post.postId} onDelete={onAction} url={url} />
-                </>
-            )}
-            <hr style={{ margin: "2rem 0", borderTop: "2px solid #ccc" }} />
-            {/* Comment Section */}
-            <CommentSection
+        {/* Accordion for Comments */}
+        <Accordion>
+          <Accordion.Item eventKey="0">
+            <Accordion.Header>Comments ({(comments > 0) ?  comments:0 })</Accordion.Header>
+            <Accordion.Body>
+              <CommentSection
                 postId={post.postId}
                 comments={comments}
                 setComments={setComments}
                 isLoggedIn={isLoggedIn}
-                url={url} // Pass the URL prop to CommentSection
-            />
-        </div>
-    );
+                url={url}
+              />
+            </Accordion.Body>
+          </Accordion.Item>
+        </Accordion>
+      </Card.Body>
+    </Card>
+  );
 }
-
-const styles = {
-    card: {
-        border: "1px solid #ccc",
-        borderRadius: "8px",
-        padding: "16px",
-        marginBottom: "16px",
-        backgroundColor: "#f9f9f9"
-    },
-    footer: {
-        display: "flex",
-        justifyContent: "space-between",
-        marginTop: "8px",
-        fontSize: "12px",
-        color: "#666"
-    },
-    actions: {
-        display: "flex",
-        gap: "10px",
-        marginTop: "10px"
-    }
-};
 
 export default PostCard;

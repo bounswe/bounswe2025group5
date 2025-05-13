@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Loader from './ui/spinner.js'; // Adjust the import path as necessary
 
 export default function LeaderboardCard({ challengeId, onClose , url}) {
     const [leaderboard, setLeaderboard] = useState([]);
@@ -25,7 +26,13 @@ export default function LeaderboardCard({ challengeId, onClose , url}) {
         fetchLeaderboard();
     }, [challengeId]);
 
-    if (loading) return <p>Loading leaderboard...</p>;
+    if (loading) {
+        return (
+            <div>
+                <Loader size='50px' message="Loading..." /> {/* Show loading spinner */}
+            </div>
+        );
+    }
     if (error) return <p style={{ color: "red" }}>{error}</p>;
 
     return (
