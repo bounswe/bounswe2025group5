@@ -11,7 +11,7 @@ import MainPage from './pages/mainPage.js';
 import Navbar from './components/Navbar.js'; // Import the Navbar component
 import Challenge from './pages/challenge.js';
 import ProfilePage from './pages/profilePage.js';
-
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

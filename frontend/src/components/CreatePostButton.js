@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 
-function CreatePostButton({ onPostCreated, url}) {
+function CreatePostButton({ onPostCreated, url }) {
     const [content, setContent] = useState("");
-    const [photoUrl, setPhotoUrl] = useState("");
+    const [photoFile, setPhotoFile] = useState(null);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
-    const [username, setUsername] = useState(localStorage.getItem("username") || ""); // Get username from local storage
+    const username = localStorage.getItem("username") || "";
 
     const handleCreatePost = async () => {
         if (!content.trim()) {
@@ -14,23 +14,22 @@ function CreatePostButton({ onPostCreated, url}) {
             return;
         }
 
+        const formData = new FormData();
+        formData.append("content", content.trim());
+        formData.append("username", username);
+        if (photoFile) {
+            formData.append("photo", photoFile); // Backend expects "photo"
+        }
+
         try {
             const response = await fetch(`${url}/api/posts/create`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    //...(token && { "Authorization": `Bearer ${token}` }), // if token needed
-                },
-                body: JSON.stringify({
-                    "content": content.trim(),
-                    "photoUrl": photoUrl.trim() || null,
-                    "username": username,
-                }),
+                body: formData,
             });
 
             if (response.ok) {
                 setContent("");
-                setPhotoUrl("");
+                setPhotoFile(null);
                 setError(null);
                 setSuccess("Post created successfully!");
                 if (onPostCreated) onPostCreated();
@@ -46,64 +45,35 @@ function CreatePostButton({ onPostCreated, url}) {
     };
 
     return (
-        <div style={styles.container}>
-            <h3>Create a Post</h3>
-            <textarea
-                style={styles.textarea}
-                placeholder="What's on your mind?"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-            />
-            <input
-                style={styles.input}
-                type="text"
-                placeholder="Optional Photo URL"
-                value={photoUrl}
-                onChange={(e) => setPhotoUrl(e.target.value)}
-            />
-            <button style={styles.button} onClick={handleCreatePost}>Post</button>
-            {error && <div style={styles.error}>{error}</div>}
-            {success && <div style={styles.success}>{success}</div>}
+        <div className="card mb-4 shadow">
+            <div className="card-body">
+                <h5 className="card-title">Create a Post</h5>
+                <div className="mb-3">
+                    <textarea
+                        className="form-control"
+                        placeholder="What's on your mind?"
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                        rows="4"
+                        required
+                    />
+                </div>
+                <div className="mb-3">
+                    <input
+                        className="form-control"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setPhotoFile(e.target.files[0])}
+                    />
+                </div>
+                <button className="btn btn-info" onClick={handleCreatePost}>
+                    Post
+                </button>
+                {error && <div className="text-danger mt-2">{error}</div>}
+                {success && <div className="text-success mt-2">{success}</div>}
+            </div>
         </div>
     );
 }
-
-const styles = {
-    container: {
-        border: "1px solid #ccc",
-        borderRadius: "8px",
-        padding: "16px",
-        marginBottom: "24px",
-        backgroundColor: "#f5f5f5",
-    },
-    textarea: {
-        width: "100%",
-        minHeight: "80px",
-        padding: "8px",
-        marginBottom: "8px",
-        resize: "vertical",
-    },
-    input: {
-        width: "100%",
-        padding: "8px",
-        marginBottom: "8px",
-    },
-    button: {
-        padding: "8px 16px",
-        backgroundColor: "#4CAF50",
-        color: "white",
-        border: "none",
-        borderRadius: "4px",
-        cursor: "pointer",
-    },
-    error: {
-        color: "red",
-        marginTop: "8px",
-    },
-    success: {
-        color: "green",
-        marginTop: "8px",
-    },
-};
 
 export default CreatePostButton;

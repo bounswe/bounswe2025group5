@@ -1,93 +1,84 @@
 import React, { useState } from "react";
+import BootstrapModal from "./ui/bootstrapModal";
+import { Button, Form } from "react-bootstrap";
 
 function EditPostButton({ post, onPostUpdated, url }) {
-    const [isEditing, setIsEditing] = useState(false);
-    const [content, setContent] = useState(post.content);
-    const [photoUrl, setPhotoUrl] = useState(post.photoUrl || "");
+  const [showModal, setShowModal] = useState(false);
+  const [content, setContent] = useState(post.content);
+  const [photoFile, setPhotoFile] = useState(null);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const updatedPost = {
-            content,
-            photoUrl,
-            username: localStorage.getItem("username") // Get the username from local storage
-        };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        try {
-            const response = await fetch(`${url}/api/posts/edit/${post.postId}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    // Authorization header if needed
-                },
-                body: JSON.stringify(updatedPost)
-            });
+    const formData = new FormData();
+    formData.append("content", content);
+    formData.append("username", localStorage.getItem("username"));
+    if (photoFile) {
+      formData.append("photo", photoFile);
+    }
 
-            if (response.ok) {
-                setIsEditing(false);
-                onPostUpdated(); // refetch posts
-            } else {
-                console.error("Failed to update post");
-            }
-        } catch (err) {
-            console.error("Error updating post", err);
+    try {
+      const response = await fetch(`${url}/api/posts/edit/${post.postId}`, {
+        method: "PUT",
+        body: formData,
+      });
+
+      if (response.ok) {
+        setShowModal(false);
+        onPostUpdated();
+      } else {
+        console.error("Failed to update post");
+      }
+    } catch (err) {
+      console.error("Error updating post", err);
+    }
+  };
+
+  return (
+    <>
+      <Button variant="info" size="sm" color="10abdb" onClick={() => setShowModal(true)}>
+        Edit
+      </Button>
+
+      <BootstrapModal
+        title="Edit Post"
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setShowModal(false)}>
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={handleSubmit} type="submit">
+              Save
+            </Button>
+          </>
         }
-    };
+      >
+        <Form onSubmit={handleSubmit}>
+          <Form.Group controlId="postContent">
+            <Form.Label>Content</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={4}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              required
+            />
+          </Form.Group>
 
-    return (
-        <div style={{ marginTop: "0.5rem" }}>
-            <button onClick={() => setIsEditing(true)}>Edit</button>
-
-            {isEditing && (
-                <div style={modalStyle}>
-                    <div style={modalContentStyle}>
-                        <h3>Edit Post</h3>
-                        <form onSubmit={handleSubmit}>
-                            <textarea
-                                value={content}
-                                onChange={(e) => setContent(e.target.value)}
-                                rows="4"
-                                cols="40"
-                                required
-                            />
-                            <br />
-                            <input
-                                type="text"
-                                value={photoUrl}
-                                onChange={(e) => setPhotoUrl(e.target.value)}
-                                placeholder="Photo URL (optional)"
-                            />
-                            <br />
-                            <button type="submit">Save</button>
-                            <button type="button" onClick={() => setIsEditing(false)}>
-                                Cancel
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
+          <Form.Group controlId="photoFile" className="mt-3">
+            <Form.Label>Replace Photo (optional)</Form.Label>
+            <Form.Control
+              type="file"
+              accept="image/*"
+              onChange={(e) => setPhotoFile(e.target.files[0])}
+            />
+          </Form.Group>
+        </Form>
+      </BootstrapModal>
+    </>
+  );
 }
-
-const modalStyle = {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    backgroundColor: "rgba(0,0,0,0.5)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 1000
-};
-
-const modalContentStyle = {
-    backgroundColor: "#fff",
-    padding: "1rem",
-    borderRadius: "8px",
-    minWidth: "300px"
-};
 
 export default EditPostButton;

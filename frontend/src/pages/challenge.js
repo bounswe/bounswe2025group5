@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ChallengeCard from '../components/ChallengeCard';
 import LeaderboardCard from '../components/LeaderboardCard';
 import CreateChallengeCard from '../components/CreateChallengeCard';
+import Loader from '../components/ui/spinner.js'; // Import the Loader component
 
 export default function Challenge({ url }) {
     const [username] = useState(localStorage.getItem("username"));
@@ -41,7 +42,13 @@ export default function Challenge({ url }) {
         setSelectedChallengeId(null);
     };
 
-    if (loading) return <p>Loading challenges...</p>;
+    if (loading) {
+        return (
+            <div>
+                <Loader size='50px' message="Loading Challenges..." /> {/* Show loading spinner */}
+            </div>
+        );
+    }
     if (error) return <p style={{ color: "red" }}>{error}</p>;
 
     return (
