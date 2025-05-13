@@ -26,7 +26,7 @@ type PostData = {
   creatorUsername: string;
   content: string;
   likeCount: number;
-  comments: number; // Assuming this is a count based on previous context
+  commentCount: number; // Assuming this is a count based on previous context
   photoUrl: string | null;
   // savedByUser is NOT strictly needed from API, as we fetch only saved posts initially
 };
@@ -56,10 +56,6 @@ function SavedPostCard({
         // navigation.navigate('post_detail', { postId: post.postId });
     };
 
-    const getCommentCount = (comments: any): number => {
-        return typeof comments === 'number' ? comments : 0;
-    }
-
     // Determine which action to call based on the local saved state
     const handleBookmarkPress = () => {
         if (isSavedLocally) { // If icon shows saved (filled bookmark)
@@ -84,8 +80,8 @@ function SavedPostCard({
                 <View style={styles.postStats}>
                     <Ionicons name="heart-outline" size={16} color={iconColor} />
                     <ThemedText style={[styles.footerText, { color: iconColor }]}>{post.likeCount}</ThemedText>
-                   {/* <Ionicons name="chatbubble-outline" size={16} color={iconColor} /> */}
-                   {/* <ThemedText style={[styles.footerText, { color: iconColor }]}>{getCommentCount(post.comments)}</ThemedText> */}
+                    <Ionicons name="chatbubble-outline" size={16} color={iconColor} /> 
+                    <ThemedText style={[styles.footerText, { color: iconColor }]}>{post.commentCount}</ThemedText> 
                 </View>
                 <View style={styles.postActions}>
                     <TouchableOpacity onPress={handleBookmarkPress} style={styles.actionIcon}>
