@@ -13,6 +13,7 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
   const [loading, setLoading] = useState(true);
   const [hasMorePosts, setHasMorePosts] = useState(true);
   const [lastPostId, setLastPostId] = useState(null);
+  const [showCreatePost, setShowCreatePost] = useState(false);
   const fetchSize = 10;
 
   const fetchPosts = async () => {
@@ -62,10 +63,22 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
   }
 
   return (
-    <Container>
+    <Container style={{ marginTop: "70px" }}>
       <h1 className="my-4">Post Feed</h1>
 
-      {isLoggedIn && (
+    {      isLoggedIn && (
+        <div className="text-center">   
+          <Button
+            className="btn btn-info"
+            onClick={() => {
+              setShowCreatePost(!showCreatePost);
+            }}
+            >
+            {showCreatePost ? "Cancel" : "Create Post"}
+          </Button>
+        </div>
+      )}
+      {isLoggedIn && showCreatePost &&(
         <CreatePostButton
           onPostCreated={() => {
             setPosts([]);
@@ -92,11 +105,7 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
         </div>
       )}
 
-      {isLoggedIn && (
-        <div className="mt-4 btn btn-info">
-          <LogoutButton setIsLoggedIn={setIsLoggedIn} onLogout={() => navigate("/")} />
-        </div>
-      )}
+      
     </Container>
   );
 }

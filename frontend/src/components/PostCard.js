@@ -6,10 +6,12 @@ import CommentSection from "./comment/index.js";
 import EditPostButton from "./EditPostButton.js";
 import DeletePost from "./DeletePost.js";
 import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 function PostCard({ post, isLoggedIn, onAction, url }) {
   const [comments, setComments] = useState(post.comments || []);
   const isOwner = isLoggedIn && post.creatorUsername === localStorage.getItem("username");
+  const location = useLocation();
 
   return (
     <Card className="mb-4 shadow rounded-4">
@@ -24,18 +26,20 @@ function PostCard({ post, isLoggedIn, onAction, url }) {
 
       <Card.Body>
         {/* Content Box */}
-        <div className="p-5 rounded bg-light mb-3 rounded-4 w-100" style={{ width: "10%" }}>
+        {location.pathname==='/feed' ? <div className="p-5 rounded bg-light mb-3 rounded-4 w-100" style={{ width: "15%" }}>
           {post.content}
-        </div>
+        </div> : <div className="p-2 rounded bg-light mb-5 rounded-4 w-100" style={{ width: "15%", fontSize:'1.1rem' }}>
+          {post.content}
+        </div>}
 
         {/* Username and Post Info Row */}
         <div className="d-flex justify-content-between">
           <div>
-            <h5 className="fw-semibold">@{post.creatorUsername}</h5>
+            <h5 className="fw-semibold" style={{fontSize:'1.1rem'}}>@{post.creatorUsername}</h5>
           </div>
           <div className="text-muted" style={{ fontSize: '0.8rem' }}>
             {!isLoggedIn && <div>Likes: {post.likes}</div>}
-            <div>Posted on: {new Date(post.createdAt).toLocaleString()}</div>
+            <div style={{fontSize:'0.7rem'}}>Posted on: {new Date(post.createdAt).toLocaleString()}</div>
           </div>
         </div>
 
@@ -68,7 +72,7 @@ function PostCard({ post, isLoggedIn, onAction, url }) {
         </div>
 
         {/* Accordion for Comments */}
-        <Accordion>
+        {location.pathname == '/main' && post.photoUrl != null  ?  null : <Accordion>
           <Accordion.Item eventKey="0">
             <Accordion.Header>Comments ({(comments > 0) ?  comments:0 })</Accordion.Header>
             <Accordion.Body>
@@ -81,7 +85,7 @@ function PostCard({ post, isLoggedIn, onAction, url }) {
               />
             </Accordion.Body>
           </Accordion.Item>
-        </Accordion>
+        </Accordion> }
       </Card.Body>
     </Card>
   );

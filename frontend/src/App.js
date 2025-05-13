@@ -12,6 +12,10 @@ import Navbar from './components/Navbar.js'; // Import the Navbar component
 import Challenge from './pages/challenge.js';
 import ProfilePage from './pages/profilePage.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Goal from './pages/goalPage.js';
+
+
+
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -29,29 +33,41 @@ function App() {
       setUserName(cachedUsername); // Set the username from local storage
     }
   }, [location]);
+  // Determine the container class based on the current route
+  const getContainerClass = () => {
+    if (location.pathname === '/login' || location.pathname === '/register') {
+      return 'login-register-container';
+    } else if (location.pathname === '/' || location.pathname === '/main') {
+      return 'main-container';
+    } else if (location.pathname === '/feed'|| location.pathname === '/challenge' || location.pathname === '/goals' || location.pathname === '/profile') {
+      return 'feed-container';
+    } else {
+      return 'default-container'; // Fallback for other routes
+    }
+  };
 
   return (
-
     <div className="App">
       <header className="App-header">
-      {isLoggedIn && <Navbar setIsLoggedIn={setIsLoggedIn} />} {/* Render the Navbar */}
-        <div className="content-container">
-          <img src={logo} className="App-logo" alt="logo" />
+        {/* Render Navbar for all routes except login and register */}
+        {isLoggedIn && <Navbar setIsLoggedIn={setIsLoggedIn} />}
+        
+        {/* Apply the container class dynamically */}
+        <div className={getContainerClass()}>
           {/* Render pages based on the route */}
           <Routes>
-            <Route path="/" element={<HomePage url = {url}/>} />
-            <Route path="/login" element={<Login isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} url = {url} />} />
-            <Route path="/register" element={<Register url = {url}/>} />
-            <Route path="/feed" element={<Feed isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} url = {url} />} />
-            <Route path="/main" element={<MainPage url = {url}/>} />
-            <Route path="/goals" element={<div>Goals Page</div>} />
-            <Route path="/challenge" element={<Challenge url = {url}/>} />
-            <Route path="/profile" element={<ProfilePage setIsLoggedIn={setIsLoggedIn} username={username} url = {url}/>} />
+            <Route path="/" element={<HomePage url={url} />} />
+            <Route path="/login" element={<Login isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} url={url} />} />
+            <Route path="/register" element={<Register url={url} />} />
+            <Route path="/feed" element={<Feed isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} url={url} />} />
+            <Route path="/main" element={<MainPage url={url} />} />
+            <Route path="/goals" element={<div><Goal url = {url} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} username={username} setUserName={setUserName}/></div>} />
+            <Route path="/challenge" element={<Challenge url={url} />} />
+            <Route path="/profile" element={<ProfilePage setIsLoggedIn={setIsLoggedIn} username={username} url={url} />} />
           </Routes>
         </div>
       </header>
     </div>
-
   );
 }
 export default App;

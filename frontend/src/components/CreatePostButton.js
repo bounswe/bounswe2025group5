@@ -18,7 +18,7 @@ function CreatePostButton({ onPostCreated, url }) {
         formData.append("content", content.trim());
         formData.append("username", username);
         if (photoFile) {
-            formData.append("photo", photoFile); // Backend expects "photo"
+            formData.append("photoFile", photoFile); // Backend expects "photo"
         }
 
         try {
