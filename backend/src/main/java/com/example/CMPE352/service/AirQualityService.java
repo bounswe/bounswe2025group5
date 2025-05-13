@@ -21,7 +21,6 @@ public class AirQualityService {
 
     public AirQualityResponse getAirQualityData(String locationName) {
         try {
-            // Step 1: Convert location name to coordinates
             String geoUrl = String.format("https://geocoding-api.open-meteo.com/v1/search?name=%s", locationName);
             String geoResponse = restTemplate.getForObject(geoUrl, String.class);
             JsonNode geoRoot = objectMapper.readTree(geoResponse);
