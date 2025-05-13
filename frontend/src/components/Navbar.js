@@ -39,7 +39,7 @@ const styles = {
     position: 'fixed',
     top: 0,
     width: 'auto',
-    backgroundColor: 'rgba(16, 171, 219, 0.5)', // semi-transparent tint
+    backgroundColor: 'rgba(16, 219, 36, 0.5)', // semi-transparent tint
     backdropFilter: 'blur(8px)',                 // glassy blur effect
     padding: '10px 20px',
     display: 'flex',

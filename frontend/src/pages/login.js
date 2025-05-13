@@ -9,7 +9,7 @@ function Login({ isLoggedIn, setIsLoggedIn, url }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isLoggedIn) navigate('/feed');
+    if (isLoggedIn) navigate('/main');
   }, [isLoggedIn, navigate]);
 
   const handleSubmit = async () => {
