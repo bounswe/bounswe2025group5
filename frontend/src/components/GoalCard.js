@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function GoalCard({ goal, onDelete, onToggleComplete, onEdit }) {
+export default function GoalCard({url, goal, onDelete, onToggleComplete, onEdit }) {
     const [isCompleted, setIsCompleted] = useState(goal.completed === 1); // Convert `completed` to boolean
     const [isEditing, setIsEditing] = useState(false); // Track if the card is in edit mode
     const [editedGoal, setEditedGoal] = useState({ ...goal }); // Local state for editing
