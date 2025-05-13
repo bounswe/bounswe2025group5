@@ -5,6 +5,7 @@ import { Button } from "../components/ui/button";
 import wallpaper from "../assets/wallpaper2.png";
 import userImage from "../assets/userImage.png";
 import wasteImage from "../assets/wasteImg.png";
+import EnergyStatsCard from "../components/EnergyStatsCard";
 
 export default function HomePage({ url }) {
   const navigate = useNavigate();
@@ -184,6 +185,13 @@ export default function HomePage({ url }) {
           </p>
         </Carousel.Caption>
       </Carousel.Item>
+      {/* Slide 4: Energy Stats */}
+      <Carousel.Item className="vh-100 d-flex justify-content-center align-items-center">
+        <div className="d-block w-50 h-50 mx-auto">
+          <EnergyStatsCard countryCode="rus" url={url}/>
+        </div>
+      </Carousel.Item>
+
     </Carousel>
   );
 }

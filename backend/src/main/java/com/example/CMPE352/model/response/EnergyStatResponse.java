@@ -1,6 +1,6 @@
 package com.example.CMPE352.model.response;
 
-public class WasteStatResponse {
+public class EnergyStatResponse {
     private String country;
     private String year;
     private Double value; // Waste % or kg per capita
