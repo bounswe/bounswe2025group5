@@ -19,6 +19,16 @@ import { AuthContext } from '../_layout';
 import { ScrollView } from 'react-native';
 import CheckBox from '../components/CheckBox';
 
+type AirQuality = {
+  pm10: number;
+  pm25: number;
+  carbonMonoxide: number;
+  nitrogenDioxide: number;
+  sulphurDioxide: number;
+  ozone: number;
+};
+
+
 const HOST = Platform.select({ android: '10.0.2.2', ios: 'localhost' , web: 'localhost' });
 const API_BASE = `http://${HOST}:8080/api/auth`;
 
@@ -57,6 +67,7 @@ export default function HomeScreen() {
   const [loggedIn, setLoggedIn]             = useState(false);
   const [errorVisible, setErrorVisible]     = useState(false);
   const [errorMessage, setErrorMessage]     = useState('');
+  const [airQuality, setAirQuality] = useState<AirQuality | null>(null);
   const [usersCount, setUsersCount] = useState<number>(0);
   const [trendingPosts, setTrendingPosts] = useState<TrendingPost[]>([]);
 
@@ -127,6 +138,24 @@ export default function HomeScreen() {
       navigation.setParams?.({ error: undefined });
     }
   }, [route.params?.error]);
+
+    // ─── fetch air quality once on mount ─────────────────────────────────────────
+    useEffect(() => {
+      const fetchAQ = async () => {
+        try {
+          const res = await fetch(
+            `http://${HOST}:8080/api/home/getAirQuality?location=Istanbul`
+          );
+          if (!res.ok) throw new Error('Failed to fetch air quality');
+          const data = (await res.json()) as AirQuality;
+          console.log(data)
+          setAirQuality(data);
+        } catch (err) {
+          console.warn('Error fetching air quality', err);
+        }
+      };
+      fetchAQ();
+    }, []);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -270,6 +299,43 @@ export default function HomeScreen() {
       {!showAuthFields && (
         <>
           <View style={styles.statsContainer}>
+            {airQuality && (
+              <View style={styles.airQualityBox}>
+                <Text style={styles.airQualityTitle}>
+                  Air Quality in Istanbul
+                </Text>
+                <View style={styles.airQualityRow}>
+                  <Text style={styles.airQualityLabel}>PM10:</Text>
+                  <Text style={styles.airQualityValue}>
+                    {airQuality.pm10}
+                  </Text>
+                  <Text style={styles.airQualityLabel}>PM2.5:</Text>
+                  <Text style={styles.airQualityValue}>
+                    {airQuality.pm25}
+                  </Text>
+                </View>
+                <View style={styles.airQualityRow}>
+                  <Text style={styles.airQualityLabel}>CO:</Text>
+                  <Text style={styles.airQualityValue}>
+                    {airQuality.carbonMonoxide}
+                  </Text>
+                  <Text style={styles.airQualityLabel}>NO₂:</Text>
+                  <Text style={styles.airQualityValue}>
+                    {airQuality.nitrogenDioxide}
+                  </Text>
+                </View>
+                <View style={styles.airQualityRow}>
+                  <Text style={styles.airQualityLabel}>SO₂:</Text>
+                  <Text style={styles.airQualityValue}>
+                    {airQuality.sulphurDioxide}
+                  </Text>
+                  <Text style={styles.airQualityLabel}>O₃:</Text>
+                  <Text style={styles.airQualityValue}>
+                    {airQuality.ozone}
+                  </Text>
+                </View>
+              </View>
+            )}
             <ThemedText style={styles.statLine}>
               <Text style={styles.statNumber}>{usersCount}</Text>{' '}
               users are reducing their wastes with us
@@ -575,4 +641,32 @@ const styles = StyleSheet.create({
     alignItems  : 'center',
   },
   errorText: { color: '#fff', fontSize: 14, textAlign: 'center' },
+
+
+  airQualityBox: {
+    backgroundColor: '#e0f7fa',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  airQualityTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#00796b',
+  },
+  airQualityRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  airQualityLabel: {
+    fontSize: 14,
+    color: '#004d40',
+  },
+  airQualityValue: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#004d40',
+  },
 });
