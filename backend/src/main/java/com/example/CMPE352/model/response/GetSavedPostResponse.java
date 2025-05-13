@@ -11,6 +11,8 @@ public class GetSavedPostResponse {
     private Integer  postId;
     private String   content;
     private Integer  likeCount;
+    private Integer  commentCount;
+    private String creatorUsername;
     private Timestamp savedAt;
     private String photoUrl;
 }
