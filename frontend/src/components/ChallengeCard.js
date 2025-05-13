@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
-import { Accordion, Button, Spinner, Alert } from 'react-bootstrap';
+import { Accordion, Button, Spinner, Alert, Modal, ListGroup } from 'react-bootstrap';
 
 export default function ChallengeCard({ challenge, onAction, url }) {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+    const   [showLeaderboard, setShowLeaderboard] = useState(false);
+    const [lbLoading, setLbLoading] = useState(false);
+    const [lbError, setLbError] = useState(null);
+    const [leaderboard, setLeaderboard] = useState([]);
+    
 
     const isAdmin = localStorage.getItem('isAdmin') === 'true';
     const username = localStorage.getItem('username');
@@ -86,9 +91,34 @@ export default function ChallengeCard({ challenge, onAction, url }) {
             setLoading(false);
         }
     };
+     // Leaderboard handlers
+  const openLeaderboard = async (e) => {
+    e.stopPropagation();
+    setShowLeaderboard(true);
+    setLbLoading(true);
+    setLbError(null);
+    try {
+      const res = await fetch(`${url}/api/challenges/leaderboard?id=${challengeId}`);
+      const data = await res.json();
+      if (res.ok) {
+        // sort descending by remainingAmount
+        const sorted = data.sort((a, b) => b.remainingAmount - a.remainingAmount);
+        setLeaderboard(sorted);
+      } else {
+        setLbError(data.message || 'Failed to load leaderboard.');
+      }
+    } catch {
+      setLbError('Error loading leaderboard.');
+    } finally {
+      setLbLoading(false);
+    }
+  };
+
+  const closeLeaderboard = () => setShowLeaderboard(false);
 
 
     return (
+        <>
         <Accordion flush style={{
             maxWidth: '400px',
             flex: 'auto',
@@ -130,11 +160,38 @@ export default function ChallengeCard({ challenge, onAction, url }) {
                         {isAdmin && status !== 'Ended' && (
                             <Button variant="warning" size="sm" onClick={handleEndChallenge}>End</Button>
                         )}
+                        {!loading && (
+                        <Button variant="info" size="sm" onClick={openLeaderboard}>Leaderboard</Button>
+                        )}
                     </div>
 
                     {error && <Alert variant="danger" className="mt-2 py-1 px-2">{error}</Alert>}
                 </Accordion.Body>
             </Accordion.Item>
         </Accordion>
+        {/* Leaderboard Modal */}
+      <Modal show={showLeaderboard} onHide={closeLeaderboard} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Leaderboard</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {lbLoading && <div className="text-center"><Spinner animation="border" /></div>}
+          {lbError && <Alert variant="danger">{lbError}</Alert>}
+          {!lbLoading && !lbError && (
+            <ListGroup variant="flush">
+              {leaderboard.map((entry, idx) => (
+                <ListGroup.Item key={entry.username} className="d-flex justify-content-between">
+                  <span>{idx + 1}. {entry.username}</span>
+                  <span>{entry.remainingAmount}</span>
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" size="sm" onClick={closeLeaderboard}>Close</Button>
+        </Modal.Footer>
+      </Modal>
+        </>
     );
 }
