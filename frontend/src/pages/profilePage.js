@@ -41,7 +41,7 @@ export default function ProfilePage({ setIsLoggedIn, username, url }) {
         const res = await fetch(`${url}/api/profile/info?username=${usernameToFetch}`);
         const data = await res.json();
         if (res.ok) {
-            console.log('user successfully fetched:', data);
+          console.log('user successfully fetched:', data);
           setUser(data);
           setEditedUser({ username: data.username, biography: data.biography, profilePicture: data.photoUrl });
           setMessage(data.message || "User fetched successfully.");
@@ -97,25 +97,25 @@ export default function ProfilePage({ setIsLoggedIn, username, url }) {
   const handleSaveChanges = async () => {
     const formData = new FormData();
     if (photoFile) {
-        formData.append("file", photoFile)
-        try {
-      const res = await fetch(`${url}/api/profile/${username}/photo`, {
-        method: "POST",
-        body: formData
-      });
+      formData.append("file", photoFile)
+      try {
+        const res = await fetch(`${url}/api/profile/${username}/photo`, {
+          method: "POST",
+          body: formData
+        });
         if (res.ok) {
-            const data = await res.json();
-            setEditedUser(prev => ({ ...prev, profilePicture: data.profilePicture }));
-            setMessage(data.message || "Profile picture updated successfully.");
+          const data = await res.json();
+          setEditedUser(prev => ({ ...prev, profilePicture: data.profilePicture }));
+          setMessage(data.message || "Profile picture updated successfully.");
         } else {
-            const data = await res.json();
-            setError(data.message || "Failed to update profile picture.");
+          const data = await res.json();
+          setError(data.message || "Failed to update profile picture.");
         }
 
-    } catch {
-      setError("An error occurred while uploading the image.");
-    }
-};
+      } catch {
+        setError("An error occurred while uploading the image.");
+      }
+    };
 
     try {
       const res = await fetch(`${url}/api/profile/edit`, {
@@ -158,28 +158,31 @@ export default function ProfilePage({ setIsLoggedIn, username, url }) {
             <Image src={user.photoUrl} roundedCircle width={150} height={150} className="mb-3" />
             <Card.Title>{user.username}</Card.Title>
             <Card.Text>{user.biography}</Card.Text>
-            <Button variant="primary" onClick={() => setIsModalOpen(true)}>Edit Profile</Button>
+            <Button variant="info" onClick={() => setIsModalOpen(true)}>Edit Profile</Button>
           </Card.Body>
         </Card>
       )}
 
       {/* Posts Section */}
       <h3>Posts by {user.username}</h3>
-      {postsLoading ? (
-        <div className="text-center my-4"><Spinner animation="border" /></div>
-      ) : postsError ? (
-        <Alert variant="warning">{postsError}</Alert>
-      ) : (
-        posts.map(post => (
-          <PostCard
-            key={post.postId}
-            post={post}
-            isLoggedIn={isLoggedIn}
-            onAction={fetchPosts}
-            url={url}
-          />
-        ))
-      )}
+      <div style={{ maxWidth: '600px', margin: '0 auto' }}>  {/* Container with max-width */}
+        {postsLoading ? (
+          <div className="text-center my-4"><Spinner animation="border" /></div>
+        ) : postsError ? (
+          <Alert variant="warning">{postsError}</Alert>
+        ) : (
+          posts.map(post => (
+            <PostCard
+              key={post.postId}
+              post={post}
+              isLoggedIn={isLoggedIn}
+              onAction={fetchPosts}
+              url={url}
+            />
+          ))
+        )}
+      </div>
+
 
       {/* Edit Profile Modal */}
       <Modal show={isModalOpen} onHide={() => setIsModalOpen(false)} centered>
