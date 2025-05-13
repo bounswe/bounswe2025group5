@@ -27,7 +27,7 @@ type CommentData = {
   commentId: number;
   username: string;
   content: string;
-  createdAt: string | Date; // Can be string from API, then converted to Date
+  createdAt: string | Date; 
 }
 
 type Post = {
@@ -38,6 +38,7 @@ type Post = {
   comments: number;
   photoUrl: string | null;
   likedByUser: boolean;
+  savedByUser: boolean;
 };
 
 export default function ExploreScreen() {
@@ -107,6 +108,7 @@ export default function ExploreScreen() {
     comments: Array.isArray(item.comments) ? item.comments.length : (Number(item.comments) || 0),
     photoUrl: item.photoUrl,
     likedByUser: false,
+    savedByUser: false,
   });
 
   const fetchLikeStatusesForPosts = async (currentPostsToUpdate: Post[], currentUsername: string): Promise<Post[]> => {
@@ -122,6 +124,25 @@ export default function ExploreScreen() {
     });
     return Promise.all(promises);
   };
+
+  const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentUsername: string): Promise<Post[]> => {
+    if (!currentUsername || currentPostsToUpdate.length === 0) return currentPostsToUpdate;
+      try {
+        const res = await fetch(`${API_BASE}/api/posts/getSavedPosts?username=${currentUsername}`); 
+        if (!res.ok) return currentPostsToUpdate;
+        const savedPostsData = await res.json();
+        const savedPostIds = new Set(savedPostsData.map((post: any) => post.postId));
+        return currentPostsToUpdate.map(post => ({
+          ...post,
+          savedByUser: savedPostIds.has(post.id), 
+        }));
+      } catch (e) { 
+        console.error('Error fetching saved statuses:', e);
+        return currentPostsToUpdate;
+      }
+  }
+        
+
 
   const fetchPosts = async (loadMore = false) => {
     const currentOperation = loadMore ? 'loading more' : 'fetching initial/refresh';
@@ -147,7 +168,8 @@ export default function ExploreScreen() {
       let processedNewItems: Post[] = data.map(mapApiItemToPost);
 
       if (username && userType === 'user' && processedNewItems.length > 0) {
-        processedNewItems = await fetchLikeStatusesForPosts(processedNewItems, username);
+        processedNewItems = await fetchLikeStatusesForPosts(processedNewItems, username); 
+        processedNewItems = await fetchSavedStatusesForPosts(processedNewItems, username);
       }
 
       if (loadMore) {
@@ -221,7 +243,8 @@ export default function ExploreScreen() {
       const data = await res.json();
       let processedResults: Post[] = data.map(mapApiItemToPost);
       if (username && userType === 'user' && processedResults.length > 0) {
-        processedResults = await fetchLikeStatusesForPosts(processedResults, username);
+        processedResults = await fetchLikeStatusesForPosts(processedResults, username); 
+        processedResults = await fetchSavedStatusesForPosts(processedResults, username);
       }
       setSearchResults(processedResults);
       setInSearchMode(true);
@@ -286,6 +309,60 @@ export default function ExploreScreen() {
     }
   };
 
+
+
+const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
+    if (userType === 'guest' || !username) {
+      Alert.alert("Login Required", "Please log in to save posts.");
+      return;
+    }
+    const listToUpdate = inSearchMode ? searchResults : posts;
+    const setListFunction = inSearchMode ? setSearchResults : setPosts;
+
+    setListFunction(currentList =>
+      currentList.map(p =>
+        p.id === postId
+          ? { ...p, savedByUser: !currentlySaved }
+          : p
+      )
+    );
+    
+    // api call for save POST {{base_url}}/api/posts/save with body { "username": "{{username} }", "postId": {{post_id}} } and header Content-Type: application/json
+    // api call for unsave DELETE {{base_url}}/api/posts/unsave{{username}}/{{post_id}} no body
+    try {
+      const url = currentlySaved
+        ? `${API_BASE}/api/posts/unsave${username}/${postId}`
+        : `${API_BASE}/api/posts/save`;
+      const method = currentlySaved ? 'DELETE' : 'POST';
+      const body = currentlySaved ? null : JSON.stringify({ username, postId });
+      const response = currentlySaved ? await fetch(url, { method }) : await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body });
+      const responseBodyText = await response.text();
+      if (!response.ok) {
+        let errorMsg = `Failed to ${currentlySaved ? 'unsave' : 'save'}. Status: ${response.status}`;
+        try { const errorData = JSON.parse(responseBodyText); errorMsg = errorData.message || errorMsg; }
+        catch (e) { errorMsg += ` Response: ${responseBodyText.substring(0,100)}`; }
+        throw new Error(errorMsg);
+      }
+      const result = JSON.parse(responseBodyText);
+      if (currentlySaved) {
+        if (!result.deleted) throw new Error(result.message || `Backend error on unsave.`);
+      }
+      else {
+        if (!result.username) throw new Error(result.message || `Backend error on save.`);
+      }
+    } catch (err: any) {
+      console.error('Failed to toggle save:', err.message);
+      Alert.alert("Error", err.message || "Could not update save status.");
+      setListFunction(currentList =>
+        currentList.map(p =>
+          p.id === postId
+            ? { ...p, savedByUser: currentlySaved }
+            : p
+        )
+      );
+    }
+  };
+
   const fetchCommentsForPost = async (postId: number, forceRefresh = false) => {
     if (commentsByPostId[postId] && !forceRefresh && commentsByPostId[postId].length > 0) {
       return;
@@ -332,11 +409,10 @@ export default function ExploreScreen() {
   };
 
   const handlePostComment = async (postId: number) => { // For NEW comments
-    // ... (same as before, but ensure username is available) ...
     if (!username) { Alert.alert("Login required..."); return; }
     const content = commentInputs[postId]?.trim();
     if (!content) { Alert.alert("Empty comment..."); return; }
-    if (editingCommentDetails?.postId === postId) { // Defensive: Should be prevented by UI, but cancel edit if somehow attempted
+    if (editingCommentDetails?.postId === postId) { 
         setEditingCommentDetails(null);
     }
     setPostingCommentPostId(postId);
@@ -359,7 +435,6 @@ export default function ExploreScreen() {
     if (editingCommentDetails && editingCommentDetails.commentId === commentId) {
         setEditingCommentDetails(null);
     }
-    // ... (rest of delete logic) ...
     if (!username) { Alert.alert("Error", "You must be logged in..."); return; }
     Alert.alert("Delete Comment", "Are you sure?", [ { text: "Cancel", style: "cancel" }, { text: "Delete", style: "destructive", onPress: async () => {
         try {
@@ -422,12 +497,11 @@ export default function ExploreScreen() {
         throw new Error(errorData.message || `Failed to update comment: ${response.status}`);
       }
       
-      const updatedCommentData = await response.json(); // Assuming API returns the full updated comment
-
+      const updatedCommentData = await response.json(); 
       setCommentsByPostId(prev => {
         const postComments = (prev[postIdToSave] || []).map(c =>
           c.commentId === commentIdToSave
-            ? { ...c, content: updatedCommentData.content, createdAt: updatedCommentData.createdAt || c.createdAt } // Use returned data
+            ? { ...c, content: updatedCommentData.content, createdAt: updatedCommentData.createdAt || c.createdAt } 
             : c
         );
         return { ...prev, [postIdToSave]: postComments };
@@ -508,16 +582,17 @@ export default function ExploreScreen() {
             <PostItem
               key={`search-${post.id}`}
               post={post}
-              // ... other common props ...
               cardBackgroundColor={cardBackgroundColor} iconColor={iconColor} textColor={generalTextColor}
               commentInputBorderColor={commentInputBorderColor} commentInputTextColor={commentInputTextColor}
               commentInputPlaceholderColor={commentInputPlaceholderColor} commentInputBackgroundColor={commentInputBackgroundColor}
-              onLikePress={handleLikeToggle} userType={userType} loggedInUsername={username}
-              // Comment related
-              isExpanded={expandedPostId === post.id}
+
+              onLikePress={handleLikeToggle} userType={userType} loggedInUsername={username} 
+              onSavePress={handleSaveToggle}
+
+        isExpanded={expandedPostId === post.id}
               commentsList={commentsByPostId[post.id] || []}
               isLoadingComments={loadingCommentsPostId === post.id}
-              commentInputText={editingCommentDetails?.postId === post.id ? '' : (commentInputs[post.id] || '')} // Clear new comment input if editing in this post
+              commentInputText={editingCommentDetails?.postId === post.id ? '' : (commentInputs[post.id] || '')} 
               isPostingComment={postingCommentPostId === post.id}
               onToggleComments={() => handleToggleComments(post.id)}
               onCommentInputChange={(text) => handleCommentInputChange(post.id, text)}
@@ -543,7 +618,8 @@ export default function ExploreScreen() {
               cardBackgroundColor={cardBackgroundColor} iconColor={iconColor} textColor={generalTextColor}
               commentInputBorderColor={commentInputBorderColor} commentInputTextColor={commentInputTextColor}
               commentInputPlaceholderColor={commentInputPlaceholderColor} commentInputBackgroundColor={commentInputBackgroundColor}
-              onLikePress={handleLikeToggle} userType={userType} loggedInUsername={username}
+              onLikePress={handleLikeToggle} onSavePress={handleSaveToggle}
+              userType={userType} loggedInUsername={username}
               isExpanded={expandedPostId === post.id}
               commentsList={commentsByPostId[post.id] || []}
               isLoadingComments={loadingCommentsPostId === post.id}
@@ -593,7 +669,6 @@ export default function ExploreScreen() {
 }
 
 const styles = StyleSheet.create({
-  // ... (existing styles) ...
   container: { flex: 1 },
   content: { paddingBottom: 24 },
   header: { paddingHorizontal: 16, marginTop: Platform.OS === 'ios' ? 48 : 48, marginBottom: 18, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
@@ -620,43 +695,13 @@ const styles = StyleSheet.create({
   commentItemContainer: { paddingVertical: 8, borderBottomWidth: 1 },
   commentHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
   commentUsername: { fontWeight: 'bold', fontSize: 13, flexShrink: 1, marginRight: 8 },
-  commentOwnerActions: {
-    flexDirection: 'row',
-  },
-  commentActionButton: {
-    paddingHorizontal: 6, // Space out icons
-    paddingVertical: 4,
-  },
-  deleteCommentButton: { 
-    padding: 4,
-  },
-  commentEditInput: {
-    fontSize: 14,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderRadius: 6,
-    marginBottom: 8,
-    maxHeight: 100,
-  },
-  editActionsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginTop: 4,
-  },
-  editActionButton: {
-    marginLeft: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 15,
-    minWidth: 70,
-    alignItems: 'center',
-  },
-  editActionButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-    fontSize: 13,
-  },
+  commentOwnerActions: { flexDirection: 'row' },
+  commentActionButton: { paddingHorizontal: 6, paddingVertical: 4 },
+  deleteCommentButton: { padding: 4 },
+  commentEditInput: { fontSize: 14, paddingVertical: 8, paddingHorizontal: 10, borderWidth: 1, borderRadius: 6, marginBottom: 8, maxHeight: 100 },
+  editActionsContainer: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 4 },
+  editActionButton: { marginLeft: 8, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 15, minWidth: 70, alignItems: 'center' },
+  editActionButtonText: { color: '#FFFFFF', fontWeight: '600', fontSize: 13 },
   commentContent: { fontSize: 14, lineHeight: 18 },
   commentTimestamp: { fontSize: 10, opacity: 0.7, marginTop: 4, textAlign: 'right' },
   noCommentsText: { textAlign: 'center', marginVertical: 15, fontSize: 14, opacity: 0.7 },

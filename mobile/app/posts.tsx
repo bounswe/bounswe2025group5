@@ -82,7 +82,7 @@ function UserPostCard({
 
 export default function MyPostsScreen() {
   const navigation = useNavigation<any>();
-  const { username } = useContext(AuthContext); // user_id removed as not used in this direct logic
+  const { username } = useContext(AuthContext);
   const colorScheme = useColorScheme();
 
   useLayoutEffect(() => {

@@ -53,7 +53,7 @@ type TrendingPost = {
 export default function HomeScreen() {
   const navigation = useNavigation<Navigation>();
   const route     = useRoute<any>();
-  const { setUserType, setUsername, setUserId } = useContext(AuthContext);
+  const { setUserType, setUsername} = useContext(AuthContext);
 
   const [showAuthFields, setShowAuthFields] = useState(false);
   const [isRegistering, setIsRegistering]   = useState(false);
@@ -69,6 +69,7 @@ export default function HomeScreen() {
   const [errorMessage, setErrorMessage]     = useState('');
   const [airQuality, setAirQuality] = useState<AirQuality | null>(null);
   const [usersCount, setUsersCount] = useState<number>(0);
+  const [numberTrivia, setNumberTrivia] = useState<string | null>(null);
   const [trendingPosts, setTrendingPosts] = useState<TrendingPost[]>([]);
 
   useEffect(() => {
@@ -100,6 +101,21 @@ export default function HomeScreen() {
 
     fetchUserCount();
   }, []);
+  useEffect(() => {
+    if (usersCount > 0) {              // wait until we actually have a number
+      const fetchTrivia = async () => {
+        try {
+          const res = await fetch(`http://${HOST}:8080/api/home/number/${usersCount}`);
+          if (!res.ok) throw new Error('Failed to fetch number trivia');
+          const data = await res.json();
+          setNumberTrivia(data.text);   // ← save just the text
+        } catch (err) {
+          console.warn('Unable to load number trivia', err);
+        }
+      };
+      fetchTrivia();
+    }
+  }, [usersCount]);                     // runs every time usersCount changes
 
   useEffect(() => {
     const fetchTrending = async () => {
@@ -173,7 +189,6 @@ export default function HomeScreen() {
     if (emailOrUsername === 'test' && pwd === 'test') {
       setUserType('user');
       setUsername('test');
-      setUserId('test');
       setLoggedIn(true);
       navigation.navigate('explore');
       return;
@@ -280,7 +295,6 @@ export default function HomeScreen() {
   const continueAsGuest = () => {
     setUserType('guest');
     setUsername('');
-    setUserId('');
     setLoggedIn(false);
     navigation.navigate('explore');
   };
@@ -371,7 +385,7 @@ export default function HomeScreen() {
 
                   <View style={styles.postFooter}>
                     <Ionicons name="heart-outline" size={16} />
-                    <ThemedText style={styles.footerText}>{post.likes}</ThemedText>
+                    <ThemedText style={styles.footerText}>{post.likes}</ThemedText>     
                     <Ionicons name="chatbubble-outline" size={16} />
                     <ThemedText style={styles.footerText}>{post.comments}</ThemedText>
                   </View>
@@ -379,6 +393,15 @@ export default function HomeScreen() {
               ))}
 
              </ScrollView>
+          {numberTrivia && (
+            <ThemedText
+              style={styles.triviaText}
+              lightColor="#1C1C1E"  
+              darkColor="#00796b"    
+            >
+              {numberTrivia}
+            </ThemedText>
+          )}
           </View>
 
           <View style={[styles.buttonsColumn, { marginTop: 15 }]}>
@@ -669,4 +692,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#004d40',
   },
+  triviaText: {
+  fontSize: 16,
+  textAlign: 'center',
+  marginTop: 12,
+  fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
+},
+
 });

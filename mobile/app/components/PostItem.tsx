@@ -36,6 +36,7 @@ type Post = {
     comments: number;
     photoUrl: string | null;
     likedByUser: boolean;
+    savedByUser: boolean;
   };
 
 // --- PostItem Component ---
@@ -49,6 +50,7 @@ interface PostItemProps {
     commentInputPlaceholderColor: string;
     commentInputBackgroundColor: string;
     onLikePress: (postId: number, currentlyLiked: boolean) => void;
+    onSavePress: (postId: number, currentlySaved: boolean) => void;
     userType: string | null;
     loggedInUsername: string | null;
 
@@ -82,6 +84,7 @@ function PostItem({
     commentInputPlaceholderColor,
     commentInputBackgroundColor,
     onLikePress,
+    onSavePress,
     userType,
     loggedInUsername,
     isExpanded,
@@ -119,6 +122,16 @@ function PostItem({
       }
       onLikePress(post.id, post.likedByUser);
     };
+
+    const handleSave = () => {
+      if (userType === 'guest') {
+        Alert.alert("Login Required", "Please log in to save posts.");
+        return;
+      }
+      onSavePress(post.id, post.savedByUser);
+    };
+
+    
   
     const canPostComment = userType !== 'guest' && loggedInUsername && !editingCommentDetailsForPost; // Disable new comment if editing one in this post
   
@@ -155,12 +168,24 @@ function PostItem({
             </ThemedText>
           </TouchableOpacity>
   
-          <TouchableOpacity onPress={onToggleComments} style={[styles.footerAction, { marginLeft: 16 }]}>
+          <TouchableOpacity onPress={onToggleComments} style={[styles.footerAction]}>
             <Ionicons name="chatbubble-outline" size={20} color={iconColor} />
             <ThemedText style={[styles.footerText, { color: iconColor, marginLeft: 4 }]}>
               {post.comments}
             </ThemedText>
           </TouchableOpacity>
+
+          <TouchableOpacity onPress={handleSave} style={[styles.footerAction, { marginLeft: 246 }]}>
+            <Ionicons
+              name={post.savedByUser ? "bookmark" : "bookmark-outline"}
+              size={20}
+              color={post.savedByUser ? '#FFC107' : iconColor}
+            />
+            <ThemedText style={[styles.footerText, { color: post.savedByUser ? '#FFC107' : iconColor, marginLeft: 4 }]}>
+              {post.savedByUser ? 'Saved' : 'Save'}
+            </ThemedText>
+          </TouchableOpacity>
+
         </View>
   
   
@@ -171,8 +196,11 @@ function PostItem({
             ) : commentsList.length === 0 && !editingCommentDetailsForPost ? ( // Check editing too
               <ThemedText style={[styles.noCommentsText, {color: textColor}]}>No comments yet. Be the first!</ThemedText>
             ) : (
-              <View style={styles.commentsListContainer}>
-                {commentsList.map(comment => {
+<ScrollView
+  style={styles.commentsListContainer}
+  nestedScrollEnabled   // lets it scroll inside the post card
+  showsVerticalScrollIndicator={false}
+>                {commentsList.map(comment => {
                   const isEditingThisComment = editingCommentDetailsForPost?.commentId === comment.commentId;
                   return (
                     <CommentItemDisplay
@@ -184,10 +212,8 @@ function PostItem({
                       loggedInUsername={loggedInUsername}
                       onDeleteComment={(commentIdToDelete) => onDeleteComment(post.id, commentIdToDelete)}
                       deleteIconColor={deleteIconActualColor}
-                      // --- Pass props for edit functionality ---
                       editIconColor={editIconActualColor}
   
-                      // ????????????????
                       onTriggerEdit={(commentToEdit) => onTriggerEditComment(post.id, { ...commentToEdit, createdAt: commentToEdit.createdAt.toString() })}
                       isEditingThisComment={isEditingThisComment}
                       editedContent={isEditingThisComment ? (editingCommentDetailsForPost?.currentText || '') : ''}
@@ -195,11 +221,10 @@ function PostItem({
                       onSaveEditedComment={() => onSaveEditedCommentForPost(post.id, comment.commentId)}
                       onCancelEdit={onCancelCommentEdit}
                       isSavingEdit={isEditingThisComment && isSubmittingCommentEditForPost}
-                      // --- END Pass props for edit ---
                     />
                   );
                 })}
-              </View>
+              </ScrollView>
             )}
   
             {/* Add Comment Input Area - only if not guest AND not currently editing a comment in this post */}
@@ -222,6 +247,7 @@ function PostItem({
                   editable={!isPostingComment} // Keep this, as posting new comment is separate
                 />
                 <TouchableOpacity
+                  testID="post-comment-button"
                   style={[styles.postCommentButton, isPostingComment || !commentInputText.trim() ? styles.postCommentButtonDisabled : {}]}
                   onPress={onPostComment}
                   disabled={isPostingComment || !commentInputText.trim()}
@@ -254,7 +280,7 @@ export default PostItem;
     postImage: { width: '100%', aspectRatio: 16/9, maxHeight: 180, borderRadius: 6, marginBottom: 10, backgroundColor: '#eee', resizeMode: 'cover' },
     postTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 8 },
     postContent: { fontSize: 14, lineHeight: 20, marginBottom: 12 },
-    postFooter: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
+    postFooter: { flexDirection: 'row', alignItems: 'center', marginTop: 4  },
     footerAction: { flexDirection: 'row', alignItems: 'center', minHeight: 20 },
     footerText: { fontSize: 14, marginRight: 8 },
     loginButton: { paddingVertical: 8, paddingHorizontal: 16, backgroundColor: '#2196F3', borderRadius: 20, alignSelf: 'flex-start' },
@@ -270,7 +296,6 @@ export default PostItem;
     commentItemContainer: { paddingVertical: 8, borderBottomWidth: 1 },
     commentHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
     commentUsername: { fontWeight: 'bold', fontSize: 13, flexShrink: 1, marginRight: 8 },
-    // --- MODIFIED/NEW Styles for comment actions and editing ---
     commentOwnerActions: {
       flexDirection: 'row',
     },
@@ -308,7 +333,6 @@ export default PostItem;
       fontWeight: '600',
       fontSize: 13,
     },
-    // --- END ---
     commentContent: { fontSize: 14, lineHeight: 18 },
     commentTimestamp: { fontSize: 10, opacity: 0.7, marginTop: 4, textAlign: 'right' },
     noCommentsText: { textAlign: 'center', marginVertical: 15, fontSize: 14, opacity: 0.7 },
