@@ -98,7 +98,6 @@ export default function HomeScreen() {
           if (!res.ok) throw new Error('Failed to fetch number trivia');
           const data = await res.json();
           setNumberTrivia(data.text);   // ← save just the text
-          console.log(data.text)
         } catch (err) {
           console.warn('Unable to load number trivia', err);
         }
