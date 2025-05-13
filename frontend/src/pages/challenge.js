@@ -1,107 +1,87 @@
 import React, { useState, useEffect } from 'react';
+import { Button } from 'react-bootstrap';
 import ChallengeCard from '../components/ChallengeCard';
 import LeaderboardCard from '../components/LeaderboardCard';
 import CreateChallengeCard from '../components/CreateChallengeCard';
+import Loader from '../components/ui/spinner';
 
 export default function Challenge({ url }) {
-    const [username] = useState(localStorage.getItem("username"));
-    const [challenges, setChallenges] = useState([]);
-    const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [selectedChallengeId, setSelectedChallengeId] = useState(null);
-    const [showLeaderboard, setShowLeaderboard] = useState(false);
-    const isAdmin = localStorage.getItem("isAdmin");
-    const fetchChallenges = async () => {
-        try {
-            const response = await fetch(`${url}/api/challenges?username=${username}`);
-            const data = await response.json();
-            if (response.ok) {
-                setChallenges(data);
-            } else {
-                setError(data.message || "Failed to fetch challenges");
-            }
-        } catch (err) {
-            setError("An error occurred. Please try again.");
-        } finally {
-            setLoading(false);
-        }
-    };
+  const [username] = useState(localStorage.getItem('username'));
+  const [challenges, setChallenges] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedChallengeId, setSelectedChallengeId] = useState(null);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
+  const isAdmin = localStorage.getItem('isAdmin') === 'true';
 
-    useEffect(() => {
-        fetchChallenges();
-    }, []);
-
-    const handleCardClick = (challengeId) => {
-        setSelectedChallengeId(challengeId);
-        setShowLeaderboard(true);
-    };
-
-    const handleCloseLeaderboard = () => {
-        setShowLeaderboard(false);
-        setSelectedChallengeId(null);
-    };
-
-    if (loading) {
-        return (
-            <div>
-                <Loader size='50px' message="Loading Challenges..." /> {/* Show loading spinner */}
-            </div>
-        );
+  const fetchChallenges = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${url}/api/challenges?username=${username}`);
+      const data = await res.json();
+      if (res.ok) setChallenges(data);
+      else setError(data.message || 'Failed to fetch challenges');
+    } catch {
+      setError('An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
-    if (error) return <p style={{ color: "red" }}>{error}</p>;
+  };
 
-    return (
-        <div>
-            {isAdmin && <CreateChallengeCard onAction={fetchChallenges} url={url} />}
-            <h1>Active Challenges</h1>
+  useEffect(() => {
+    fetchChallenges();
+  }, []);
 
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-                {challenges.map((challenge) => (
-                    <ChallengeCard
-                        key={challenge.challengeId}
-                        challenge={challenge}
-                        onAction={fetchChallenges}
-                        onCardClick={handleCardClick}
-                        url = {url}  // Pass the URL prop to ChallengeCard
-                    />
-                ))}
-            </div>
 
-            {/* Leaderboard Modal */}
-            {showLeaderboard && selectedChallengeId && (
-                <div style={styles.modalOverlay}>
-                    <div style={styles.modal}>
-                        <LeaderboardCard
-                            challengeId={selectedChallengeId}
-                            onClose={handleCloseLeaderboard}
-                            url={url} // Pass the URL prop to LeaderboardCard
-                        />
-                    </div>
-                </div>
-            )}
-        </div>
-    );
+
+  const handleCloseLeaderboard = () => {
+    setShowLeaderboard(false);
+    setSelectedChallengeId(null);
+  };
+
+  const handleOpenCreate = () => setShowCreate(true);
+  const handleCloseCreate = () => setShowCreate(false);
+
+  if (loading) return <Loader size="50px" message="Loading Challenges..." />;
+  if (error) return <p className="text-danger">{error}</p>;
+
+  return (
+    <div className="p-3">
+      {isAdmin && (
+        <>
+          <Button variant="success" className="mb-3" onClick={handleOpenCreate}>
+            New Challenge
+          </Button>
+          <CreateChallengeCard
+            show={showCreate}
+            handleClose={handleCloseCreate}
+            onAction={fetchChallenges}
+            url={url}
+          />
+        </>
+      )}
+
+      <h1>Challenges</h1>
+      <div className="d-flex flex-wrap gap-4" style={{justifyContent: 'center'}}>
+        {challenges.map((c) => (
+          <ChallengeCard
+            key={c.challengeId}
+            challenge={c}
+            onAction={fetchChallenges}
+            url={url}
+          />
+        ))}
+      </div>
+
+      {showLeaderboard && selectedChallengeId && (
+        <LeaderboardCard
+          challengeId={selectedChallengeId}
+          onClose={handleCloseLeaderboard}
+          url={url}
+        />
+      )}
+    </div>
+  );
 }
-
-const styles = {
-    modalOverlay: {
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 1000,
-    },
-    modal: {
-        backgroundColor: "#fff",
-        padding: "20px",
-        borderRadius: "8px",
-        width: "90%",
-        maxWidth: "500px",
-        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-    },
-};

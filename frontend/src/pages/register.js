@@ -58,7 +58,7 @@ function Register({ url }) {
   return (
     <Container className="d-flex align-items-center justify-content-center vh-100">
       <Row className="w-100">
-        <Col md={{ span: 6, offset: 3 }} lg={{ span: 4, offset: 4 }}>
+        <Col md={{ span: 8, offset: 2 }} lg={{ span: 6, offset: 3 }}>
             <h3 className="mb-4">Register</h3>
             {error && <Alert variant="danger">{error}</Alert>}
             {message && <Alert variant="success">{message}</Alert>}

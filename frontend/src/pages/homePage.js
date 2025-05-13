@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Carousel } from "react-bootstrap";
-import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button } from "../components/ui/button";
 import wallpaper from "../assets/wallpaper2.png";
 import userImage from "../assets/userImage.png";
@@ -17,6 +16,9 @@ export default function HomePage({ url }) {
   const [displayGlass, setDisplayGlass] = useState(0);
   const [displayOrganic, setDisplayOrganic] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [motivationalQuote, setMotivationalQuote] = useState('');
+  const [motivationalAuthor, setMotivationalAuthor] = useState('');
+
 
   // Waste data
   const plasticWaste = 82; // million tons
@@ -36,6 +38,20 @@ export default function HomePage({ url }) {
       }
     }
     fetchStats();
+  }, [url]);
+
+  useEffect(() => {
+    async function fetchMotivation() {
+      try {
+        const res = await fetch(`${url}/api/home/getMotivated`);
+        const { quote, author } = await res.json();
+        setMotivationalQuote(quote);
+        setMotivationalAuthor(author);
+      } catch (e) {
+        console.error("Failed to fetch motivation:", e);
+      }
+    }
+    fetchMotivation();
   }, [url]);
 
   // Animate user count on slide 2
@@ -115,7 +131,11 @@ export default function HomePage({ url }) {
         <img className="d-block w-100 h-100" src={wallpaper} alt="Intro" style={{ objectFit: 'cover' }} />
         <Carousel.Caption style={captionStyle}>
           <h1 className="display-4 text-dark mb-3">Welcome to Our Platform!</h1>
-          <p className="lead text-dark mb-4">Join us in making the world cleaner—track and share your impact.</p>
+          <p className="lead text-dark mb-4">
+            {motivationalQuote
+              ? `“${motivationalQuote}” — ${motivationalAuthor}`
+              : 'Loading inspiration...'}
+          </p>
           <div className="d-flex justify-content-center gap-3">
             <Button onClick={() => navigate('/login')}>Login</Button>
             <Button onClick={() => navigate('/register')}>Register</Button>

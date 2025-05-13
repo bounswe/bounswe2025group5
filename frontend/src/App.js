@@ -38,7 +38,7 @@ function App() {
       return 'login-register-container';
     } else if (location.pathname === '/' || location.pathname === '/main') {
       return 'main-container';
-    } else if (location.pathname === '/feed') {
+    } else if (location.pathname === '/feed'|| location.pathname === '/challenge') {
       return 'feed-container';
     } else {
       return 'default-container'; // Fallback for other routes
@@ -56,9 +56,9 @@ function App() {
           {/* Render pages based on the route */}
           <Routes>
             <Route path="/" element={<HomePage url={url} />} />
-            <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} url={url} />} />
+            <Route path="/login" element={<Login isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} url={url} />} />
             <Route path="/register" element={<Register url={url} />} />
-            <Route path="/feed" element={<Feed setIsLoggedIn={setIsLoggedIn} url={url} />} />
+            <Route path="/feed" element={<Feed isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} url={url} />} />
             <Route path="/main" element={<MainPage url={url} />} />
             <Route path="/goals" element={<div>Goals Page</div>} />
             <Route path="/challenge" element={<Challenge url={url} />} />

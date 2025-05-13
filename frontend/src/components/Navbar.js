@@ -36,7 +36,7 @@ export default function Navbar({ setIsLoggedIn }) {
 }
 const styles = {
   navbar: {
-    position: 'sticky',
+    position: 'fixed',
     top: 0,
     width: 'auto',
     backgroundColor: 'rgba(16, 171, 219, 0.5)', // semi-transparent tint
