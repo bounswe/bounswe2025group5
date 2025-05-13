@@ -157,7 +157,7 @@ function Goal({ isLoggedIn, setIsLoggedIn ,username, setUserName}) {
                     
 
                     <div className="duration-entry">
-                    <span style={{ color: 'black' }}>Duration: </span>
+                    <span style={{ color: 'black' }}>Duration (days): </span>
                         <input
                         type="number"
                         placeholder="duration"
