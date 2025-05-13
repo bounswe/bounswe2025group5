@@ -109,7 +109,6 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
 
-
         <View style={styles.editProfileContainer}>
           <TouchableOpacity
             testID="edit-profile-button"
@@ -119,13 +118,6 @@ export default function ProfileScreen() {
             <Text style={[styles.editButtonText, {color: buttonTextColor}]}>Edit profile</Text>
           </TouchableOpacity>
         </View>
-
-            <TouchableOpacity
-            style={[styles.actionButton, { backgroundColor: '#2196F3' }]}
-            onPress={() => navigation.navigate('create_post')}
-            >
-            <Text style={[styles.actionText, {color: buttonTextColor}]}>Create Post</Text>
-            </TouchableOpacity>
 
         <View style={styles.profileContainer}>
           {avatarUri ? (
@@ -143,14 +135,27 @@ export default function ProfileScreen() {
               style={{ marginTop: 4, fontStyle: bio ? 'normal' : 'italic' }}
               numberOfLines={3}
             >
-
               {bio || 'No bio yet.'}
             </ThemedText>
           </View>
-
-            <Text style={[styles.actionText, {color: buttonTextColor}]}>Manage Posts</Text>
-            </TouchableOpacity>
+        </View>
         
+        <TouchableOpacity
+          testID="create-post-button"
+          style={[styles.actionButton, { backgroundColor: '#2196F3' }]}
+          onPress={() => navigation.navigate('create_post')}
+        >
+          <Text style={[styles.actionText, {color: buttonTextColor}]}>Create Post</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          testID="my-posts-button"
+          style={[styles.actionButton, { backgroundColor: '#00008B' }]} 
+          onPress={() => navigation.navigate('posts')} 
+        >
+          <Text style={[styles.actionText, {color: buttonTextColor}]}>Manage Posts</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity
           style={[styles.actionButton, { backgroundColor: '#D4AF37' }]}
           onPress={() => navigation.navigate('saved_posts')}
@@ -158,23 +163,7 @@ export default function ProfileScreen() {
           <Text style={[styles.actionText, {color: buttonTextColor}]}>Saved Posts</Text>
         </TouchableOpacity>
 
-        </View>
 
-        <TouchableOpacity
-          testID="create-post-button"
-          style={[styles.actionButton, { backgroundColor: '#2196F3' }]}
-          onPress={() => navigation.navigate('create_post')}
-        >
-          <Text style={[styles.actionText, {color: buttonTextColor}]}>Create a post</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity // New "My Posts" button
-          testID="my-posts-button"
-          style={[styles.actionButton, { backgroundColor: '#00008B' }]} 
-          onPress={() => navigation.navigate('posts')} 
-        >
-          <Text style={[styles.actionText, {color: buttonTextColor}]}>My Posts</Text>
-        </TouchableOpacity>
       </View>
     </ParallaxScrollView>
   );
