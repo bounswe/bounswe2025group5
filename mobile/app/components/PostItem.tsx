@@ -196,8 +196,11 @@ function PostItem({
             ) : commentsList.length === 0 && !editingCommentDetailsForPost ? ( // Check editing too
               <ThemedText style={[styles.noCommentsText, {color: textColor}]}>No comments yet. Be the first!</ThemedText>
             ) : (
-              <View style={styles.commentsListContainer}>
-                {commentsList.map(comment => {
+<ScrollView
+  style={styles.commentsListContainer}
+  nestedScrollEnabled   // lets it scroll inside the post card
+  showsVerticalScrollIndicator={false}
+>                {commentsList.map(comment => {
                   const isEditingThisComment = editingCommentDetailsForPost?.commentId === comment.commentId;
                   return (
                     <CommentItemDisplay
@@ -209,10 +212,8 @@ function PostItem({
                       loggedInUsername={loggedInUsername}
                       onDeleteComment={(commentIdToDelete) => onDeleteComment(post.id, commentIdToDelete)}
                       deleteIconColor={deleteIconActualColor}
-                      // --- Pass props for edit functionality ---
                       editIconColor={editIconActualColor}
   
-                      // ????????????????
                       onTriggerEdit={(commentToEdit) => onTriggerEditComment(post.id, { ...commentToEdit, createdAt: commentToEdit.createdAt.toString() })}
                       isEditingThisComment={isEditingThisComment}
                       editedContent={isEditingThisComment ? (editingCommentDetailsForPost?.currentText || '') : ''}
@@ -220,11 +221,10 @@ function PostItem({
                       onSaveEditedComment={() => onSaveEditedCommentForPost(post.id, comment.commentId)}
                       onCancelEdit={onCancelCommentEdit}
                       isSavingEdit={isEditingThisComment && isSubmittingCommentEditForPost}
-                      // --- END Pass props for edit ---
                     />
                   );
                 })}
-              </View>
+              </ScrollView>
             )}
   
             {/* Add Comment Input Area - only if not guest AND not currently editing a comment in this post */}
@@ -247,6 +247,7 @@ function PostItem({
                   editable={!isPostingComment} // Keep this, as posting new comment is separate
                 />
                 <TouchableOpacity
+                  testID="post-comment-button"
                   style={[styles.postCommentButton, isPostingComment || !commentInputText.trim() ? styles.postCommentButtonDisabled : {}]}
                   onPress={onPostComment}
                   disabled={isPostingComment || !commentInputText.trim()}

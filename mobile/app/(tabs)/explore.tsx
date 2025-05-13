@@ -27,7 +27,7 @@ type CommentData = {
   commentId: number;
   username: string;
   content: string;
-  createdAt: string | Date; // Can be string from API, then converted to Date
+  createdAt: string | Date; 
 }
 
 type Post = {
@@ -409,11 +409,10 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
   };
 
   const handlePostComment = async (postId: number) => { // For NEW comments
-    // ... (same as before, but ensure username is available) ...
     if (!username) { Alert.alert("Login required..."); return; }
     const content = commentInputs[postId]?.trim();
     if (!content) { Alert.alert("Empty comment..."); return; }
-    if (editingCommentDetails?.postId === postId) { // Defensive: Should be prevented by UI, but cancel edit if somehow attempted
+    if (editingCommentDetails?.postId === postId) { 
         setEditingCommentDetails(null);
     }
     setPostingCommentPostId(postId);
@@ -436,7 +435,6 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
     if (editingCommentDetails && editingCommentDetails.commentId === commentId) {
         setEditingCommentDetails(null);
     }
-    // ... (rest of delete logic) ...
     if (!username) { Alert.alert("Error", "You must be logged in..."); return; }
     Alert.alert("Delete Comment", "Are you sure?", [ { text: "Cancel", style: "cancel" }, { text: "Delete", style: "destructive", onPress: async () => {
         try {
@@ -499,12 +497,11 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
         throw new Error(errorData.message || `Failed to update comment: ${response.status}`);
       }
       
-      const updatedCommentData = await response.json(); // Assuming API returns the full updated comment
-
+      const updatedCommentData = await response.json(); 
       setCommentsByPostId(prev => {
         const postComments = (prev[postIdToSave] || []).map(c =>
           c.commentId === commentIdToSave
-            ? { ...c, content: updatedCommentData.content, createdAt: updatedCommentData.createdAt || c.createdAt } // Use returned data
+            ? { ...c, content: updatedCommentData.content, createdAt: updatedCommentData.createdAt || c.createdAt } 
             : c
         );
         return { ...prev, [postIdToSave]: postComments };
@@ -585,17 +582,17 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
             <PostItem
               key={`search-${post.id}`}
               post={post}
-              // ... other common props ...
               cardBackgroundColor={cardBackgroundColor} iconColor={iconColor} textColor={generalTextColor}
               commentInputBorderColor={commentInputBorderColor} commentInputTextColor={commentInputTextColor}
               commentInputPlaceholderColor={commentInputPlaceholderColor} commentInputBackgroundColor={commentInputBackgroundColor}
+
               onLikePress={handleLikeToggle} userType={userType} loggedInUsername={username} 
               onSavePress={handleSaveToggle}
-              // Comment related
-              isExpanded={expandedPostId === post.id}
+
+        isExpanded={expandedPostId === post.id}
               commentsList={commentsByPostId[post.id] || []}
               isLoadingComments={loadingCommentsPostId === post.id}
-              commentInputText={editingCommentDetails?.postId === post.id ? '' : (commentInputs[post.id] || '')} // Clear new comment input if editing in this post
+              commentInputText={editingCommentDetails?.postId === post.id ? '' : (commentInputs[post.id] || '')} 
               isPostingComment={postingCommentPostId === post.id}
               onToggleComments={() => handleToggleComments(post.id)}
               onCommentInputChange={(text) => handleCommentInputChange(post.id, text)}
@@ -672,7 +669,6 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
 }
 
 const styles = StyleSheet.create({
-  // ... (existing styles) ...
   container: { flex: 1 },
   content: { paddingBottom: 24 },
   header: { paddingHorizontal: 16, marginTop: Platform.OS === 'ios' ? 48 : 48, marginBottom: 18, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
@@ -699,43 +695,13 @@ const styles = StyleSheet.create({
   commentItemContainer: { paddingVertical: 8, borderBottomWidth: 1 },
   commentHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
   commentUsername: { fontWeight: 'bold', fontSize: 13, flexShrink: 1, marginRight: 8 },
-  commentOwnerActions: {
-    flexDirection: 'row',
-  },
-  commentActionButton: {
-    paddingHorizontal: 6, // Space out icons
-    paddingVertical: 4,
-  },
-  deleteCommentButton: { 
-    padding: 4,
-  },
-  commentEditInput: {
-    fontSize: 14,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderRadius: 6,
-    marginBottom: 8,
-    maxHeight: 100,
-  },
-  editActionsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginTop: 4,
-  },
-  editActionButton: {
-    marginLeft: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 15,
-    minWidth: 70,
-    alignItems: 'center',
-  },
-  editActionButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-    fontSize: 13,
-  },
+  commentOwnerActions: { flexDirection: 'row' },
+  commentActionButton: { paddingHorizontal: 6, paddingVertical: 4 },
+  deleteCommentButton: { padding: 4 },
+  commentEditInput: { fontSize: 14, paddingVertical: 8, paddingHorizontal: 10, borderWidth: 1, borderRadius: 6, marginBottom: 8, maxHeight: 100 },
+  editActionsContainer: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 4 },
+  editActionButton: { marginLeft: 8, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 15, minWidth: 70, alignItems: 'center' },
+  editActionButtonText: { color: '#FFFFFF', fontWeight: '600', fontSize: 13 },
   commentContent: { fontSize: 14, lineHeight: 18 },
   commentTimestamp: { fontSize: 10, opacity: 0.7, marginTop: 4, textAlign: 'right' },
   noCommentsText: { textAlign: 'center', marginVertical: 15, fontSize: 14, opacity: 0.7 },
