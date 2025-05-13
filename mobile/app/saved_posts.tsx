@@ -120,7 +120,7 @@ export default function SavedPostsScreen() {
     const screenBackgroundColor = isDarkMode ? '#151718' : '#F0F2F5';
     const cardBackgroundColor = isDarkMode ? '#1C1C1E' : '#FFFFFF';
     const iconColor = isDarkMode ? '#8E8E93' : '#6C6C70';
-    const actionIconColor = isDarkMode ? '#4A90E2' : '#007AFF'; // Bookmark icon color
+    const actionIconColor = '#FFC107'
     const activityIndicatorColor = isDarkMode ? '#FFFFFF' : '#000000';
     const refreshControlColors = isDarkMode ? { tintColor: '#FFFFFF', titleColor: '#FFFFFF'} : { tintColor: '#000000', titleColor: '#000000'};
     const errorTextColor = isDarkMode ? '#FF9494' : '#D32F2F';
