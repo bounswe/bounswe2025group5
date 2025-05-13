@@ -642,11 +642,11 @@ const styles = StyleSheet.create({
   },
   errorText: { color: '#fff', fontSize: 14, textAlign: 'center' },
 
-
   airQualityBox: {
     backgroundColor: '#e0f7fa',
     padding: 12,
     borderRadius: 8,
+    marginTop: -30,
     marginBottom: 16,
   },
   airQualityTitle: {
