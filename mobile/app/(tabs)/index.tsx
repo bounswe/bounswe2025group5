@@ -336,7 +336,7 @@ export default function HomeScreen() {
           {getWeatherEmoji(weather.temperature)}
         </Text>
         <Text style={styles.weatherTemp}>
-          {weather.temperature}°C
+          {weather.temperature.toFixed(1)}°C
         </Text>
       </View>
     )}
