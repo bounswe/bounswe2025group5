@@ -161,7 +161,6 @@ export default function HomeScreen() {
     }
   }, [route.params?.error]);
 
-    // ─── fetch air quality once on mount ─────────────────────────────────────────
     useEffect(() => {
       const fetchAQ = async () => {
         try {
@@ -362,16 +361,7 @@ export default function HomeScreen() {
                     {airQuality.nitrogenDioxide}
                   </Text>
                 </View>
-                <View style={styles.airQualityRow}>
-                  <Text style={styles.airQualityLabel}>SO₂:</Text>
-                  <Text style={styles.airQualityValue}>
-                    {airQuality.sulphurDioxide}
-                  </Text>
-                  <Text style={styles.airQualityLabel}>O₃:</Text>
-                  <Text style={styles.airQualityValue}>
-                    {airQuality.ozone}
-                  </Text>
-                </View>
+                
               </View>
             )}
             {weather && (
@@ -447,7 +437,7 @@ export default function HomeScreen() {
           )}
           </View>
 
-          <View style={[styles.buttonsColumn, { marginTop: 15 }]}>
+          <View style={[styles.buttonsColumn, { marginTop: -5 }]}>
             <TouchableOpacity
               testID="main-login-button"
               style={[styles.authButtonFull, styles.loginAreaFull]}
@@ -592,120 +582,30 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   titleContainer: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-
-  recycleLogo: {
-    width: '115%',
-    height: undefined,
-    aspectRatio: 290 / 178,
-    alignSelf: 'center',
-  },
-
+  recycleLogo: { width: '115%', height: undefined, aspectRatio: 290 / 178, alignSelf: 'center' },
   statsContainer: { marginTop: 24, marginHorizontal: 16 },
-  statLine    : {
-    // color: '#fff', // Removed to allow ThemedText to handle color
-    fontSize: 18,
-    textAlign: 'center',
-    marginVertical: 4
-  },
-  statNumber  : { fontWeight: 'bold', fontSize: 20, color: '#4CAF50' },
-
-  sectionTitle: {
-    // color: '#fff', // Removed to allow ThemedText to handle color
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 16,
-    marginBottom: 8
-  },
+  statLine: { fontSize: 18, textAlign: 'center', marginVertical: 4 },
+  statNumber: { fontWeight: 'bold', fontSize: 20, color: '#4CAF50' },
+  sectionTitle: { fontSize: 18, fontWeight: 'bold', marginTop: 8, marginBottom: 8 },
   trendingContainer: { height: 260, marginVertical: 8 },
-  postContainer: {
-      width: 250,
-      height: 240,
-      marginRight: 16,
-      backgroundColor: '#f5f5f5',
-      borderRadius: 8,
-      padding: 12,
-      justifyContent: 'space-between',
-      overflow: 'hidden',
-    },
+  postContainer: { width: 250, height: 240, marginRight: 16, backgroundColor: '#f5f5f5', borderRadius: 8, padding: 12, justifyContent: 'space-between', overflow: 'hidden' },
   postTitle: { fontSize: 16, fontWeight: 'bold', marginTop: -5, color: '#000'},
-
-  postContent: { fontSize: 14, marginTop:-20, color: '#000'},
-
-  postImage: {
-    width: '100%',
-    aspectRatio: 16 / 9,
-    maxHeight: 120,
-    borderRadius: 6,
-    resizeMode: 'cover',
-  },
-  postFooter: { flexDirection: 'row', alignItems: 'center',  },
+  postContent: { fontSize: 14, marginTop: -20, color: '#000'},
+  postImage: { width: '100%', aspectRatio: 16 / 9, maxHeight: 120, borderRadius: 6, resizeMode: 'cover' },
+  postFooter: { flexDirection: 'row', alignItems: 'center' },
   footerText: { fontSize: 12, marginHorizontal: 4, color: '#000' },
-  modeHeader: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
-    textAlign: 'center',
-    marginTop: 16,
-  },
-
-  input: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    marginHorizontal: 16,
-    marginVertical: 8,
-    paddingHorizontal: 8,
-    borderRadius: 4,
-  },
+  modeHeader: { fontSize: 20, fontWeight: 'bold', color: '#fff', textAlign: 'center', marginTop: 16 },
+  input: { height: 40, borderColor: '#ccc', borderWidth: 1, marginHorizontal: 16, marginVertical: 8, paddingHorizontal: 8, borderRadius: 4 },
   inputLight: { color: '#000', backgroundColor: '#fff' },
-
   buttonsColumn: { marginHorizontal: 16, marginBottom: 8 },
-
-  authButtonFull: {
-    width : '100%',
-    height: 40,
-    marginVertical: 8,
-    borderRadius : 4,
-    justifyContent: 'center',
-    alignItems    : 'center',
-    borderColor   : '#fff',
-    borderWidth   : 1,
-  },
+  authButtonFull: { width: '100%', height: 40, marginVertical: 8, borderRadius: 4, justifyContent: 'center', alignItems: 'center', borderColor: '#fff', borderWidth: 1 },
   registerAreaFull: { backgroundColor: '#2196F3' },
-  loginAreaFull   : { backgroundColor: '#4CAF50' },
-
+  loginAreaFull: { backgroundColor: '#4CAF50' },
   authText: { color: '#000', fontSize: 16 },
-
-  continueButton: {
-    width : '100%',
-    height: 40,
-    backgroundColor: '#f9f6ee',
-    borderRadius   : 4,
-    justifyContent : 'center',
-    alignItems     : 'center',
-    marginVertical : 8,
-    borderColor    : '#000',
-    borderWidth    : 1,
-  },
-
-  kvkkRow: {
-    flexDirection : 'row',
-    alignItems    : 'center',
-    marginHorizontal: 16,
-    marginTop     : 4,
-  },
+  continueButton: { width: '100%', height: 40, backgroundColor: '#f9f6ee', borderRadius: 4, justifyContent: 'center', alignItems: 'center', marginVertical: 8, borderColor: '#000', borderWidth: 1 },
+  kvkkRow: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 16, marginTop: 4 },
   kvkkText: { marginLeft: 8, color: '#fff' },
-
-  errorBox: {
-    position: 'absolute',
-    bottom  : 20,
-    left    : 16,
-    right   : 16,
-    backgroundColor: 'red',
-    padding : 12,
-    borderRadius: 4,
-    alignItems  : 'center',
-  },
+  errorBox: { position: 'absolute', bottom: 20, left: 16, right: 16, backgroundColor: 'red', padding: 12, borderRadius: 4, alignItems: 'center' },
   errorText: { color: '#fff', fontSize: 14, textAlign: 'center' },
 
   airQualityBox: {
@@ -771,4 +671,10 @@ const styles = StyleSheet.create({
   fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
 },
 
+  airQualityBox: { backgroundColor: '#e0f7fa', padding: 12, borderRadius: 8, marginTop: -30, marginBottom: 16 },
+  airQualityTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 8, color: '#00796b' },
+  airQualityRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
+  airQualityLabel: { fontSize: 14, color: '#004d40' },
+  airQualityValue: { fontSize: 14, fontWeight: 'bold', color: '#004d40' },
+  triviaText: { fontSize: 14, textAlign: 'center', marginTop:-15, fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' },
 });
