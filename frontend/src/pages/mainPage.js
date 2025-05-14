@@ -5,6 +5,7 @@ import LogoutButton from "../components/LogoutButton";
 import PostCard from "../components/PostCard"; // Import PostCard component
 import GoalCard from "../components/GoalCard";
 import ChallengeCard from "../components/ChallengeCard";
+import { Carousel, Row, Col, Container } from "react-bootstrap";
 
 
 export default function MainPage({ setIsLoggedIn, url }) {
@@ -77,7 +78,7 @@ export default function MainPage({ setIsLoggedIn, url }) {
                 setLoading(false); // Set loading to false after fetching data
             }
         };
-        
+
         fetchPosts();
         fetchGoals(); // Fetch goals when the component mounts
         fetchChallenges(); // Fetch challenges when the component mounts
@@ -146,20 +147,52 @@ export default function MainPage({ setIsLoggedIn, url }) {
         }
     };
     return (
-        <div>
-            <h1>Post Feed</h1>
-            {posts.map(post => (  // ıterate over posts and render PostCard for each post
+        <Container>
+            <Row>
+                <Col>
+                    <h1 className="my-4">Posts</h1>
+                    <Carousel>
+                        {posts.map(post => (  // ıterate over posts and render PostCard for each post
+                            <Carousel.Item key={post.postId}>
+                                <div style={{ width: '300px', margin: '0 auto' }}>
+                                    <PostCard post={post} isLoggedIn={true} url={url} />
+                                </div>
+                            </Carousel.Item>
+                        ))}
+                    </Carousel>
+
+                </Col>
+                <Col>
+                    <h1 className="my-4">Challenges</h1>
+
+                    <div className="d-flex flex-wrap gap-3" style={{ justifyContent: 'center' }}>
+                        {challenges.map((c) => (
+                            <ChallengeCard
+                                key={c.challengeId}
+                                challenge={c}
+                                onAction={fetchChallenges}
+                                url={url}
+                            />
+                        ))}
+                    </div>
+
+
+
+                </Col>
+
+
+            </Row>
+            {/*{posts.map(post => (  // ıterate over posts and render PostCard for each post
                 <PostCard key={post.postId} post={post} isLoggedIn={true} url={url}/>
             ))}
-            {goals}
+            {goals}*/}
             {/*goals.length > 0 && goals.map(goal => (  // ıterate over goals and render PostCard for each post
                 <GoalCard key={goal.goalId} goal={goal} onDelete={handleGoalDelete} onToggleComplete={handleGoalComplete} onEdit={handleGoalEdit} />
             ))*/}
-            {challenges.slice(0, 3).map(challenge => (  // Show only the first 3 challenges
+            {/*{challenges.slice(0, 3).map(challenge => (  // Show only the first 3 challenges
                 <ChallengeCard key={challenge.challengeId} challenge={challenge} onAction={fetchChallenges} url = {url} />
             ))}
-            {/* {isLoggedIn && <CreatePostButton onPostCreated={fetchPosts} />} */}
             {<LogoutButton setIsLoggedIn={setIsLoggedIn} onLogout={()=>navigate('/')}/>} {/* Logout button */}
-        </div>
+        </Container>
     );
 }

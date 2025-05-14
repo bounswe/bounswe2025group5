@@ -1,67 +1,113 @@
-import React from "react";
-import { useState, useEffect } from "react";
-import PostCard from "../components/PostCard.js"; // Import the PostCard component
-import { Button } from "../components/ui/button.js"; // Import Material-UI Button component
-import LogoutButton from "../components/LogoutButton.js"; // Import LogoutButton component
-import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
-import CreatePostButton from "../components/CreatePostButton.js"; // Import CreatePostButton component
+import React, { useState, useEffect } from "react";
+import { Container, Row, Col, Button } from "react-bootstrap";
+import PostCard from "../components/PostCard.js";
+import LogoutButton from "../components/LogoutButton.js";
+import { useNavigate } from "react-router-dom";
+import CreatePostButton from "../components/CreatePostButton.js";
+import Loader from "../components/ui/spinner.js";
 
 function Feed({ isLoggedIn, setIsLoggedIn, url }) {
-    const navigate = useNavigate(); // Hook to programmatically navigate
-    const [posts, setPosts] = useState([]);
-    const [error, setError] = useState(null);
-    const [message, setMessage] = useState("");
-    const [loading, setLoading] = useState(true);
-    const fetchSize = 10; // Number of posts to fetch at once
+  const navigate = useNavigate();
+  const [posts, setPosts] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [hasMorePosts, setHasMorePosts] = useState(true);
+  const [lastPostId, setLastPostId] = useState(null);
+  const [showCreatePost, setShowCreatePost] = useState(false);
+  const fetchSize = 10;
 
-    const fetchPosts = async () => {
-        const username = localStorage.getItem("username"); // Get the username from local storage
-        try {
-            const response = await fetch(`${url}/api/posts/info?size=${fetchSize}&username=${username}`, {
-                method: "GET",
-                //headers: { Authorization: `Bearer ${token}` },
-            });
-            const data = await response.json();
-            if (response.ok) {
-                setPosts(data);
-                setMessage(data.message || "Posts fetched successfully.");
+  const fetchPosts = async () => {
+    const username = localStorage.getItem("username");
+    const endpoint = lastPostId
+      ? `${url}/api/posts/info?size=${fetchSize}&lastPostId=${lastPostId}&username=${username}`
+      : `${url}/api/posts/info?size=${fetchSize}&username=${username}`;
 
-                // Optional: You can also check if posts are empty and set a message accordingly
-                if (posts.length === 0) {
-                    setMessage("No posts available.");
-                }
-            } else {
-                setError(data.message || "Failed to fetch posts");
-            }
-        } catch (err) {
-            setError("An error occurred. Please try again.");
-        } finally {
-            setLoading(false); // Set loading to false after fetching data
+    try {
+      const response = await fetch(endpoint);
+      const data = await response.json();
+
+      if (response.ok) {
+        if (data.length > 0) {
+          setPosts(prev => [...prev, ...data]);
+          setLastPostId(data[data.length - 1].postId); // <- track last post ID
+          if (data.length < fetchSize) {
+            setHasMorePosts(false); // No more posts
+          }
+        } else {
+          setHasMorePosts(false);
         }
-    };
-
-    useEffect(() => {
-        fetchPosts(); // Fetch posts when the component mounts
-    }, []);
-
-    if (loading) {
-        return <div>Loading posts...</div>; // Optional: Show a loading indicator while fetching data
+      } else {
+        setError(data.message || "Failed to fetch posts.");
+      }
+    } catch (err) {
+      setError("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    if (error) {
-        return <div>Error: {error}</div>; // Show the error message if something goes wrong
-    }
+  useEffect(() => {
+    fetchPosts();
+  }, []);
 
+  const handleLoadMore = () => {
+    fetchPosts();
+  };
 
-    return (
-        <div>
-            <h1>Post Feed</h1>
-            {isLoggedIn && <CreatePostButton onPostCreated={fetchPosts} url={url}/>}
-            {posts.map(post => (  // ıterate over posts and render PostCard for each post
-                <PostCard key={post.postId} post={post} isLoggedIn={isLoggedIn} onAction={fetchPosts} url={url}/>
-            ))}
-            {isLoggedIn && <LogoutButton setIsLoggedIn={setIsLoggedIn} onLogout={() => navigate('/')} />} {/* Logout button */}
+  if (loading && posts.length === 0) {
+    return <Loader size="50px" message="Loading posts..." />;
+  }
+
+  if (error) {
+    return <div className="text-danger">Error: {error}</div>;
+  }
+
+  return (
+    <Container style={{ marginTop: "70px" }}>
+      <h1 className="my-4">Post Feed</h1>
+
+    {      isLoggedIn && (
+        <div className="text-center">   
+          <Button
+            className="btn btn-info"
+            onClick={() => {
+              setShowCreatePost(!showCreatePost);
+            }}
+            >
+            {showCreatePost ? "Cancel" : "Create Post"}
+          </Button>
         </div>
-    );
-};
+      )}
+      {isLoggedIn && showCreatePost &&(
+        <CreatePostButton
+          onPostCreated={() => {
+            setPosts([]);
+            setLastPostId(null);
+            setHasMorePosts(true);
+            setLoading(true);
+            fetchPosts();
+          }}
+          url={url}
+        />
+      )}
+
+      <Row className="g-4 mt-3">
+        {posts.map((post) => (
+          <Col key={post.postId} xs={12} md={6} lg={6}>
+            <PostCard post={post} isLoggedIn={isLoggedIn} onAction={fetchPosts} url={url} />
+          </Col>
+        ))}
+      </Row>
+
+      {hasMorePosts && (
+        <div className="text-center my-4 ">
+          <Button onClick={handleLoadMore} className="btn btn-info">Load More</Button>
+        </div>
+      )}
+
+      
+    </Container>
+  );
+}
+
 export default Feed;

@@ -1,40 +1,52 @@
 import React from "react";
+import 'bootstrap-icons/font/bootstrap-icons.css'; // Ensure this is imported somewhere globally if not already
 
-function CommentList ({ comments, onUpdate, onDelete, username }) {
+function CommentList({ comments, onUpdate, onDelete, username }) {
     if (!comments || comments.length === 0) {
-        return <p>No comments yet.</p>;
+        return <p className="text-muted">No comments yet.</p>;
     }
 
     return (
-        <ul style={{ listStyle: "none", padding: 0 }}>
-            {comments.map(comment => (
+        <ul className="list-unstyled">
+            {comments.map((comment) => (
                 <li
                     key={comment.commentId}
-                    style={{
-                        borderBottom: "1px solid #ccc",
-                        padding: "0.5rem 0",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                    }}
+                    className="border-bottom py-2 d-flex flex-column"
                 >
-                    <div style={{ fontSize: "1rem" }}>
-                        <strong>{comment.creatorUsername}:</strong> {comment.content}
+                    <div className="d-flex justify-content-between align-items-start">
+                        <div style={{ fontSize: '1.2rem' }}>
+                            <strong>@{comment.creatorUsername}</strong>{" "}
+                            <span className="text-muted">{comment.content}</span>
+                        </div>
+                        <small className="text-muted" style={{ fontSize: '0.7rem' }}>
+                            {new Date(comment.createdAt).toLocaleString()}
+                        </small>
                     </div>
-                    <div style={{ fontSize: "0.75rem", color: "gray", marginLeft: "1rem" }}>
-                        {new Date(comment.createdAt).toLocaleString()}
-                    </div>
+
                     {comment.creatorUsername === username && (
-                        <div style={{ marginLeft: "1rem" }}>
-                            <button onClick={() => onUpdate(comment)} style={{ marginRight: "0.5rem" }}>
-                                Update
+                        <div className="mt-1 d-flex gap-2">
+                            <button
+                                className="btn btn-sm text-info"
+                                onClick={() => onUpdate(comment)}
+                                title="Edit"
+                                style={{ padding: "0.1rem 0.3rem" }}
+                            >
+                                <i className="bi bi-pencil-fill"></i>
                             </button>
-                            <button onClick={() => onDelete(comment.commentId)}>Delete</button>
+                            <button
+                                className="btn btn-sm text-danger"
+                                onClick={() => onDelete(comment.commentId)}
+                                title="Delete"
+                                style={{ padding: "0.1rem 0.3rem" }}
+                            >
+                                <i className="bi bi-trash-fill"></i>
+                            </button>
                         </div>
                     )}
                 </li>
             ))}
         </ul>
     );
-};
+}
+
 export default CommentList;

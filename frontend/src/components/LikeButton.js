@@ -1,12 +1,19 @@
 import React, { useState } from "react";
 
 function LikeButton({ postId, onLike, liked, likes, url }) {
+    const [likedState, setLiked] = useState(liked); // Initialize liked state
     const [likeCount, setLikeCount] = useState(likes || 0); // Initialize likeCount with the number of likes from the post
     const [error, setError] = useState(null);
     const [username, setUsername] = useState(localStorage.getItem("username") || "");
+    const [isPending, setIsPending] = useState(false);
 
     const toggleLike = async () => {
-        if (liked) {
+        if (isPending) return; // Prevent multiple clicks while pending
+        setIsPending(true); // Set pending state to true to prevent multiple clicks
+        setLiked(!likedState); // Toggle the liked state
+        setLikeCount(likedState ? likeCount - 1 : likeCount + 1); // Update the like count based on the current state
+        if (likedState) {
+            try {
             const res = await fetch(`${url}/api/posts/like`, {
                 method: "DELETE",
                 headers: {
@@ -19,12 +26,18 @@ function LikeButton({ postId, onLike, liked, likes, url }) {
                 }),
             });
             if (res.ok) {
-                setLikeCount(prevCount => prevCount - 1); // Decrease the like count
-                liked = false; // Set liked to false
                 onLike(); // Call the onLike function passed as a prop to update the parent component
             } else {
+                setLikeCount(previous => previous + 1); // Decrease the like count
+                setLiked(true); // Set liked to false
                 const data = await res.json();
                 setError(data.message || "Failed to unlike the post");
+            }
+            }
+            catch (err) {
+                setLikeCount(previous => previous + 1); // Decrease the like count
+                setLiked(true); // Set liked to false
+                setError("An error occurred. Please try again.");
             }
         } else {
             try {
@@ -41,22 +54,25 @@ function LikeButton({ postId, onLike, liked, likes, url }) {
                 });
                 const data = await response.json();
                 if (response.ok) {
-                    setLikeCount(prevCount => liked ? prevCount - 1 : prevCount + 1); // Update the like count based on the current state
-                    liked = !liked; // Toggle the liked state
-                    onLike(); // Call the onLike function passed as a prop to update the parent component
+                    //onLike(); // Call the onLike function passed as a prop to update the parent component
                 } else {
+                    setLikeCount(previous => previous - 1); // Update the like count based on the current state
+                    setLiked(false); // Toggle the liked state
                     setError(data.message || "Failed to like the post");
                 }
             } catch (err) {
+                setLikeCount(previous => previous - 1); // Update the like count based on the current state
+                setLiked(false); // Toggle the liked state
                 setError("An error occurred. Please try again.");
             }
         }
+        setIsPending(false); // Reset pending state after the operation
     };
 
     return (
         <div>
             <button onClick={toggleLike} style={styles.button}>
-                {liked ? "❤️" : "🤍"} {likeCount}
+                {likedState ? "❤️" : "🤍"} {likeCount}
             </button>
             {error && <p style={styles.error}>{error}</p>}
         </div>
