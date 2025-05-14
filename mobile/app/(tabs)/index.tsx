@@ -7,6 +7,7 @@ import {
   View,
   TouchableOpacity,
   Text,
+  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,10 +17,22 @@ import { ThemedText } from '@/components/ThemedText';
 import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
 import { ScrollView } from 'react-native';
+import CheckBox from '../components/CheckBox';
 
-const API_BASE = 'http://localhost:8080/api/auth';
+type AirQuality = {
+  pm10: number;
+  pm25: number;
+  carbonMonoxide: number;
+  nitrogenDioxide: number;
+  sulphurDioxide: number;
+  ozone: number;
+};
 
-const KG_SAVED     = 57492; 
+
+const HOST = Platform.select({ android: '10.0.2.2', ios: 'localhost' , web: 'localhost' });
+const API_BASE = `http://${HOST}:8080/api/auth`;
+
+const KG_SAVED     = 57492;
 
 type Navigation = {
   navigate: (screen: string, params?: any) => void;
@@ -35,18 +48,12 @@ type TrendingPost = {
   photoUrl      : string | null;
 };
 
-function CheckBox({ checked, onPress }: { checked: boolean; onPress: () => void }) {
-  return (
-    <TouchableOpacity style={styles.checkbox} onPress={onPress}>
-      {checked && <Ionicons name="checkmark" size={16} color="#fff" />}
-    </TouchableOpacity>
-  );
-}
+
 
 export default function HomeScreen() {
   const navigation = useNavigation<Navigation>();
   const route     = useRoute<any>();
-  const { setUserType, setUsername } = useContext(AuthContext);
+  const { setUserType, setUsername} = useContext(AuthContext);
 
   const [showAuthFields, setShowAuthFields] = useState(false);
   const [isRegistering, setIsRegistering]   = useState(false);
@@ -60,43 +67,60 @@ export default function HomeScreen() {
   const [loggedIn, setLoggedIn]             = useState(false);
   const [errorVisible, setErrorVisible]     = useState(false);
   const [errorMessage, setErrorMessage]     = useState('');
+  const [airQuality, setAirQuality] = useState<AirQuality | null>(null);
   const [usersCount, setUsersCount] = useState<number>(0);
+  const [numberTrivia, setNumberTrivia] = useState<string | null>(null);
   const [trendingPosts, setTrendingPosts] = useState<TrendingPost[]>([]);
 
   useEffect(() => {
     const fetchUserCount = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
-        const res = await fetch(`http://localhost:8080/api/users/count`, {
+        const res = await fetch(`http://${HOST}:8080/api/users/count`, {
           method : 'GET',
           headers: {
             'Content-Type': 'application/json',
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
         });
-  
+
         const body = await res.json().catch(() => ({}));
-        console.log('users/count response ➜', body);          
-  
+        console.log('users/count response ➜', body);
+
         if (!res.ok) {
           return console.warn(body.message || 'Could not fetch user count');
         }
-  
+
         const userCount = body.userCount ?? 0;
-        console.log('setting usersCount ➜', userCount);       
+        console.log('setting usersCount ➜', userCount);
         setUsersCount(userCount);
       } catch (err) {
         console.warn('Network error while fetching user count', err);
       }
     };
-  
+
     fetchUserCount();
   }, []);
+  useEffect(() => {
+    if (usersCount > 0) {              // wait until we actually have a number
+      const fetchTrivia = async () => {
+        try {
+          const res = await fetch(`http://${HOST}:8080/api/home/number/${usersCount}`);
+          if (!res.ok) throw new Error('Failed to fetch number trivia');
+          const data = await res.json();
+          setNumberTrivia(data.text);   // ← save just the text
+        } catch (err) {
+          console.warn('Unable to load number trivia', err);
+        }
+      };
+      fetchTrivia();
+    }
+  }, [usersCount]);                     // runs every time usersCount changes
 
   useEffect(() => {
     const fetchTrending = async () => {
       try {
-        const res = await fetch('http://localhost:8080/api/posts/mostLikedPosts?size=4');
+        const res = await fetch(`http://${HOST}:8080/api/posts/mostLikedPosts?size=4`);
         if (!res.ok) throw new Error('Failed to fetch trending posts');
         const data = (await res.json()) as TrendingPost[];
         setTrendingPosts(data);
@@ -131,6 +155,23 @@ export default function HomeScreen() {
     }
   }, [route.params?.error]);
 
+    useEffect(() => {
+      const fetchAQ = async () => {
+        try {
+          const res = await fetch(
+            `http://${HOST}:8080/api/home/getAirQuality?location=Istanbul`
+          );
+          if (!res.ok) throw new Error('Failed to fetch air quality');
+          const data = (await res.json()) as AirQuality;
+          console.log(data)
+          setAirQuality(data);
+        } catch (err) {
+          console.warn('Error fetching air quality', err);
+        }
+      };
+      fetchAQ();
+    }, []);
+
   useFocusEffect(
     React.useCallback(() => {
       if (loggedIn) navigation.navigate('explore');
@@ -151,32 +192,56 @@ export default function HomeScreen() {
       navigation.navigate('explore');
       return;
     }
+  
     if (!emailOrUsername.trim() || pwd.length < 8) {
       return showError('Please fill in valid credentials');
     }
+  
     try {
       const res = await fetch(`${API_BASE}/login`, {
-        method : 'POST',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body   : JSON.stringify({ emailOrUsername, password: pwd }),
+        body: JSON.stringify({ emailOrUsername, password: pwd }),
       });
+  
       if (!res.ok) {
-        const err = await res.json();
-        return showError(err.message || 'Login failed');
+        // parse whatever shape your server returns
+        const errBody = await res.json().catch(() => null);
+  
+        // Log to your console for debugging
+        console.error('Login response error:', errBody);
+  
+        // Display the entire error object (or fallback)
+        const fullMsg = errBody
+          ? JSON.stringify(errBody, null, 2)
+          : 'Login failed';
+        return showError(fullMsg);
       }
+  
+      // success path
       const { token, username } = (await res.json()) as {
-        token   : string;
+        token: string;
+
         username: string;
       };
       await AsyncStorage.multiSet([
-        ['token'   , token],
-        ['username', username],
+        ['token', token],
+        ['username', username]
       ]);
       setUserType('user');
       setUsername(username);
       setLoggedIn(true);
-    } catch {
-      showError('Network error, please try again');
+  
+    } catch (error: any) {
+      // Log the full JS error (including stack)
+      console.error('Network/login exception:', error);
+  
+      // Show the entire error (message + stack) if you want:
+      const msg =
+        error instanceof Error
+          ? `${error.message}\n${error.stack}`
+          : JSON.stringify(error, null, 2);
+      showError(msg);
     }
   };
 
@@ -229,12 +294,13 @@ export default function HomeScreen() {
   const continueAsGuest = () => {
     setUserType('guest');
     setUsername('');
+    setLoggedIn(false);
     navigation.navigate('explore');
   };
 
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#', dark: '#' }}
+      headerBackgroundColor={{ light: '#FFFFFF', dark: '#000000' }}
       headerImage={
         <Image
           source={require('@/assets/images/wasteless-logo.png')}
@@ -246,11 +312,39 @@ export default function HomeScreen() {
       {!showAuthFields && (
         <>
           <View style={styles.statsContainer}>
-            <Text style={styles.statLine}>
+            {airQuality && (
+              <View style={styles.airQualityBox}>
+                <Text style={styles.airQualityTitle}>
+                  Air Quality in Istanbul
+                </Text>
+                <View style={styles.airQualityRow}>
+                  <Text style={styles.airQualityLabel}>PM10:</Text>
+                  <Text style={styles.airQualityValue}>
+                    {airQuality.pm10}
+                  </Text>
+                  <Text style={styles.airQualityLabel}>PM2.5:</Text>
+                  <Text style={styles.airQualityValue}>
+                    {airQuality.pm25}
+                  </Text>
+                </View>
+                <View style={styles.airQualityRow}>
+                  <Text style={styles.airQualityLabel}>CO:</Text>
+                  <Text style={styles.airQualityValue}>
+                    {airQuality.carbonMonoxide}
+                  </Text>
+                  <Text style={styles.airQualityLabel}>NO₂:</Text>
+                  <Text style={styles.airQualityValue}>
+                    {airQuality.nitrogenDioxide}
+                  </Text>
+                </View>
+                
+              </View>
+            )}
+            <ThemedText style={styles.statLine}>
               <Text style={styles.statNumber}>{usersCount}</Text>{' '}
               users are reducing their wastes with us
-            </Text>
-                     <Text style={styles.sectionTitle}>Trending posts :</Text>
+            </ThemedText>
+                     <ThemedText style={styles.sectionTitle}>Trending posts :</ThemedText>
              <ScrollView
                horizontal
                pagingEnabled
@@ -272,7 +366,7 @@ export default function HomeScreen() {
                       source={{
                         uri: post.photoUrl.startsWith('http')
                           ? post.photoUrl
-                          : `http://localhost:8080${post.photoUrl}`,
+                          : `http://${HOST}:8080${post.photoUrl}`,
                       }}
                       style={styles.postImage}
                       onError={(e) => console.warn('Image failed to load:', e.nativeEvent.error)}
@@ -281,7 +375,7 @@ export default function HomeScreen() {
 
                   <View style={styles.postFooter}>
                     <Ionicons name="heart-outline" size={16} />
-                    <ThemedText style={styles.footerText}>{post.likes}</ThemedText>
+                    <ThemedText style={styles.footerText}>{post.likes}</ThemedText>     
                     <Ionicons name="chatbubble-outline" size={16} />
                     <ThemedText style={styles.footerText}>{post.comments}</ThemedText>
                   </View>
@@ -289,10 +383,20 @@ export default function HomeScreen() {
               ))}
 
              </ScrollView>
+          {numberTrivia && (
+            <ThemedText
+              style={styles.triviaText}
+              lightColor="#1C1C1E"  
+              darkColor="#00796b"    
+            >
+              {numberTrivia}
+            </ThemedText>
+          )}
           </View>
 
-          <View style={[styles.buttonsColumn, { marginTop: 15 }]}>
+          <View style={[styles.buttonsColumn, { marginTop: -5 }]}>
             <TouchableOpacity
+              testID="main-login-button"
               style={[styles.authButtonFull, styles.loginAreaFull]}
               onPress={() => {
                 setShowAuthFields(true);
@@ -303,6 +407,7 @@ export default function HomeScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity
+              testID="main-register-button"
               style={[styles.authButtonFull, styles.registerAreaFull]}
               onPress={() => {
                 setShowAuthFields(true);
@@ -312,7 +417,7 @@ export default function HomeScreen() {
               <Text style={styles.authText}>Register</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.continueButton} onPress={continueAsGuest}>
+            <TouchableOpacity style={styles.continueButton} testID="main-guest-button" onPress={continueAsGuest}>
               <Text style={styles.authText}>Continue as Guest</Text>
             </TouchableOpacity>
           </View>
@@ -381,6 +486,7 @@ export default function HomeScreen() {
             {isRegistering ? (
               <>
                 <TouchableOpacity
+                  testID="form-register-button"
                   style={[styles.authButtonFull, styles.registerAreaFull]}
                   onPress={() =>
                     sendRegisterRequest(usernameInput, email, password)
@@ -389,6 +495,7 @@ export default function HomeScreen() {
                   <Text style={styles.authText}>Register</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
+                  testID="form-back-to-login-button"
                   style={[styles.authButtonFull, styles.loginAreaFull]}
                   onPress={() => setIsRegistering(false)}
                 >
@@ -398,12 +505,14 @@ export default function HomeScreen() {
             ) : (
               <>
                 <TouchableOpacity
+                  testID="form-login-button" 
                   style={[styles.authButtonFull, styles.loginAreaFull]}
                   onPress={() => sendLoginRequest(usernameInput, password)}
                 >
                   <Text style={styles.authText}>Log In</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
+                  testID="form-register-switch-button"
                   style={[styles.authButtonFull, styles.registerAreaFull]}
                   onPress={() => setIsRegistering(true)}
                 >
@@ -430,116 +539,35 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   titleContainer: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-
-  recycleLogo: {
-    width: '115%',
-    height: undefined,
-    aspectRatio: 290 / 178,
-    alignSelf: 'center',
-  },
-
+  recycleLogo: { width: '115%', height: undefined, aspectRatio: 290 / 178, alignSelf: 'center' },
   statsContainer: { marginTop: 24, marginHorizontal: 16 },
-  statLine    : { color: '#fff', fontSize: 18, textAlign: 'center', marginVertical: 4 },
-  statNumber  : { fontWeight: 'bold', fontSize: 20, color: '#4CAF50' },
-
-    sectionTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold', marginTop: 16, marginBottom: 8 },
-    trendingContainer: { height: 200, marginVertical: 8 },
-      postContainer: {
-          width: 250,
-          height: 200,        
-          marginRight: 16,
-          backgroundColor: '#f5f5f5',
-          borderRadius: 8,
-          padding: 12,
-          justifyContent: 'space-between',
-          overflow: 'hidden', 
-        },
-    postTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 4 , color: '#000'},
-    
-    postContent: { fontSize: 14, marginBottom: 8 , color: '#000'},
-    
-      postImage: {
-        width: '100%',
-        aspectRatio: 16 / 9, 
-        maxHeight: 100,      
-        borderRadius: 6,
-        marginBottom: 8,
-        resizeMode: 'cover',
-      },
-    postFooter: { flexDirection: 'row', alignItems: 'center', marginTop: 8 },    footerText: { fontSize: 12, marginHorizontal: 4, color: '#000' },    
-  modeHeader: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
-    textAlign: 'center',
-    marginTop: 16,
-  },
-
-  input: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    marginHorizontal: 16,
-    marginVertical: 8,
-    paddingHorizontal: 8,
-    borderRadius: 4,
-  },
+  statLine: { fontSize: 18, textAlign: 'center', marginVertical: 4 },
+  statNumber: { fontWeight: 'bold', fontSize: 20, color: '#4CAF50' },
+  sectionTitle: { fontSize: 18, fontWeight: 'bold', marginTop: 8, marginBottom: 8 },
+  trendingContainer: { height: 260, marginVertical: 8 },
+  postContainer: { width: 250, height: 240, marginRight: 16, backgroundColor: '#f5f5f5', borderRadius: 8, padding: 12, justifyContent: 'space-between', overflow: 'hidden' },
+  postTitle: { fontSize: 16, fontWeight: 'bold', marginTop: -5, color: '#000'},
+  postContent: { fontSize: 14, marginTop: -20, color: '#000'},
+  postImage: { width: '100%', aspectRatio: 16 / 9, maxHeight: 120, borderRadius: 6, resizeMode: 'cover' },
+  postFooter: { flexDirection: 'row', alignItems: 'center' },
+  footerText: { fontSize: 12, marginHorizontal: 4, color: '#000' },
+  modeHeader: { fontSize: 20, fontWeight: 'bold', color: '#fff', textAlign: 'center', marginTop: 16 },
+  input: { height: 40, borderColor: '#ccc', borderWidth: 1, marginHorizontal: 16, marginVertical: 8, paddingHorizontal: 8, borderRadius: 4 },
   inputLight: { color: '#000', backgroundColor: '#fff' },
-
   buttonsColumn: { marginHorizontal: 16, marginBottom: 8 },
-
-  authButtonFull: {
-    width : '100%',
-    height: 40,
-    marginVertical: 8,
-    borderRadius : 4,
-    justifyContent: 'center',
-    alignItems    : 'center',
-    borderColor   : '#fff',
-    borderWidth   : 1,
-  },
+  authButtonFull: { width: '100%', height: 40, marginVertical: 8, borderRadius: 4, justifyContent: 'center', alignItems: 'center', borderColor: '#fff', borderWidth: 1 },
   registerAreaFull: { backgroundColor: '#2196F3' },
-  loginAreaFull   : { backgroundColor: '#4CAF50' },
-
+  loginAreaFull: { backgroundColor: '#4CAF50' },
   authText: { color: '#000', fontSize: 16 },
-
-  continueButton: {
-    width : '100%',
-    height: 40,
-    backgroundColor: '#f9f6ee',
-    borderRadius   : 4,
-    justifyContent : 'center',
-    alignItems     : 'center',
-    marginVertical : 8,
-    borderColor    : '#000',
-    borderWidth    : 1,
-  },
-
-  kvkkRow: {
-    flexDirection : 'row',
-    alignItems    : 'center',
-    marginHorizontal: 16,
-    marginTop     : 4,
-  },
+  continueButton: { width: '100%', height: 40, backgroundColor: '#f9f6ee', borderRadius: 4, justifyContent: 'center', alignItems: 'center', marginVertical: 8, borderColor: '#000', borderWidth: 1 },
+  kvkkRow: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 16, marginTop: 4 },
   kvkkText: { marginLeft: 8, color: '#fff' },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderWidth: 1,
-    borderColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  errorBox: {
-    position: 'absolute',
-    bottom  : 20,
-    left    : 16,
-    right   : 16,
-    backgroundColor: 'red',
-    padding : 12,
-    borderRadius: 4,
-    alignItems  : 'center',
-  },
+  errorBox: { position: 'absolute', bottom: 20, left: 16, right: 16, backgroundColor: 'red', padding: 12, borderRadius: 4, alignItems: 'center' },
   errorText: { color: '#fff', fontSize: 14, textAlign: 'center' },
+  airQualityBox: { backgroundColor: '#e0f7fa', padding: 12, borderRadius: 8, marginTop: -30, marginBottom: 16 },
+  airQualityTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 8, color: '#00796b' },
+  airQualityRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
+  airQualityLabel: { fontSize: 14, color: '#004d40' },
+  airQualityValue: { fontSize: 14, fontWeight: 'bold', color: '#004d40' },
+  triviaText: { fontSize: 14, textAlign: 'center', marginTop:-15, fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' },
 });

@@ -47,14 +47,51 @@ export default function RootLayout() {
     return null;
   }
 
+  const authContextValue = { userType, setUserType, username, setUsername};
+
   return (
-    <AuthContext.Provider value={{ userType, setUserType, username, setUsername }}>
+    <AuthContext.Provider value={authContextValue}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen 
+            name="edit_profile" 
+            options={{ 
+              presentation: 'modal', 
+            }} 
+          />
+          <Stack.Screen
+            name="badges"
+            options={{
+              title: 'Badges',
+            }}
+            />
+          
+          <Stack.Screen 
+            name="create_post" 
+            options={{ 
+              presentation: 'modal', 
+            }} 
+          />
+          <Stack.Screen 
+            name="posts" 
+            options={{ 
+            }} 
+          />
+          <Stack.Screen 
+            name="saved_posts"
+            options={{ 
+            }}
+          />
+          <Stack.Screen 
+            name="edit_post_detail" // Ensure this matches your file name if in app/
+            options={{ 
+              presentation: 'modal', 
+            }} 
+          />
           <Stack.Screen name="+not-found" />
         </Stack>
-        <StatusBar style="auto" />
+        <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
       </ThemeProvider>
     </AuthContext.Provider>
   );
