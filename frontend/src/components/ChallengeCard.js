@@ -129,7 +129,7 @@ export default function ChallengeCard({ challenge, onAction, url }) {
             <Accordion.Item eventKey={challengeId.toString()} >
                 <Accordion.Header>
                     <div className="d-flex justify-content-between align-items-center w-100" >
-                        <span className="fs-6 fw-bold text-truncate">{name}</span>
+                        <span className="fs-6 fw-bold text-truncate" style={{color: status == 'Ended' ? 'red' : 'green'}}>{name}</span>
                         <small className="text-muted fs-10" style={{ fontSize: '0.7rem' }}>
                             {startDate} - {endDate}
                         </small>

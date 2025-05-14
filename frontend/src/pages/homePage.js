@@ -5,6 +5,8 @@ import { Button } from "../components/ui/button";
 import wallpaper from "../assets/wallpaper2.png";
 import userImage from "../assets/userImage.png";
 import wasteImage from "../assets/wasteImg.png";
+import EnergyStatsCard from "../components/EnergyStatsCard";
+import ForestStatsCard from "../components/ForestStatsCard";
 
 export default function HomePage({ url }) {
   const navigate = useNavigate();
@@ -139,6 +141,7 @@ export default function HomePage({ url }) {
           <div className="d-flex justify-content-center gap-3">
             <Button onClick={() => navigate('/login')}>Login</Button>
             <Button onClick={() => navigate('/register')}>Register</Button>
+            <Button onClick={() => navigate('/feed')}>Feed</Button>
           </div>
         </Carousel.Caption>
       </Carousel.Item>
@@ -184,6 +187,19 @@ export default function HomePage({ url }) {
           </p>
         </Carousel.Caption>
       </Carousel.Item>
+      {/* Slide 4: Energy Stats */}
+      <Carousel.Item className="vh-100 d-flex justify-content-center align-items-center">
+        <div className="d-block w-50 h-50 mx-auto">
+          <EnergyStatsCard countryCode="rus" url={url}/>
+        </div>
+      </Carousel.Item>
+        {/*Slide 5 Forest*/}
+      <Carousel.Item className="vh-100 d-flex justify-content-center align-items-center" style={{ marginTop: "120px"}}>
+        <div className="d-block w-50 h-50 mx-auto">
+          <ForestStatsCard countryCode="rus" url={url}/>
+        </div>
+      </Carousel.Item>
+
     </Carousel>
   );
 }

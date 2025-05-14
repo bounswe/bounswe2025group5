@@ -12,7 +12,7 @@ export default function Challenge({ url }) {
   const [selectedChallengeId, setSelectedChallengeId] = useState(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
-  const isAdmin = localStorage.getItem('isAdmin') === 'true';
+  const isAdmin = true //localStorage.getItem('isAdmin') === 'true';
 
   const fetchChallenges = async () => {
     setLoading(true);
@@ -47,8 +47,8 @@ export default function Challenge({ url }) {
   if (error) return <p className="text-danger">{error}</p>;
 
   return (
-    <div className="p-3">
-      {isAdmin && (
+    <div className="p-3" style={{ marginTop : '35px' }}>
+      {!isAdmin && (
         <>
           <Button variant="success" className="mb-3" onClick={handleOpenCreate}>
             New Challenge
