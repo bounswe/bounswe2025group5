@@ -192,6 +192,12 @@ export default function HomePage({ url }) {
           <EnergyStatsCard countryCode="rus" url={url}/>
         </div>
       </Carousel.Item>
+        {/*Slide 5 Forest*/}
+      <Carousel.Item className="vh-100 d-flex justify-content-center align-items-center" style={{ marginTop: "120px"}}>
+        <div className="d-block w-50 h-50 mx-auto">
+          <ForestStatsCard countryCode="rus" url={url}/>
+        </div>
+      </Carousel.Item>
 
     </Carousel>
   );
