@@ -336,25 +336,34 @@ export default function HomeScreen() {
       {!showAuthFields && (
         <>
           <View style={styles.statsContainer}>
-            {airQuality && (
+            {airQuality && weather && (
               <View style={styles.airQualityBox}>
                 <Text style={styles.airQualityTitle}>
-                  Air Quality in Istanbul
+                  Weather and Air Quality in Istanbul
                 </Text>
                 <View style={styles.airQualityRow}>
+                  <Text style={styles.airQualityLabel}>temp:</Text>
+                  <Text style={styles.airQualityValue}>
+                    {weather.temperature}°C
+                  </Text>
                   <Text style={styles.airQualityLabel}>PM10:</Text>
                   <Text style={styles.airQualityValue}>
                     {airQuality.pm10}
                   </Text>
-                  <Text style={styles.airQualityLabel}>PM2.5:</Text>
-                  <Text style={styles.airQualityValue}>
-                    {airQuality.pm25}
-                  </Text>
-                </View>
-                <View style={styles.airQualityRow}>
                   <Text style={styles.airQualityLabel}>CO:</Text>
                   <Text style={styles.airQualityValue}>
                     {airQuality.carbonMonoxide}
+                  </Text>
+                  
+                </View>
+                <View style={styles.airQualityRow}>
+                  <Text style={styles.airQualityLabel}>hum:</Text>
+                  <Text style={styles.airQualityValue}>
+                    {weather.humidity}%
+                  </Text>
+                  <Text style={styles.airQualityLabel}>PM2.5:</Text>
+                  <Text style={styles.airQualityValue}>
+                    {airQuality.pm25}
                   </Text>
                   <Text style={styles.airQualityLabel}>NO₂:</Text>
                   <Text style={styles.airQualityValue}>
@@ -362,25 +371,6 @@ export default function HomeScreen() {
                   </Text>
                 </View>
                 
-              </View>
-            )}
-            {weather && (
-              <View style={styles.weatherBox}>
-                <Text style={styles.weatherTitle}>
-                  Current Weather in Istanbul
-                </Text>
-                <View style={styles.weatherRow}>
-                  <Text style={styles.weatherLabel}>Temperature:</Text>
-                  <Text style={styles.weatherValue}>
-                    {weather.temperature}°C
-                  </Text>
-                </View>
-                <View style={styles.weatherRow}>
-                  <Text style={styles.weatherLabel}>Humidity:</Text>
-                  <Text style={styles.weatherValue}>
-                    {weather.humidity}%
-                  </Text>
-                </View>
               </View>
             )}
             <ThemedText style={styles.statLine}>
@@ -608,70 +598,9 @@ const styles = StyleSheet.create({
   errorBox: { position: 'absolute', bottom: 20, left: 16, right: 16, backgroundColor: 'red', padding: 12, borderRadius: 4, alignItems: 'center' },
   errorText: { color: '#fff', fontSize: 14, textAlign: 'center' },
 
-  airQualityBox: {
-    backgroundColor: '#e0f7fa',
-    padding: 12,
-    borderRadius: 8,
-    marginTop: -30,
-    marginBottom: 16,
-  },
-  airQualityTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#00796b',
-  },
-  airQualityRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 4,
-  },
-  airQualityLabel: {
-    fontSize: 14,
-    color: '#004d40',
-  },
-  airQualityValue: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#004d40',
-  },
 
-  weatherBox: {
-    backgroundColor: '#f9f6ee',
-    padding: 12,
-    borderRadius: 8,
-    marginTop: 16,
-    marginBottom: 16,
-  },
-  weatherTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#000',  
-  },
-  weatherRow: {
-    flexDirection: 'row',
-    justifyContent:'space-between',
-    marginBottom: 4,
-  },
-  weatherLabel: {
-    fontSize: 14,
-    color: '#000',  
-  },
-  weatherValue: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#000',
-  },
 
-  triviaText: {
-  fontSize: 16,
-  textAlign: 'center',
-  marginTop: 12,
-  fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
-},
-
-  airQualityBox: { backgroundColor: '#e0f7fa', padding: 12, borderRadius: 8, marginTop: -30, marginBottom: 16 },
+  airQualityBox: { backgroundColor: '#B8E2F2', padding: 12, borderRadius: 8, marginTop: -30, marginBottom: 16 },
   airQualityTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 8, color: '#00796b' },
   airQualityRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
   airQualityLabel: { fontSize: 14, color: '#004d40' },
