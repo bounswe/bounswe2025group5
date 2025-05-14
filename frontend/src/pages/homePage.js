@@ -6,6 +6,7 @@ import wallpaper from "../assets/wallpaper2.png";
 import userImage from "../assets/userImage.png";
 import wasteImage from "../assets/wasteImg.png";
 import EnergyStatsCard from "../components/EnergyStatsCard";
+import ForestStatsCard from "../components/ForestStatsCard";
 
 export default function HomePage({ url }) {
   const navigate = useNavigate();
