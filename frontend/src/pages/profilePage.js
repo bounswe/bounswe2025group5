@@ -17,10 +17,15 @@ import PostCard from "../components/PostCard";
 
 export default function ProfilePage({ setIsLoggedIn, username, url }) {
   const navigate = useNavigate();
+  const [viewSaved, setViewSaved] = useState(false);
+  const [viewPosts, setViewPosts] = useState(false);
 
   const [error, setError] = useState(null);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [savedPosts, setSavedPosts] = useState([]);
+  const [savedPostsLoading, setSavedPostsLoading] = useState(true);
+  const [savedPostsError, setSavedPostsError] = useState(null);
 
   const [user, setUser] = useState({ username: "", biography: "", profilePicture: "" });
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -55,9 +60,29 @@ export default function ProfilePage({ setIsLoggedIn, username, url }) {
         setLoading(false);
       }
     };
+
     fetchUser();
   }, [url]);
 
+  const fetchSavedPosts = async () => {
+    setSavedPostsLoading(true);
+    setSavedPostsError(null);
+    const usernameToFetch = localStorage.getItem("username");
+
+    try {
+      const res = await fetch(`${url}/api/posts/getSavedPosts?username=${usernameToFetch}`);
+      const data = await res.json();
+      if (res.ok) {
+        setSavedPosts(data);
+      } else {
+        setSavedPostsError(data.message || "Failed to fetch saved posts.");
+      }
+    } catch {
+      setSavedPostsError("An error occurred while fetching saved posts.");
+    } finally {
+      setSavedPostsLoading(false);
+    }
+  };
   // Fetch posts for this user
   const fetchPosts = async () => {
     setPostsLoading(true);
@@ -81,6 +106,7 @@ export default function ProfilePage({ setIsLoggedIn, username, url }) {
   useEffect(() => {
     if (user.username) {
       fetchPosts();
+      fetchSavedPosts();
       handleBadges();
     }
   }, [user.username]);
@@ -214,24 +240,65 @@ export default function ProfilePage({ setIsLoggedIn, username, url }) {
       )}
 
       {/* Posts Section */}
-      <h3>Posts by {user.username}</h3>
-      <div style={{ maxWidth: '600px', margin: '0 auto' }}>  {/* Container with max-width */}
-        {postsLoading ? (
-          <div className="text-center my-4"><Spinner animation="border" /></div>
-        ) : postsError ? (
-          <Alert variant="warning">{postsError}</Alert>
-        ) : (
-          posts.map(post => (
-            <PostCard
-              key={post.postId}
-              post={post}
-              isLoggedIn={isLoggedIn}
-              onAction={fetchPosts}
-              url={url}
-            />
-          ))
-        )}
+
+      <div className="d-flex justify-content-center mb-4">
+        <Button
+          variant={viewSaved ? "outline-primary" : "primary"}
+          onClick={() => { setViewPosts(true); setViewSaved(false); }}
+          className="me-2"
+        >
+          My Posts
+        </Button>
+        <Button
+          variant={viewSaved ? "primary" : "outline-primary"}
+          onClick={() => {setViewSaved(true) ; setViewPosts(false)}}
+        >
+          Saved Posts
+        </Button>
       </div>
+
+      {viewPosts && (
+        <>
+          <h3>Posts by {user.username}</h3>
+          <div style={{ maxWidth: '600px', margin: '0 auto' }}>  {/* Container with max-width */}
+            {postsLoading ? (
+              <div className="text-center my-4"><Spinner animation="border" /></div>
+            ) : postsError ? (
+              <Alert variant="warning">{postsError}</Alert>
+            ) : (
+              posts.map(post => (
+                <PostCard
+                  key={post.postId}
+                  post={post}
+                  isLoggedIn={isLoggedIn}
+                  onAction={fetchPosts}
+                  url={url}
+                />
+              ))
+            )}
+          </div>
+        </>
+      )}
+
+      {viewSaved && (<>
+      <h3>Saved Posts</h3>
+        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+          {savedPostsLoading ? (
+            <div className="text-center my-4"><Spinner animation="border" /></div>
+          ) : savedPostsError ? (
+            <Alert variant="warning">{savedPostsError}</Alert>
+          ) : (
+            savedPosts.map(post => (
+              <PostCard
+                key={post.postId}
+                post={post}
+                isLoggedIn={isLoggedIn}
+                onAction={fetchSavedPosts}
+                url={url}
+              />
+            ))
+          )}
+        </div></>)}
 
 
       {/* Edit Profile Modal */}
