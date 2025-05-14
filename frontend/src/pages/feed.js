@@ -23,16 +23,16 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
   const fetchPosts = async (query) => {
     // take username from local storage and if its null put empty string
     const username = localStorage.getItem("username") || "";
-    
+
     let endpoint;
-    if(isLoggedIn) {
+    if (isLoggedIn) {
       endpoint = lastPostId
-      ? `${url}/api/posts/info?size=${fetchSize}&lastPostId=${lastPostId}&username=${username}&query=${query}`
-      : `${url}/api/posts/info?size=${fetchSize}&username=${username}&query=${query}`;
-  }else {
+        ? `${url}/api/posts/info?size=${fetchSize}&lastPostId=${lastPostId}&username=${username}&query=${query}`
+        : `${url}/api/posts/info?size=${fetchSize}&username=${username}&query=${query}`;
+    } else {
       endpoint = lastPostId
-      ? `${url}/api/posts/info?size=${fetchSize}&lastPostId=${lastPostId}&query=${query}`
-      : `${url}/api/posts/info?size=${fetchSize}&query=${query}`;
+        ? `${url}/api/posts/info?size=${fetchSize}&lastPostId=${lastPostId}&query=${query}`
+        : `${url}/api/posts/info?size=${fetchSize}&query=${query}`;
     }
     try {
       const response = await fetch(endpoint);
@@ -103,7 +103,27 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
   return (
     <Container style={{ marginTop: "70px" }}>
       <h1 className="my-4">Post Feed</h1>
-
+      {isLoggedIn ? (
+        <div className="text-center">
+          <Button
+            className="btn btn-info"
+            onClick={() => {
+              setShowCreatePost(!showCreatePost);
+            }}
+          >
+            {showCreatePost ? "Cancel" : "Create Post"}
+          </Button>
+        </div>
+      ) : <Button
+        className="btn btn-info"
+        onClick={() => {
+          setIsLoggedIn(false);
+          navigate("/");
+        }}
+      >
+        Home
+      </Button>
+      }
       {/* Search bar */}
       <div style={{ maxWidth: "500px", margin: "0 auto" }}>
         <SearchBar onSearchResults={handleSearchResults} />
