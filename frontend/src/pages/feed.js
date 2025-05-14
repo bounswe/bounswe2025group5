@@ -17,28 +17,35 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [searchResults, setSearchResults] = useState([]);  // State to hold search results
   const [isSearchActive, setIsSearchActive] = useState(false);  // To track whether search results are active
+  const [loadingMore, setLoadingMore] = useState(false);
   const fetchSize = 10;
 
   // Function to fetch posts (with or without search query)
   const fetchPosts = async (query) => {
+    setLoading(true);
     // take username from local storage and if its null put empty string
     const username = localStorage.getItem("username") || "";
 
     let endpoint;
-    console.log(isLoggedIn);
     if (username) {
-      endpoint = lastPostId
-        ? `${url}/api/posts/info?size=${fetchSize}&lastPostId=${lastPostId}&username=${username}&query=${query}`
-        : `${url}/api/posts/info?size=${fetchSize}&username=${username}&query=${query}`;
+      if (loadingMore) {
+        endpoint = `${url}/api/posts/info?size=${fetchSize}&lastPostId=${lastPostId}&username=${username}&query=${query}`;
+      } else {
+        endpoint = `${url}/api/posts/info?size=${fetchSize}&username=${username}&query=${query}`;
+      }
     } else {
-      endpoint = lastPostId
-        ? `${url}/api/posts/info?size=${fetchSize}&lastPostId=${lastPostId}&query=${query}`
-        : `${url}/api/posts/info?size=${fetchSize}&query=${query}`;
+      if (loadingMore) {
+        endpoint = `${url}/api/posts/info?size=${fetchSize}&lastPostId=${lastPostId}&query=${query}`;
+      } else {
+        endpoint = `${url}/api/posts/info?size=${fetchSize}&query=${query}`;
+      }
     }
+    setLoadingMore(false);
     try {
       const response = await fetch(endpoint);
       const data = await response.json();
-
+      console.log("Fetched posts:", data);
+      console.log("response:", response);
       if (response.ok) {
         if (data.length > 0) {
           setPosts((prev) => {
@@ -63,7 +70,6 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
       setLoading(false);
     }
   };
-
   // Search handler that updates the posts based on search query
   const handleSearchResults = (results) => {
     if (results && results.length > 0) {
@@ -76,13 +82,13 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
       setHasMorePosts(true); // Re-enable "load more" for regular posts
     }
   };
-
   // Initial fetch on page load
   useEffect(() => {
     fetchPosts();
   }, []);
 
   const handleLoadMore = () => {
+    setLoadingMore(true);
     fetchPosts();
   };
 
@@ -106,7 +112,7 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
       <h1 className="my-4">Post Feed</h1>
       {/* Search bar */}
       <div style={{ maxWidth: "500px", margin: "0 auto" }}>
-        <SearchBar onSearchResults={handleSearchResults} />
+        <SearchBar onSearchResults={handleSearchResults} url={url} />
       </div>
 
       {/* Back to feed button when search is active */}

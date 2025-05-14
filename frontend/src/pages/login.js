@@ -27,7 +27,6 @@ function Login({ isLoggedIn, setIsLoggedIn, url }) {
         localStorage.setItem('isAdmin', data.isAdmin);
         localStorage.setItem('isModerator', data.isModerator);
         setIsLoggedIn(true);
-        console.log("login successful here is isLoggedIn:", isLoggedIn);
       } else {
         setError(data.message || 'Login failed');
         setIsLoggedIn(false);
