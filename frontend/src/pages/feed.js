@@ -25,7 +25,8 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
     const username = localStorage.getItem("username") || "";
 
     let endpoint;
-    if (isLoggedIn) {
+    console.log(isLoggedIn);
+    if (username) {
       endpoint = lastPostId
         ? `${url}/api/posts/info?size=${fetchSize}&lastPostId=${lastPostId}&username=${username}&query=${query}`
         : `${url}/api/posts/info?size=${fetchSize}&username=${username}&query=${query}`;

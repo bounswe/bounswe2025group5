@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Button, InputGroup, Spinner, Alert } from 'react-bootstrap';
 
-const SearchBar = ({ onSearchResults }) => {
+const SearchBar = ({ onSearchResults , url}) => {
   const [query, setQuery] = useState('');
   const [language, setLanguage] = useState('en');
   const [loading, setLoading] = useState(false);
@@ -15,7 +15,7 @@ const SearchBar = ({ onSearchResults }) => {
     setError('');
 
     try {
-      const response = await fetch(`/api/search/posts/semantic?query=${query}&username=${username}&lang=${language}`);
+      const response = await fetch(`${url}/api/search/posts/semantic?query=${query}&username=${username}&lang=${language}`);
       if (!response.ok) {
         throw new Error('Search failed');
       }

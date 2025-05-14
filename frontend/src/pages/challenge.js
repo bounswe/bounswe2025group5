@@ -48,7 +48,7 @@ export default function Challenge({ url }) {
 
   return (
     <div className="p-3" style={{ marginTop : '35px' }}>
-      {isAdmin && (
+      {!isAdmin && (
         <>
           <Button variant="success" className="mb-3" onClick={handleOpenCreate}>
             New Challenge
