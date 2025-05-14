@@ -23,7 +23,7 @@ const EnergyStatsCard = ({ url }) => {
   useEffect(() => {
     const fetchStat = async () => {
       try {
-        const res = await fetch(`${url}/api/energy/${countryCode}`);
+        const res = await fetch(`${url}/api/home/energy/${countryCode}`);
         const data = await res.json();
 
         if (data && data.length > 0) {
