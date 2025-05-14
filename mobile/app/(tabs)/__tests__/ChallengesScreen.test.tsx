@@ -71,8 +71,8 @@ const createMockAuthContext = (
     username: string = 'testuser',
     user_id: string = '123'
 ): AuthContextType => ({
-    userType, username, user_id,
-    setUserType: jest.fn(), setUsername: jest.fn(), setUserId: jest.fn(),
+    userType, username,
+    setUserType: jest.fn(), setUsername: jest.fn(),
 });
 
 // Render Helper

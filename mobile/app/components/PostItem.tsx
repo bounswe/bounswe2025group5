@@ -136,7 +136,7 @@ function PostItem({
     const canPostComment = userType !== 'guest' && loggedInUsername && !editingCommentDetailsForPost; // Disable new comment if editing one in this post
   
     return (
-      <View style={[styles.postContainer, { backgroundColor: cardBackgroundColor }]}>
+      <View testID={`post-${post.id}`} style={[styles.postContainer, { backgroundColor: cardBackgroundColor }]}>
         {/* ... Post title, image, content, footer (likes/comment count) ... no changes here */}
         <ThemedText type="title" style={styles.postTitle}>
           {post.title}
@@ -157,8 +157,9 @@ function PostItem({
         </ThemedText>
   
         <View style={styles.postFooter}>
-          <TouchableOpacity onPress={handleLike} style={styles.footerAction}>
+          <TouchableOpacity testID="like-toggle" onPress={handleLike} style={styles.footerAction}>
             <Ionicons
+              testID={`icon-${post.likedByUser ? 'heart' : 'heart-outline'}`}
               name={post.likedByUser ? "heart" : "heart-outline"}
               size={20}
               color={post.likedByUser ? 'red' : iconColor}
@@ -175,8 +176,9 @@ function PostItem({
             </ThemedText>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={handleSave} style={[styles.footerAction, { marginLeft: 246 }]}>
+          <TouchableOpacity testID="save-toggle" onPress={handleSave} style={[styles.footerAction, { marginLeft: 246 }]}>
             <Ionicons
+              testID={`icon-${post.savedByUser ? 'bookmark' : 'bookmark-outline'}`}
               name={post.savedByUser ? "bookmark" : "bookmark-outline"}
               size={20}
               color={post.savedByUser ? '#FFC107' : iconColor}
