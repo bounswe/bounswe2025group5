@@ -3,6 +3,8 @@ package com.example.CMPE352.controller;
 
 import com.example.CMPE352.model.response.AirQualityResponse;
 import com.example.CMPE352.service.AirQualityService;
+import com.example.CMPE352.model.response.CurrentWeatherDataResponse;
+import com.example.CMPE352.service.CurrentWeatherService;
 import com.example.CMPE352.model.response.NumberTriviaResponse;
 import com.example.CMPE352.service.MotivationService;
 import com.example.CMPE352.service.NumberService;
@@ -20,6 +22,14 @@ public class HomePageController {
     private final MotivationService motivationService;
     private final AirQualityService airQualityService;
     private final NumberService numberService;
+    private final CurrentWeatherService currentWeatherService;
+
+
+    @GetMapping("/getCurrentWeather")
+    public ResponseEntity<CurrentWeatherDataResponse> getCurrentWeather() {
+        CurrentWeatherDataResponse weatherData = currentWeatherService.getCurrentWeather();
+        return ResponseEntity.ok(weatherData);
+    }
 
     @GetMapping("/getMotivated")
     public ResponseEntity<MotivationalQuoteResponse> getMotivationalQuote() {
