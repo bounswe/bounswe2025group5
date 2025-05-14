@@ -1,18 +1,15 @@
 package com.example.CMPE352.controller;
 
 
-import com.example.CMPE352.model.response.EnergyStatResponse;
-import com.example.CMPE352.service.EnergyStatsService;
+import com.example.CMPE352.model.response.AirQualityResponse;
+import com.example.CMPE352.service.AirQualityService;
+import com.example.CMPE352.model.response.NumberTriviaResponse;
 import com.example.CMPE352.service.MotivationService;
+import com.example.CMPE352.service.NumberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.CMPE352.model.response.MotivationalQuoteResponse;
-import com.example.CMPE352.service.NumberService;
-import com.example.CMPE352.model.response.AirQualityResponse;
-import com.example.CMPE352.service.AirQualityService;
-import com.example.CMPE352.model.response.NumberTriviaResponse;
-import java.util.List;
 
 
 @RestController
@@ -23,7 +20,6 @@ public class HomePageController {
     private final MotivationService motivationService;
     private final AirQualityService airQualityService;
     private final NumberService numberService;
-    private final EnergyStatsService energyStatsService;
 
     @GetMapping("/getMotivated")
     public ResponseEntity<MotivationalQuoteResponse> getMotivationalQuote() {
@@ -35,13 +31,14 @@ public class HomePageController {
         NumberTriviaResponse trivia = numberService.fetchNumberTrivia(number);
         return ResponseEntity.ok(trivia);
     }
+
+
+
+
+
     @GetMapping("/getAirQuality")
     public AirQualityResponse getAirQuality(@RequestParam String location) {
         return airQualityService.getAirQualityData(location);
-    }
-    @GetMapping("/energy/{countryCode}")
-    public List<EnergyStatResponse> getEnergyStats(@PathVariable String countryCode) {
-        return energyStatsService.fetchEnergyStats(countryCode);
     }
 
 }

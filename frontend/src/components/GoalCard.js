@@ -34,17 +34,17 @@ export default function GoalCard({ username, goal, onDelete, onEdit, onToggleCom
         <h5 className="mb-0 text-capitalize">{goal.wasteType}</h5>
         <div>
           <Button size="sm" variant="success" onClick={()=>setShowLogModal(true)}>Add Log</Button>{' '}
-          <Button size="sm" variant="primary" onClick={()=>onEdit(goal.goalId, goal)}>Edit</Button>{' '}
+          <Button size="sm" variant="primary" onClick={()=>onEdit(goal)}>Edit</Button>{' '}
           <Button size="sm" variant="danger" onClick={()=>onDelete(goal.goalId)}>Delete</Button>
         </div>
       </Card.Header>
 
       <Card.Body>
-        <p className="mb-1"><strong>Target:</strong> {goal.amount} {goal.unit} in {goal.duration} days</p>
-        <ProgressBar now={progress} variant="warning" className="mb-2" />
+        <p className="mb-1"><strong>Limit:</strong> {goal.amount} {goal.unit} in {goal.duration} days</p>
+        <ProgressBar now={goal.progress} variant={goal.progress<40? "success": goal.progress<75 ? "warning" : "danger"} className="mb-2" />
         <div className="d-flex justify-content-between small text-muted">
-          <span>Remaining: {(goal.amount)} {goal.unit}</span>
-          <span>Waste Load: {goal.progress}%</span>
+          <span>Remaining: {goal.amount - (goal.progress * goal.amount / 100)} {goal.unit}</span>
+          <span>Waste Load: {Math.round(goal.progress)}%</span>
         </div>
       </Card.Body>
 
