@@ -20,12 +20,20 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
   const fetchSize = 10;
 
   // Function to fetch posts (with or without search query)
-  const fetchPosts = async (query = "") => {
-    const username = localStorage.getItem("username");
-    const endpoint = lastPostId
+  const fetchPosts = async (query) => {
+    // take username from local storage and if its null put empty string
+    const username = localStorage.getItem("username") || "";
+    
+    let endpoint;
+    if(isLoggedIn) {
+      endpoint = lastPostId
       ? `${url}/api/posts/info?size=${fetchSize}&lastPostId=${lastPostId}&username=${username}&query=${query}`
       : `${url}/api/posts/info?size=${fetchSize}&username=${username}&query=${query}`;
-
+  }else {
+      endpoint = lastPostId
+      ? `${url}/api/posts/info?size=${fetchSize}&lastPostId=${lastPostId}&query=${query}`
+      : `${url}/api/posts/info?size=${fetchSize}&query=${query}`;
+    }
     try {
       const response = await fetch(endpoint);
       const data = await response.json();
