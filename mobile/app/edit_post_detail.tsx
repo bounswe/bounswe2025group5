@@ -19,7 +19,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker'; // Import expo-image-picker
 import { Ionicons } from '@expo/vector-icons'; // For the attachment icon
 
-const HOST = '162.35.42.102';
+const HOST = '161.35.42.102';
 const API_BASE = `http://${HOST}:8080`;
 
 type EditPostDetailRouteParams = {

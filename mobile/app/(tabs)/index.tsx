@@ -34,7 +34,7 @@ type Weather = {
 }
 
 
-const HOST = '162.35.42.102';
+const HOST = '161.35.42.102';
 const API_BASE = `http://${HOST}:8080/api/auth`;
 
 const KG_SAVED     = 57492;

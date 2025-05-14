@@ -18,7 +18,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from './_layout'; 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const HOST = '162.35.42.102';
+const HOST = '161.35.42.102';
 const API_BASE = `http://${HOST}:8080`;
 
 type PostData = {
