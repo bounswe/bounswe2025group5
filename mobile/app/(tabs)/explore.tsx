@@ -20,7 +20,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
 import PostItem from '../components/PostItem';
 
-const HOST = Platform.select({ android: '10.0.2.2', ios: 'localhost', web: 'localhost' });
+const HOST = '162.35.42.102';
 const API_BASE = `http://${HOST}:8080`;
 
 type CommentData = {

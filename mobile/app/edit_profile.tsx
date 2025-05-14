@@ -19,7 +19,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const HOST = Platform.select({ android: '10.0.2.2', ios: 'localhost' , web: 'localhost' });
+const HOST = '162.35.42.102';
 const API_BASE = `http://${HOST}:8080`;
 
 export const unstable_settings = {
