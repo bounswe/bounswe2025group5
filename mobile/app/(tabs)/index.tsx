@@ -28,6 +28,11 @@ type AirQuality = {
   ozone: number;
 };
 
+type Weather = {
+  temperature: number;
+  humidity: number;
+}
+
 
 const HOST = Platform.select({ android: '10.0.2.2', ios: 'localhost' , web: 'localhost' });
 const API_BASE = `http://${HOST}:8080/api/auth`;
@@ -67,6 +72,7 @@ export default function HomeScreen() {
   const [loggedIn, setLoggedIn]             = useState(false);
   const [errorVisible, setErrorVisible]     = useState(false);
   const [errorMessage, setErrorMessage]     = useState('');
+  const [weather, setWeather]               = useState<Weather | null>(null);
   const [airQuality, setAirQuality] = useState<AirQuality | null>(null);
   const [usersCount, setUsersCount] = useState<number>(0);
   const [numberTrivia, setNumberTrivia] = useState<string | null>(null);
@@ -171,6 +177,24 @@ export default function HomeScreen() {
         }
       };
       fetchAQ();
+    }, []);
+
+    // ─── fetch weather once on mount ────────────────────────────────────────────
+    useEffect(() => {
+      const fetchWeather = async () => {
+        try {
+          const res = await fetch(
+            `http://${HOST}:8080/api/home/getCurrentWeather`
+          );
+          if (!res.ok) throw new Error('Failed to fetch weather');
+          const data = (await res.json()) as Weather;
+          setWeather(data); 
+        }
+        catch (err) {
+          console.warn('Error fetching weather', err);
+        }
+      };
+      fetchWeather();
     }, []);
 
   useFocusEffect(
@@ -346,6 +370,25 @@ export default function HomeScreen() {
                   <Text style={styles.airQualityLabel}>O₃:</Text>
                   <Text style={styles.airQualityValue}>
                     {airQuality.ozone}
+                  </Text>
+                </View>
+              </View>
+            )}
+            {weather && (
+              <View style={styles.weatherBox}>
+                <Text style={styles.weatherTitle}>
+                  Current Weather in Istanbul
+                </Text>
+                <View style={styles.weatherRow}>
+                  <Text style={styles.weatherLabel}>Temperature:</Text>
+                  <Text style={styles.weatherValue}>
+                    {weather.temperature}°C
+                  </Text>
+                </View>
+                <View style={styles.weatherRow}>
+                  <Text style={styles.weatherLabel}>Humidity:</Text>
+                  <Text style={styles.weatherValue}>
+                    {weather.humidity}%
                   </Text>
                 </View>
               </View>
@@ -692,6 +735,35 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#004d40',
   },
+
+  weatherBox: {
+    backgroundColor: '#f9f6ee',
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 16,
+    marginBottom: 16,
+  },
+  weatherTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#000',  
+  },
+  weatherRow: {
+    flexDirection: 'row',
+    justifyContent:'space-between',
+    marginBottom: 4,
+  },
+  weatherLabel: {
+    fontSize: 14,
+    color: '#000',  
+  },
+  weatherValue: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+
   triviaText: {
   fontSize: 16,
   textAlign: 'center',
