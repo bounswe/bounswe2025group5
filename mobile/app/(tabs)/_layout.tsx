@@ -1,10 +1,9 @@
-// app/(tabs)/_layout.tsx
 import { Tabs } from 'expo-router';
 import React, { useContext } from 'react';
 import { Platform } from 'react-native';
+import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -12,12 +11,15 @@ import { AuthContext } from '../_layout';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const { userType } = useContext(AuthContext);
+  const { username, userType } = useContext(AuthContext);
+
+  const iconSize = 28;
+  const tint = Colors[colorScheme ?? 'light'].tint;
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: tint,
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
@@ -36,9 +38,11 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="home" size={iconSize} color={color} />
+          ),
           tabBarItemStyle: {
-            display: userType === 'user' ? 'none' : 'flex'
+            display: userType === 'user' ? 'none' : 'flex',
           },
         }}
       />
@@ -46,16 +50,24 @@ export default function TabLayout() {
         name="explore"
         options={{
           title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="send" size={iconSize} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="wastegoal"
         options={{
           title: 'Goals',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="target" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons
+              name="target"
+              size={iconSize}
+              color={color}
+            />
+          ),
           tabBarItemStyle: {
-            display: userType === 'user' ? 'flex' : 'none'
+            display: userType === 'user' ? 'flex' : 'none',
           },
         }}
       />
@@ -63,14 +75,22 @@ export default function TabLayout() {
         name="challenges"
         options={{
           title: 'Challenges',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="flag" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons
+              name="flag"
+              size={iconSize}
+              color={color}
+            />
+          ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="person" size={iconSize} color={color} />
+          ),
         }}
       />
     </Tabs>
