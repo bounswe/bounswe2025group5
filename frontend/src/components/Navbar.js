@@ -3,10 +3,9 @@ import { Link } from 'react-router-dom';
 import LogoutButton from './LogoutButton.js';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 import Nav from 'react-bootstrap/Nav';
-
-
-export default function Navbar({ setIsLoggedIn }) {
+export default function Navbar({setIsLoggedIn }) {
     const navigate = useNavigate(); // Hook to programmatically navigate
+
     return (
         <Nav variant="pills" style={styles.navbar}>
             <ul style={styles.navList}>
@@ -27,23 +26,7 @@ export default function Navbar({ setIsLoggedIn }) {
                 </li>
                 <li style={styles.navItem}>
                     <Nav.Link as="span" style={{ ...styles.navLink, marginTop: '-7px'}}>
-                                        <button
-                    onClick={() => navigate('/')}
-                    style={{
-                        padding: '8px 20px',
-                        backgroundColor: 'rgb(214, 126, 25)', // Red color for the button
-                        color: 'white', // White text color
-                        border: 'none', // No border
-                        borderRadius: '5px', // Rounded corners
-                        cursor: 'pointer', // Pointer on hover
-                        fontSize: '16px', // Font size
-                        transition: 'background-color 0.3s', // Smooth color transition on hover
-                    }}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgb(172, 104, 26)'} // Darker red on hover
-                    onMouseLeave={(e) => e.target.style.backgroundColor = 'rgb(214, 126, 25)'} // Reset to original color
-                >
-                    Logout
-                </button>
+                        <LogoutButton onLogout={() => navigate('/')} setIsLoggedIn={setIsLoggedIn} />
                     </Nav.Link>
                 </li>
             </ul>

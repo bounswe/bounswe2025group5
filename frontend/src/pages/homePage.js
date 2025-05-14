@@ -140,6 +140,7 @@ export default function HomePage({ url }) {
           <div className="d-flex justify-content-center gap-3">
             <Button onClick={() => navigate('/login')}>Login</Button>
             <Button onClick={() => navigate('/register')}>Register</Button>
+            <Button onClick={() => navigate('/feed')}>Feed</Button>
           </div>
         </Carousel.Caption>
       </Carousel.Item>
