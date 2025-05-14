@@ -22,7 +22,6 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
 
   // Function to fetch posts (with or without search query)
   const fetchPosts = async (query) => {
-    setLoading(true);
     // take username from local storage and if its null put empty string
     const username = localStorage.getItem("username") || "";
 
@@ -44,8 +43,6 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
     try {
       const response = await fetch(endpoint);
       const data = await response.json();
-      console.log("Fetched posts:", data);
-      console.log("response:", response);
       if (response.ok) {
         if (data.length > 0) {
           setPosts((prev) => {
@@ -82,8 +79,20 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
       setHasMorePosts(true); // Re-enable "load more" for regular posts
     }
   };
+  const handleDelete = (postId) => {
+    setPosts((prev) => prev.filter((post) => post.postId !== postId));
+  }
+  const handleEdit = (newPost) => {
+    setPosts((prev) => prev.map((p) => (p.postId === newPost.postId ? newPost : p)));
+  }
+  const handleCreate = (newPost) => {
+    // Add the new post to the beginning of the posts array
+    setPosts((prev) => [newPost, ...prev]);
+  };
+
   // Initial fetch on page load
   useEffect(() => {
+    setLoading(true);
     fetchPosts();
   }, []);
 
@@ -132,28 +141,23 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
               setShowCreatePost(!showCreatePost);
             }}
           >
-            {showCreatePost ? "Cancel" : "Create Post"}
+            {showCreatePost ? <i className="bi bi-chevron-up"></i> : "Create Post"}
           </Button>
         </div>
-      ) : <Button
-        className="btn btn-info"
-        onClick={() => {
-          setIsLoggedIn(false);
-          navigate("/");
-        }}
-      >
-        Home
-      </Button>
+      )
+        : <Button
+          className="btn btn-info"
+          onClick={() => {
+            setIsLoggedIn(false);
+            navigate("/");
+          }}
+        >
+          Home
+        </Button>
       }
       {isLoggedIn && showCreatePost && (
         <CreatePostButton
-          onPostCreated={() => {
-            setPosts([]);
-            setLastPostId(null);
-            setHasMorePosts(true);
-            setLoading(true);
-            fetchPosts();
-          }}
+          onPostCreated={handleCreate}
           url={url}
         />
       )}
@@ -175,7 +179,7 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
           posts.length > 0 ? (
             posts.map((post) => (
               <Col key={post.postId} xs={12} md={6} lg={6}>
-                <PostCard post={post} isLoggedIn={isLoggedIn} onAction={fetchPosts} url={url} />
+                <PostCard post={post} isLoggedIn={isLoggedIn} onEdit={handleEdit} onDelete={handleDelete} url={url} />
               </Col>
             ))
           ) : (

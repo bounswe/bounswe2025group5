@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function SaveButton({ postId, onSave, saved, url }) {
+function SaveButton({ postId, saved, url }) {
     const [savedState, setSaved] = useState(saved); // Initialize saved state
     const [error, setError] = useState(null);
     const username = localStorage.getItem("username"); // Get the username from local storage
@@ -20,7 +20,6 @@ function SaveButton({ postId, onSave, saved, url }) {
                 });
 
                 if (response.ok) {
-                    //onSave(); // Call the onSave function to refresh the posts
                 }
                 else {
                     setSaved(true); // Update the saved state to false

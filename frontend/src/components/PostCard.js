@@ -8,7 +8,7 @@ import DeletePost from "./DeletePost.js";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
-function PostCard({ post, isLoggedIn, onAction, url }) {
+function PostCard({ post, isLoggedIn, onEdit, onDelete, url }) {
   const [comments, setComments] = useState(post.comments || []);
   const isOwner = isLoggedIn && post.creatorUsername === localStorage.getItem("username");
   const location = useLocation();
@@ -49,14 +49,12 @@ function PostCard({ post, isLoggedIn, onAction, url }) {
             <div className="d-flex gap-2">
               <LikeButton
                 postId={post.postId}
-                onLike={onAction}
                 liked={post.liked}
                 likes={post.likes}
                 url={url}
               />
               <SaveButton
                 postId={post.postId}
-                onSave={onAction}
                 saved={post.saved}
                 url={url}
               />
@@ -65,8 +63,8 @@ function PostCard({ post, isLoggedIn, onAction, url }) {
 
           {isOwner && (
             <div className="d-flex gap-2">
-              <EditPostButton post={post} onPostUpdated={onAction} url={url} />
-              <DeletePost postId={post.postId} onDelete={onAction} url={url} />
+              <EditPostButton post={post} onPostUpdated={onEdit} url={url} />
+              <DeletePost postId={post.postId} onDelete={onDelete} url={url} />
             </div>
           )}
         </div>
