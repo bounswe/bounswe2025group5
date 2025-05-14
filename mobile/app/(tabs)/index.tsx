@@ -55,6 +55,17 @@ type TrendingPost = {
 
 
 
+// Add this function before your HomeScreen component
+const getWeatherEmoji = (temperature: number): string => {
+  if (temperature > 25) return '☀️'; // Hot/sunny
+  if (temperature > 20) return '🌤️'; // Warm/partly cloudy
+  if (temperature > 15) return '⛅'; // Mild/cloudy
+  if (temperature > 10) return '🌥️'; // Cool/mostly cloudy
+  if (temperature > 5) return '☁️';  // Cold/cloudy
+  if (temperature <= 5) return '❄️';  // Freezing
+  return '🌡️'; // Default
+};
+
 export default function HomeScreen() {
   const navigation = useNavigation<Navigation>();
   const route     = useRoute<any>();
@@ -318,6 +329,18 @@ export default function HomeScreen() {
   };
 
   return (
+    <>
+    {weather && (
+      <View style={styles.weatherEmojiContainer}>
+        <Text style={styles.weatherEmoji}>
+          {getWeatherEmoji(weather.temperature)}
+        </Text>
+        <Text style={styles.weatherTemp}>
+          {weather.temperature}°C
+        </Text>
+      </View>
+    )}
+
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#FFFFFF', dark: '#000000' }}
       headerImage={
@@ -331,16 +354,12 @@ export default function HomeScreen() {
       {!showAuthFields && (
         <>
           <View style={styles.statsContainer}>
-            {airQuality && weather && (
+            {airQuality && (
               <View style={styles.airQualityBox}>
                 <Text style={styles.airQualityTitle}>
-                  Weather and Air Quality in Istanbul
+                  Air Quality in Istanbul
                 </Text>
                 <View style={styles.airQualityRow}>
-                  <Text style={styles.airQualityLabel}>temp:</Text>
-                  <Text style={styles.airQualityValue}>
-                    {weather.temperature}°C
-                  </Text>
                   <Text style={styles.airQualityLabel}>PM10:</Text>
                   <Text style={styles.airQualityValue}>
                     {airQuality.pm10}
@@ -352,10 +371,6 @@ export default function HomeScreen() {
                   
                 </View>
                 <View style={styles.airQualityRow}>
-                  <Text style={styles.airQualityLabel}>hum:</Text>
-                  <Text style={styles.airQualityValue}>
-                    {weather.humidity}%
-                  </Text>
                   <Text style={styles.airQualityLabel}>PM2.5:</Text>
                   <Text style={styles.airQualityValue}>
                     {airQuality.pm25}
@@ -562,6 +577,7 @@ export default function HomeScreen() {
         </View>
       )}
     </ParallaxScrollView>
+    </>
   );
 }
 
@@ -601,4 +617,32 @@ const styles = StyleSheet.create({
   airQualityLabel: { fontSize: 14, color: '#004d40' },
   airQualityValue: { fontSize: 14, fontWeight: 'bold', color: '#004d40' },
   triviaText: { fontSize: 14, textAlign: 'center', marginTop:-15, fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' },
+  weatherEmojiContainer: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    zIndex: 999,
+    backgroundColor: '#B8E2F2',
+    borderRadius: 25,
+    width: 60,
+    height: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 5,
+    flexDirection: 'column',
+    paddingVertical: 5,
+  },
+  weatherEmoji: {
+    fontSize: 30,
+    marginBottom: 2,
+  },
+  weatherTemp: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#000',
+  },
 });
