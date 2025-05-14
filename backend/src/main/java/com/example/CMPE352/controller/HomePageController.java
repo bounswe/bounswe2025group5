@@ -6,6 +6,7 @@ import com.example.CMPE352.service.AirQualityService;
 import com.example.CMPE352.model.response.NumberTriviaResponse;
 import com.example.CMPE352.service.MotivationService;
 import com.example.CMPE352.service.NumberService;
+import com.example.CMPE352.service.ForestStatsService;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -45,6 +46,11 @@ public class HomePageController {
     @GetMapping("/getAirQuality")
     public AirQualityResponse getAirQuality(@RequestParam String location) {
         return airQualityService.getAirQualityData(location);
+    }
+    @GetMapping("/forestReduction")
+    public ResponseEntity<Double> getForestReduction() {
+        double reduction = forestStatsService.getForestReductionOnly();
+        return ResponseEntity.ok(reduction);
     }
 
 }
