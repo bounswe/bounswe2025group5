@@ -13,7 +13,7 @@ import {
 import { ThemedText } from '@/components/ThemedText';
 import { AuthContext } from '../_layout';
 
-const HOST = Platform.select({ android: '10.0.2.2', ios: 'localhost' , web: 'localhost' });
+const HOST = '162.35.42.102';
 const API_BASE = `http://${HOST}:8080`;
 const ADMIN_TYPE_PLACEHOLDER = 'admin';
 

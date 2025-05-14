@@ -2,11 +2,9 @@ package com.example.CMPE352.controller;
 
 import com.example.CMPE352.model.response.AirQualityResponse;
 import com.example.CMPE352.model.response.EnergyStatResponse;
-import com.example.CMPE352.service.AirQualityService;
+import com.example.CMPE352.service.*;
+import com.example.CMPE352.model.response.CurrentWeatherDataResponse;
 import com.example.CMPE352.model.response.NumberTriviaResponse;
-import com.example.CMPE352.service.MotivationService;
-import com.example.CMPE352.service.NumberService;
-import com.example.CMPE352.service.ForestStatsService;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -24,6 +22,7 @@ public class HomePageController {
     private final MotivationService motivationService;
     private final AirQualityService airQualityService;
     private final NumberService numberService;
+    private final CurrentWeatherService currentWeatherService;
     private final EnergyStatsService energyStatsService;
     private final ForestStatsService forestStatsService;
 
