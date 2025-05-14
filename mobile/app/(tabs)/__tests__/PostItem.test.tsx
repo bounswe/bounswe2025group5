@@ -22,6 +22,7 @@ type Post = {
     comments: number;
     photoUrl: string | null;
     likedByUser: boolean;
+    savedByUser: boolean;
   };
 
 
@@ -57,6 +58,10 @@ jest.mock('react-native/Libraries/Image/Image', () => 'Image');
 
 jest.spyOn(Alert, 'alert');
 
+// before you render <HomeScreen />
+// Mock WeatherService definition
+  
+
 const createMockPost = (overrides: Partial<Post> = {}): Post => ({
   id: 1,
   title: 'Test User',
@@ -65,6 +70,7 @@ const createMockPost = (overrides: Partial<Post> = {}): Post => ({
   comments: 2,
   photoUrl: null,
   likedByUser: false,
+  savedByUser: false,
   ...overrides,
 });
 
@@ -96,6 +102,7 @@ const createMockProps = (overrides: Partial<any> = {}) => {
     onEditCommentContentChange: jest.fn(),
     onSaveEditedCommentForPost: jest.fn(),
     onCancelCommentEdit: jest.fn(),
+    onSavePress: jest.fn(), // Add mock implementation for onSavePress
     isSubmittingCommentEditForPost: false,
     ...overrides,
   };

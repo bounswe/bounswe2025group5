@@ -75,7 +75,6 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
   });
   jest.mock('react-native/Libraries/Image/Image', () => 'Image');
   
-  
   // Smarter Fetch API Mock
   global.fetch = jest.fn((url: string | URL | Request) => {
       // console.log(`FETCH MOCK CALLED WITH URL: ${url}`);
@@ -92,6 +91,12 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
               ok: true, status: 200, json: () => Promise.resolve([]),
           });
       }
+      if (urlString.includes('/api/home/getCurrentWeather')) {
+            // console.log('FETCH MOCK: Returning trending posts response');
+            return Promise.resolve({
+                ok: true, status: 200, json: () => Promise.resolve({temperature: 20.0}),
+            });
+        }
       // console.log('FETCH MOCK: Returning default empty response for URL:', urlString);
       return Promise.resolve({
           ok: true, status: 200, json: () => Promise.resolve({}),

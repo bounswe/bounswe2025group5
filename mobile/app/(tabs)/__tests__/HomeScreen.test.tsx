@@ -78,6 +78,12 @@ global.fetch = jest.fn((url: string | URL | Request) => {
       json: () => Promise.resolve([]),
     });
   }
+  if (u.includes('/api/home/getCurrentWeather')) {
+    // console.log('FETCH MOCK: Returning trending posts response');
+    return Promise.resolve({
+        ok: true, status: 200, json: () => Promise.resolve({temperature: 20.0}),
+    });
+}
   return Promise.resolve({
     ok: true,
     status: 200,
@@ -153,7 +159,7 @@ describe('<HomeScreen /> – full flow', () => {
     const setUsername = jest.fn();
     render(
       <AuthContext.Provider value={{
-        userType: null, username: '', setUserType, setUsername, setUserId: jest.fn(),
+        userType: null, username: '', setUserType, setUsername
       }}>
         <HomeScreen />
       </AuthContext.Provider>
