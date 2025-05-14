@@ -9,7 +9,7 @@ function Login({ isLoggedIn, setIsLoggedIn, url }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isLoggedIn) navigate('/feed');
+    if (isLoggedIn) navigate('/main');
   }, [isLoggedIn, navigate]);
 
   const handleSubmit = async () => {
@@ -27,6 +27,7 @@ function Login({ isLoggedIn, setIsLoggedIn, url }) {
         localStorage.setItem('isAdmin', data.isAdmin);
         localStorage.setItem('isModerator', data.isModerator);
         setIsLoggedIn(true);
+        console.log("login successful here is isLoggedIn:", isLoggedIn);
       } else {
         setError(data.message || 'Login failed');
         setIsLoggedIn(false);

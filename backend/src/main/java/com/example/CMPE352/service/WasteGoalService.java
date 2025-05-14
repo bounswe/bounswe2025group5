@@ -5,6 +5,7 @@ import com.example.CMPE352.model.response.CreateWasteGoalResponse;
 import com.example.CMPE352.model.response.GetWasteGoalResponse;
 import com.example.CMPE352.repository.UserRepository;
 import com.example.CMPE352.exception.AccessDeniedException;
+import com.example.CMPE352.repository.WasteLogRepository;
 import jakarta.persistence.Transient;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.transaction.Transactional;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 public class WasteGoalService {
 
     private final WasteGoalRepository wasteGoalRepository;
+
     private final UserRepository userRepository;
 
 
@@ -67,10 +69,24 @@ public class WasteGoalService {
         WasteGoal existingGoal = wasteGoalRepository.findById(goalId)
                 .orElseThrow(() -> new NotFoundException("Goal not found: " + goalId));
 
+        double oldAmount = existingGoal.getAmount();
+        double oldProgress = existingGoal.getPercentOfProgress();
+        double newAmount = editGoalRequest.getAmount();
+
         existingGoal.setDuration(editGoalRequest.getDuration());
         existingGoal.setUnit(editGoalRequest.getUnit());
         existingGoal.setWasteType(editGoalRequest.getWasteType());
-        existingGoal.setAmount(editGoalRequest.getAmount());
+        existingGoal.setAmount(newAmount);
+
+        double newProgress = 0.0;
+        if (newAmount > 0 && oldAmount > 0) {
+            newProgress = oldProgress * (oldAmount / newAmount);
+        }
+
+        newProgress = Math.min(newProgress, 100.0);
+
+        existingGoal.setPercentOfProgress(newProgress);
+        existingGoal.setCompleted(newProgress >= 100.0 ? 1 : 0);
 
         wasteGoalRepository.saveAndFlush(existingGoal);
 

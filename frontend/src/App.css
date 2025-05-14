@@ -25,7 +25,7 @@
   padding: 40px; /* Add some space inside */
   border-radius: 16px; /* Optional: rounded corners */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: add a soft shadow */
-  max-width: 600px; /* Max width of the container */
+  max-width:1000px; /* Max width of the container */
   width: 100%; /* Full width up to the max width */
   text-align: center; /* Center the text */
 }
@@ -40,11 +40,11 @@
   text-align: center; /* Center the text */
 }
 .feed-container {
-  backdrop-filter: blur(4px); /* Optional: blur effect for the background */
+  backdrop-filter: blur(5px); /* Optional: blur effect for the background */
   background-color: rgba(0, 0, 0, 0.038); /* Light background for content */
   padding: 40px; /* Add some space inside */
   border-radius: 16px; /* Optional: rounded corners */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: add a soft shadow */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.171); /* Optional: add a soft shadow */
   max-width: 1200px; /* Max width of the container */
   width: 100%; /* Full width up to the max width */
   text-align: center; /* Center the text */
