@@ -102,7 +102,6 @@ export default function BadgesScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor }]}>
-      <ThemedText style={styles.title}>My Badges</ThemedText>
       
       {badges.length === 0 ? (
         <View style={styles.emptyContainer}>
