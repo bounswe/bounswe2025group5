@@ -34,7 +34,7 @@ export default function GoalCard({ username, goal, onDelete, onEdit, onToggleCom
         <h5 className="mb-0 text-capitalize">{goal.wasteType}</h5>
         <div>
           <Button size="sm" variant="success" onClick={()=>setShowLogModal(true)}>Add Log</Button>{' '}
-          <Button size="sm" variant="primary" onClick={()=>onEdit(goal.goalId, goal)}>Edit</Button>{' '}
+          <Button size="sm" variant="primary" onClick={()=>onEdit(goal)}>Edit</Button>{' '}
           <Button size="sm" variant="danger" onClick={()=>onDelete(goal.goalId)}>Delete</Button>
         </div>
       </Card.Header>

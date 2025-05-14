@@ -18,11 +18,12 @@ export default function Goal({ url }) {
     const wasteUnits = ['Bottles', 'Grams', 'Kilograms', 'Liters', 'Units'];
     const username = localStorage.getItem('username');
     const [showEditModal, setShowEditModal] = useState(false);
-    const [editGoal, setEditGoal] = useState(null);
+    const [editGoal, setEditGoal] = useState({ duration: '', unit: 'Bottles', wasteType: 'Plastic', amount: '' });
 
-    const openEditModal = goal => {
+    const openEditModal = (goal) => {
         setEditGoal(goal);
         setShowEditModal(true);
+        console.log('goal', goal.goalId);
     };
     const fetchGoals = async () => {
         setLoading(true);
@@ -43,52 +44,28 @@ export default function Goal({ url }) {
 
 
     const handleEditSubmit = async e => {
-  e.preventDefault();
-  const body = {
-    username,
-    duration: Number(editGoal.duration),
-    unit: editGoal.unit,
-    wasteType: editGoal.wasteType,
-    amount: Number(editGoal.amount)
-  };
-  const res = await fetch(`${url}/api/goals/edit/${editGoal.goalId}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  if (res.ok) {
-    setShowEditModal(false);
-    setEditGoal(null);
-    fetchGoals();
-  } else {
-    setError('Failed to edit goal');
-  }
-};
-
-    const goalCardEditChange = async (goalId, editedGoal) => {
-        try {
-            const response = await fetch('/api/goals/edit/' + goalId, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    "username": username,
-                    "unit": editedGoal.unit,
-                    "wasteType": editedGoal.wasteType,
-                    "duration": editedGoal.duration,
-                    "amount": editedGoal.amount
-                }),
-            })
-            if (response.ok) {
-                console.log("Goal succesfully edited!");
-            } else {
-                setError("Couldn't edit waste goals. Please try again.");
-            }
-        } catch (err) {
-            setError("Couldn't edit waste goals. Please try again.");
+        e.preventDefault();
+        const body = {
+            username,
+            duration: Number(editGoal.duration),
+            unit: editGoal.unit,
+            wasteType: editGoal.wasteType,
+            amount: Number(editGoal.amount)
+        };
+        const res = await fetch(`${url}/api/goals/edit/${editGoal.goalId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        if (res.ok) {
+            setShowEditModal(false);
+            setEditGoal({ duration: '', unit: 'Bottles', wasteType: 'Plastic', amount: '' });
+            fetchGoals();
+        } else {
+            setError('Failed to edit goal');
+            console.log('Failed to edit goal', res);
         }
-        fetchGoals();
-    }
-
+    };
 
     const goalCardDelete = async (goalId) => {
         try {
@@ -117,7 +94,7 @@ export default function Goal({ url }) {
             wasteType: newGoal.wasteType,
             amount: Number(newGoal.amount)
         };
-        const res = await fetch('/api/goals/create', {
+        const res = await fetch(`${url}/api/goals/create`, {
             method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
         });
         if (res.ok) {
@@ -126,6 +103,7 @@ export default function Goal({ url }) {
             fetchGoals();
         } else {
             setError('Failed to add goal');
+            console.log('Failed to add goal', res);
         }
     };
 
@@ -184,7 +162,55 @@ export default function Goal({ url }) {
                     </Form>
                 </Modal.Body>
             </Modal>
-            
+
+            <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Edit Waste Goal</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {error && <p className="text-danger">{error}</p>}
+                    <Form onSubmit={handleEditSubmit}>
+                        <Form.Group className="mb-2">
+                            <Form.Label>Duration (days)</Form.Label>
+                            <Form.Control
+                                type="number"
+                                value={editGoal.duration}
+                                onChange={e => setEditGoal(prev => ({ ...prev, duration: e.target.value }))}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-2">
+                            <Form.Label>Waste Unit</Form.Label>
+                            <Form.Select
+                                value={editGoal.unit}
+                                onChange={e => setEditGoal(prev => ({ ...prev, unit: e.target.value }))}
+                            >
+                                {wasteUnits.map(u => <option key={u}>{u}</option>)}
+                            </Form.Select>
+                        </Form.Group>
+                        <Form.Group className="mb-2">
+                            <Form.Label>Waste Type</Form.Label>
+                            <Form.Select
+                                value={editGoal.wasteType}
+                                onChange={e => setEditGoal(prev => ({ ...prev, wasteType: e.target.value }))}
+                            >
+                                {wasteTypes.map(t => <option key={t}>{t}</option>)}
+                            </Form.Select>
+                        </Form.Group>
+                        <Form.Group className="mb-2">
+                            <Form.Label>Amount</Form.Label>
+                            <Form.Control
+                                type="number"
+                                value={editGoal.amount}
+                                onChange={e => setEditGoal(prev => ({ ...prev, amount: e.target.value }))}
+                                required
+                            />
+                        </Form.Group>
+                        <Button type="submit" variant="primary">Edit Goal</Button>
+                    </Form>
+                </Modal.Body>
+            </Modal>
+
 
             <Row>
                 {loading ? (
@@ -196,7 +222,7 @@ export default function Goal({ url }) {
                                 username={username}
                                 goal={goal}
                                 onDelete={goalCardDelete}
-                                onEdit={goalCardEditChange}
+                                onEdit={openEditModal}
                                 onToggleComplete={fetchGoals}
                                 onLogAdded={fetchGoals}
                                 url={url}
