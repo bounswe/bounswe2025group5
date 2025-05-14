@@ -229,13 +229,10 @@ export default function HomeScreen() {
       });
   
       if (!res.ok) {
-        // parse whatever shape your server returns
         const errBody = await res.json().catch(() => null);
   
-        // Log to your console for debugging
         console.error('Login response error:', errBody);
   
-        // Display the entire error object (or fallback)
         const fullMsg = errBody
           ? JSON.stringify(errBody, null, 2)
           : 'Login failed';
@@ -257,10 +254,8 @@ export default function HomeScreen() {
       setLoggedIn(true);
   
     } catch (error: any) {
-      // Log the full JS error (including stack)
       console.error('Network/login exception:', error);
   
-      // Show the entire error (message + stack) if you want:
       const msg =
         error instanceof Error
           ? `${error.message}\n${error.stack}`

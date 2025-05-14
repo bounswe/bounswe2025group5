@@ -1,4 +1,3 @@
-// src/main/java/com/example/CMPE352/model/response/CurrentWeatherResponse.java
 package com.example.CMPE352.model.response;
 
 import lombok.AllArgsConstructor;
