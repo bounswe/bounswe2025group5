@@ -1,111 +1,172 @@
-import React from 'react'
-import { render, fireEvent, act } from '@testing-library/react-native'
-import HomeScreen from '../index'
-import { AuthContext } from '../../_layout'
+// __tests__/screens/HomeScreen.test.tsx
 
-// navigation mocks must be prefixed with "mock" so jest.mock factory can reference them
-const mockNavigate = jest.fn()
-const mockSetParams = jest.fn()
+import React from 'react';
+import { render, screen, fireEvent, act } from '@testing-library/react-native';
+import HomeScreen from '../index';                // Path to your HomeScreen component
+import { AuthContext } from '../../_layout';      // Path to your AuthContext definition
 
-// Mock React Navigation hooks
-jest.mock('@react-navigation/native', () => {
-  const actual = jest.requireActual('@react-navigation/native')
-  return {
-    ...actual,
-    useNavigation:  () => ({ navigate: mockNavigate, setParams: mockSetParams }),
-    useRoute:       () => ({ params: {} }),
-    useFocusEffect: (cb: any) => { cb() },
-  }
-})
-
-// Mock async storage
+// --- Mock AsyncStorage ---
 jest.mock('@react-native-async-storage/async-storage', () => ({
-  getItem:  jest.fn(() => Promise.resolve(null)),
-  multiSet: jest.fn(() => Promise.resolve()),
-}))
+  getItem: jest.fn().mockResolvedValue(null),
+  setItem: jest.fn().mockResolvedValue(null),
+  multiSet: jest.fn().mockResolvedValue(null),
+  removeItem: jest.fn().mockResolvedValue(null),
+}));
 
-// Mock other native/expo components
-jest.mock('@expo/vector-icons',              () => ({ Ionicons: () => null }))
-jest.mock('@/components/HelloWave',          () => 'HelloWave')
-jest.mock('@/components/ParallaxScrollView', () => 'ParallaxScrollView')
-jest.mock('@/components/ThemedText',         () => 'ThemedText')
+// --- Mock Navigation Hooks ---
+const mockNavigate = jest.fn();
+const mockSetParams = jest.fn();
+jest.mock('@react-navigation/native', () => ({
+  ...jest.requireActual('@react-navigation/native'),
+  useNavigation: () => ({ navigate: mockNavigate, setParams: mockSetParams }),
+  useRoute:      () => ({ params: {} }),
+  useFocusEffect: jest.fn(),
+}));
 
-// Mock expo-router stack (to bypass createNavigatorFactory errors)
-jest.mock('expo-router', () => ({ Stack: {} }))
+// --- Mock expo-router stack (if used) ---
+jest.mock('expo-router', () => ({ Stack: {} }));
 
-// Silence console.warn from real network calls
-beforeAll(() => {
-  jest.spyOn(console, 'warn').mockImplementation(() => {})
-})
+// --- Mock Icons & UI Components ---
+jest.mock('@expo/vector-icons/Ionicons', () => {
+  return ({ name }: { name: string }) => {
+    const ReactNative = require('react-native');
+    return <ReactNative.Text testID={`icon-${name}`}>{name}</ReactNative.Text>;
+  };
+});
+jest.mock('@/components/ParallaxScrollView', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  return ({ children, ...props }: any) => <View {...props}>{children}</View>;
+});
+jest.mock('@/components/ThemedText', () => {
+  const React = require('react');
+  const { Text } = require('react-native');
+  return {
+    ThemedText: ({ children, style, ...props }: any) =>
+      <Text style={style} {...props}>{children}</Text>
+  };
+});
+jest.mock('@/components/HelloWave', () => {
+  const React = require('react');
+  const { Text } = require('react-native');
+  return { HelloWave: () => <Text>Wave</Text> };
+});
+jest.mock('../../components/CheckBox', () => {
+  const React = require('react');
+  const { Text, TouchableOpacity } = require('react-native');
+  return ({ checked, onPress }: any) => (
+    <TouchableOpacity onPress={onPress} testID="mock-checkbox">
+      <Text>{checked ? '[X]' : '[ ]'}</Text>
+    </TouchableOpacity>
+  );
+});
 
-// Provide a fake global.fetch so all useEffect network calls resolve safely
-beforeEach(() => {
-  ;(global as any).fetch = jest.fn((url: string) => {
-    if (url.includes('/api/users/count')) {
-      return Promise.resolve({
-        ok:   true,
-        json: () => Promise.resolve({ userCount: 0 }),
-      })
-    }
-    if (url.includes('/api/posts/mostLikedPosts')) {
-      return Promise.resolve({
-        ok:   true,
-        json: () => Promise.resolve([]),
-      })
-    }
-    // fallback for any other fetch
+// --- Mock fetch for user count & trending posts ---
+global.fetch = jest.fn((url: string | URL | Request) => {
+  const u = url.toString();
+  if (u.includes('/api/users/count')) {
     return Promise.resolve({
-      ok:   true,
-      json: () => Promise.resolve({}),
-    })
-  })
-})
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ userCount: 55 }),
+    });
+  }
+  if (u.includes('/api/posts/mostLikedPosts')) {
+    return Promise.resolve({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve([]),
+    });
+  }
+  return Promise.resolve({
+    ok: true,
+    status: 200,
+    json: () => Promise.resolve({}),
+  });
+}) as jest.Mock;
 
-describe('HomeScreen login flow', () => {
-  afterEach(() => {
-    mockNavigate.mockReset()
-    mockSetParams.mockReset()
-  })
+// --- AuthContext Mock Value ---
+const mockAuthContext = {
+  userType: null,
+  username: '',
+  user_id: '',
+  setUserType: jest.fn(),
+  setUsername: jest.fn(),
+  setUserId:  jest.fn(),
+};
 
-  it('navigates to "explore" when username and password are both "test"', async () => {
-    const setUserType = jest.fn()
-    const setUsername = jest.fn()
+// --- Render Helper + Async Wait ---
+const renderWithContext = (ctx = mockAuthContext) => render(
+  <AuthContext.Provider value={ctx}>
+    <HomeScreen />
+  </AuthContext.Provider>
+);
+const waitForUpdates = async () => {
+  await act(async () => new Promise(res => setImmediate(res)));
+};
 
-    const screen = render(
+beforeEach(() => {
+  jest.clearAllMocks();
+  require('@react-native-async-storage/async-storage').getItem.mockResolvedValue(null);
+});
+
+describe('<HomeScreen /> – full flow', () => {
+  it('shows login form after pressing main login button', async () => {
+    renderWithContext();
+    await waitForUpdates();
+    expect(screen.getByText(/55 users are reducing/i)).toBeTruthy();
+    fireEvent.press(screen.getByTestId('main-login-button'));
+    expect(screen.getByPlaceholderText('Email or Username')).toBeTruthy();
+    expect(screen.getByPlaceholderText('Password')).toBeTruthy();
+    expect(screen.getByTestId('form-login-button')).toBeTruthy();
+    expect(screen.queryByTestId('main-login-button')).toBeNull();
+  });
+
+  it('shows registration form after pressing main register button', async () => {
+    renderWithContext();
+    await waitForUpdates();
+    fireEvent.press(screen.getByTestId('main-register-button'));
+    expect(screen.queryByTestId('main-login-button')).toBeNull();
+    expect(screen.queryByTestId('main-register-button')).toBeNull();
+    expect(screen.queryByText(/55 users are reducing/i)).toBeNull();
+    expect(screen.getByPlaceholderText('Username')).toBeTruthy();
+    expect(screen.getByPlaceholderText('Email')).toBeTruthy();
+    expect(screen.getByPlaceholderText('Password')).toBeTruthy();
+    expect(screen.getByPlaceholderText('Confirm password')).toBeTruthy();
+    expect(screen.getByTestId('mock-checkbox')).toBeTruthy();
+    expect(screen.getByTestId('form-register-button')).toBeTruthy();
+    expect(screen.getByTestId('form-back-to-login-button')).toBeTruthy();
+  });
+
+  it('switches back to login form from registration form', async () => {
+    renderWithContext();
+    await waitForUpdates();
+    fireEvent.press(screen.getByTestId('main-register-button'));
+    fireEvent.press(screen.getByTestId('form-back-to-login-button'));
+    expect(screen.queryByPlaceholderText('Username')).toBeNull();
+    expect(screen.getByPlaceholderText('Email or Username')).toBeTruthy();
+    expect(screen.getByTestId('form-login-button')).toBeTruthy();
+  });
+
+  it('navigates to "explore" when logging in with credentials "test"', async () => {
+    const setUserType = jest.fn();
+    const setUsername = jest.fn();
+    render(
       <AuthContext.Provider value={{
-        userType: null,
-        username: '',
-        setUserType,
-        setUsername,
+        userType: null, username: '', setUserType, setUsername, setUserId: jest.fn(),
       }}>
         <HomeScreen />
       </AuthContext.Provider>
-    )
-
-    // open login form
-    act(() => {
-      fireEvent.press(screen.getByText('Log In'))
-    })
-
-    // fill credentials
-    fireEvent.changeText(
-      screen.getByPlaceholderText('Email or Username'),
-      'test',
-    )
-    fireEvent.changeText(
-      screen.getByPlaceholderText('Password'),
-      'test',
-    )
-
-    // submit login
+    );
+    await waitForUpdates();
+    fireEvent.press(screen.getByTestId('main-login-button'));
+    fireEvent.changeText(screen.getByPlaceholderText('Email or Username'), 'test');
+    fireEvent.changeText(screen.getByPlaceholderText('Password'), 'test');
     await act(async () => {
-      fireEvent.press(screen.getByText('Log In'))
-    })
-
-    // context setters called
-    expect(setUserType).toHaveBeenCalledWith('user')
-    expect(setUsername).toHaveBeenCalledWith('test')
-    // navigation called
-    expect(mockNavigate).toHaveBeenCalledWith('explore')
-  })
-})
+      fireEvent.press(screen.getByTestId('form-login-button'));
+    });
+    expect(setUserType).toHaveBeenCalledWith('user');
+    expect(setUsername).toHaveBeenCalledWith('test');
+    expect(mockNavigate).toHaveBeenCalledWith('explore');
+  });
+});
