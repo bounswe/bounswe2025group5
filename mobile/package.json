@@ -7,6 +7,7 @@
   "scripts": {
     "test": "jest --watchAll",
     "test:ci": "jest",
+    "prestart": "npm run test:ci",
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
