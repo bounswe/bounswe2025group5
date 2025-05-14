@@ -24,7 +24,8 @@ public class HomePageController {
     private final MotivationService motivationService;
     private final AirQualityService airQualityService;
     private final NumberService numberService;
-    private final EnergyStatsService energyStatsService;    
+    private final EnergyStatsService energyStatsService;
+    private final ForestStatsService forestStatsService;
 
     @GetMapping("/getMotivated")
     public ResponseEntity<MotivationalQuoteResponse> getMotivationalQuote() {
