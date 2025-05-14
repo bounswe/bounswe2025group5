@@ -1,16 +1,15 @@
-import React, { use, useState } from "react";
-import { useEffect } from "react";
-function CommentInput({ onAddComment, isLoggedIn ,commentBeingEdited, onCancelEdit}) {
+import React, { useEffect, useState } from "react";
 
+function CommentInput({ onAddComment, isLoggedIn, commentBeingEdited, onCancelEdit }) {
     const [commentText, setCommentText] = useState("");
+
     useEffect(() => {
         if (commentBeingEdited) {
             setCommentText(commentBeingEdited.content);
-        }else {
+        } else {
             setCommentText("");
         }
-    }
-    , [commentBeingEdited]);
+    }, [commentBeingEdited]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -24,33 +23,37 @@ function CommentInput({ onAddComment, isLoggedIn ,commentBeingEdited, onCancelEd
         }
     };
 
-    return isLoggedIn ? (
-        <form onSubmit={handleSubmit} style={{ marginBottom: "1rem" }}>
-            <textarea
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                rows={3}
-                style={{ width: "100%" }}
-                placeholder="Write a comment..."
-            />
-            <div>
-                <button type="submit" style={{ marginTop: "0.5rem" }}>
+    if (!isLoggedIn) {
+        return <p className="text-muted">You must be logged in to comment.</p>;
+    }
+
+    return (
+        <form onSubmit={handleSubmit} className="mb-3">
+            <div className="mb-2">
+                <textarea
+                    className="form-control"
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    rows={2}
+                    placeholder="Write a comment..."
+                />
+            </div>
+            <div className=" gap-6 justify-content-end "> 
+                <button type="submit" className="btn btn-info btn-sm">
                     {commentBeingEdited ? "Update" : "Post"}
                 </button>
                 {commentBeingEdited && (
                     <button
                         type="button"
+                        className="btn btn-secondary btn-sm"
                         onClick={onCancelEdit}
-                        style={{ marginLeft: "0.5rem" }}
                     >
                         Cancel
                     </button>
                 )}
             </div>
         </form>
-    ) : (
-        <p>You must be logged in to comment.</p>
     );
-};
+}
 
 export default CommentInput;

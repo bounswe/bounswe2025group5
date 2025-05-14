@@ -119,6 +119,18 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
 
+        <View style={styles.badgesContainer}>
+          <TouchableOpacity
+            testID="my-badges-button"
+            style={styles.badgesButton}
+            onPress={() => navigation.navigate('badges')}
+          >
+            <Text style={[styles.badgesButtonText, {color: buttonTextColor}]}>My Badges</Text>
+          </TouchableOpacity>
+        </View>
+
+        
+
         <View style={styles.profileContainer}>
           {avatarUri ? (
             <Image testID="profile-avatar-image" source={{ uri: avatarUri }} style={styles.profilePic} />
@@ -172,12 +184,15 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   headerImage: { width: '100%', height: undefined, aspectRatio: 0.88 },
   contentContainer: { flex: 1, padding: 16, marginTop: -20 }, 
-  logoutContainer: { alignItems: 'flex-end' },
+  logoutContainer: { alignItems: 'flex-end', margin: 4  },
   logoutButton: { paddingHorizontal: 20, paddingVertical: 6, borderRadius: 4, backgroundColor: '#E53935' },
   logoutText: { fontSize: 14 }, 
-  editProfileContainer: { alignItems: 'flex-end', marginVertical: 8 },
+  editProfileContainer: { alignItems: 'flex-end', margin: 4 },
   editButton: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 4, backgroundColor: '#007AFF' },
   editButtonText: { fontSize: 14 }, 
+  badgesContainer: { alignItems: 'flex-end', margin: 4 },
+  badgesButton: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 4, backgroundColor: '#FF9800' },
+  badgesButtonText: { fontSize: 14 },
   profileContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
   profilePic: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#ddd' }, 
   actionButton: { width: '100%', paddingVertical: 12, borderRadius: 8, marginBottom: 12, alignItems: 'center' },

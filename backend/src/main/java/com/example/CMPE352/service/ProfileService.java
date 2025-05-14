@@ -3,10 +3,13 @@ package com.example.CMPE352.service;
 import com.example.CMPE352.exception.AlreadyExistsException;
 import com.example.CMPE352.exception.NotFoundException;
 import com.example.CMPE352.exception.UploadFailedException;
+import com.example.CMPE352.model.Badge;
 import com.example.CMPE352.model.User;
 import com.example.CMPE352.model.Profile;
 import com.example.CMPE352.model.request.ProfileEditAndCreateRequest;
+import com.example.CMPE352.model.response.BadgeResponse;
 import com.example.CMPE352.model.response.ProfileResponse;
+import com.example.CMPE352.repository.BadgeRepository;
 import com.example.CMPE352.repository.ProfileRepository;
 import com.example.CMPE352.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -14,8 +17,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
+
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
@@ -31,6 +37,7 @@ public class ProfileService {
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
     private final S3Client s3Client;
+    private final BadgeRepository badgeRepository;
 
     @Value("${digitalocean.spaces.bucket-name}")
     private String bucketName;
@@ -53,6 +60,17 @@ public class ProfileService {
                 p.getBiography(),
                 p.getPhotoUrl());
     }
+    public List<BadgeResponse> getBadges(String username) {
+        User user = userRepository
+                .findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User not found: " + username));
+
+        List<Badge> badges = badgeRepository.findByUserId(user.getId());
+
+        return badges.stream()
+                .map(badge -> new BadgeResponse(user.getUsername(), badge.getId().getName()))
+                .toList();
+    }
 
     @Transactional
     public ProfileResponse editProfileInfo(
@@ -71,7 +89,6 @@ public class ProfileService {
                 p.getPhotoUrl()
         );
     }
-
 
 
     @Transactional

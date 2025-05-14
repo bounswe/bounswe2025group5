@@ -60,6 +60,13 @@ export default function RootLayout() {
               presentation: 'modal', 
             }} 
           />
+          <Stack.Screen
+            name="badges"
+            options={{
+              title: 'Badges',
+            }}
+            />
+          
           <Stack.Screen 
             name="create_post" 
             options={{ 
