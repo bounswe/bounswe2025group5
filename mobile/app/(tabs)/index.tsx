@@ -247,7 +247,7 @@ export default function HomeScreen() {
         const fullMsg = errBody
           ? JSON.stringify(errBody, null, 2)
           : 'Login failed';
-        return showError(fullMsg);
+        return showError("Invalid username or password!");
       }
   
       // success path
