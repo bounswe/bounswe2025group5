@@ -3,6 +3,8 @@ package com.example.CMPE352.service;
 import com.example.CMPE352.model.response.CurrentWeatherDataResponse; // Use your response class
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -14,7 +16,8 @@ public class CurrentWeatherService {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
-    private static final String API_KEY = "2249ba813facfe4ce77ee68589dc3544";
+    @Value("${weather.api.key}")
+    private String API_KEY;
     
     // Coordinates for Istanbul
     private static final double ISTANBUL_LAT = 41.0082;
