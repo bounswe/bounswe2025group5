@@ -1,5 +1,8 @@
 {
   "dependencies": {
-    "bootstrap": "^5.3.6"
+    "bootstrap": "^5.3.6",
+    "bootstrap-icons": "^1.13.1",
+    "chart.js": "^4.4.9",
+    "react-chartjs-2": "^5.3.0"
   }
 }
