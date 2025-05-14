@@ -28,6 +28,11 @@ type AirQuality = {
   ozone: number;
 };
 
+type Weather = {
+  temperature: number;
+  humidity: number;
+}
+
 
 const HOST = Platform.select({ android: '10.0.2.2', ios: 'localhost' , web: 'localhost' });
 const API_BASE = `http://${HOST}:8080/api/auth`;
@@ -50,6 +55,17 @@ type TrendingPost = {
 
 
 
+// Add this function before your HomeScreen component
+const getWeatherEmoji = (temperature: number): string => {
+  if (temperature > 25) return '☀️'; // Hot/sunny
+  if (temperature > 20) return '🌤️'; // Warm/partly cloudy
+  if (temperature > 15) return '⛅'; // Mild/cloudy
+  if (temperature > 10) return '🌥️'; // Cool/mostly cloudy
+  if (temperature > 5) return '☁️';  // Cold/cloudy
+  if (temperature <= 5) return '❄️';  // Freezing
+  return '🌡️'; // Default
+};
+
 export default function HomeScreen() {
   const navigation = useNavigation<Navigation>();
   const route     = useRoute<any>();
@@ -67,6 +83,7 @@ export default function HomeScreen() {
   const [loggedIn, setLoggedIn]             = useState(false);
   const [errorVisible, setErrorVisible]     = useState(false);
   const [errorMessage, setErrorMessage]     = useState('');
+  const [weather, setWeather]               = useState<Weather | null>(null);
   const [airQuality, setAirQuality] = useState<AirQuality | null>(null);
   const [usersCount, setUsersCount] = useState<number>(0);
   const [numberTrivia, setNumberTrivia] = useState<string | null>(null);
@@ -172,6 +189,24 @@ export default function HomeScreen() {
       fetchAQ();
     }, []);
 
+    // ─── fetch weather once on mount ────────────────────────────────────────────
+    useEffect(() => {
+      const fetchWeather = async () => {
+        try {
+          const res = await fetch(
+            `http://${HOST}:8080/api/home/getCurrentWeather`
+          );
+          if (!res.ok) throw new Error('Failed to fetch weather');
+          const data = (await res.json()) as Weather;
+          setWeather(data); 
+        }
+        catch (err) {
+          console.warn('Error fetching weather', err);
+        }
+      };
+      fetchWeather();
+    }, []);
+
   useFocusEffect(
     React.useCallback(() => {
       if (loggedIn) navigation.navigate('explore');
@@ -205,17 +240,14 @@ export default function HomeScreen() {
       });
   
       if (!res.ok) {
-        // parse whatever shape your server returns
         const errBody = await res.json().catch(() => null);
   
-        // Log to your console for debugging
         console.error('Login response error:', errBody);
   
-        // Display the entire error object (or fallback)
         const fullMsg = errBody
           ? JSON.stringify(errBody, null, 2)
           : 'Login failed';
-        return showError(fullMsg);
+        return showError("Invalid username or password!");
       }
   
       // success path
@@ -233,10 +265,8 @@ export default function HomeScreen() {
       setLoggedIn(true);
   
     } catch (error: any) {
-      // Log the full JS error (including stack)
       console.error('Network/login exception:', error);
   
-      // Show the entire error (message + stack) if you want:
       const msg =
         error instanceof Error
           ? `${error.message}\n${error.stack}`
@@ -299,6 +329,18 @@ export default function HomeScreen() {
   };
 
   return (
+    <>
+    {weather && (
+      <View style={styles.weatherEmojiContainer}>
+        <Text style={styles.weatherEmoji}>
+          {getWeatherEmoji(weather.temperature)}
+        </Text>
+        <Text style={styles.weatherTemp}>
+          {weather.temperature}°C
+        </Text>
+      </View>
+    )}
+
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#FFFFFF', dark: '#000000' }}
       headerImage={
@@ -322,15 +364,16 @@ export default function HomeScreen() {
                   <Text style={styles.airQualityValue}>
                     {airQuality.pm10}
                   </Text>
-                  <Text style={styles.airQualityLabel}>PM2.5:</Text>
-                  <Text style={styles.airQualityValue}>
-                    {airQuality.pm25}
-                  </Text>
-                </View>
-                <View style={styles.airQualityRow}>
                   <Text style={styles.airQualityLabel}>CO:</Text>
                   <Text style={styles.airQualityValue}>
                     {airQuality.carbonMonoxide}
+                  </Text>
+                  
+                </View>
+                <View style={styles.airQualityRow}>
+                  <Text style={styles.airQualityLabel}>PM2.5:</Text>
+                  <Text style={styles.airQualityValue}>
+                    {airQuality.pm25}
                   </Text>
                   <Text style={styles.airQualityLabel}>NO₂:</Text>
                   <Text style={styles.airQualityValue}>
@@ -534,6 +577,7 @@ export default function HomeScreen() {
         </View>
       )}
     </ParallaxScrollView>
+    </>
   );
 }
 
@@ -564,10 +608,41 @@ const styles = StyleSheet.create({
   kvkkText: { marginLeft: 8, color: '#fff' },
   errorBox: { position: 'absolute', bottom: 20, left: 16, right: 16, backgroundColor: 'red', padding: 12, borderRadius: 4, alignItems: 'center' },
   errorText: { color: '#fff', fontSize: 14, textAlign: 'center' },
-  airQualityBox: { backgroundColor: '#e0f7fa', padding: 12, borderRadius: 8, marginTop: -30, marginBottom: 16 },
+
+
+
+  airQualityBox: { backgroundColor: '#B8E2F2', padding: 12, borderRadius: 8, marginTop: -30, marginBottom: 16 },
   airQualityTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 8, color: '#00796b' },
   airQualityRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
   airQualityLabel: { fontSize: 14, color: '#004d40' },
   airQualityValue: { fontSize: 14, fontWeight: 'bold', color: '#004d40' },
   triviaText: { fontSize: 14, textAlign: 'center', marginTop:-15, fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' },
+  weatherEmojiContainer: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    zIndex: 999,
+    backgroundColor: '#B8E2F2',
+    borderRadius: 25,
+    width: 60,
+    height: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 5,
+    flexDirection: 'column',
+    paddingVertical: 5,
+  },
+  weatherEmoji: {
+    fontSize: 30,
+    marginBottom: 2,
+  },
+  weatherTemp: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#000',
+  },
 });
