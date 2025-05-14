@@ -1,6 +1,7 @@
 package com.example.CMPE352.controller;
 
 import com.example.CMPE352.model.request.ProfileEditAndCreateRequest;
+import com.example.CMPE352.model.response.BadgeResponse;
 import com.example.CMPE352.service.ProfileService;
 import com.example.CMPE352.model.response.ProfileResponse;
 import org.springframework.http.MediaType;
@@ -8,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;// profile/controller/ProfileController.java
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 
 @RestController
@@ -35,6 +38,13 @@ public class ProfileController {
         ProfileResponse response = service.uploadProfilePhoto(username,file);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/profile/badges")
+    public ResponseEntity<List<BadgeResponse>> getBadges(@RequestParam String username) {
+        List<BadgeResponse> response = service.getBadges(username);
+        return ResponseEntity.ok(response);    }
+
+
 
 
 
