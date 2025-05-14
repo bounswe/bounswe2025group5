@@ -103,6 +103,20 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
   return (
     <Container style={{ marginTop: "70px" }}>
       <h1 className="my-4">Post Feed</h1>
+      {/* Search bar */}
+      <div style={{ maxWidth: "500px", margin: "0 auto" }}>
+        <SearchBar onSearchResults={handleSearchResults} />
+      </div>
+
+      {/* Back to feed button when search is active */}
+      {isSearchActive && (
+        <div className="text-center my-3">
+          <Button className="btn btn-secondary" onClick={goBackToFeed}>
+            Back to Feed
+          </Button>
+        </div>
+      )}
+
       {isLoggedIn ? (
         <div className="text-center">
           <Button
@@ -124,33 +138,6 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
         Home
       </Button>
       }
-      {/* Search bar */}
-      <div style={{ maxWidth: "500px", margin: "0 auto" }}>
-        <SearchBar onSearchResults={handleSearchResults} />
-      </div>
-
-      {/* Back to feed button when search is active */}
-      {isSearchActive && (
-        <div className="text-center my-3">
-          <Button className="btn btn-secondary" onClick={goBackToFeed}>
-            Back to Feed
-          </Button>
-        </div>
-      )}
-
-      {isLoggedIn && (
-        <div className="text-center">
-          <Button
-            className="btn btn-info"
-            onClick={() => {
-              setShowCreatePost(!showCreatePost);
-            }}
-          >
-            {showCreatePost ? "Cancel" : "Create Post"}
-          </Button>
-        </div>
-      )}
-
       {isLoggedIn && showCreatePost && (
         <CreatePostButton
           onPostCreated={() => {

@@ -10,7 +10,8 @@ import {
   Form,
   Image,
   Spinner,
-  Alert
+  Alert,
+  Accordion
 } from 'react-bootstrap';
 import PostCard from "../components/PostCard";
 
@@ -30,7 +31,7 @@ export default function ProfilePage({ setIsLoggedIn, username, url }) {
   const [posts, setPosts] = useState([]);
   const [postsLoading, setPostsLoading] = useState(true);
   const [postsError, setPostsError] = useState(null);
-
+  const [badges, setBadges] = useState([]);
   const isLoggedIn = Boolean(username);
 
   // Fetch user info
@@ -78,7 +79,10 @@ export default function ProfilePage({ setIsLoggedIn, username, url }) {
   };
 
   useEffect(() => {
-    if (user.username) fetchPosts();
+    if (user.username) {
+      fetchPosts();
+      handleBadges();
+    }
   }, [user.username]);
 
   // Handle form input change
@@ -141,6 +145,21 @@ export default function ProfilePage({ setIsLoggedIn, username, url }) {
       setPhotoFile(null);
     }
   };
+  // handle badges using a call to api/profile/badges
+  const handleBadges = async () => {
+    try {
+      const res = await fetch(`${url}/api/profile/badges?username=${username}`);
+      const data = await res.json();
+      if (res.ok) {
+        setBadges(data);
+      } else {
+        setError(data.message || "Failed to fetch badges.");
+      }
+    } catch {
+      setError("An error occurred while fetching badges.");
+    }
+  }
+
 
   return (
     <Container className="py-4" style={{ marginTop: "120px" }}>
@@ -160,6 +179,37 @@ export default function ProfilePage({ setIsLoggedIn, username, url }) {
             <Card.Text>{user.biography}</Card.Text>
             <Button variant="info" onClick={() => setIsModalOpen(true)}>Edit Profile</Button>
           </Card.Body>
+
+          <Accordion defaultActiveKey="1" className="px-3 pb-3">
+            <Accordion.Item eventKey="0">
+              <Accordion.Header>Badges</Accordion.Header>
+              <Accordion.Body>
+                {badges.filter(b => b.username === user.username).length > 0 ? (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {badges
+                      .filter(b => b.username === user.username)
+                      .map((badge, index) => (
+                        <div
+                          key={index}
+                          style={{
+                            backgroundColor: 'rgb(221, 122, 9)',
+                            color: 'white',
+                            padding: '11px 12px',
+                            borderRadius: '999px',
+                            fontSize: '0.8rem',
+                            fontWeight: '500',
+                          }}
+                        >
+                          {badge.badgeName}
+                        </div>
+                      ))}
+                  </div>
+                ) : (
+                  <div style={{ fontSize: '0.8rem' }}>No badges yet.</div>
+                )}
+              </Accordion.Body>
+            </Accordion.Item>
+          </Accordion>
         </Card>
       )}
 
