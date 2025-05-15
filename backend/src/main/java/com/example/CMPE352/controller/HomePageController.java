@@ -53,4 +53,10 @@ public class HomePageController {
         return ResponseEntity.ok(reduction);
     }
 
+    @GetMapping("/getCurrentWeather")
+    public ResponseEntity<CurrentWeatherDataResponse> getCurrentWeather() {
+        CurrentWeatherDataResponse weatherData = currentWeatherService.getCurrentWeather();
+        return ResponseEntity.ok(weatherData);
+    }
+
 }
