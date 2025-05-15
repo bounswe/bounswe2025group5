@@ -67,7 +67,7 @@ function PostCard({ post, isLoggedIn, onEdit, onDelete, url }) {
           </div>
           <div className="text-muted" style={{ fontSize: '0.8rem' }}>
             {!isLoggedIn && <div>Likes: {post.likes}</div>}
-            {location.pathname == "/profile" ? (<div style={{ fontSize: '0.7rem' }}>Saved on: {new Date(post.savedAt).toLocaleString()}</div>) : (<div style={{ fontSize: '0.7rem' }}>Posted on: {new Date(post.createdAt).toLocaleString()}</div>)}
+            {post.savedAt ? (<div style={{ fontSize: '0.7rem' }}>Saved on: {new Date(post.savedAt).toLocaleString()}</div>) : (<div style={{ fontSize: '0.7rem' }}>Posted on: {new Date(post.createdAt).toLocaleString()}</div>)}
           </div>
         </div>
 
