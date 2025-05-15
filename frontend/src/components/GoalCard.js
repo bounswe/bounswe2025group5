@@ -43,7 +43,7 @@ export default function GoalCard({ username, goal, onDelete, onEdit, onToggleCom
         <p className="mb-1"><strong>Limit:</strong> {goal.amount} {goal.unit} in {goal.duration} days</p>
         <ProgressBar now={goal.progress} variant={goal.progress<40? "success": goal.progress<75 ? "warning" : "danger"} className="mb-2" />
         <div className="d-flex justify-content-between small text-muted">
-          <span>Remaining: {goal.amount - (goal.progress * goal.amount / 100)} {goal.unit}</span>
+          <span>Remaining: {Math.round(goal.amount - (goal.progress * goal.amount / 100))} {goal.unit}</span>
           <span>Waste Load: {Math.round(goal.progress)}%</span>
         </div>
       </Card.Body>

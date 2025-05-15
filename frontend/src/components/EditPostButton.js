@@ -22,10 +22,10 @@ function EditPostButton({ post, onPostUpdated, url }) {
         method: "PUT",
         body: formData,
       });
-
+      const data = await response.json();
       if (response.ok) {
         setShowModal(false);
-        onPostUpdated();
+        onPostUpdated(data);
       } else {
         console.error("Failed to update post");
       }

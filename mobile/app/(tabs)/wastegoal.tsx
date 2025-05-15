@@ -20,7 +20,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
 import { Picker } from '@react-native-picker/picker';
 
-const HOST = '162.35.42.102';
+const HOST = '161.35.42.102';
 const API_BASE = `http://${HOST}:8080/api`;
 
 type WasteGoal = {
