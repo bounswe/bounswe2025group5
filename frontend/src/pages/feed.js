@@ -17,7 +17,7 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [searchResults, setSearchResults] = useState([]);  // State to hold search results
   const [isSearchActive, setIsSearchActive] = useState(false);  // To track whether search results are active
-  const [loadingMore, setLoadingMore] = useState(false);
+  let loadingMore = false; // State to track if more posts are being loaded
   const fetchSize = 10;
 
   // Function to fetch posts (with or without search query)
@@ -39,7 +39,7 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
         endpoint = `${url}/api/posts/info?size=${fetchSize}&query=${query}`;
       }
     }
-    setLoadingMore(false);
+    loadingMore = false;
     try {
       const response = await fetch(endpoint);
       const data = await response.json();
@@ -97,7 +97,10 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
   }, []);
 
   const handleLoadMore = () => {
-    setLoadingMore(true);
+    
+    loadingMore = true; // Set loadingMore to true when loading more posts
+    console.log("loadingMore", loadingMore);
+    // Fetch more posts when the button is clicked
     fetchPosts();
   };
 
