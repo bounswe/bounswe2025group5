@@ -26,13 +26,13 @@ function CreatePostButton({ onPostCreated, url }) {
                 method: "POST",
                 body: formData,
             });
-
+            const data = await response.json();
             if (response.ok) {
                 setContent("");
                 setPhotoFile(null);
                 setError(null);
                 setSuccess("Post created successfully!");
-                if (onPostCreated) onPostCreated();
+                if (onPostCreated) onPostCreated(data);
             } else {
                 setError("Failed to create post.");
                 setSuccess(null);

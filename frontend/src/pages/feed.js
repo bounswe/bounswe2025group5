@@ -17,6 +17,7 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [searchResults, setSearchResults] = useState([]);  // State to hold search results
   const [isSearchActive, setIsSearchActive] = useState(false);  // To track whether search results are active
+  const [loadingMore, setLoadingMore] = useState(false);
   const fetchSize = 10;
 
   // Function to fetch posts (with or without search query)
@@ -25,20 +26,23 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
     const username = localStorage.getItem("username") || "";
 
     let endpoint;
-    console.log(isLoggedIn);
     if (username) {
-      endpoint = lastPostId
-        ? `${url}/api/posts/info?size=${fetchSize}&lastPostId=${lastPostId}&username=${username}&query=${query}`
-        : `${url}/api/posts/info?size=${fetchSize}&username=${username}&query=${query}`;
+      if (loadingMore) {
+        endpoint = `${url}/api/posts/info?size=${fetchSize}&lastPostId=${lastPostId}&username=${username}&query=${query}`;
+      } else {
+        endpoint = `${url}/api/posts/info?size=${fetchSize}&username=${username}&query=${query}`;
+      }
     } else {
-      endpoint = lastPostId
-        ? `${url}/api/posts/info?size=${fetchSize}&lastPostId=${lastPostId}&query=${query}`
-        : `${url}/api/posts/info?size=${fetchSize}&query=${query}`;
+      if (loadingMore) {
+        endpoint = `${url}/api/posts/info?size=${fetchSize}&lastPostId=${lastPostId}&query=${query}`;
+      } else {
+        endpoint = `${url}/api/posts/info?size=${fetchSize}&query=${query}`;
+      }
     }
+    setLoadingMore(false);
     try {
       const response = await fetch(endpoint);
       const data = await response.json();
-
       if (response.ok) {
         if (data.length > 0) {
           setPosts((prev) => {
@@ -63,7 +67,6 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
       setLoading(false);
     }
   };
-
   // Search handler that updates the posts based on search query
   const handleSearchResults = (results) => {
     if (results && results.length > 0) {
@@ -76,13 +79,25 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
       setHasMorePosts(true); // Re-enable "load more" for regular posts
     }
   };
+  const handleDelete = (postId) => {
+    setPosts((prev) => prev.filter((post) => post.postId !== postId));
+  }
+  const handleEdit = (newPost) => {
+    setPosts((prev) => prev.map((p) => (p.postId === newPost.postId ? newPost : p)));
+  }
+  const handleCreate = (newPost) => {
+    // Add the new post to the beginning of the posts array
+    setPosts((prev) => [newPost, ...prev]);
+  };
 
   // Initial fetch on page load
   useEffect(() => {
+    setLoading(true);
     fetchPosts();
   }, []);
 
   const handleLoadMore = () => {
+    setLoadingMore(true);
     fetchPosts();
   };
 
@@ -106,7 +121,7 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
       <h1 className="my-4">Post Feed</h1>
       {/* Search bar */}
       <div style={{ maxWidth: "500px", margin: "0 auto" }}>
-        <SearchBar onSearchResults={handleSearchResults} />
+        <SearchBar onSearchResults={handleSearchResults} url={url} />
       </div>
 
       {/* Back to feed button when search is active */}
@@ -126,28 +141,23 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
               setShowCreatePost(!showCreatePost);
             }}
           >
-            {showCreatePost ? "Cancel" : "Create Post"}
+            {showCreatePost ? <i className="bi bi-chevron-up"></i> : "Create Post"}
           </Button>
         </div>
-      ) : <Button
-        className="btn btn-info"
-        onClick={() => {
-          setIsLoggedIn(false);
-          navigate("/");
-        }}
-      >
-        Home
-      </Button>
+      )
+        : <Button
+          className="btn btn-info"
+          onClick={() => {
+            setIsLoggedIn(false);
+            navigate("/");
+          }}
+        >
+          Home
+        </Button>
       }
       {isLoggedIn && showCreatePost && (
         <CreatePostButton
-          onPostCreated={() => {
-            setPosts([]);
-            setLastPostId(null);
-            setHasMorePosts(true);
-            setLoading(true);
-            fetchPosts();
-          }}
+          onPostCreated={handleCreate}
           url={url}
         />
       )}
@@ -169,7 +179,7 @@ function Feed({ isLoggedIn, setIsLoggedIn, url }) {
           posts.length > 0 ? (
             posts.map((post) => (
               <Col key={post.postId} xs={12} md={6} lg={6}>
-                <PostCard post={post} isLoggedIn={isLoggedIn} onAction={fetchPosts} url={url} />
+                <PostCard post={post} isLoggedIn={isLoggedIn} onEdit={handleEdit} onDelete={handleDelete} url={url} />
               </Col>
             ))
           ) : (

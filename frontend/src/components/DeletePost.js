@@ -10,11 +10,11 @@ function DeletePost({ postId, onDelete, url }) {
           "Content-Type": "application/json",
         },
       });
-
+      const data = await response.json();
       if (response.ok) {
         onDelete(postId);
       } else {
-        console.error("Failed to delete post");
+        console.error("Failed to delete post", data);
       }
     } catch (err) {
       console.error("Error deleting post", err);

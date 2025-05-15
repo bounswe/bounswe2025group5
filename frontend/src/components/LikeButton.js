@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function LikeButton({ postId, onLike, liked, likes, url }) {
+function LikeButton({ postId, liked, likes, url }) {
     const [likedState, setLiked] = useState(liked); // Initialize liked state
     const [likeCount, setLikeCount] = useState(likes || 0); // Initialize likeCount with the number of likes from the post
     const [error, setError] = useState(null);
@@ -25,9 +25,7 @@ function LikeButton({ postId, onLike, liked, likes, url }) {
                     postId: postId,
                 }),
             });
-            if (res.ok) {
-                onLike(); // Call the onLike function passed as a prop to update the parent component
-            } else {
+            if (!res.ok) { // Call the onLike function passed as a prop to update the parent component
                 setLikeCount(previous => previous + 1); // Decrease the like count
                 setLiked(true); // Set liked to false
                 const data = await res.json();
