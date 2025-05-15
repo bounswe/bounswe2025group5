@@ -13,7 +13,7 @@ import {
 import { ThemedText } from '@/components/ThemedText';
 import { AuthContext } from '../_layout';
 
-const HOST = '161.35.42.102';
+const HOST = '162.35.42.102';
 const API_BASE = `http://${HOST}:8080`;
 const ADMIN_TYPE_PLACEHOLDER = 'admin';
 
@@ -248,7 +248,7 @@ export default function ChallengesScreen() {
             <ThemedText type="title" style={styles.lbTitle}>Leaderboard</ThemedText>
             {lbLoading ? (
               <View style={styles.center}>
-                 <ActivityIndicator size="large" color={activityIndicatorColor}/>
+                 <ActivityIndicator testID="inline-loading" size="large" color={activityIndicatorColor}/>
               </View>
             ) : lbError ? (
               <ThemedText type="default" style={[styles.error, {color: errorColor}]}>{lbError}</ThemedText>
@@ -276,10 +276,6 @@ export default function ChallengesScreen() {
             <TouchableOpacity style={styles.lbCloseButton} testID="leaderboard-close-button" onPress={() => setLeaderboardVisible(false)}>
               <ThemedText type="defaultSemiBold">Close</ThemedText>
             </TouchableOpacity>
-
-            <ActivityIndicator testID="full-screen-loading" size="large" color={activityIndicatorColor} />
-            <ActivityIndicator testID="inline-loading" style={styles.inlineSpinner} size="small" color={activityIndicatorColor} />
-            <ActivityIndicator testID="leaderboard-loading" size="large" color={activityIndicatorColor}/>
           </View>
         </View>
       </Modal>
