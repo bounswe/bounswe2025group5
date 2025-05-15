@@ -12,6 +12,37 @@ function PostCard({ post, isLoggedIn, onEdit, onDelete, url }) {
   const [comments, setComments] = useState(post.comments || []);
   const isOwner = isLoggedIn && post.creatorUsername === localStorage.getItem("username");
   const location = useLocation();
+  const [postLiked, setPostLiked] = useState(false);
+  const [likeLoading, setLikeLoading] = useState(true);
+  console.log("PostCard component rendered with post:", post);
+
+  const fetchUserLikes = async () => {
+    const username = localStorage.getItem("username") || "";
+    try {
+      const response = await fetch(`${url}/api/posts/${post.postId}/likes`);
+      const data = await response.json();
+      if (response.ok) {
+        console.log("Fetched likes:", data);
+        for (let i = 0; i < data.likedByUsers.length; i++) {
+          if (username == data.likedByUsers[i].username) {
+            setPostLiked(true);
+            break;
+          }
+        }
+      } else {
+        console.error("Failed to fetch likes:", data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching likes:", error);
+    } finally {
+      setLikeLoading(false);
+    }
+  };
+  useEffect(() => {
+    if (location.pathname === '/profile') {
+      fetchUserLikes();
+    }
+  }, []);
 
   return (
     <Card className="mb-4 shadow rounded-4">
@@ -39,23 +70,25 @@ function PostCard({ post, isLoggedIn, onEdit, onDelete, url }) {
           </div>
           <div className="text-muted" style={{ fontSize: '0.8rem' }}>
             {!isLoggedIn && <div>Likes: {post.likes}</div>}
-            <div style={{fontSize:'0.7rem'}}>Posted on: {new Date(post.createdAt).toLocaleString()}</div>
+            {location.pathname == "/profile" ? (<div style={{ fontSize: '0.7rem' }}>Saved on: {new Date(post.savedAt).toLocaleString()}</div>) : (<div style={{ fontSize: '0.7rem' }}>Posted on: {new Date(post.createdAt).toLocaleString()}</div>)}
           </div>
         </div>
 
         {/* Action Buttons Row for Logged-in User and Post Owner */}
         <div className="d-flex justify-content-between align-items-center mb-3">
-          {isLoggedIn && (
-            <div className="d-flex gap-2">
-              <LikeButton
-                postId={post.postId}
-                liked={post.liked}
-                likes={post.likes}
-                url={url}
-              />
+          {(!likeLoading || location.pathname != "/profile") && (
+                <LikeButton
+                  postId={post.postId}
+                  onLike={onAction}
+                  liked={post.liked || postLiked}
+                  likes={post.likes || post.likeCount}
+                  url={url}
+                />
+              )}
               <SaveButton
                 postId={post.postId}
-                saved={post.saved}
+                onSave={onAction}
+                saved={post.saved || Boolean(post.savedAt)}
                 url={url}
               />
             </div>
