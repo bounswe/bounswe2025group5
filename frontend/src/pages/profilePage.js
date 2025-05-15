@@ -47,7 +47,6 @@ export default function ProfilePage({ setIsLoggedIn, username, url }) {
         const res = await fetch(`${url}/api/profile/info?username=${usernameToFetch}`);
         const data = await res.json();
         if (res.ok) {
-          console.log('user successfully fetched:', data);
           setUser(data);
           setEditedUser({ username: data.username, biography: data.biography, profilePicture: data.photoUrl });
           setMessage(data.message || "User fetched successfully.");

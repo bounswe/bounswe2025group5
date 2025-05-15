@@ -14,7 +14,6 @@ function PostCard({ post, isLoggedIn, onEdit, onDelete, url }) {
   const location = useLocation();
   const [postLiked, setPostLiked] = useState(false);
   const [likeLoading, setLikeLoading] = useState(true);
-  console.log("PostCard component rendered with post:", post);
 
   const fetchUserLikes = async () => {
     const username = localStorage.getItem("username") || "";
@@ -22,7 +21,6 @@ function PostCard({ post, isLoggedIn, onEdit, onDelete, url }) {
       const response = await fetch(`${url}/api/posts/${post.postId}/likes`);
       const data = await response.json();
       if (response.ok) {
-        console.log("Fetched likes:", data);
         for (let i = 0; i < data.likedByUsers.length; i++) {
           if (username == data.likedByUsers[i].username) {
             setPostLiked(true);
@@ -30,7 +28,6 @@ function PostCard({ post, isLoggedIn, onEdit, onDelete, url }) {
           }
         }
       } else {
-        console.error("Failed to fetch likes:", data.message);
       }
     } catch (error) {
       console.error("Error fetching likes:", error);
@@ -57,16 +54,16 @@ function PostCard({ post, isLoggedIn, onEdit, onDelete, url }) {
 
       <Card.Body>
         {/* Content Box */}
-        {location.pathname==='/feed' ? <div className="p-5 rounded bg-light mb-3 rounded-4 w-100" style={{ width: "15%" }}>
+        {location.pathname === '/feed' ? <div className="p-4 rounded bg-light mb-3 rounded-4 w-100" style={{ fontSize: '1.25rem', width: "15%" }}>
           {post.content}
-        </div> : <div className="p-2 rounded bg-light mb-5 rounded-4 w-100" style={{ width: "15%", fontSize:'1.1rem' }}>
+        </div> : <div className="p-2 rounded bg-light mb-5 rounded-4 w-100" style={{ width: "15%", fontSize: '1.1rem' }}>
           {post.content}
         </div>}
 
         {/* Username and Post Info Row */}
         <div className="d-flex justify-content-between">
           <div>
-            <h5 className="fw-semibold" style={{fontSize:'1.1rem'}}>@{post.creatorUsername}</h5>
+            <h5 className="fw-semibold" style={{ fontSize: '1.1rem' }}>@{post.creatorUsername}</h5>
           </div>
           <div className="text-muted" style={{ fontSize: '0.8rem' }}>
             {!isLoggedIn && <div>Likes: {post.likes}</div>}
@@ -76,10 +73,11 @@ function PostCard({ post, isLoggedIn, onEdit, onDelete, url }) {
 
         {/* Action Buttons Row for Logged-in User and Post Owner */}
         <div className="d-flex justify-content-between align-items-center mb-3">
-          {(!likeLoading || location.pathname != "/profile") && (
+          {isLoggedIn && (
+            <div className="d-flex gap-2">
+              {(!likeLoading || location.pathname !== "/profile") && (
                 <LikeButton
                   postId={post.postId}
-                  onLike={onAction}
                   liked={post.liked || postLiked}
                   likes={post.likes || post.likeCount}
                   url={url}
@@ -87,12 +85,12 @@ function PostCard({ post, isLoggedIn, onEdit, onDelete, url }) {
               )}
               <SaveButton
                 postId={post.postId}
-                onSave={onAction}
                 saved={post.saved || Boolean(post.savedAt)}
                 url={url}
               />
             </div>
           )}
+
 
           {isOwner && (
             <div className="d-flex gap-2">
@@ -103,9 +101,9 @@ function PostCard({ post, isLoggedIn, onEdit, onDelete, url }) {
         </div>
 
         {/* Accordion for Comments */}
-        {location.pathname == '/main' && post.photoUrl != null  ?  null : <Accordion>
+        {location.pathname == '/main' && post.photoUrl != null ? null : <Accordion>
           <Accordion.Item eventKey="0">
-            <Accordion.Header>Comments ({(comments > 0) ?  comments:0 })</Accordion.Header>
+            <Accordion.Header>Comments ({(comments > 0) ? comments : 0})</Accordion.Header>
             <Accordion.Body>
               <CommentSection
                 postId={post.postId}
@@ -116,7 +114,7 @@ function PostCard({ post, isLoggedIn, onEdit, onDelete, url }) {
               />
             </Accordion.Body>
           </Accordion.Item>
-        </Accordion> }
+        </Accordion>}
       </Card.Body>
     </Card>
   );
