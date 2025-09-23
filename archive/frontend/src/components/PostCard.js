@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Card, Accordion } from "react-bootstrap";
 import LikeButton from "./LikeButton.js";
 import SaveButton from "./SaveButton.js";
-import CommentSection from "./comment/index.js";
+import CommentSection from "./comment";
 import EditPostButton from "./EditPostButton.js";
 import DeletePost from "./DeletePost.js";
 import { useEffect } from "react";

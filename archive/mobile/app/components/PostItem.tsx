@@ -16,7 +16,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
-import CommentItemDisplay from '../components/CommentItemDisplay';
+import CommentItemDisplay from './CommentItemDisplay';
 
 const HOST = '162.35.42.102';
 const API_BASE = `http://${HOST}:8080`;

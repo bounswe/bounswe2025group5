@@ -9,7 +9,7 @@
     "test:ci": "jest",
     "prestart": "npm run test:ci",
     "start": "expo start",
-    "reset-project": "node ./scripts/reset-project.js",
+    "reset-project": "node scripts/reset-project.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
