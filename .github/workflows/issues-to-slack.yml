@@ -3,8 +3,7 @@ name: Notify Slack on Issues
 
 on:
   issues:
-    types: [opened, closed, reopened, assigned, unassigned, labeled, unlabeled]
-
+    types: [opened, closed]
 jobs:
   notify:
     runs-on: ubuntu-latest
