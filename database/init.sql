@@ -222,7 +222,6 @@ BEGIN
 END$$
 DELIMITER ;
 
-SHOW TRIGGERS;
 -- Trigger: after_comment_delete
 DELIMITER $$
 CREATE TRIGGER after_comment_delete
@@ -344,4 +343,5 @@ BEGIN
 END$$
 
 */
+
 
