@@ -1,5 +1,5 @@
-DROP DATABASE IF EXISTS waste_less;
-CREATE DATABASE IF NOT EXISTS waste_less;
+DROP DATABASE waste_less;
+CREATE DATABASE  waste_less;
 Use  waste_less;
 
 CREATE  TABLE IF NOT EXISTS  `users` (
@@ -183,6 +183,10 @@ CREATE TABLE badge (
 );
 
 
+-- Trigger: after_like_insert
+-- Purpose: After a new row is inserted into `post_likes`,
+--          automatically increment the `likes` counter
+--          in the corresponding row of the `posts` table.
 DELIMITER $$
 CREATE TRIGGER `after_like_insert`
     AFTER INSERT ON `post_likes`
@@ -191,300 +195,153 @@ BEGIN
     UPDATE `posts`
     SET `likes` = `likes` + 1
     WHERE `post_id` = NEW.post_id;
-    END$$
-    DELIMITER ;
+END$$
+DELIMITER ;
 
-
+-- Trigger: after_like_delete
 DELIMITER $$
-    CREATE TRIGGER `after_like_delete`
-        AFTER DELETE ON `post_likes`
-        FOR EACH ROW
-    BEGIN
-        UPDATE `posts`
-        SET `likes` = `likes` - 1
-        WHERE `post_id` = OLD.post_id;
-        END$$
-        DELIMITER ;
+CREATE TRIGGER after_like_delete
+AFTER DELETE ON post_likes
+FOR EACH ROW
+BEGIN
+    UPDATE posts
+    SET likes = likes - 1
+    WHERE post_id = OLD.post_id;
+END$$
+DELIMITER ;
 
-
+-- Trigger: after_comment_insert
 DELIMITER $$
 CREATE TRIGGER after_comment_insert
-    AFTER INSERT ON comments
-    FOR EACH ROW
+AFTER INSERT ON comments
+FOR EACH ROW
 BEGIN
     UPDATE posts
     SET comments = comments + 1
     WHERE post_id = NEW.post_id;
-<<<<<<< Updated upstream
 END$$
 DELIMITER ;
 
-
-DELIMITER ;
-
-
+SHOW TRIGGERS;
+-- Trigger: after_comment_delete
 DELIMITER $$
 CREATE TRIGGER after_comment_delete
-    AFTER DELETE ON comments
-    FOR EACH ROW
+AFTER DELETE ON comments
+FOR EACH ROW
 BEGIN
     UPDATE posts
     SET comments = comments - 1
     WHERE post_id = OLD.post_id;
 END$$
 DELIMITER ;
-DELIMITER $$
 
-CREATE TRIGGER `after_waste_log_insert_update_active_challenges`
-AFTER INSERT ON `waste_log`
+DELIMITER $$
+-- Trigger: after_user_insert_create_profile
+
+CREATE TRIGGER after_user_insert_create_profile
+AFTER INSERT ON users
 FOR EACH ROW
 BEGIN
-    UPDATE `user_challenge_progress` ucp
-    JOIN `challenges` c ON ucp.challenge_id = c.challenge_id
+    INSERT INTO profiles (user_id)
+    VALUES (NEW.user_id);
+END$$
+
+DELIMITER ;
+-- THESE COULD BE CHANGED SINCE THE LOGIC OF CHALLENGE WILL BE CHANGED, SO THESE TRIGGERS WERE NOT CREATED BUT GIVEN AS REFERENCE FOR FUTURE
+/*
+DELIMITER $$
+
+-- After INSERT on waste_log
+CREATE TRIGGER after_waste_log_insert
+AFTER INSERT ON waste_log
+FOR EACH ROW
+BEGIN
+    -- Update active user challenge progress
+    UPDATE user_challenge_progress ucp
+    JOIN challenges c ON ucp.challenge_id = c.challenge_id
     SET ucp.remaining_amount = ucp.remaining_amount - NEW.amount
-    WHERE ucp.user_id = NEW.user_id            -- Match the user who logged
-      AND c.status = 'Active'                  -- Match only active challenges
-      AND c.waste_type = NEW.waste_type        -- Match the *challenge's* defined type to the log type
-      AND CAST(NEW.date AS DATE) BETWEEN c.start_date AND c.end_date; -- Check log date is within challenge range
+    WHERE ucp.user_id = NEW.user_id
+      AND ucp.waste_type = NEW.waste_type
+      AND c.status = 'Active'
+      AND c.start_date <= DATE(NEW.date)
+      AND c.end_date   >= DATE(NEW.date);
+
+    -- Update waste goal progress
+    UPDATE waste_goal wg
+    SET wg.percent_of_progress = LEAST(100, wg.percent_of_progress + (NEW.amount / wg.amount) * 100)
+    WHERE wg.user_id = NEW.user_id
+      AND wg.waste_type = NEW.waste_type
+      AND wg.amount > 0
+      AND DATE(NEW.date) BETWEEN DATE_SUB(DATE(wg.date), INTERVAL wg.duration DAY) AND DATE(wg.date);
 END$$
 
-DELIMITER ;
-DELIMITER $$
 
-CREATE TRIGGER `after_waste_log_delete_update_active_challenges`
-AFTER DELETE ON `waste_log`
+-- After DELETE on waste_log
+CREATE TRIGGER after_waste_log_delete
+AFTER DELETE ON waste_log
 FOR EACH ROW
 BEGIN
-    UPDATE `user_challenge_progress` ucp
-    JOIN `challenges` c ON ucp.challenge_id = c.challenge_id
+    -- Rollback challenge progress
+    UPDATE user_challenge_progress ucp
+    JOIN challenges c ON ucp.challenge_id = c.challenge_id
     SET ucp.remaining_amount = ucp.remaining_amount + OLD.amount
-    WHERE ucp.user_id = OLD.user_id          -- Match the user whose log was deleted
-      AND c.status = 'Active'                -- Match only active challenges (at the time of trigger execution)
-      AND c.waste_type = OLD.waste_type      -- Match the *challenge's* defined type to the deleted log's type
-      AND CAST(OLD.date AS DATE) BETWEEN c.start_date AND c.end_date; -- Check deleted log's date was within challenge range
-END$$
+    WHERE ucp.user_id = OLD.user_id
+      AND ucp.waste_type = OLD.waste_type
+      AND c.status = 'Active'
+      AND c.start_date <= DATE(OLD.date)
+      AND c.end_date   >= DATE(OLD.date);
 
-DELIMITER ;
-
-
-DELIMITER $$
-
-CREATE TRIGGER after_waste_log_insert
-AFTER INSERT ON waste_log
-FOR EACH ROW
-BEGIN
-
-  UPDATE user_challenge_progress ucp
-  JOIN challenges c ON ucp.challenge_id = c.challenge_id
-  SET ucp.remaining_amount = ucp.remaining_amount - NEW.amount
-  WHERE ucp.user_id = NEW.user_id
-    AND ucp.waste_type = NEW.waste_type
-    AND c.start_date <= DATE(NEW.date)
-    AND c.end_date   >= DATE(NEW.date);
-
-
-  UPDATE waste_goal wg
-  SET wg.percent_of_progress = LEAST(100, wg.percent_of_progress + (NEW.amount / wg.amount) * 100)
-  WHERE wg.user_id = NEW.user_id
-    AND wg.waste_type = NEW.waste_type
-    AND wg.amount > 0
-    AND DATE(NEW.date) BETWEEN DATE_SUB(DATE(wg.date), INTERVAL wg.duration DAY) AND DATE(wg.date);
+    -- Rollback waste goal progress
+    UPDATE waste_goal wg
+    SET wg.percent_of_progress = GREATEST(0, wg.percent_of_progress - (OLD.amount / wg.amount) * 100)
+    WHERE wg.user_id = OLD.user_id
+      AND wg.waste_type = OLD.waste_type
+      AND wg.amount > 0
+      AND DATE(OLD.date) BETWEEN DATE_SUB(DATE(wg.date), INTERVAL wg.duration DAY) AND DATE(wg.date);
 END$$
 
 
-CREATE TRIGGER after_waste_log_delete
-AFTER DELETE ON waste_log
-FOR EACH ROW
-BEGIN
-  UPDATE user_challenge_progress ucp
-  JOIN challenges c ON ucp.challenge_id = c.challenge_id
-  SET ucp.remaining_amount = ucp.remaining_amount + OLD.amount
-  WHERE ucp.user_id = OLD.user_id
-    AND ucp.waste_type = OLD.waste_type
-    AND c.start_date <= DATE(OLD.date)
-    AND c.end_date   >= DATE(OLD.date);
-
-  UPDATE waste_goal wg
-  SET wg.percent_of_progress = GREATEST(0, wg.percent_of_progress - (OLD.amount / wg.amount) * 100)
-  WHERE wg.user_id = OLD.user_id
-    AND wg.waste_type = OLD.waste_type
-    AND wg.amount > 0
-    AND DATE(OLD.date) BETWEEN DATE_SUB(DATE(wg.date), INTERVAL wg.duration DAY) AND DATE(wg.date);
-END$$
-
-
+-- After UPDATE on waste_log
 CREATE TRIGGER after_waste_log_update
 AFTER UPDATE ON waste_log
 FOR EACH ROW
 BEGIN
+    -- Rollback old challenge
+    UPDATE user_challenge_progress ucp
+    JOIN challenges c ON ucp.challenge_id = c.challenge_id
+    SET ucp.remaining_amount = ucp.remaining_amount + OLD.amount
+    WHERE ucp.user_id = OLD.user_id
+      AND ucp.waste_type = OLD.waste_type
+      AND c.status = 'Active'
+      AND c.start_date <= DATE(OLD.date)
+      AND c.end_date   >= DATE(OLD.date);
 
-  UPDATE user_challenge_progress ucp
-  JOIN challenges c ON ucp.challenge_id = c.challenge_id
-  SET ucp.remaining_amount = ucp.remaining_amount + OLD.amount
-  WHERE ucp.user_id = OLD.user_id
-    AND ucp.waste_type = OLD.waste_type
-    AND c.start_date <= DATE(OLD.date)
-    AND c.end_date   >= DATE(OLD.date);
+    -- Apply new challenge
+    UPDATE user_challenge_progress ucp
+    JOIN challenges c ON ucp.challenge_id = c.challenge_id
+    SET ucp.remaining_amount = ucp.remaining_amount - NEW.amount
+    WHERE ucp.user_id = NEW.user_id
+      AND ucp.waste_type = NEW.waste_type
+      AND c.status = 'Active'
+      AND c.start_date <= DATE(NEW.date)
+      AND c.end_date   >= DATE(NEW.date);
 
+    -- Rollback old waste goal
+    UPDATE waste_goal wg
+    SET wg.percent_of_progress = GREATEST(0, wg.percent_of_progress - (OLD.amount / wg.amount) * 100)
+    WHERE wg.user_id = OLD.user_id
+      AND wg.waste_type = OLD.waste_type
+      AND wg.amount > 0
+      AND DATE(OLD.date) BETWEEN DATE_SUB(DATE(wg.date), INTERVAL wg.duration DAY) AND DATE(wg.date);
 
-  UPDATE user_challenge_progress ucp
-  JOIN challenges c ON ucp.challenge_id = c.challenge_id
-  SET ucp.remaining_amount = ucp.remaining_amount - NEW.amount
-  WHERE ucp.user_id = NEW.user_id
-    AND ucp.waste_type = NEW.waste_type
-    AND c.start_date <= DATE(NEW.date)
-    AND c.end_date   >= DATE(NEW.date);
-
-
-  UPDATE waste_goal wg
-  SET wg.percent_of_progress = GREATEST(0, wg.percent_of_progress - (OLD.amount / wg.amount) * 100)
-  WHERE wg.user_id = OLD.user_id
-    AND wg.waste_type = OLD.waste_type
-    AND wg.amount > 0
-    AND DATE(OLD.date) BETWEEN DATE_SUB(DATE(wg.date), INTERVAL wg.duration DAY) AND DATE(wg.date);
-
-
-  UPDATE waste_goal wg
-  SET wg.percent_of_progress = LEAST(100, wg.percent_of_progress + (NEW.amount / wg.amount) * 100)
-  WHERE wg.user_id = NEW.user_id
-    AND wg.waste_type = NEW.waste_type
-    AND wg.amount > 0
-    AND DATE(NEW.date) BETWEEN DATE_SUB(DATE(wg.date), INTERVAL wg.duration DAY) AND DATE(wg.date);
+    -- Apply new waste goal
+    UPDATE waste_goal wg
+    SET wg.percent_of_progress = LEAST(100, wg.percent_of_progress + (NEW.amount / wg.amount) * 100)
+    WHERE wg.user_id = NEW.user_id
+      AND wg.waste_type = NEW.waste_type
+      AND wg.amount > 0
+      AND DATE(NEW.date) BETWEEN DATE_SUB(DATE(wg.date), INTERVAL wg.duration DAY) AND DATE(wg.date);
 END$$
 
-DELIMITER ;
+*/
 
-
-
-DELIMITER $$
-
-CREATE TRIGGER `after_user_insert_create_profile`
-AFTER INSERT ON `users`
-FOR EACH ROW
-BEGIN
-    -- Insert a new profile record for the newly inserted user.
-    -- profile_id will auto-increment.
-    -- photo_url and biography will default to NULL as per table definition.
-    -- created_at will default to CURRENT_TIMESTAMP as per table definition.
-    INSERT INTO `profiles` (user_id) VALUES (NEW.user_id);
-END$$
-
-DELIMITER ;
-
-
-
-
-
-
-DELIMITER //
-
--- Trigger for INSERT on waste_log
-CREATE TRIGGER after_waste_log_insert
-AFTER INSERT ON waste_log
-FOR EACH ROW
-BEGIN
-    DECLARE total_logged DOUBLE;
-    DECLARE goal_amount DOUBLE;
-    
-    -- Calculate total logged amount for this specific goal
-    SELECT COALESCE(SUM(amount), 0) INTO total_logged
-    FROM waste_log
-    WHERE goal_id = NEW.goal_id;
-    
-    -- Get the goal amount
-    SELECT amount INTO goal_amount
-    FROM waste_goal
-    WHERE goal_id = NEW.goal_id;
-    
-    -- Update progress for this specific goal
-    UPDATE waste_goal
-    SET percent_of_progress = 
-        CASE 
-            WHEN goal_amount > 0 THEN LEAST(total_logged / goal_amount * 100, 100)
-            ELSE 0
-        END,
-        completed = CASE WHEN total_logged >= goal_amount THEN TRUE ELSE FALSE END
-    WHERE goal_id = NEW.goal_id;
-END//
-
--- Trigger for UPDATE on waste_log
-CREATE TRIGGER after_waste_log_update
-AFTER UPDATE ON waste_log
-FOR EACH ROW
-BEGIN
-    -- First update the old goal (if goal_id was changed)
-    IF OLD.goal_id IS NOT NULL AND (NEW.goal_id != OLD.goal_id) THEN
-        BEGIN
-            DECLARE old_total_logged DOUBLE;
-            DECLARE old_goal_amount DOUBLE;
-            
-            SELECT COALESCE(SUM(amount), 0) INTO old_total_logged
-            FROM waste_log
-            WHERE goal_id = OLD.goal_id;
-            
-            SELECT amount INTO old_goal_amount
-            FROM waste_goal
-            WHERE goal_id = OLD.goal_id;
-            
-            UPDATE waste_goal
-            SET percent_of_progress = 
-                CASE 
-                    WHEN old_goal_amount > 0 THEN LEAST(old_total_logged / old_goal_amount * 100, 100)
-                    ELSE 0
-                END,
-                completed = CASE WHEN old_total_logged >= old_goal_amount THEN TRUE ELSE FALSE END
-            WHERE goal_id = OLD.goal_id;
-        END;
-    END IF;
-    
-    -- Then update the new goal (or same goal if amount changed)
-    BEGIN
-        DECLARE new_total_logged DOUBLE;
-        DECLARE new_goal_amount DOUBLE;
-        
-        SELECT COALESCE(SUM(amount), 0) INTO new_total_logged
-        FROM waste_log
-        WHERE goal_id = NEW.goal_id;
-        
-        SELECT amount INTO new_goal_amount
-        FROM waste_goal
-        WHERE goal_id = NEW.goal_id;
-        
-        UPDATE waste_goal
-        SET percent_of_progress = 
-            CASE 
-                WHEN new_goal_amount > 0 THEN LEAST(new_total_logged / new_goal_amount * 100, 100)
-                ELSE 0
-            END,
-            completed = CASE WHEN new_total_logged >= new_goal_amount THEN TRUE ELSE FALSE END
-        WHERE goal_id = NEW.goal_id;
-    END;
-END//
-
--- Trigger for DELETE on waste_log
-CREATE TRIGGER after_waste_log_delete
-AFTER DELETE ON waste_log
-FOR EACH ROW
-BEGIN
-    DECLARE total_logged DOUBLE;
-    DECLARE goal_amount DOUBLE;
-    
-    SELECT COALESCE(SUM(amount), 0) INTO total_logged
-    FROM waste_log
-    WHERE goal_id = OLD.goal_id;
-    
-    SELECT amount INTO goal_amount
-    FROM waste_goal
-    WHERE goal_id = OLD.goal_id;
-    
-    UPDATE waste_goal
-    SET percent_of_progress = 
-        CASE 
-            WHEN goal_amount > 0 THEN LEAST(total_logged / goal_amount * 100, 100)
-            ELSE 0
-        END,
-        completed = CASE WHEN total_logged >= goal_amount THEN TRUE ELSE FALSE END
-    WHERE goal_id = OLD.goal_id;
-END//
-
-DELIMITER ;
