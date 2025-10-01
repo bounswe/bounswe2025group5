@@ -1,8 +1,8 @@
-package com.example.CMPE352.controller;
+package com.example.CMPE451.controller;
 
-import com.example.CMPE352.model.request.PostLikeRequest;
-import com.example.CMPE352.model.response.PostLikeResponse;
-import com.example.CMPE352.service.PostLikeService;
+import com.example.CMPE451.model.request.PostLikeRequest;
+import com.example.CMPE451.model.response.PostLikeResponse;
+import com.example.CMPE451.service.PostLikeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

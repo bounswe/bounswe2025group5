@@ -1,7 +1,7 @@
-package com.example.CMPE352.controller;
+package com.example.CMPE451.controller;
 
-import com.example.CMPE352.model.response.UserCountResponse;
-import com.example.CMPE352.service.UserService;
+import com.example.CMPE451.model.response.UserCountResponse;
+import com.example.CMPE451.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

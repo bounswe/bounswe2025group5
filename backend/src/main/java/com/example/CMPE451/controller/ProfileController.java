@@ -1,12 +1,12 @@
-package com.example.CMPE352.controller;
+package com.example.CMPE451.controller;
 
-import com.example.CMPE352.model.request.ProfileEditAndCreateRequest;
-import com.example.CMPE352.model.response.BadgeResponse;
-import com.example.CMPE352.service.ProfileService;
-import com.example.CMPE352.model.response.ProfileResponse;
+import com.example.CMPE451.model.request.ProfileEditAndCreateRequest;
+import com.example.CMPE451.model.response.BadgeResponse;
+import com.example.CMPE451.service.ProfileService;
+import com.example.CMPE451.model.response.ProfileResponse;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;// profile/controller/ProfileController.java
+import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 

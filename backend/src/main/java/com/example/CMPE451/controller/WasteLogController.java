@@ -1,13 +1,13 @@
-package com.example.CMPE352.controller;
+package com.example.CMPE451.controller;
 
-import com.example.CMPE352.model.WasteGoal;
-import com.example.CMPE352.model.request.CreateWasteLogRequest;
-import com.example.CMPE352.model.request.UpdateWasteLogRequest;
-import com.example.CMPE352.model.response.CreateOrEditWasteLogResponse;
-import com.example.CMPE352.model.response.DeleteWasteLogResponse;
-import com.example.CMPE352.model.response.GetWasteLogResponse;
-import com.example.CMPE352.model.response.TotalLogResponse;
-import com.example.CMPE352.service.WasteLogService;
+import com.example.CMPE451.model.WasteGoal;
+import com.example.CMPE451.model.request.CreateWasteLogRequest;
+import com.example.CMPE451.model.request.UpdateWasteLogRequest;
+import com.example.CMPE451.model.response.CreateOrEditWasteLogResponse;
+import com.example.CMPE451.model.response.DeleteWasteLogResponse;
+import com.example.CMPE451.model.response.GetWasteLogResponse;
+import com.example.CMPE451.model.response.TotalLogResponse;
+import com.example.CMPE451.service.WasteLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;

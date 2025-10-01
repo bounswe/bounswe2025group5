@@ -1,11 +1,11 @@
-package com.example.CMPE352.controller;
+package com.example.CMPE451.controller;
 
 
-import com.example.CMPE352.model.request.LoginRequest;
-import com.example.CMPE352.model.request.RegisterRequest;
-import com.example.CMPE352.model.response.LoginResponse;
-import com.example.CMPE352.model.response.RegisterResponse;
-import com.example.CMPE352.service.AuthService;
+import com.example.CMPE451.model.request.LoginRequest;
+import com.example.CMPE451.model.request.RegisterRequest;
+import com.example.CMPE451.model.response.LoginResponse;
+import com.example.CMPE451.model.response.RegisterResponse;
+import com.example.CMPE451.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

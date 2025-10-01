@@ -1,14 +1,14 @@
-package com.example.CMPE352.controller;
+package com.example.CMPE451.controller;
 
-import com.example.CMPE352.model.Post;
-import com.example.CMPE352.model.request.CreatePostRequest;
-import com.example.CMPE352.model.request.SavePostRequest;
-import com.example.CMPE352.model.response.CreateOrEditPostResponse;
-import com.example.CMPE352.model.response.GetSavedPostResponse;
-import com.example.CMPE352.model.response.DeletePostResponse;
-import com.example.CMPE352.model.response.GetPostResponse;
-import com.example.CMPE352.model.response.SavePostResponse;
-import com.example.CMPE352.service.PostService;
+import com.example.CMPE451.model.Post;
+import com.example.CMPE451.model.request.CreatePostRequest;
+import com.example.CMPE451.model.request.SavePostRequest;
+import com.example.CMPE451.model.response.CreateOrEditPostResponse;
+import com.example.CMPE451.model.response.GetSavedPostResponse;
+import com.example.CMPE451.model.response.DeletePostResponse;
+import com.example.CMPE451.model.response.GetPostResponse;
+import com.example.CMPE451.model.response.SavePostResponse;
+import com.example.CMPE451.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

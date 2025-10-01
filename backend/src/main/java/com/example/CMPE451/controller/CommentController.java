@@ -1,9 +1,9 @@
-package com.example.CMPE352.controller;
+package com.example.CMPE451.controller;
 
-import com.example.CMPE352.model.request.CommentRequest;
-import com.example.CMPE352.model.response.CommentResponse;
-import com.example.CMPE352.model.response.GetCommentsResponse;
-import com.example.CMPE352.service.CommentService;
+import com.example.CMPE451.model.request.CommentRequest;
+import com.example.CMPE451.model.response.CommentResponse;
+import com.example.CMPE451.model.response.GetCommentsResponse;
+import com.example.CMPE451.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

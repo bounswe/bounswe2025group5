@@ -1,18 +1,18 @@
-package com.example.CMPE352.controller;
+package com.example.CMPE451.controller;
 
-import com.example.CMPE352.model.response.AirQualityResponse;
-import com.example.CMPE352.model.response.EnergyStatResponse;
-import com.example.CMPE352.service.*;
-import com.example.CMPE352.model.response.CurrentWeatherDataResponse;
-import com.example.CMPE352.model.response.NumberTriviaResponse;
+import com.example.CMPE451.model.response.AirQualityResponse;
+import com.example.CMPE451.model.response.EnergyStatResponse;
+import com.example.CMPE451.service.*;
+import com.example.CMPE451.model.response.CurrentWeatherDataResponse;
+import com.example.CMPE451.model.response.NumberTriviaResponse;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.example.CMPE352.model.response.MotivationalQuoteResponse;
-import com.example.CMPE352.service.EnergyStatsService;
+import com.example.CMPE451.model.response.MotivationalQuoteResponse;
+import com.example.CMPE451.service.EnergyStatsService;
 
 @RestController
 @RequestMapping("/api/home")

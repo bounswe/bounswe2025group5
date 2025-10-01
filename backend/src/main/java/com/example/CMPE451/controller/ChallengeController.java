@@ -1,11 +1,11 @@
-package com.example.CMPE352.controller;
+package com.example.CMPE451.controller;
 
 
-import com.example.CMPE352.model.request.AttendChallengeRequest;
-import com.example.CMPE352.model.request.CreateChallengeRequest;
-import com.example.CMPE352.model.response.*;
-import com.example.CMPE352.service.ChallengeService;
-import com.example.CMPE352.model.response.ChallengeListResponse;
+import com.example.CMPE451.model.request.AttendChallengeRequest;
+import com.example.CMPE451.model.request.CreateChallengeRequest;
+import com.example.CMPE451.model.response.*;
+import com.example.CMPE451.service.ChallengeService;
+import com.example.CMPE451.model.response.ChallengeListResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
