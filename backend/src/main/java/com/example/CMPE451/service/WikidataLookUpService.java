@@ -1,8 +1,8 @@
-package com.example.CMPE352.service;
+package com.example.CMPE451.service;
 
-import com.example.CMPE352.model.wikidata.SparqlResponse;
-import com.example.CMPE352.model.wikidata.WikidataSearchResponse;
-import com.example.CMPE352.model.wikidata.WikidataSearchResult;
+import com.example.CMPE451.model.wikidata.SparqlResponse;
+import com.example.CMPE451.model.wikidata.WikidataSearchResponse;
+import com.example.CMPE451.model.wikidata.WikidataSearchResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;

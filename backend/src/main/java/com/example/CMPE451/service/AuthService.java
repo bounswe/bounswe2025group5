@@ -1,13 +1,13 @@
-package com.example.CMPE352.service;
+package com.example.CMPE451.service;
 
 
-import com.example.CMPE352.exception.InvalidCredentialsException;
-import com.example.CMPE352.model.request.LoginRequest;
-import com.example.CMPE352.model.request.RegisterRequest;
-import com.example.CMPE352.model.response.LoginResponse;
-import com.example.CMPE352.model.User;
-import com.example.CMPE352.model.response.RegisterResponse;
-import com.example.CMPE352.repository.UserRepository;
+import com.example.CMPE451.exception.InvalidCredentialsException;
+import com.example.CMPE451.model.request.LoginRequest;
+import com.example.CMPE451.model.request.RegisterRequest;
+import com.example.CMPE451.model.response.LoginResponse;
+import com.example.CMPE451.model.User;
+import com.example.CMPE451.model.response.RegisterResponse;
+import com.example.CMPE451.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;

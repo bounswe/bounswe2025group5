@@ -1,7 +1,7 @@
-package com.example.CMPE352.model.response;
+package com.example.CMPE451.model.response;
 
-import com.example.CMPE352.model.Challenge;
-import com.example.CMPE352.model.WasteGoal;
+import com.example.CMPE451.model.Challenge;
+import com.example.CMPE451.model.WasteGoal;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

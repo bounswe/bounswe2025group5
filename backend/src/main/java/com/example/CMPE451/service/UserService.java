@@ -1,7 +1,7 @@
-package com.example.CMPE352.service;
+package com.example.CMPE451.service;
 
-import com.example.CMPE352.model.response.UserCountResponse;
-import com.example.CMPE352.repository.UserRepository;
+import com.example.CMPE451.model.response.UserCountResponse;
+import com.example.CMPE451.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

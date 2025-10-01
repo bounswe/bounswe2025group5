@@ -1,6 +1,6 @@
-package com.example.CMPE352.repository;
+package com.example.CMPE451.repository;
 
-import com.example.CMPE352.model.Post;
+import com.example.CMPE451.model.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

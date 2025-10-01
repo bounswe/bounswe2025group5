@@ -1,6 +1,6 @@
-package com.example.CMPE352.repository;
+package com.example.CMPE451.repository;
 
-import com.example.CMPE352.model.Comment;
+import com.example.CMPE451.model.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

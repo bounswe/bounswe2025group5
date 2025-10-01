@@ -1,9 +1,9 @@
-package com.example.CMPE352.repository;
+package com.example.CMPE451.repository;
 
 
 
-import com.example.CMPE352.model.Badge;
-import com.example.CMPE352.model.BadgeId;
+import com.example.CMPE451.model.Badge;
+import com.example.CMPE451.model.BadgeId;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

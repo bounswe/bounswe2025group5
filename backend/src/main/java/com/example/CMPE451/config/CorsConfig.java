@@ -1,5 +1,4 @@
-// src/main/java/com/example/CMPE352/config/CorsConfig.java
-package com.example.CMPE352.config;
+package com.example.CMPE451.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

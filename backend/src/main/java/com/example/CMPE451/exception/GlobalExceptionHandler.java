@@ -1,4 +1,4 @@
-package com.example.CMPE352.exception;
+package com.example.CMPE451.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

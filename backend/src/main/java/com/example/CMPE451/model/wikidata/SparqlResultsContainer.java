@@ -1,4 +1,4 @@
-package com.example.CMPE352.model.wikidata;
+package com.example.CMPE451.model.wikidata;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;

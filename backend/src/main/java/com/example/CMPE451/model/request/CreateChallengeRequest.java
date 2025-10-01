@@ -1,6 +1,6 @@
-package com.example.CMPE352.model.request;
+package com.example.CMPE451.model.request;
 
-import com.example.CMPE352.model.WasteGoal;
+import com.example.CMPE451.model.WasteGoal;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

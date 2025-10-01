@@ -1,6 +1,6 @@
-package com.example.CMPE352.service;
+package com.example.CMPE451.service;
 
-import com.example.CMPE352.model.response.AirQualityResponse;
+import com.example.CMPE451.model.response.AirQualityResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;

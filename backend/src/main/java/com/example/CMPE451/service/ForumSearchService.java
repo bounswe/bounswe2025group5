@@ -1,18 +1,18 @@
-package com.example.CMPE352.service;
+package com.example.CMPE451.service;
 
 
-import com.example.CMPE352.exception.InvalidCredentialsException;
-import com.example.CMPE352.exception.NotFoundException;
-import com.example.CMPE352.model.Post;
-import com.example.CMPE352.model.User;
-import com.example.CMPE352.model.response.GetPostResponse;
-import com.example.CMPE352.model.wikidata.SparqlBindingValue;
-import com.example.CMPE352.model.wikidata.SparqlResponse;
-import com.example.CMPE352.model.wikidata.WikidataSearchResult;
-import com.example.CMPE352.repository.PostLikeRepository;
-import com.example.CMPE352.repository.PostRepository;
-import com.example.CMPE352.repository.SavedPostRepository;
-import com.example.CMPE352.repository.UserRepository;
+import com.example.CMPE451.exception.InvalidCredentialsException;
+import com.example.CMPE451.exception.NotFoundException;
+import com.example.CMPE451.model.Post;
+import com.example.CMPE451.model.User;
+import com.example.CMPE451.model.response.GetPostResponse;
+import com.example.CMPE451.model.wikidata.SparqlBindingValue;
+import com.example.CMPE451.model.wikidata.SparqlResponse;
+import com.example.CMPE451.model.wikidata.WikidataSearchResult;
+import com.example.CMPE451.repository.PostLikeRepository;
+import com.example.CMPE451.repository.PostRepository;
+import com.example.CMPE451.repository.SavedPostRepository;
+import com.example.CMPE451.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

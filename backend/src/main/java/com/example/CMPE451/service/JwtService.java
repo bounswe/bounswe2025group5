@@ -1,6 +1,6 @@
-package com.example.CMPE352.service;
+package com.example.CMPE451.service;
 
-import com.example.CMPE352.model.User;
+import com.example.CMPE451.model.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;

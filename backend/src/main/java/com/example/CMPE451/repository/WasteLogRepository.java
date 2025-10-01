@@ -1,7 +1,7 @@
-package com.example.CMPE352.repository;
+package com.example.CMPE451.repository;
 
-import com.example.CMPE352.model.WasteGoal;
-import com.example.CMPE352.model.WasteLog;
+import com.example.CMPE451.model.WasteGoal;
+import com.example.CMPE451.model.WasteLog;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

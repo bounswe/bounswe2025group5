@@ -1,6 +1,6 @@
-package com.example.CMPE352.service;
+package com.example.CMPE451.service;
 
-import com.example.CMPE352.model.response.CurrentWeatherDataResponse; // Use your response class
+import com.example.CMPE451.model.response.CurrentWeatherDataResponse; // Use your response class
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

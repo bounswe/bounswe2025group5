@@ -9,7 +9,7 @@
 		<relativePath/>
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>CMPE352</artifactId>
+	<artifactId>CMPE451</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>CMPE352</name>
 	<description>CMPE352Project</description>

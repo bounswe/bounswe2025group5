@@ -1,15 +1,15 @@
-package com.example.CMPE352.service;
+package com.example.CMPE451.service;
 
-import com.example.CMPE352.exception.InvalidCredentialsException;
-import com.example.CMPE352.model.Comment;
-import com.example.CMPE352.model.Post;
-import com.example.CMPE352.model.User;
-import com.example.CMPE352.model.request.CommentRequest;
-import com.example.CMPE352.model.response.CommentResponse;
-import com.example.CMPE352.model.response.GetCommentsResponse;
-import com.example.CMPE352.repository.CommentRepository;
-import com.example.CMPE352.repository.PostRepository;
-import com.example.CMPE352.repository.UserRepository;
+import com.example.CMPE451.exception.InvalidCredentialsException;
+import com.example.CMPE451.model.Comment;
+import com.example.CMPE451.model.Post;
+import com.example.CMPE451.model.User;
+import com.example.CMPE451.model.request.CommentRequest;
+import com.example.CMPE451.model.response.CommentResponse;
+import com.example.CMPE451.model.response.GetCommentsResponse;
+import com.example.CMPE451.repository.CommentRepository;
+import com.example.CMPE451.repository.PostRepository;
+import com.example.CMPE451.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

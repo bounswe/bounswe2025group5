@@ -1,9 +1,9 @@
-package com.example.CMPE352.repository;
+package com.example.CMPE451.repository;
 
 
-import com.example.CMPE352.model.User;
-import com.example.CMPE352.model.UserReward;
-import com.example.CMPE352.model.UserRewardId;
+import com.example.CMPE451.model.User;
+import com.example.CMPE451.model.UserReward;
+import com.example.CMPE451.model.UserRewardId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

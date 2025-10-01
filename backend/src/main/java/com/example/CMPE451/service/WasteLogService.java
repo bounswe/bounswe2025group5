@@ -1,14 +1,14 @@
-package com.example.CMPE352.service;
+package com.example.CMPE451.service;
 
-import com.example.CMPE352.exception.NotFoundException;
-import com.example.CMPE352.model.*;
-import com.example.CMPE352.model.request.CreateWasteLogRequest;
-import com.example.CMPE352.model.request.UpdateWasteLogRequest;
-import com.example.CMPE352.model.response.CreateOrEditWasteLogResponse;
-import com.example.CMPE352.model.response.DeleteWasteLogResponse;
-import com.example.CMPE352.model.response.GetWasteLogResponse;
-import com.example.CMPE352.model.response.TotalLogResponse;
-import com.example.CMPE352.repository.*;
+import com.example.CMPE451.exception.NotFoundException;
+import com.example.CMPE451.model.*;
+import com.example.CMPE451.model.request.CreateWasteLogRequest;
+import com.example.CMPE451.model.request.UpdateWasteLogRequest;
+import com.example.CMPE451.model.response.CreateOrEditWasteLogResponse;
+import com.example.CMPE451.model.response.DeleteWasteLogResponse;
+import com.example.CMPE451.model.response.GetWasteLogResponse;
+import com.example.CMPE451.model.response.TotalLogResponse;
+import com.example.CMPE451.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

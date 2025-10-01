@@ -1,4 +1,4 @@
-package com.example.CMPE352.model.response;
+package com.example.CMPE451.model.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

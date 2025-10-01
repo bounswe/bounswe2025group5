@@ -1,4 +1,4 @@
-package com.example.CMPE352.model;
+package com.example.CMPE451.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

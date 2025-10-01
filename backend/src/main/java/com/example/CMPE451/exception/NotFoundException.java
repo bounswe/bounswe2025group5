@@ -1,4 +1,4 @@
-package com.example.CMPE352.exception;
+package com.example.CMPE451.exception;
 
 public class NotFoundException extends RuntimeException {
     public NotFoundException(String message) {

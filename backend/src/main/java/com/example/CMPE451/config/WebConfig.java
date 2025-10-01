@@ -1,4 +1,4 @@
-package com.example.CMPE352.config;
+package com.example.CMPE451.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

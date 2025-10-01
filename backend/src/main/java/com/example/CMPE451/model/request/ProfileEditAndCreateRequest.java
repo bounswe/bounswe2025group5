@@ -1,4 +1,4 @@
-package com.example.CMPE352.model.request;
+package com.example.CMPE451.model.request;
 
 import lombok.Data;
 
