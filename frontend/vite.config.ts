@@ -1,12 +1,18 @@
 import { defineConfig } from "vite";
-import { reactRouter } from "@react-router/dev/vite";
+import react from "@vitejs/plugin-react";
+import Pages from "vite-plugin-pages";
 import path from "path";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [
+    react(),
     tailwindcss(),
-    reactRouter(),
+    Pages({
+      dirs: 'src/routes',
+      extensions: ['tsx', 'ts'],
+      exclude: ['**/components/**'],
+    }),
   ],
   resolve: {
     alias: {
