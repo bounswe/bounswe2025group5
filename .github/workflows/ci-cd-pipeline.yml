@@ -38,7 +38,7 @@ jobs:
       # 🔹 Build Docker Compose services with cache
       - name: Build Docker Compose services
         run: |
-          docker-compose build --build-arg BUILDKIT_INLINE_CACHE=1
+          docker compose build --build-arg BUILDKIT_INLINE_CACHE=1
 
       # 🔹 Log in once if we need to push
       - name: Log in to GitHub Container Registry
