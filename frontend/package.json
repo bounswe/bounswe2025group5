@@ -19,11 +19,15 @@
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.3",
     "tailwind-merge": "^3.3.1",
-    "tailwindcss": "^4.1.14"
+    "tailwindcss": "^4.1.14",
+    "vite-plugin-pages": "^0.33.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
-    "@types/node": "^24.6.0",
+    "@react-router/dev": "^7.9.3",
+    "@react-router/fs-routes": "^7.9.3",
+    "@react-router/node": "^7.9.3",
+    "@types/node": "^24.6.2",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@typescript-eslint/eslint-plugin": "^8.45.0",
