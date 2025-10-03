@@ -1,0 +1,18 @@
+name: Notify Slack on Issues
+on:
+  issues:
+    types: [opened, closed]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Issue notification to Slack
+        uses: slackapi/slack-github-action@v1.27.0
+        with:
+          payload: |
+            {
+              "text": "🐛 Issue *${{ github.event.action }}* in *${{ github.repository }}*\n👉 ${{ github.event.issue.html_url }}\n🧑 Author: *${{ github.event.issue.user.login }}*\n🔖 State: *${{ github.event.issue.state }}*\n👤 Assignees: ${{ join(github.event.issue.assignees.*.login, ', ') || 'None' }}\n🏷️ Labels: ${{ join(github.event.issue.labels.*.name, ', ') || 'None' }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_ISSUES_URL }}

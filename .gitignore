@@ -1,3 +1,5 @@
-backend/src/main/resources/application.properties
-frontend/node_modules
+archive/backend/src/main/resources/application.properties
+archive/frontend/node_modules
 node_modules
+.vscode
+.idea
