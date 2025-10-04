@@ -17,10 +17,8 @@ public class JwtService {
         return Jwts.builder()
                 .setSubject(user.getEmail())
                 .claim("username", user.getUsername())
-                .claim("isAdmin", user.getIsAdmin())
-                .claim("isModerator", user.getIsModerator())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 86400000))
+                .setExpiration(new Date(System.currentTimeMillis() + 60* 1000))
                 .signWith(key)
                 .compact();
     }
@@ -39,5 +37,14 @@ public class JwtService {
         Date expiration = Jwts.parserBuilder().setSigningKey(key).build()
                 .parseClaimsJws(token).getBody().getExpiration();
         return expiration.before(new Date());
+    }
+    public String generateRefreshToken(User user) {
+        return Jwts.builder()
+                .setSubject(user.getEmail())
+                .claim("username", user.getUsername())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 7 * 24 * 60 * 60 * 1000))
+                .signWith(key)
+                .compact();
     }
 }
