@@ -7,7 +7,6 @@ import {
   View,
   TouchableOpacity,
   Text,
-  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,12 +18,6 @@ import { AuthContext } from '../_layout';
 import { API_BASE_URL } from '../apiConfig';
 import { ScrollView } from 'react-native';
 import CheckBox from '../components/CheckBox';
-
-type Weather = {
-  temperature: number;
-  humidity: number;
-}
-
 
 const API_BASE = `${API_BASE_URL}/api/auth`;
 
@@ -46,17 +39,6 @@ type TrendingPost = {
 
 
 
-// Add this function before your HomeScreen component
-const getWeatherEmoji = (temperature: number): string => {
-  if (temperature > 25) return '☀️'; // Hot/sunny
-  if (temperature > 20) return '🌤️'; // Warm/partly cloudy
-  if (temperature > 15) return '⛅'; // Mild/cloudy
-  if (temperature > 10) return '🌥️'; // Cool/mostly cloudy
-  if (temperature > 5) return '☁️';  // Cold/cloudy
-  if (temperature <= 5) return '❄️';  // Freezing
-  return '🌡️'; // Default
-};
-
 export default function HomeScreen() {
   const navigation = useNavigation<Navigation>();
   const route     = useRoute<any>();
@@ -74,7 +56,6 @@ export default function HomeScreen() {
   const [loggedIn, setLoggedIn]             = useState(false);
   const [errorVisible, setErrorVisible]     = useState(false);
   const [errorMessage, setErrorMessage]     = useState('');
-  const [weather, setWeather]               = useState<Weather | null>(null);
   const [usersCount, setUsersCount] = useState<number>(0);
   const [trendingPosts, setTrendingPosts] = useState<TrendingPost[]>([]);
 
@@ -122,7 +103,6 @@ export default function HomeScreen() {
     fetchTrending();
   }, []);
 
-
   useEffect(() => {
     (async () => {
       const token      = await AsyncStorage.getItem('token');
@@ -144,24 +124,6 @@ export default function HomeScreen() {
       navigation.setParams?.({ error: undefined });
     }
   }, [route.params?.error]);
-
-    // ─── fetch weather once on mount ────────────────────────────────────────────
-    useEffect(() => {
-      const fetchWeather = async () => {
-        try {
-          const res = await fetch(
-            `${API_BASE_URL}/api/home/getCurrentWeather`
-          );
-          if (!res.ok) throw new Error('Failed to fetch weather');
-          const data = (await res.json()) as Weather;
-          setWeather(data); 
-        }
-        catch (err) {
-          console.warn('Error fetching weather', err);
-        }
-      };
-      fetchWeather();
-    }, []);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -286,17 +248,6 @@ export default function HomeScreen() {
 
   return (
     <>
-    {weather && (
-      <View style={styles.weatherEmojiContainer}>
-        <Text style={styles.weatherEmoji}>
-          {getWeatherEmoji(weather.temperature)}
-        </Text>
-        <Text style={styles.weatherTemp}>
-          {weather.temperature.toFixed(1)}°C
-        </Text>
-      </View>
-    )}
-
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#FFFFFF', dark: '#000000' }}
       headerImage={
@@ -527,34 +478,4 @@ const styles = StyleSheet.create({
   errorBox: { position: 'absolute', bottom: 20, left: 16, right: 16, backgroundColor: 'red', padding: 12, borderRadius: 4, alignItems: 'center' },
   errorText: { color: '#fff', fontSize: 14, textAlign: 'center' },
 
-
-
-  weatherEmojiContainer: {
-    position: 'absolute',
-    top: 50,
-    right: 20,
-    zIndex: 999,
-    backgroundColor: '#B8E2F2',
-    borderRadius: 25,
-    width: 60,
-    height: 80,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 5,
-    flexDirection: 'column',
-    paddingVertical: 5,
-  },
-  weatherEmoji: {
-    fontSize: 30,
-    marginBottom: 2,
-  },
-  weatherTemp: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#000',
-  },
 });
