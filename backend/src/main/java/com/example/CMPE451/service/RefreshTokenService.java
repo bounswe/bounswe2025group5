@@ -22,18 +22,19 @@ public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
 
 
+    @Transactional
     public String generateRefreshToken(User user) {
         String token = Jwts.builder()
                 .setSubject(user.getEmail())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000))
+                .setExpiration(new Date(System.currentTimeMillis() +7L * 24 * 60 * 60 * 1000))
                 .signWith(Keys.secretKeyFor(SignatureAlgorithm.HS256))
                 .compact();
         refreshTokenRepository.deleteByEmail(user.getEmail());
         RefreshToken refreshToken = RefreshToken.builder()
                 .token(token)
                 .email(user.getEmail())
-                .expiryDate(Instant.now().plusSeconds(30L * 24 * 60 * 60))
+                .expiryDate(Instant.now().plusSeconds(7L * 24 * 60 * 60))
                 .build();
         refreshTokenRepository.save(refreshToken);
         return  token;
