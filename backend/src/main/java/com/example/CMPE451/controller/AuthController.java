@@ -3,6 +3,7 @@ package com.example.CMPE451.controller;
 
 import com.example.CMPE451.model.request.LoginRequest;
 import com.example.CMPE451.model.request.RegisterRequest;
+import com.example.CMPE451.model.request.TokenRequest;
 import com.example.CMPE451.model.response.LoginResponse;
 import com.example.CMPE451.model.response.RegisterResponse;
 import com.example.CMPE451.service.AuthService;
@@ -26,5 +27,10 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest request) {
         return ResponseEntity.ok(authService.register(request));
+    }
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> refreshToken(@RequestBody TokenRequest request) {
+        LoginResponse response = authService.refreshAccessToken(request.getRefreshToken());
+        return ResponseEntity.ok(response);
     }
 }
