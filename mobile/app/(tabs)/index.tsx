@@ -76,7 +76,6 @@ export default function HomeScreen() {
   const [errorMessage, setErrorMessage]     = useState('');
   const [weather, setWeather]               = useState<Weather | null>(null);
   const [usersCount, setUsersCount] = useState<number>(0);
-  const [numberTrivia, setNumberTrivia] = useState<string | null>(null);
   const [trendingPosts, setTrendingPosts] = useState<TrendingPost[]>([]);
 
   useEffect(() => {
@@ -108,22 +107,6 @@ export default function HomeScreen() {
 
     fetchUserCount();
   }, []);
-  useEffect(() => {
-    if (usersCount > 0) {              // wait until we actually have a number
-      const fetchTrivia = async () => {
-        try {
-          const res = await fetch(`${API_BASE_URL}/api/home/number/${usersCount}`);
-          if (!res.ok) throw new Error('Failed to fetch number trivia');
-          const data = await res.json();
-          setNumberTrivia(data.text);   // ← save just the text
-        } catch (err) {
-          console.warn('Unable to load number trivia', err);
-        }
-      };
-      fetchTrivia();
-    }
-  }, [usersCount]);                     // runs every time usersCount changes
-
   useEffect(() => {
     const fetchTrending = async () => {
       try {
@@ -370,15 +353,6 @@ export default function HomeScreen() {
               ))}
 
              </ScrollView>
-          {numberTrivia && (
-            <ThemedText
-              style={styles.triviaText}
-              lightColor="#1C1C1E"  
-              darkColor="#00796b"    
-            >
-              {numberTrivia}
-            </ThemedText>
-          )}
           </View>
 
           <View style={[styles.buttonsColumn, { marginTop: -5 }]}>
@@ -555,7 +529,6 @@ const styles = StyleSheet.create({
 
 
 
-  triviaText: { fontSize: 14, textAlign: 'center', marginTop:-15, fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' },
   weatherEmojiContainer: {
     position: 'absolute',
     top: 50,
