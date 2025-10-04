@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -47,10 +48,27 @@ public class AuthService {
         }
 
         String token = jwtService.generateToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
 
-        return new LoginResponse(token, user.getId(),user.getUsername(), user.getIsAdmin(), user.getIsModerator());
+        return new LoginResponse(token,refreshToken, user.getId(),user.getUsername(), user.getIsAdmin(), user.getIsModerator());
     }
 
+    public LoginResponse refreshAccessToken(String refreshToken) {
+        String email = jwtService.extractEmail(refreshToken);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!jwtService.isTokenValid(refreshToken, user)) {
+            throw new RuntimeException("Invalid refresh token");
+        }
+
+        String newAccessToken = jwtService.generateToken(user);
+        String newRefreshToken = jwtService.generateRefreshToken(user);
+
+
+        return new LoginResponse(newAccessToken,newRefreshToken, user.getId(),user.getUsername(), user.getIsAdmin(), user.getIsModerator());
+    }
     public RegisterResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new InvalidCredentialsException("Email is already in use");
