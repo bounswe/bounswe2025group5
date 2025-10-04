@@ -2,7 +2,7 @@
   "name": "mobile",
   "main": "expo-router/entry",
   "version": "1.0.0",
-  "proxy": "http://localhost:8080",
+  "proxy": "http://localhost:8081",
   "description": "A mobile application built with Expo and React Native.",
   "scripts": {
     "test": "jest --watchAll",

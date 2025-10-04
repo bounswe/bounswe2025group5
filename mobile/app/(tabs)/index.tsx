@@ -16,6 +16,7 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
+import { API_BASE_URL } from '../apiConfig';
 import { ScrollView } from 'react-native';
 import CheckBox from '../components/CheckBox';
 
@@ -34,8 +35,7 @@ type Weather = {
 }
 
 
-const HOST = '161.35.42.102';
-const API_BASE = `http://${HOST}:8080/api/auth`;
+const API_BASE = `${API_BASE_URL}/api/auth`;
 
 const KG_SAVED     = 57492;
 
@@ -93,7 +93,7 @@ export default function HomeScreen() {
     const fetchUserCount = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
-        const res = await fetch(`http://${HOST}:8080/api/users/count`, {
+        const res = await fetch(`${API_BASE_URL}/api/users/count`, {
           method : 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -122,7 +122,7 @@ export default function HomeScreen() {
     if (usersCount > 0) {              // wait until we actually have a number
       const fetchTrivia = async () => {
         try {
-          const res = await fetch(`http://${HOST}:8080/api/home/number/${usersCount}`);
+          const res = await fetch(`${API_BASE_URL}/api/home/number/${usersCount}`);
           if (!res.ok) throw new Error('Failed to fetch number trivia');
           const data = await res.json();
           setNumberTrivia(data.text);   // ← save just the text
@@ -137,7 +137,7 @@ export default function HomeScreen() {
   useEffect(() => {
     const fetchTrending = async () => {
       try {
-        const res = await fetch(`http://${HOST}:8080/api/posts/mostLikedPosts?size=4`);
+        const res = await fetch(`${API_BASE_URL}/api/posts/mostLikedPosts?size=4`);
         if (!res.ok) throw new Error('Failed to fetch trending posts');
         const data = (await res.json()) as TrendingPost[];
         setTrendingPosts(data);
@@ -176,7 +176,7 @@ export default function HomeScreen() {
       const fetchAQ = async () => {
         try {
           const res = await fetch(
-            `http://${HOST}:8080/api/home/getAirQuality?location=Istanbul`
+            `${API_BASE_URL}/api/home/getAirQuality?location=Istanbul`
           );
           if (!res.ok) throw new Error('Failed to fetch air quality');
           const data = (await res.json()) as AirQuality;
@@ -194,7 +194,7 @@ export default function HomeScreen() {
       const fetchWeather = async () => {
         try {
           const res = await fetch(
-            `http://${HOST}:8080/api/home/getCurrentWeather`
+            `${API_BASE_URL}/api/home/getCurrentWeather`
           );
           if (!res.ok) throw new Error('Failed to fetch weather');
           const data = (await res.json()) as Weather;
@@ -409,7 +409,7 @@ export default function HomeScreen() {
                       source={{
                         uri: post.photoUrl.startsWith('http')
                           ? post.photoUrl
-                          : `http://${HOST}:8080${post.photoUrl}`,
+                          : `${API_BASE_URL}${post.photoUrl}`,
                       }}
                       style={styles.postImage}
                       onError={(e) => console.warn('Image failed to load:', e.nativeEvent.error)}

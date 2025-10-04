@@ -16,9 +16,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from './_layout'; // Adjust path if necessary
+import { API_BASE_URL } from './apiConfig';
 
-const HOST = '161.35.42.102';
-const API_BASE = `http://${HOST}:8080`;
+const API_BASE = API_BASE_URL;
 
 // Type Definition (using relevant fields)
 type PostData = {

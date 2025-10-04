@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { AuthContext } from './_layout';
 import { ThemedText } from '@/components/ThemedText';
+import { apiUrl } from './apiConfig';
 
 // Badge interface
 interface Badge {
@@ -17,8 +18,6 @@ interface Badge {
   badgeName: string;
 }
 
-const HOST = '161.35.42.102';
-const API_BASE = `http://${HOST}:8080`;
 
 export default function BadgesScreen() {
   const { username } = useContext(AuthContext);
@@ -38,7 +37,7 @@ export default function BadgesScreen() {
     const fetchBadges = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${API_BASE}/api/profile/badges?username=${username}`);
+        const response = await fetch(apiUrl(`/api/profile/badges?username=${username}`));
         
         if (!response.ok) {
           throw new Error(`Failed to fetch badges: ${response.status}`);

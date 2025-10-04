@@ -15,12 +15,12 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from './_layout';
+import { API_BASE_URL } from './apiConfig';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const HOST = '161.35.42.102';
-const API_BASE = `http://${HOST}:8080`;
+const API_BASE = API_BASE_URL;
 
 export const unstable_settings = {
   initialRouteName: 'edit_profile',

@@ -18,10 +18,10 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
+import { API_BASE_URL } from '../apiConfig';
 import { Picker } from '@react-native-picker/picker';
 
-const HOST = '161.35.42.102';
-const API_BASE = `http://${HOST}:8080/api`;
+const API_BASE = `${API_BASE_URL}/api`;
 
 type WasteGoal = {
   goalId: number;
