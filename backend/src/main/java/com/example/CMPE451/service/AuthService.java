@@ -34,6 +34,8 @@ public class AuthService {
 
     @Autowired
     private final JwtService jwtService;
+    @Autowired
+    private RefreshTokenService refreshTokenService;
 
     public LoginResponse login(LoginRequest request) {
         String individual = request.getEmailOrUsername();
@@ -54,7 +56,7 @@ public class AuthService {
         }
 
         String token = jwtService.generateToken(user);
-        String refreshToken = jwtService.generateRefreshToken(user);
+        String refreshToken = refreshTokenService.generateRefreshToken(user);
 
         return new LoginResponse(token,refreshToken, user.getId(),user.getUsername(), user.getIsAdmin(), user.getIsModerator());
     }
@@ -64,7 +66,7 @@ public class AuthService {
                 .orElseThrow(() -> new  NotFoundException("Refresh token not found: " + refreshToken));
 
         if (tokenRecord.getExpiryDate().isBefore(Instant.now())) {
-            jwtService.deleteToken(tokenRecord.getEmail());
+            refreshTokenRepository.deleteByEmail(tokenRecord.getEmail());
             throw  new InvalidCredentialsException("Refresh token is expired, please login again");
         }
 
@@ -73,8 +75,8 @@ public class AuthService {
 
         String newAccessToken = jwtService.generateToken(user);
 
-        jwtService.deleteToken(user.getEmail());
-        String newRefreshToken = jwtService.generateRefreshToken(user);
+        refreshTokenRepository.deleteByEmail(user.getEmail());
+        String newRefreshToken = refreshTokenService.generateRefreshToken(user);
         return new LoginResponse(
                 newAccessToken,
                 newRefreshToken,

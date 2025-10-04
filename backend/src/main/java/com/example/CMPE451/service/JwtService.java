@@ -18,9 +18,6 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class JwtService {
 
-    @Autowired
-    private final RefreshTokenRepository refreshTokenRepository;
-
     private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
     public String generateToken(User user) {
@@ -37,10 +34,6 @@ public class JwtService {
         return Jwts.parserBuilder().setSigningKey(key).build()
                 .parseClaimsJws(token).getBody().getSubject();
     }
-    @Transactional
-    public void deleteToken(String email) {
-        refreshTokenRepository.deleteByEmail(email);
-    }
 
     public boolean isTokenValid(String token, User user) {
         String email = extractEmail(token);
@@ -52,20 +45,5 @@ public class JwtService {
                 .parseClaimsJws(token).getBody().getExpiration();
         return expiration.before(new Date());
     }
-    public String generateRefreshToken(User user) {
-        String token = Jwts.builder()
-                .setSubject(user.getEmail())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000))
-                .signWith(Keys.secretKeyFor(SignatureAlgorithm.HS256))
-                .compact();
 
-        RefreshToken refreshToken = RefreshToken.builder()
-                .token(token)
-                .email(user.getEmail())
-                .expiryDate(Instant.now().plusSeconds(30L * 24 * 60 * 60))
-                .build();
-        refreshTokenRepository.save(refreshToken);
-        return  token;
-    }
 }
