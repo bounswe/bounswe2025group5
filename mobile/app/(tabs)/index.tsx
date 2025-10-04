@@ -20,15 +20,6 @@ import { API_BASE_URL } from '../apiConfig';
 import { ScrollView } from 'react-native';
 import CheckBox from '../components/CheckBox';
 
-type AirQuality = {
-  pm10: number;
-  pm25: number;
-  carbonMonoxide: number;
-  nitrogenDioxide: number;
-  sulphurDioxide: number;
-  ozone: number;
-};
-
 type Weather = {
   temperature: number;
   humidity: number;
@@ -84,7 +75,6 @@ export default function HomeScreen() {
   const [errorVisible, setErrorVisible]     = useState(false);
   const [errorMessage, setErrorMessage]     = useState('');
   const [weather, setWeather]               = useState<Weather | null>(null);
-  const [airQuality, setAirQuality] = useState<AirQuality | null>(null);
   const [usersCount, setUsersCount] = useState<number>(0);
   const [numberTrivia, setNumberTrivia] = useState<string | null>(null);
   const [trendingPosts, setTrendingPosts] = useState<TrendingPost[]>([]);
@@ -171,23 +161,6 @@ export default function HomeScreen() {
       navigation.setParams?.({ error: undefined });
     }
   }, [route.params?.error]);
-
-    useEffect(() => {
-      const fetchAQ = async () => {
-        try {
-          const res = await fetch(
-            `${API_BASE_URL}/api/home/getAirQuality?location=Istanbul`
-          );
-          if (!res.ok) throw new Error('Failed to fetch air quality');
-          const data = (await res.json()) as AirQuality;
-          console.log(data)
-          setAirQuality(data);
-        } catch (err) {
-          console.warn('Error fetching air quality', err);
-        }
-      };
-      fetchAQ();
-    }, []);
 
     // ─── fetch weather once on mount ────────────────────────────────────────────
     useEffect(() => {
@@ -354,35 +327,6 @@ export default function HomeScreen() {
       {!showAuthFields && (
         <>
           <View style={styles.statsContainer}>
-            {airQuality && (
-              <View style={styles.airQualityBox}>
-                <Text style={styles.airQualityTitle}>
-                  Air Quality in Istanbul
-                </Text>
-                <View style={styles.airQualityRow}>
-                  <Text style={styles.airQualityLabel}>PM10:</Text>
-                  <Text style={styles.airQualityValue}>
-                    {airQuality.pm10}
-                  </Text>
-                  <Text style={styles.airQualityLabel}>CO:</Text>
-                  <Text style={styles.airQualityValue}>
-                    {airQuality.carbonMonoxide}
-                  </Text>
-                  
-                </View>
-                <View style={styles.airQualityRow}>
-                  <Text style={styles.airQualityLabel}>PM2.5:</Text>
-                  <Text style={styles.airQualityValue}>
-                    {airQuality.pm25}
-                  </Text>
-                  <Text style={styles.airQualityLabel}>NO₂:</Text>
-                  <Text style={styles.airQualityValue}>
-                    {airQuality.nitrogenDioxide}
-                  </Text>
-                </View>
-                
-              </View>
-            )}
             <ThemedText style={styles.statLine}>
               <Text style={styles.statNumber}>{usersCount}</Text>{' '}
               users are reducing their wastes with us
@@ -611,11 +555,6 @@ const styles = StyleSheet.create({
 
 
 
-  airQualityBox: { backgroundColor: '#B8E2F2', padding: 12, borderRadius: 8, marginTop: -30, marginBottom: 16 },
-  airQualityTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 8, color: '#00796b' },
-  airQualityRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
-  airQualityLabel: { fontSize: 14, color: '#004d40' },
-  airQualityValue: { fontSize: 14, fontWeight: 'bold', color: '#004d40' },
   triviaText: { fontSize: 14, textAlign: 'center', marginTop:-15, fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif' },
   weatherEmojiContainer: {
     position: 'absolute',
