@@ -16,7 +16,8 @@ public class WebConfig {
                 registry.addMapping("/**")
                         .allowedOrigins("http://localhost:3000")
                         .allowedOrigins("http://localhost:8081")
-                        .allowedOrigins("http://161.35.42.102:3000")
+                            // .allowedOrigins("http://161.35.42.102:3000") 
+                            // IP adress of the server from Cmpe352. 
                         .allowedMethods("*")
                         .allowedHeaders("*");
             }
