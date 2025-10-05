@@ -26,13 +26,13 @@ public class HomePageController {
     private final EnergyStatsService energyStatsService;
     private final ForestStatsService forestStatsService;
 
-    @GetMapping("/getMotivated")
+    @GetMapping("/quotes/motivational")
     public ResponseEntity<MotivationalQuoteResponse> getMotivationalQuote() {
         MotivationalQuoteResponse quote = motivationService.fetchMotivationalQuote();
         return ResponseEntity.ok(quote);
     }
 
-    @GetMapping("/number/{number}")
+    @GetMapping("/numbers/{number}/trivia")
     public ResponseEntity<NumberTriviaResponse> getNumberTrivia(@PathVariable int number) {
         NumberTriviaResponse trivia = numberService.fetchNumberTrivia(number);
         return ResponseEntity.ok(trivia);
@@ -43,17 +43,17 @@ public class HomePageController {
         return energyStatsService.fetchEnergyStats(countryCode);
     }
 
-    @GetMapping("/getAirQuality")
+    @GetMapping("/air-quality")
     public AirQualityResponse getAirQuality(@RequestParam String location) {
         return airQualityService.getAirQualityData(location);
     }
-    @GetMapping("/forestReduction")
+    @GetMapping("/forests/reduction")
     public ResponseEntity<Double> getForestReduction() {
         double reduction = forestStatsService.getForestReductionOnly();
         return ResponseEntity.ok(reduction);
     }
 
-    @GetMapping("/getCurrentWeather")
+    @GetMapping("/weather/current")
     public ResponseEntity<CurrentWeatherDataResponse> getCurrentWeather() {
         CurrentWeatherDataResponse weatherData = currentWeatherService.getCurrentWeather();
         return ResponseEntity.ok(weatherData);
