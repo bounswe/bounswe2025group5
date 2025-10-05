@@ -20,42 +20,36 @@ public class ChallengeController {
 
     private final  ChallengeService challengeService;
 
-    @PostMapping("/create")
+    @PostMapping("")
     public ResponseEntity<ChallengeResponse> createChallenge(@RequestBody CreateChallengeRequest challenge) {
         ChallengeResponse createdChallenge = challengeService.createChallenge(challenge);
         return ResponseEntity.ok(createdChallenge);
     }
 
-    @PutMapping("/end/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<EndChallengeResponse> endChallenge(@PathVariable int id) {
         EndChallengeResponse ended = challengeService.endChallenge(id);
-
         return ResponseEntity.ok(ended);
     }
 
 
-    @PostMapping("/attend")
-    public ResponseEntity<AttendChallengeResponse> attendChallenge(@RequestBody AttendChallengeRequest request) {
-        AttendChallengeResponse progress = challengeService.attendChallenge(request);
+    @PostMapping("/{id}/attendees")
+    public ResponseEntity<AttendChallengeResponse> attendChallenge(@RequestBody AttendChallengeRequest request,@PathVariable int id) {
+        AttendChallengeResponse progress = challengeService.attendChallenge(request,id);
         return ResponseEntity.ok(progress);
     }
 
-    @DeleteMapping("/leave/{username}/{challengeId}")
+    @DeleteMapping("/{challengeId}/attendees/{username}")
     public ResponseEntity<LeaveChallengeResponse> leaveChallenge(@PathVariable String username, @PathVariable int challengeId) {
         LeaveChallengeResponse response = challengeService.leaveChallenge(username, challengeId);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/leaderboard")
-    public ResponseEntity<List<LeaderboardEntry>> getChallengeLeaderboard(   @RequestParam("id") Integer challengeId) {
-        List<LeaderboardEntry> leaderboard = challengeService.getLeaderboardForChallenge(challengeId);
+    @GetMapping("/{id}/leaderboard")
+    public ResponseEntity<List<LeaderboardEntry>> getChallengeLeaderboard(   @PathVariable Integer id) {
+        List<LeaderboardEntry> leaderboard = challengeService.getLeaderboardForChallenge(id);
         return ResponseEntity.ok(leaderboard);
     }
 
-    @GetMapping
-    public ResponseEntity<List<ChallengeListResponse>> getAll(
-            @RequestParam("username") String username) {
-        List<ChallengeListResponse> list = challengeService.getAllChallenges(username);
-        return ResponseEntity.ok(list);
-    }
+
 }

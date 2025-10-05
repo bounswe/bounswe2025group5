@@ -1,10 +1,13 @@
 package com.example.CMPE451.controller;
 
+import com.example.CMPE451.model.response.ChallengeListResponse;
 import com.example.CMPE451.model.response.UserCountResponse;
 import com.example.CMPE451.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -18,5 +21,11 @@ public class UserController {
     public ResponseEntity<UserCountResponse> getUserCount() {
         UserCountResponse count = userService.getUserCount();
         return ResponseEntity.ok(count);
+    }
+    @GetMapping("/users/{username}/challenges")
+    public ResponseEntity<List<ChallengeListResponse>> getAll(
+            @RequestParam("username") String username) {
+        List<ChallengeListResponse> list = userService.getAllChallenges(username);
+        return ResponseEntity.ok(list);
     }
 }
