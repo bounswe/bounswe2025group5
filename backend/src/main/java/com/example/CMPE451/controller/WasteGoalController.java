@@ -17,7 +17,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/api/goals")
+@RequestMapping("/api/users")
 public class WasteGoalController {
 
     private final WasteGoalService wasteGoalService;
@@ -26,9 +26,9 @@ public class WasteGoalController {
         this.wasteGoalService = wasteGoalService;
     }
 
-    @GetMapping("/info")
+    @GetMapping("/{username}/waste-goals")
     public ResponseEntity<List<GetWasteGoalResponse>> getGoals(
-            @RequestParam String username,
+            @PathVariable String username,
             @RequestParam int size,
             @RequestParam(required = false) Long lastGoalId
     ) {
@@ -36,14 +36,16 @@ public class WasteGoalController {
         return ResponseEntity.ok(goals);
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<CreateWasteGoalResponse> createWasteGoal(@RequestBody CreateWasteGoalRequest createWasteGoalRequest) {
+
+    //TODO
+    @PostMapping("/{username}/waste-goals")
+    public ResponseEntity<CreateWasteGoalResponse> createWasteGoal(@RequestBody CreateWasteGoalRequest createWasteGoalRequest, @PathVariable String username) {
         CreateWasteGoalResponse goal = wasteGoalService.saveWasteGoal(createWasteGoalRequest);
         return ResponseEntity.ok(goal);
 
     }
 
-    @PutMapping("/edit/{goalId}")
+    @PutMapping("/waste-goals/{goalId}")
     public ResponseEntity<CreateWasteGoalResponse> editWasteGoal(
             @PathVariable Integer goalId,
             @RequestBody WasteGoal updatedGoal) {
@@ -52,7 +54,7 @@ public class WasteGoalController {
     }
 
 
-    @DeleteMapping("/delete/{goalId}")
+    @DeleteMapping("/waste-goals/{goalId}")
     public ResponseEntity<DeleteWasteGoalResponse> deleteWasteGoal(@PathVariable Integer goalId) {
         wasteGoalService.deleteWasteGoal(goalId);
         return ResponseEntity.ok(new DeleteWasteGoalResponse(goalId));
