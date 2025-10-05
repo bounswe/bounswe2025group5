@@ -37,10 +37,10 @@ public class WasteGoalController {
     }
 
 
-    //TODO
+
     @PostMapping("/{username}/waste-goals")
     public ResponseEntity<CreateWasteGoalResponse> createWasteGoal(@RequestBody CreateWasteGoalRequest createWasteGoalRequest, @PathVariable String username) {
-        CreateWasteGoalResponse goal = wasteGoalService.saveWasteGoal(createWasteGoalRequest);
+        CreateWasteGoalResponse goal = wasteGoalService.saveWasteGoal(createWasteGoalRequest,username);
         return ResponseEntity.ok(goal);
 
     }
