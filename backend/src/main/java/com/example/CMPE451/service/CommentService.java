@@ -29,13 +29,14 @@ public class CommentService {
     private final UserRepository userRepository;
 
 
+
     @Transactional
-    public CommentResponse addComment(CommentRequest request) {
+    public CommentResponse addComment(CommentRequest request, Integer postId) {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new InvalidCredentialsException("User not found with username: " + request.getUsername()));
 
-        Post post = postRepository.findById(request.getPostId())
-                .orElseThrow(() -> new InvalidCredentialsException("Post not found with id: " + request.getPostId()));
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new InvalidCredentialsException("Post not found with id: " + postId));
 
         Comment comment = new Comment();
         comment.setPost(post);
