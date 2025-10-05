@@ -14,24 +14,24 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class ProfileController {
 
     private final ProfileService service;
 
-    @GetMapping("/profile/info")
+    @GetMapping("/{username}/profile")
     public ProfileResponse getProfileInfo(@RequestParam String username) {
         return service.getProfileInfo(username);
     }
 
-    @PutMapping("/profile/edit")
+    @PutMapping("/{username}/profile")
     public ProfileResponse editProfile(
             @RequestBody ProfileEditAndCreateRequest newProfileInfo) {
         return service.editProfileInfo(newProfileInfo);
     }
 
-    @PostMapping(value = "/profile/{username}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/{username}/profile/picture", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ProfileResponse> uploadProfilePhoto(
             @PathVariable String username,
             @RequestParam("file") MultipartFile file) {
@@ -39,10 +39,7 @@ public class ProfileController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/profile/badges")
-    public ResponseEntity<List<BadgeResponse>> getBadges(@RequestParam String username) {
-        List<BadgeResponse> response = service.getBadges(username);
-        return ResponseEntity.ok(response);    }
+
 
 
 

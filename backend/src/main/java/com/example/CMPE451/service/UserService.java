@@ -1,9 +1,12 @@
 package com.example.CMPE451.service;
 
 import com.example.CMPE451.exception.NotFoundException;
+import com.example.CMPE451.model.Badge;
 import com.example.CMPE451.model.User;
+import com.example.CMPE451.model.response.BadgeResponse;
 import com.example.CMPE451.model.response.ChallengeListResponse;
 import com.example.CMPE451.model.response.UserCountResponse;
+import com.example.CMPE451.repository.BadgeRepository;
 import com.example.CMPE451.repository.ChallengeRepository;
 import com.example.CMPE451.repository.UserChallengeProgressRepository;
 import com.example.CMPE451.repository.UserRepository;
@@ -21,7 +24,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final ChallengeRepository  challengeRepository;
     private final UserChallengeProgressRepository userChallengeProgressRepository;
-
+    private final BadgeRepository badgeRepository;
 
     public UserCountResponse getUserCount() {
         long count = userRepository.countAllUsers();
@@ -50,5 +53,16 @@ public class UserService {
                     );
                 })
                 .collect(Collectors.toList());
+    }
+    public List<BadgeResponse> getBadges(String username) {
+        User user = userRepository
+                .findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User not found: " + username));
+
+        List<Badge> badges = badgeRepository.findByUserId(user.getId());
+
+        return badges.stream()
+                .map(badge -> new BadgeResponse(user.getUsername(), badge.getId().getName()))
+                .toList();
     }
 }

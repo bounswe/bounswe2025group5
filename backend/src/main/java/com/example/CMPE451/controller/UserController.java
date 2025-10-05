@@ -1,5 +1,6 @@
 package com.example.CMPE451.controller;
 
+import com.example.CMPE451.model.response.BadgeResponse;
 import com.example.CMPE451.model.response.ChallengeListResponse;
 import com.example.CMPE451.model.response.UserCountResponse;
 import com.example.CMPE451.service.UserService;
@@ -28,4 +29,8 @@ public class UserController {
         List<ChallengeListResponse> list = userService.getAllChallenges(username);
         return ResponseEntity.ok(list);
     }
+    @GetMapping("/{username}/badges")
+    public ResponseEntity<List<BadgeResponse>> getBadges(@RequestParam String username) {
+        List<BadgeResponse> response = userService.getBadges(username);
+        return ResponseEntity.ok(response);    }
 }
