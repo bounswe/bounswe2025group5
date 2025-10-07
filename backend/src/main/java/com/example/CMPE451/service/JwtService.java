@@ -1,14 +1,21 @@
 package com.example.CMPE451.service;
 
+import com.example.CMPE451.model.RefreshToken;
 import com.example.CMPE451.model.User;
+import com.example.CMPE451.repository.RefreshTokenRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Key;
+import java.time.Instant;
 import java.util.Date;
 
 @Service
+@RequiredArgsConstructor
 public class JwtService {
 
     private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
@@ -17,10 +24,8 @@ public class JwtService {
         return Jwts.builder()
                 .setSubject(user.getEmail())
                 .claim("username", user.getUsername())
-                .claim("isAdmin", user.getIsAdmin())
-                .claim("isModerator", user.getIsModerator())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 86400000))
+                .setExpiration(new Date(System.currentTimeMillis() +24L * 60 * 60 * 1000))
                 .signWith(key)
                 .compact();
     }
@@ -40,4 +45,5 @@ public class JwtService {
                 .parseClaimsJws(token).getBody().getExpiration();
         return expiration.before(new Date());
     }
+
 }
