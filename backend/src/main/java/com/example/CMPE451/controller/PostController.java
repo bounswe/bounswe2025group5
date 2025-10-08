@@ -1,11 +1,8 @@
 package com.example.CMPE451.controller;
 
-import com.example.CMPE451.model.Post;
-import com.example.CMPE451.model.request.CommentRequest;
-import com.example.CMPE451.model.request.CreatePostRequest;
+
 import com.example.CMPE451.model.request.SavePostRequest;
 import com.example.CMPE451.model.response.*;
-import com.example.CMPE451.service.CommentService;
 import com.example.CMPE451.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;

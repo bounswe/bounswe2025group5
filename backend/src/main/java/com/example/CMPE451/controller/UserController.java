@@ -38,7 +38,7 @@ public class UserController {
         return ResponseEntity.ok(count);
     }
     @GetMapping("/users/{username}/challenges")
-    public ResponseEntity<List<ChallengeListResponse>> getAll(
+    public ResponseEntity<List<ChallengeListResponse>> getAllChallenges(
             @RequestParam("username") String username) {
         List<ChallengeListResponse> list = userService.getAllChallenges(username);
         return ResponseEntity.ok(list);
