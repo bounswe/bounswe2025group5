@@ -18,26 +18,26 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/logs")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class WasteLogController {
 
     private final WasteLogService wasteLogService;
 
-    @GetMapping("/get")
+    @GetMapping("/waste-goals/{goalId}/logs")
     public ResponseEntity<List<GetWasteLogResponse>> getLogs(
-            @RequestParam Integer goalId) {
+            @PathVariable Integer goalId) {
         List<GetWasteLogResponse> logs = wasteLogService.getWasteLogsForGoal(goalId);
         return ResponseEntity.ok(logs);
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<CreateOrEditWasteLogResponse> createWasteLog(@RequestBody CreateWasteLogRequest request) {
-        CreateOrEditWasteLogResponse response = wasteLogService.createWasteLog(request);
+    @PostMapping("/waste-goals/{goalId}/logs")
+    public ResponseEntity<CreateOrEditWasteLogResponse> createWasteLog(@RequestBody CreateWasteLogRequest request , @PathVariable Integer goalId) {
+        CreateOrEditWasteLogResponse response = wasteLogService.createWasteLog(request,goalId);
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/update/{logId}")
+    @PutMapping("/logs/{logId}")
     public ResponseEntity<CreateOrEditWasteLogResponse> updateWasteLog(
             @PathVariable Integer logId,
             @RequestBody UpdateWasteLogRequest  updateWasteLogRequest) {
@@ -45,13 +45,13 @@ public class WasteLogController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/delete/{logId}")
+    @DeleteMapping("/logs/{logId}")
     public ResponseEntity<DeleteWasteLogResponse> deleteWasteLog(@PathVariable Integer logId) {
         DeleteWasteLogResponse  response = wasteLogService.deleteWasteLog(logId);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/totalLogAmountForIntervalAndType")
+    @GetMapping("/logs/summary")
     public ResponseEntity<TotalLogResponse> totalLogAmountForInterval(
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,

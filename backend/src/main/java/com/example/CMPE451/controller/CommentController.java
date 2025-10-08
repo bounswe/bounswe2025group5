@@ -11,16 +11,22 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/comments")
+@RequestMapping("/api/postsdsf/")
 @RequiredArgsConstructor
 public class CommentController {
 
     private final CommentService commentService;
 
-    @PostMapping
-    public ResponseEntity<CommentResponse> addComment(@RequestBody CommentRequest request) {
-        CommentResponse response = commentService.addComment(request);
+    @PostMapping("/{postId}/comments")
+    public ResponseEntity<CommentResponse> addComment(@RequestBody CommentRequest request, @PathVariable Integer postId) {
+        CommentResponse response = commentService.addComment(request, postId);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{postId}/comments")
+    public ResponseEntity<GetCommentsResponse> getCommentsForPost(@PathVariable Integer postId) {
+        GetCommentsResponse getCommentsResponse= commentService.getCommentsForPost(postId);
+        return ResponseEntity.ok(getCommentsResponse);
     }
 
     @PutMapping("/{commentId}")
@@ -38,9 +44,4 @@ public class CommentController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/post/{postId}")
-    public ResponseEntity<GetCommentsResponse> getCommentsForPost(@PathVariable Integer postId) {
-        GetCommentsResponse getCommentsResponse= commentService.getCommentsForPost(postId);
-        return ResponseEntity.ok(getCommentsResponse);
-    }
 }
