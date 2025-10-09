@@ -20,7 +20,7 @@ public class ChallengeController {
 
     private final  ChallengeService challengeService;
 
-    @PostMapping("")
+    @PostMapping
     public ResponseEntity<ChallengeResponse> createChallenge(@RequestBody CreateChallengeRequest challenge) {
         ChallengeResponse createdChallenge = challengeService.createChallenge(challenge);
         return ResponseEntity.ok(createdChallenge);
