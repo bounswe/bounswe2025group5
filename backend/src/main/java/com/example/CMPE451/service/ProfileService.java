@@ -60,17 +60,7 @@ public class ProfileService {
                 p.getBiography(),
                 p.getPhotoUrl());
     }
-    public List<BadgeResponse> getBadges(String username) {
-        User user = userRepository
-                .findByUsername(username)
-                .orElseThrow(() -> new NotFoundException("User not found: " + username));
 
-        List<Badge> badges = badgeRepository.findByUserId(user.getId());
-
-        return badges.stream()
-                .map(badge -> new BadgeResponse(user.getUsername(), badge.getId().getName()))
-                .toList();
-    }
 
     @Transactional
     public ProfileResponse editProfileInfo(
