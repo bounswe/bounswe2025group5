@@ -10,5 +10,4 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AttendChallengeRequest {
     private String username;
-    private Integer  challengeId;
 }
