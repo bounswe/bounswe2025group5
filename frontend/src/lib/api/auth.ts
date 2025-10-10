@@ -1,4 +1,5 @@
-import { ApiClient, LoginResponse, setTokens } from './client';
+import { ApiClient, setTokens } from './client';
+import type { LoginResponse } from './client';
 
 export const AuthApi = {
   login: (emailOrUsername: string, password: string) =>
