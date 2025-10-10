@@ -1,5 +1,7 @@
 // API configuration
-const API_BASE_URL = 'http://localhost:8080';
+//const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = 'http://159.89.24.3:8080';
+
 
 // Get auth token from localStorage
 const getAuthToken = (): string | null => {
