@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { authApi } from "../../lib/api";
+import { AuthApi } from "../../lib/api/auth";
 import { useNavigate } from "react-router-dom";
 
 export default function Register() {
@@ -24,7 +24,7 @@ export default function Register() {
 
     try {
       setLoading(true);
-      await authApi.register(username, email, password);
+      await AuthApi.register(username, email, password);
       setSuccess("Account created successfully. Redirecting to login...");
       setTimeout(() => navigate("/login"), 1200);
     } catch (err) {
