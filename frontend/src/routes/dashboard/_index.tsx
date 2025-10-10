@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import DashboardLayout from "./layout";
-import { userApi } from "../../lib/api";
+import { UsersApi } from "../../lib/api/users";
 
 export default function Dashboard() {
   const [userCount, setUserCount] = useState<number | null>(null);
@@ -13,7 +13,7 @@ export default function Dashboard() {
       try {
         setLoading(true);
         setError(null);
-        const data = await userApi.getUserCount();
+        const data = await UsersApi.getUserCount();
         setUserCount(data.userCount);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch user count');

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { getAuthToken } from "../../lib/api";
+import { getAccessToken } from "../../lib/api/client";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -7,7 +7,7 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   useEffect(() => {
-    const token = getAuthToken();
+    const token = getAccessToken();
     if (!token) {
       window.location.href = "/login";
     }
