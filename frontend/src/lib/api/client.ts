@@ -1,6 +1,7 @@
 // Base API client with automatic token refresh and helpers
 
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
+//const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
+const API_BASE_URL = "http://localhost:8080";
 
 export const ACCESS_TOKEN_KEY = 'authToken';
 export const REFRESH_TOKEN_KEY = 'refreshToken';
@@ -45,8 +46,9 @@ async function tryRefreshAccessToken(): Promise<boolean> {
 
 export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = getAccessToken();
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(options.headers as Record<string, string> | undefined),
   };
   if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -82,12 +84,12 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
 export const ApiClient = {
   get: <T>(endpoint: string) => apiFetch<T>(endpoint, { method: 'GET' }),
   post: <T>(endpoint: string, body?: unknown) =>
-    apiFetch<T>(endpoint, { method: 'POST', body: body ? JSON.stringify(body) : undefined }),
+    apiFetch<T>(endpoint, { method: 'POST', body: normalizeBody(body) }),
   put: <T>(endpoint: string, body?: unknown) =>
-    apiFetch<T>(endpoint, { method: 'PUT', body: body ? JSON.stringify(body) : undefined }),
+    apiFetch<T>(endpoint, { method: 'PUT', body: normalizeBody(body) }),
   patch: <T>(endpoint: string, body?: unknown) =>
-    apiFetch<T>(endpoint, { method: 'PATCH', body: body ? JSON.stringify(body) : undefined }),
-  delete: <T>(endpoint: string) => apiFetch<T>(endpoint, { method: 'DELETE' }),
+    apiFetch<T>(endpoint, { method: 'PATCH', body: normalizeBody(body) }),
+  delete: <T>(endpoint: string, body?: unknown) => apiFetch<T>(endpoint, { method: 'DELETE', body: normalizeBody(body) }),
 };
 
 export type LoginResponse = {
@@ -99,3 +101,8 @@ export type LoginResponse = {
   isModerator: boolean;
 };
 
+function normalizeBody(body?: unknown): BodyInit | undefined {
+  if (body == null) return undefined;
+  if (typeof FormData !== 'undefined' && body instanceof FormData) return body;
+  return JSON.stringify(body);
+}
