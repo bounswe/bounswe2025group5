@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { authApi, setAuthToken } from "../../lib/api";
+import { authApi, setTokens } from "../../lib/api";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
@@ -16,7 +16,7 @@ export default function Login() {
 
     try {
       const response = await authApi.login(emailOrUsername, password);
-      setAuthToken(response.token);
+      setTokens(response.token, response.refreshToken);
       navigate("/dashboard"); // Redirect to dashboard after successful login
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");

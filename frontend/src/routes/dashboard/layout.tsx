@@ -1,8 +1,17 @@
+import { useEffect } from "react";
+import { getAuthToken } from "../../lib/api";
+
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
+  useEffect(() => {
+    const token = getAuthToken();
+    if (!token) {
+      window.location.href = "/login";
+    }
+  }, []);
   return (
     <div className="p-6">
       <h2 className="text-xl font-semibold mb-4">Dashboard</h2>
