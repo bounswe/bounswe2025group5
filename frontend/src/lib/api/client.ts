@@ -1,6 +1,6 @@
 // Base API client with automatic token refresh and helpers
 
-const API_BASE_URL = 'http://159.89.24.3:8080';
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
 
 export const ACCESS_TOKEN_KEY = 'authToken';
 export const REFRESH_TOKEN_KEY = 'refreshToken';
