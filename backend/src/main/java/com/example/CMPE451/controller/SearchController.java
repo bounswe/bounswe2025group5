@@ -23,7 +23,7 @@ public class SearchController {
     private final ForumSearchService forumSearchService;
 
     @GetMapping("/semantic")
-    public ResponseEntity<List<GetPostResponse>> searchPostsSemanticEndpoint(
+    public ResponseEntity<List<GetPostResponse>> searchPostsSemantic(
             @RequestParam(name = "query") String query,
             @RequestParam(required = false) String username,
             @RequestParam(name = "lang", defaultValue = "en") String language) {
