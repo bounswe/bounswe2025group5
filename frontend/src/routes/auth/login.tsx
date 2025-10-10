@@ -27,8 +27,8 @@ export default function Login() {
   };
 
   return (
-    <div className="max-w-md w-full mx-auto py-16 px-4 min h-full grid place-items-center">
-        <div className="bg-white/95 backdrop-blur rounded-lg shadow-lg p-8 border border-white/30">
+    <div className="max-w-md w-full mx-auto py-16 px-4 min-h-screen justify-center">
+        <div className="rounded-lg shadow-lg p-8 border justify-center">
           <h1 className="text-2xl font-bold text-center mb-6">Login</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">

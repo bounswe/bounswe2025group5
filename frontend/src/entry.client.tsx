@@ -3,7 +3,7 @@ import { createRoot, hydrateRoot } from "react-dom/client";
 import { StrictMode } from "react";
 import { BrowserRouter, useRoutes } from "react-router-dom";
 import routes from "~react-pages";
-import { LayoutResolver } from "./LayoutResolver";
+import { LayoutResolver } from "./services/LayoutResolver";
 
 function App() {
   const element = useRoutes(routes);

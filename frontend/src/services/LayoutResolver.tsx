@@ -1,9 +1,9 @@
 import { useLocation } from "react-router-dom";
 
 // Eagerly import all colocated layouts under routes/**/layout.tsx
-const localLayouts = import.meta.glob("./routes/**/layout.tsx", { eager: true });
+const localLayouts = import.meta.glob("../routes/**/layout.tsx", { eager: true });
 // Optional global default layout at src/layouts/default.tsx
-const defaultLayouts = import.meta.glob("./layouts/default.tsx", { eager: true });
+const defaultLayouts = import.meta.glob("../layouts/default.tsx", { eager: true });
 
 function getDefaultLayout() {
   const mod = Object.values(defaultLayouts)[0] as any | undefined;
@@ -14,9 +14,9 @@ type LayoutComponent = (p: { children: React.ReactNode }) => React.ReactElement;
 
 const layoutMap: Record<string, LayoutComponent> = {};
 for (const [path, mod] of Object.entries(localLayouts)) {
-  // path like "./routes/auth/layout.tsx" -> urlPrefix "/auth"
+  // path like "../routes/auth/layout.tsx" -> urlPrefix "/auth"
   const urlPrefix = path
-    .replace("./routes", "")
+    .replace("../routes", "")
     .replace(/\/layout\.tsx$/, "") || "/";
   const Comp = (mod as any).default as LayoutComponent;
   layoutMap[urlPrefix] = Comp;
