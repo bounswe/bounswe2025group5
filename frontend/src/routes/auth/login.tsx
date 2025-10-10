@@ -17,7 +17,7 @@ export default function Login() {
     try {
       const response = await AuthApi.login(emailOrUsername, password);
       setTokens(response.token, response.refreshToken);
-      navigate("/dashboard"); // Redirect to dashboard after successful login
+      navigate("/"); // Redirect to home after successful login
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
       console.error("Login error:", err);
@@ -27,9 +27,9 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
-        <h1 className="text-2xl font-bold text-center mb-6">Login</h1>
+    <div className="max-w-md w-full mx-auto py-16 px-4 min-h-screen grid place-items-center">
+        <div className="bg-white/95 backdrop-blur rounded-lg shadow-lg p-8 border border-white/30">
+          <h1 className="text-2xl font-bold text-center mb-6">Login</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -76,14 +76,11 @@ export default function Login() {
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
-
-        <p className="mt-4 text-center text-sm text-gray-600">
+        <p className="mt-4 text-center text-sm text-gray-700">
           Don't have an account?{" "}
-          <a href="/register" className="text-blue-600 hover:underline">
-            Register here
-          </a>
+          <a href="/register" className="text-blue-600 hover:underline">Register here</a>
         </p>
-      </div>
+        </div>
     </div>
   );
 }

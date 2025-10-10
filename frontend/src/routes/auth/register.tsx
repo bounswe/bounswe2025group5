@@ -36,9 +36,9 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
-        <h1 className="text-2xl font-bold text-center mb-6">Create an account</h1>
+    <div className="max-w-md w-full mx-auto py-16 px-4 min-h-screen grid place-items-center">
+        <div className="max-w-md w-full bg-white/95 backdrop-blur rounded-lg shadow-lg p-8 border border-white/30">
+          <h1 className="text-2xl font-bold text-center mb-6">Create an account</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -118,14 +118,11 @@ export default function Register() {
             {loading ? "Creating account..." : "Register"}
           </button>
         </form>
-
-        <p className="mt-4 text-center text-sm text-gray-600">
+        <p className="mt-4 text-center text-sm text-gray-700">
           Already have an account?{" "}
-          <a href="/login" className="text-blue-600 hover:underline">
-            Log in
-          </a>
+          <a href="/login" className="text-blue-600 hover:underline">Log in</a>
         </p>
-      </div>
+        </div>
     </div>
   );
 }
