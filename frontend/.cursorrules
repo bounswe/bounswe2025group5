@@ -5,8 +5,8 @@ These rules guide code generation and edits. Prefer clarity, accessibility, and 
 ---
 
 ## 0) Tech Stack & Baseline
-- **Build**: Vite 7, TypeScript (strict), React 18.
-- **Routing**: `vite-plugin-pages` for file-based routes; custom **`LayoutResolver`** to auto-apply nearest `layout.tsx`.
+- **Build**: Vite 7, TypeScript (strict), React 19.
+- **Routing**: `vite-plugin-pages` for file-based routes; custom **`LayoutResolver`** at `src/services/LayoutResolver.tsx` to auto-apply nearest `layout.tsx`.
 - **Styling**: Tailwind CSS; **shadcn/ui** components in `src/components/ui`.
 - **API**: `src/api` with a small `fetch` wrapper; **Zod** for request/response validation.
 - **State**: Local by default; lift to feature contexts only when shared across distant nodes.
@@ -17,11 +17,14 @@ These rules guide code generation and edits. Prefer clarity, accessibility, and 
 
 ```
 src/
-  api/
-    client.ts          
-    endpoints/         
-    schemas/           
-    types/             
+  lib/
+    api/
+      client.ts          
+      auth.ts            
+      users.ts           
+      posts.ts           
+      schemas/           
+      types/             
   assets/
     images/
   components/
@@ -32,21 +35,18 @@ src/
   lib/
     utils.ts
   routes/              
-    layout.tsx         
     _index.tsx
     auth/
       layout.tsx
       login.tsx
       register.tsx
-    dashboard/
-      layout.tsx
-      _index.tsx
   layouts/
     default.tsx        
   styles/
     globals.css
     tailwind.css
-  LayoutResolver.tsx   
+  services/
+    LayoutResolver.tsx 
   entry.client.tsx
   main.tsx             
 ```
@@ -54,8 +54,9 @@ src/
 **Path alias:** `@` → `src`
 
 **Import rules**
-- App internals from `@/...` (avoid `../../..`).
+- App internals from `@/...` only (no relative traversals like `../../..`).
 - shadcn components from `@/components/ui/...`.
+- API usage only via modules in `@/lib/api/*`.
 
 ---
 
@@ -89,6 +90,12 @@ src/
 - Prefer utilities; respect WCAG 2.1 AA contrast.
 - Mobile-first; hit targets ≥ 44×44px.
 - Avoid global background images—put backgrounds in active layouts.
+- For full-viewport backgrounds (e.g., auth):
+  - wrapper: `min-h-screen w-screen grid place-items-center relative`
+  - background: `fixed inset-0 -z-10 bg-[url('/images/wallpaper.png')] bg-cover bg-center bg-no-repeat`
+  - overlay: `fixed inset-0 -z-10 bg-black/55`
+    - Never mix `background` and `overlay` on the same element — keep separate layers for clarity.
+  - content: `relative z-10`
 
 **shadcn/ui**
 - Do **not** edit generated primitives in `components/ui/*`.
@@ -103,17 +110,18 @@ src/
 
 ## 5) API Standards
 
-**Client (`src/api/client.ts`)**
+**Client (`src/lib/api/client.ts`)**
 - Export `apiFetch<T>(path, init?): Promise<T>`.
-- Handles base URL, auth headers, JSON encoding, timeouts, and standardized errors.
+- Handles base URL (VITE_API_URL), auth headers, JSON encoding, refresh-on-401 (single retry), timeouts, and standardized errors.
+- Token keys: `ACCESS_TOKEN_KEY`, `REFRESH_TOKEN_KEY`; never log tokens.
 
 **Validation with Zod**
-- Define **schemas** in `src/api/schemas/*` (requests & responses).
+- Define **schemas** in `src/lib/api/schemas/*` (requests & responses).
 - Parse/validate **requests** (before sending) and **responses** (after fetch).
 - Export `z.infer<typeof Schema>` types for type safety in UI code.
 
-**Endpoints (`src/api/endpoints/*`)**
-- One module per domain (e.g., `auth.ts`, `user.ts`).
+**Endpoints (`src/lib/api/*`)**
+- One module per domain (e.g., `auth.ts`, `users.ts`, `posts.ts`).
 - Functions are verbs: `login`, `getProfile`, etc.
 - Never build URLs in components; centralize in endpoints.
 
@@ -131,7 +139,10 @@ src/
 
 - Semantic HTML; keyboard-first navigation; visible focus rings.
 - Provide alt text; never use background images for meaningful content.
-- Ensure color contrast (AA) and safe motion (reduce motion when requested).
+- Ensure color contrast (AA) and safe motion (respect `prefers-reduced-motion`).
+- Form controls: label+id linkage; accessible error text; focus first invalid field.
+- Buttons/links: focus-visible rings; min hit target 44×44; disabled state conveys state.
+- Auth overlays must achieve ≥ 4.5:1 contrast over the image.
 
 ---
 
