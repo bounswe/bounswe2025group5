@@ -105,4 +105,3 @@ public class AuthService {
         return new RegisterResponse("User registered successfully", newUser.getUsername(), newUser.getEmail());
     }
 }
-

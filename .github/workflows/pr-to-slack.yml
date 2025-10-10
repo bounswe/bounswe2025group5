@@ -2,7 +2,7 @@ name: Notify Slack on PR
 
 on:
   pull_request:
-    types: [opened, reopened, ready_for_review, closed, assigned, review_requested]
+    types: [opened, reopened, closed]
 
 jobs:
   notify:
@@ -13,7 +13,7 @@ jobs:
         with:
           payload: |
             {
-              "text": "📢 Pull Request *${{ github.event.action }}* in *${{ github.repository }}*\n👉 <${{ github.event.pull_request.html_url }}|${{ github.event.pull_request.title }}>\n🧑 Author: *${{ github.event.pull_request.user.login }}*\n🔖 State: *${{ github.event.pull_request.state }}*\n👀 Reviewers: ${{ toJson(github.event.pull_request.requested_reviewers) }}\n👤 Assignees: ${{ toJson(github.event.pull_request.assignees) }}"
+              "text": "Pull Request ${{ github.event.action }} in ${{ github.repository }}\nTitle: ${{ github.event.pull_request.title }}\nAuthor: ${{ github.event.pull_request.user.login }}\nURL: ${{ github.event.pull_request.html_url }}"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_CODE_PR_URL }}
