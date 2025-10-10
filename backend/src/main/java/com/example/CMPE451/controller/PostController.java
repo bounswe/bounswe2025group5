@@ -64,11 +64,7 @@ public class PostController {
         return ResponseEntity.ok(posts);
     }
 
-<<<<<<< HEAD
-    @PostMapping(("/{postId}/save"))
-=======
     @PostMapping("/{postId}/save")
->>>>>>> origin/main
     public ResponseEntity<SavePostResponse> savePost(
             @RequestBody SavePostRequest request,
             @PathVariable Integer postId) {
