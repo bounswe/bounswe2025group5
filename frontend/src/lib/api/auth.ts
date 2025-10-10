@@ -1,9 +1,13 @@
 import { ApiClient, setTokens } from './client';
 import type { LoginResponse } from './client';
+import { LoginResponseSchema } from './schemas/auth';
 
 export const AuthApi = {
-  login: (emailOrUsername: string, password: string) =>
-    ApiClient.post<LoginResponse>('/api/sessions', { emailOrUsername, password }),
+  login: async (emailOrUsername: string, password: string) => {
+    const data = await ApiClient.post<LoginResponse>('/api/sessions', { emailOrUsername, password });
+    LoginResponseSchema.parse(data);
+    return data;
+  },
 
   register: (username: string, email: string, password: string) =>
     ApiClient.post<{ message: string; username: string; email: string }>(
