@@ -88,6 +88,11 @@ src/
 
 **Tailwind**
 - Prefer utilities; respect WCAG 2.1 AA contrast.
+- Always use `cn()` from `@/lib/utils` when combining Tailwind classes.
+- Avoid manual string concatenation for conditional styling.
+- `cn()` merges Tailwind classes using `clsx` + `tailwind-merge` to prevent conflicting utilities.
+- Example:
+    <Button className={cn("w-full", isActive && "border-green-500 text-green-500")} />
 - Mobile-first; hit targets ≥ 44×44px.
 - Avoid global background images—put backgrounds in active layouts.
 - For full-viewport backgrounds (e.g., auth):
@@ -101,6 +106,7 @@ src/
 - Do **not** edit generated primitives in `components/ui/*`.
 - Compose or wrap in `components/common/*` for app-specific variants.
 - Extend via `className`, slots, or composition—avoid forking components.
+
 
 **Theming**
 - Wallpaper/overlay lives in layout components (not global CSS).

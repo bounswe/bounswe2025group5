@@ -1,22 +1,11 @@
 import { ApiClient } from './client';
+import { UserCountResponseSchema, type UserCountResponse } from './schemas/users';
 
 export const UsersApi = {
-  getUserCount: () => ApiClient.get<{ userCount: number }>('/api/users/count'),
-  getSavedPosts: (username: string) =>
-    ApiClient.get<Array<{
-      postId: number;
-      content: string;
-      createdAt: string;
-      username: string;
-      photoUrl?: string | null;
-    }>>(`/api/users/${encodeURIComponent(username)}/saved-posts`),
-  getUserPosts: (username: string) =>
-    ApiClient.get<Array<{
-      postId: number;
-      content: string;
-      createdAt: string;
-      username: string;
-      photoUrl?: string | null;
-    }>>(`/api/users/${encodeURIComponent(username)}/posts`),
+  getUserCount: async (): Promise<UserCountResponse> => {
+    const data = await ApiClient.get<UserCountResponse>('/api/users/count');
+    UserCountResponseSchema.parse(data);
+    return data;
+  },
 };
 

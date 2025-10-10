@@ -4,6 +4,7 @@ import { StrictMode } from "react";
 import { BrowserRouter, useRoutes } from "react-router-dom";
 import routes from "~react-pages";
 import { LayoutResolver } from "./services/LayoutResolver";
+import "./index.css";
 
 function App() {
   const element = useRoutes(routes);
