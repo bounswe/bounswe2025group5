@@ -1,7 +1,7 @@
 package com.example.CMPE451.model.response;
 
 import com.example.CMPE451.model.Challenge;
-import com.example.CMPE451.model.WasteGoal;
+import com.example.CMPE451.model.WasteType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -17,5 +17,5 @@ public class ChallengeResponse {
     private LocalDate startDate;
     private LocalDate endDate;
     private Challenge.Status status;
-    private WasteGoal.wasteType wasteType;
+    private WasteType wasteType;
 }
