@@ -6,3 +6,4 @@ node_modules
 backend/src/main/resources/application.properties
 backend/src/main/java/com/example/CMPE451/config/WebConfig.java
 backend/src/main/resources/application.properties
+backend/src/main/resources/application.properties
