@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `waste_log` (
   CONSTRAINT `wl_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
- CREATE TABLE `challenges` (
+ CREATE TABLE  IF NOT EXISTS `challenges` (
   `challenge_id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `description` varchar(200) NOT NULL,
@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS  `posts` (
 
 
 
- CREATE TABLE `user_challenge_progress` (
+ CREATE TABLE IF NOT EXISTS `user_challenge_progress` (
   `remaining_amount` double DEFAULT NULL,
   `waste_type` enum('Glass','Metal','Organic','Paper','Plastic') DEFAULT NULL,
   `challenge_id` int NOT NULL,
@@ -82,6 +82,13 @@ CREATE TABLE IF NOT EXISTS  `posts` (
   CONSTRAINT `FKoac9ib3121eou06gwlt094e7q` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+CREATE TABLE IF NOT EXISTS `refresh_tokens` (
+  `email` VARCHAR(255) NOT NULL,
+  `token` VARCHAR(512) NOT NULL,
+  `expiry_date` TIMESTAMP NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE  IF NOT EXISTS  `profiles` (
   `profile_id` int NOT NULL AUTO_INCREMENT,
@@ -343,5 +350,6 @@ BEGIN
 END$$
 
 */
+
 
 
