@@ -2,7 +2,6 @@ package com.example.CMPE451.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.io.Serializable;
 
 @Entity
@@ -16,30 +15,24 @@ public class UserChallengeProgress implements Serializable {
     @EmbeddedId
     private UserChallengeProgressId id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("challengeId")
     @JoinColumn(name = "challenge_id")
     private Challenge challenge;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "waste_type")
-    private WasteGoal.wasteType wasteType;
 
     @Column(name = "remaining_amount")
     private Double remainingAmount;
 
 
-    public UserChallengeProgress(User user, Challenge challenge, WasteGoal.wasteType wasteType, Double remainingAmount) {
+    public UserChallengeProgress(User user, Challenge challenge, Double remainingAmount) {
         this.id = new UserChallengeProgressId(user.getId(), challenge.getChallengeId());
         this.user = user;
         this.challenge = challenge;
-        this.wasteType = wasteType;
         this.remainingAmount = remainingAmount;
     }
-
 }
