@@ -50,9 +50,9 @@ public class WasteGoalService {
     }
 
 
-    public CreateWasteGoalResponse saveWasteGoal(CreateWasteGoalRequest request) {
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new NotFoundException("User not found: " +request.getUsername()));
+    public CreateWasteGoalResponse saveWasteGoal(CreateWasteGoalRequest request, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User not found: " +username));
 
         WasteGoal goal = new WasteGoal(
                 user,

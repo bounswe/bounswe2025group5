@@ -1,12 +1,14 @@
 package com.example.CMPE451.service;
 
 import com.example.CMPE451.exception.AlreadyExistsException;
+import com.example.CMPE451.exception.InvalidCredentialsException;
 import com.example.CMPE451.exception.NotFoundException;
 import com.example.CMPE451.exception.UploadFailedException;
 import com.example.CMPE451.model.Post;
 import com.example.CMPE451.model.Comment;
 import com.example.CMPE451.model.SavedPost;
 import com.example.CMPE451.model.User;
+import com.example.CMPE451.model.request.CommentRequest;
 import com.example.CMPE451.model.request.CreatePostRequest;
 import com.example.CMPE451.model.request.SavePostRequest;
 import com.example.CMPE451.model.response.CreateOrEditPostResponse;
@@ -29,6 +31,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -158,17 +161,17 @@ public class PostService {
 
 
     @Transactional
-    public SavePostResponse savePost(SavePostRequest request) {
+    public SavePostResponse savePost(SavePostRequest request, Integer postId) {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() ->
                         new NotFoundException("User not found: " + request.getUsername())
                 );
-        Post post = postRepository.findById(request.getPostId())
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() ->
-                        new NotFoundException("Post not found: " + request.getPostId())
+                        new NotFoundException("Post not found: " + postId)
                 );
 
-        SavedPost saved = new SavedPost(user.getId(), request.getPostId());
+        SavedPost saved = new SavedPost(user.getId(), postId);
         if (savedPostRepository.existsById(new SavedPost.SavedPostId(saved.getUserId(), saved.getPostId()))) {
             throw new AlreadyExistsException("This post is already saved by user" + user.getUsername());
         }
@@ -230,31 +233,6 @@ public class PostService {
                 })
                 .collect(Collectors.toList());
     }
-    
-    public List<GetSavedPostResponse> getSavedPosts(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NotFoundException("User not found: " + username));
-        List<SavedPost> savedPosts =
-                savedPostRepository.findAllByUserIdOrderBySavedAtDesc(user.getId());
-        return savedPosts.stream()
-                .map(sp -> new GetSavedPostResponse(
-                        sp.getPost().getPostId(),
-                        sp.getPost().getContent(),
-                        sp.getPost().getLikes(),
-                        sp.getPost().getComments(),
-                        sp.getPost().getUser().getUsername(),
-                        sp.getSavedAt(),
-                        sp.getPost().getPhotoUrl()) )
-                .collect(Collectors.toList());
-    }
-    public List<GetPostResponse> getPostsForUser(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NotFoundException("User not found: " + username));
-
-        List<Post> posts = postRepository.findByUserId(user.getId());
-
-        return convertToGetPostsResponse(posts, user.getId());
-    }
 
     private String uploadFileToSpaces(MultipartFile file, String folder) {
         if (file.isEmpty()) {
@@ -287,6 +265,8 @@ public class PostService {
             throw new UploadFailedException("Failed to upload photo to DigitalOcean Spaces: " + e.getMessage(), e);
         }
     }
+
+
 
 
 }

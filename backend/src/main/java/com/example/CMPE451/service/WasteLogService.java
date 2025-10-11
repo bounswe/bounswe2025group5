@@ -44,12 +44,12 @@ public class WasteLogService {
                 .collect(Collectors.toList());
     }
     @Transactional
-    public CreateOrEditWasteLogResponse createWasteLog(CreateWasteLogRequest request) {
+    public CreateOrEditWasteLogResponse createWasteLog(CreateWasteLogRequest request, Integer goalId) {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new NotFoundException("User not found: " + request.getUsername()));
 
-        WasteGoal goal = wasteGoalRepository.findById(request.getGoalId())
-                .orElseThrow(() -> new NotFoundException("WasteGoal not found: " + request.getGoalId()));
+        WasteGoal goal = wasteGoalRepository.findById(goalId)
+                .orElseThrow(() -> new NotFoundException("WasteGoal not found: " + goalId));
 
         WasteLog wasteLog = new WasteLog();
         wasteLog.setAmount(request.getAmount());

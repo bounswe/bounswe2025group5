@@ -17,13 +17,13 @@ import java.util.Collections;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/search")
+@RequestMapping("/api/forum/search")
 @RequiredArgsConstructor
 public class SearchController {
     private final ForumSearchService forumSearchService;
 
-    @GetMapping("/posts/semantic")
-    public ResponseEntity<List<GetPostResponse>> searchPostsSemanticEndpoint(
+    @GetMapping("/semantic")
+    public ResponseEntity<List<GetPostResponse>> searchPostsSemantic(
             @RequestParam(name = "query") String query,
             @RequestParam(required = false) String username,
             @RequestParam(name = "lang", defaultValue = "en") String language) {

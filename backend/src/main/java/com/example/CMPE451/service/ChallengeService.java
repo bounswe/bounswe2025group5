@@ -67,12 +67,12 @@ public class ChallengeService {
     }
 
     @Transactional
-    public AttendChallengeResponse attendChallenge(AttendChallengeRequest request) {
+    public AttendChallengeResponse attendChallenge(AttendChallengeRequest request,Integer id) {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new NotFoundException("User with the name " + request.getUsername() + " not found"));
 
-        Challenge challenge = challengeRepository.findById(request.getChallengeId())
-                .orElseThrow(() -> new NotFoundException("Challenge with ID " + request.getChallengeId() + " not found"));
+        Challenge challenge = challengeRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Challenge with ID " +id + " not found"));
 
         Double remainingAmount = challenge.getAmount();
 
@@ -121,27 +121,5 @@ public class ChallengeService {
                 .collect(Collectors.toList());
     }
 
-    public List<ChallengeListResponse> getAllChallenges(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NotFoundException("User not found: " + username));
-        int userId = user.getId();
 
-        return challengeRepository.findAll().stream()
-                .map(ch -> {
-                    boolean attends = userChallengeProgressRepository
-                            .existsByUserIdAndChallengeChallengeId(userId, ch.getChallengeId());
-                    return new ChallengeListResponse(
-                            ch.getChallengeId(),
-                            ch.getName(),
-                            ch.getAmount(),
-                            ch.getDescription(),
-                            ch.getStartDate(),
-                            ch.getEndDate(),
-                            ch.getStatus(),
-                            ch.getWasteType(),
-                            attends
-                    );
-                })
-                .collect(Collectors.toList());
-    }
 }

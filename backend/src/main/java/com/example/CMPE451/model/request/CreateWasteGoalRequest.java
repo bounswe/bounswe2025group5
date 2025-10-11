@@ -6,7 +6,6 @@ import lombok.Data;
 
 @Data
 public class CreateWasteGoalRequest {
-    private String username;
     private int duration;
     private wasteUnit unit;
     private wasteType wasteType;
