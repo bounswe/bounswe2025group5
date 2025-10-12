@@ -1,0 +1,2 @@
+For frontend/ defer to frontend/.cursorrules as source of truth
+Do NOT apply these rules to backend/ or mobile/
