@@ -48,7 +48,7 @@ public class ChallengeService {
                 savedChallenge.getStartDate(),
                 savedChallenge.getEndDate(),
                 savedChallenge.getStatus(),
-                savedChallenge.getWasteType()
+                savedChallenge.getType()
         );
     }
 
@@ -79,7 +79,6 @@ public class ChallengeService {
         UserChallengeProgress progress = new UserChallengeProgress(
                 user,
                 challenge,
-                challenge.getWasteType(),
                 remainingAmount
         );
         userChallengeProgressRepository.save(progress);
