@@ -94,6 +94,17 @@ public class UserService {
                 .toList();
     }
 
+    public UserDeleteResponse deleteUser(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User not found: " + username));
+
+        UserDeleteResponse response = new UserDeleteResponse(user.getId(), username);
+
+        userRepository.delete(user);
+
+        return response;
+    }
+
     private List<GetPostResponse> convertToGetPostsResponse(List<Post> posts, Integer requestingUserId) {
         if (posts.isEmpty()) {
             return Collections.emptyList();

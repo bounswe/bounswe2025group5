@@ -47,4 +47,11 @@ public class UserController {
     public ResponseEntity<List<BadgeResponse>> getBadges(@RequestParam String username) {
         List<BadgeResponse> response = userService.getBadges(username);
         return ResponseEntity.ok(response);    }
+
+    @DeleteMapping("/{username}")
+    public ResponseEntity<UserDeleteResponse> deleteUser(@PathVariable String username) {
+        UserDeleteResponse response = userService.deleteUser(username);
+        return ResponseEntity.ok(response);
+    }
+
 }
