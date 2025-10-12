@@ -46,12 +46,17 @@ async function tryRefreshAccessToken(): Promise<boolean> {
 
 export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = getAccessToken();
+  const authBypass = [
+    '/api/sessions',
+    '/api/refresh-token',
+  ];
+  const attachAuth = token && !authBypass.some(p => endpoint.startsWith(p));
   const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
   const headers: Record<string, string> = {
     ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(options.headers as Record<string, string> | undefined),
   };
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (attachAuth) headers['Authorization'] = `Bearer ${token}`;
 
   const doFetch = (hdrs: Record<string, string>) =>
     fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers: hdrs });
