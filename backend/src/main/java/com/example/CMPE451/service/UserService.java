@@ -76,7 +76,7 @@ public class UserService {
                             ch.getStartDate(),
                             ch.getEndDate(),
                             ch.getStatus(),
-                            ch.getWasteType(),
+                            ch.getType(),
                             attends
                     );
                 })

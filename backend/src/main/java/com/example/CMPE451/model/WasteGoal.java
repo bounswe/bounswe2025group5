@@ -4,12 +4,10 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
-
 
 @Entity
 @Table(name = "WasteGoal")
@@ -18,34 +16,22 @@ import java.util.List;
 @NoArgsConstructor
 public class WasteGoal {
 
-    public enum wasteType {
-        Plastic, Organic, Paper, Metal, Glass
-    }
-
-    public enum wasteUnit{
-        Bottles, Grams, Kilograms, Liters, Units
-    }
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "goal_id", nullable = false)
     private Integer goalId;
 
-    @CreationTimestamp
-    @Column(name = "date", updatable = false)
-    private Timestamp date;
+    @Column(name = "date", nullable = false)
+    private LocalDateTime date;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "unit", nullable = false)
-    private wasteUnit unit;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "wasteType", nullable = false)
-    private wasteType wasteType;
+    @ManyToOne
+    @JoinColumn(name = "type_id", nullable = false)
+    private WasteType type;
 
     @Column(name = "duration", nullable = false)
     private int duration;
 
-    @Column(name = "amount", nullable = false)
-    private double amount;
+    @Column(name = "restriction_amount_grams", nullable = false)
+    private double restrictionAmountGrams;
 
     @Column(name = "completed")
     private Integer completed;
@@ -60,15 +46,14 @@ public class WasteGoal {
     @OneToMany(mappedBy = "goal", cascade = CascadeType.ALL)
     private List<WasteLog> logs;
 
-
-    public WasteGoal(User owner, int duration, wasteUnit unit, wasteType wasteType, double amount) {
+    public WasteGoal(User owner, int duration, WasteType wasteType, double restrictionAmountGrams) {
         this.owner = owner;
         this.duration = duration;
-        this.unit = unit;
-        this.wasteType = wasteType;
-        this.amount = amount;
-        this.completed = 0; ;
-        this.percentOfProgress=0.0;
-        this.date= new Timestamp(System.currentTimeMillis());
+        this.type = wasteType;
+        this.restrictionAmountGrams = restrictionAmountGrams;
+        this.completed = 0;
+        this.percentOfProgress = 0.0;
+        this.date =  LocalDateTime.now();;
     }
+
 }

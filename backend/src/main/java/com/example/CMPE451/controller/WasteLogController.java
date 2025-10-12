@@ -1,6 +1,7 @@
 package com.example.CMPE451.controller;
 
 import com.example.CMPE451.model.WasteGoal;
+import com.example.CMPE451.model.WasteType;
 import com.example.CMPE451.model.request.CreateWasteLogRequest;
 import com.example.CMPE451.model.request.UpdateWasteLogRequest;
 import com.example.CMPE451.model.response.CreateOrEditWasteLogResponse;
@@ -55,7 +56,7 @@ public class WasteLogController {
     public ResponseEntity<TotalLogResponse> totalLogAmountForInterval(
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
-            @RequestParam("wasteType") WasteGoal.wasteType wasteType
+            @RequestParam("wasteType") String wasteType
     ) {
         return ResponseEntity.ok(wasteLogService.getTotalWasteAmountByTypeAndInterval(wasteType, startDate, endDate));
     }

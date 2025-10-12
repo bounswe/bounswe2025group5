@@ -22,6 +22,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class WasteLogService {
     private final UserRepository userRepository;
+    private final WasteItemRepository wasteItemRepository;
+    private final WasteTypeRepository wasteTypeRepository;
 
     private final WasteLogRepository wasteLogRepository;
     private final WasteGoalRepository wasteGoalRepository;
@@ -35,10 +37,10 @@ public class WasteLogService {
                 .map(wasteLog -> {
                     GetWasteLogResponse response = new GetWasteLogResponse();
                     response.setLogId(wasteLog.getLogId());
-                    response.setAmount(wasteLog.getAmount());
                     response.setDate(wasteLog.getDate());
                     response.setGoalId(wasteLog.getGoal().getGoalId());
                     response.setUsername(wasteLog.getUser().getUsername());
+                    response.setWasteItem(wasteLog.getItem());
                     return response;
                 })
                 .collect(Collectors.toList());
@@ -51,24 +53,29 @@ public class WasteLogService {
         WasteGoal goal = wasteGoalRepository.findById(goalId)
                 .orElseThrow(() -> new NotFoundException("WasteGoal not found: " + goalId));
 
-        WasteLog wasteLog = new WasteLog();
-        wasteLog.setAmount(request.getAmount());
-        wasteLog.setUser(user);
-        wasteLog.setGoal(goal);
-        wasteLog.setWasteType(goal.getWasteType());
+        WasteItem item = wasteItemRepository.findById(request.getItemId())
+                .orElseThrow(() -> new NotFoundException("WasteItem not found: " + request.getItemId()));
+
+        WasteLog wasteLog = new WasteLog(user, goal, item, request.getQuantity());
+
 
         wasteLogRepository.save(wasteLog);
 
-        return new CreateOrEditWasteLogResponse(wasteLog.getLogId(), wasteLog.getAmount(), wasteLog.getDate());
+        return new CreateOrEditWasteLogResponse(
+                wasteLog.getLogId(),
+                wasteLog.getItem().getDisplayName(),
+                wasteLog.getQuantity(),
+                wasteLog.getDate()
+        );
     }
     @Transactional
     public CreateOrEditWasteLogResponse updateWasteLog(Integer logId, UpdateWasteLogRequest request) {
         WasteLog existingLog = wasteLogRepository.findById(logId)
                 .orElseThrow(() -> new NotFoundException("WasteLog not found: " + logId));
-        existingLog.setAmount(request.getAmount());
+        existingLog.setQuantity(request.getQuantity());
         wasteLogRepository.save(existingLog);
 
-        return new CreateOrEditWasteLogResponse(existingLog.getLogId(), existingLog.getAmount(), existingLog.getDate());
+        return new CreateOrEditWasteLogResponse(existingLog.getLogId(), existingLog.getItem().getDisplayName(), existingLog.getQuantity(), existingLog.getDate());
     }
    @Transactional
     public DeleteWasteLogResponse deleteWasteLog(Integer logId) {
@@ -78,8 +85,10 @@ public class WasteLogService {
         return new DeleteWasteLogResponse(logId);
     }
 
-    public TotalLogResponse getTotalWasteAmountByTypeAndInterval(WasteGoal.wasteType wasteType, LocalDateTime startDate, LocalDateTime endDate) {
-        Double totalAmount = wasteLogRepository.findTotalAmountByDateRange(wasteType, startDate, endDate);
-        return new TotalLogResponse(wasteType,totalAmount);
+    public TotalLogResponse getTotalWasteAmountByTypeAndInterval(String wasteTypeName, LocalDateTime startDate, LocalDateTime endDate) {
+        WasteType wasteType = wasteTypeRepository.findByName(wasteTypeName)
+                .orElseThrow(() -> new NotFoundException("WasteType not found: " + wasteTypeName));
+        Double totalAmount = wasteLogRepository.findTotalAmountByDateRange(wasteTypeName, startDate, endDate);
+        return new TotalLogResponse(wasteType, totalAmount);
     }
 }

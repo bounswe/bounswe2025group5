@@ -14,7 +14,9 @@ import java.time.LocalDateTime;
 public class CreateOrEditWasteLogResponse {
 
     private Integer logId;
-    private Double amount;
+    private String displayName;
+    private Integer quantity;
     private LocalDateTime date;
+
 
 }
