@@ -1,7 +1,6 @@
 DROP DATABASE waste_less;
 CREATE DATABASE  waste_less;
 Use  waste_less;
-
 CREATE  TABLE IF NOT EXISTS  `users` (
   `user_id` int NOT NULL AUTO_INCREMENT,
   `email` varchar(255) NOT NULL,
@@ -15,45 +14,85 @@ CREATE  TABLE IF NOT EXISTS  `users` (
   UNIQUE KEY `username` (`username`)
 ) ;
 
-CREATE TABLE IF NOT EXISTS `waste_goal` (
-  `goal_id` INT NOT NULL AUTO_INCREMENT,
-  `amount` DOUBLE NOT NULL,
-  `completed` BOOLEAN DEFAULT FALSE,
-  `date` DATETIME(6) NOT NULL,              -- end date of the goal
-  `duration` INT NOT NULL,                  -- duration in days
-  `unit` ENUM('Bottles','Grams','Kilograms','Liters','Units') NOT NULL,
-  `waste_type` ENUM('Glass','Metal','Organic','Paper','Plastic') NOT NULL,
-  `user_id` INT NOT NULL,
-  `percent_of_progress` DOUBLE NOT NULL,
-  PRIMARY KEY (`goal_id`),
-  KEY `wg_user` (`user_id`),
-  CONSTRAINT `wg_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+CREATE TABLE IF NOT EXISTS `refresh_tokens` (
+  `email` VARCHAR(255) NOT NULL,
+  `token` VARCHAR(512) NOT NULL,
+  `expiry_date` TIMESTAMP NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+CREATE TABLE IF NOT EXISTS `waste_goal` (
+  `goal_id`               INT NOT NULL AUTO_INCREMENT,
+  `user_id`               INT NOT NULL,
+  `type_id`               INT NOT NULL,
+  `restriction_amount_grams`   DOUBLE NOT NULL,
+  `duration`              INT NOT NULL,
+  `date`                  DATETIME(6) NOT NULL,
+  `percent_of_progress`   DOUBLE NOT NULL DEFAULT 0.0,
+  `completed`             INT  DEFAULT 0,
+  PRIMARY KEY (`goal_id`),
+  INDEX `fk_goal_user_idx` (`user_id` ASC),
+  INDEX `fk_goal_type_idx` (`type_id` ASC),
+  CONSTRAINT `fk_goal_user`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `users` (`user_id`),
+  CONSTRAINT `fk_goal_type`
+    FOREIGN KEY (`type_id`)
+    REFERENCES `waste_type` (`type_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE   IF NOT EXISTS waste_type (
+    type_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS  waste_item (
+    item_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    display_name VARCHAR(255) NOT NULL,
+    weight_in_grams DOUBLE PRECISION NOT NULL,
+    type_id INT NOT NULL,
+    FOREIGN KEY (type_id) REFERENCES waste_type(type_id)
+);
 
 CREATE TABLE IF NOT EXISTS `waste_log` (
-  `log_id`   INT NOT NULL AUTO_INCREMENT,
-    `goal_id` INT NOT NULL,
-  `amount`   DOUBLE NOT NULL,
-  `date`     DATETIME(6) NOT NULL,
-  `waste_type` ENUM('Glass','Metal','Organic','Paper','Plastic') NOT NULL,
-  `user_id`  INT NOT NULL,
+  `log_id`    INT NOT NULL AUTO_INCREMENT,
+  `user_id`   INT NOT NULL,
+  `goal_id`   INT NOT NULL,
+  `item_id`   INT NOT NULL,
+  `quantity`  INT NOT NULL,
+  `date`      DATETIME(6) NOT NULL,
   PRIMARY KEY (`log_id`),
-  KEY `wl_user` (`user_id`),
-  CONSTRAINT `wl_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+  INDEX `fk_log_user_idx` (`user_id` ASC),
+  INDEX `fk_log_goal_idx` (`goal_id` ASC),
+  INDEX `fk_log_item_idx` (`item_id` ASC),
+  CONSTRAINT `fk_log_user`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `users` (`user_id`),
+  CONSTRAINT `fk_log_goal`
+    FOREIGN KEY (`goal_id`)
+    REFERENCES `waste_goal` (`goal_id`),
+  CONSTRAINT `fk_log_item`
+    FOREIGN KEY (`item_id`)
+    REFERENCES `waste_item` (`item_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
- CREATE TABLE  IF NOT EXISTS `challenges` (
-  `challenge_id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `description` varchar(200) NOT NULL,
-  `start_date` date NOT NULL,
-  `end_date` date NOT NULL,
-  `status` enum('Active','Requested','Ended') DEFAULT NULL,
-  `waste_type` enum('Glass','Metal','Organic','Paper','Plastic') NOT NULL,
-  `amount` double NOT NULL,
-  PRIMARY KEY (`challenge_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE `challenges` (
+  `challenge_id`  INT NOT NULL AUTO_INCREMENT,
+  `name`          VARCHAR(100) NOT NULL,
+  `description`   VARCHAR(200) NOT NULL,
+  `amount`        DOUBLE NOT NULL,
+  `start_date`    DATE NOT NULL,
+  `end_date`      DATE NOT NULL,
+  `status`        ENUM('Active','Requested','Ended') DEFAULT 'Active',
+  `type_id`       INT NOT NULL,
+  PRIMARY KEY (`challenge_id`),
+  INDEX `fk_challenge_type_idx` (`type_id` ASC),
+  CONSTRAINT `fk_challenge_type`
+    FOREIGN KEY (`type_id`)
+    REFERENCES `waste_type` (`type_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 CREATE TABLE IF NOT EXISTS  `posts` (
@@ -69,25 +108,18 @@ CREATE TABLE IF NOT EXISTS  `posts` (
   CONSTRAINT `posts_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-
-
- CREATE TABLE IF NOT EXISTS `user_challenge_progress` (
-  `remaining_amount` double DEFAULT NULL,
-  `waste_type` enum('Glass','Metal','Organic','Paper','Plastic') DEFAULT NULL,
-  `challenge_id` int NOT NULL,
-  `user_id` int NOT NULL,
-  PRIMARY KEY (`challenge_id`,`user_id`),
-  KEY `FKoac9ib3121eou06gwlt094e7q` (`user_id`),
-  CONSTRAINT `FKaw0lexcvav1p4svwv76l6o3ga` FOREIGN KEY (`challenge_id`) REFERENCES `challenges` (`challenge_id`),
-  CONSTRAINT `FKoac9ib3121eou06gwlt094e7q` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-CREATE TABLE IF NOT EXISTS `refresh_tokens` (
-  `email` VARCHAR(255) NOT NULL,
-  `token` VARCHAR(512) NOT NULL,
-  `expiry_date` TIMESTAMP NOT NULL,
-  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`email`)
+CREATE TABLE IF NOT EXISTS `user_challenge_progress` (
+  `user_id`             INT NOT NULL,
+  `challenge_id`        INT NOT NULL,
+  `remaining_amount`    DOUBLE DEFAULT NULL,
+  PRIMARY KEY (`user_id`, `challenge_id`),
+  INDEX `fk_progress_challenge_idx` (`challenge_id` ASC),
+  CONSTRAINT `fk_progress_user`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `users` (`user_id`),
+  CONSTRAINT `fk_progress_challenge`
+    FOREIGN KEY (`challenge_id`)
+    REFERENCES `challenges` (`challenge_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE  IF NOT EXISTS  `profiles` (
@@ -350,6 +382,4 @@ BEGIN
 END$$
 
 */
-
-
 

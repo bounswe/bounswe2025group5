@@ -1,5 +1,6 @@
 package com.example.CMPE451.model.response;
 
+import com.example.CMPE451.model.WasteItem;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,9 +14,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class GetWasteLogResponse {
     private Integer logId;
-    private Double amount;
     private LocalDateTime date;
     private Integer goalId;
     private String username;
+    private WasteItem wasteItem;
 
 }

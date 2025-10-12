@@ -37,22 +37,22 @@ public class Challenge {
     @Column(name = "status")
     private Status status;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "waste_type", nullable = false)
-    private WasteGoal.wasteType wasteType;
+    @ManyToOne
+    @JoinColumn(name = "type_id", nullable = false)
+    private WasteType type;
 
     public enum Status {
         Active,
         Requested,
         Ended
     }
-    public Challenge(String name, String description, Double amount ,LocalDate startDate, LocalDate endDate, WasteGoal.wasteType wasteType) {
+    public Challenge(String name, String description, Double amount ,LocalDate startDate, LocalDate endDate, WasteType wasteType) {
         this.name = name;
         this.description = description;
         this.amount=amount;
         this.startDate = startDate;
         this.endDate = endDate;
         this.status = Status.Active;
-        this.wasteType = wasteType;
+        this.type = wasteType;
     }
 }
