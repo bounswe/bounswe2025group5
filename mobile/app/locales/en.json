@@ -122,6 +122,15 @@
     "errorFailedToLoadChallenges": "Failed to load challenges",
     "errorActionFailed": "Action failed",
     "errorFailedToLoadLeaderboard": "Failed to load leaderboard",
-    "challengeAmountAndType": "Amount: {{amount}} | Type: {{wasteType}}"
+    "challengeAmountAndType": "Amount: {{amount}} | Type: {{wasteType}}",
+    "logOut": "Log Out",
+    "editProfile": "Edit Profile",
+    "myBadges": "My Badges",
+    "helloUser": "Hello, {{username}}",
+    "noBioYet": "No bio yet.",
+    "createPost": "Create Post",
+    "managePosts": "Manage Posts",
+    "savedPosts": "Saved Posts",
+    "errorCouldNotFetchProfile": "Could not fetch profile information. Please try again later."
   }
 }

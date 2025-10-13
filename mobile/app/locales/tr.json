@@ -102,6 +102,15 @@
     "errorFailedToLoadChallenges": "Meydan okumalar yüklenemedi",
     "errorActionFailed": "İşlem başarısız oldu",
     "errorFailedToLoadLeaderboard": "Lider tablosu yüklenemedi",
-    "challengeAmountAndType": "Miktar: {{amount}} | Tür: {{wasteType}}"
+    "challengeAmountAndType": "Miktar: {{amount}} | Tür: {{wasteType}}",
+    "logOut": "Çıkış Yap",
+    "editProfile": "Profili Düzenle",
+    "myBadges": "Rozetlerim",
+    "helloUser": "Merhaba, {{username}}",
+    "noBioYet": "Henüz biyografi yok.",
+    "createPost": "Gönderi Oluştur",
+    "managePosts": "Gönderileri Yönet",
+    "savedPosts": "Kaydedilen Gönderiler",
+    "errorCouldNotFetchProfile": "Profil bilgileri alınamadı. Lütfen daha sonra tekrar deneyin."
   }
 }
