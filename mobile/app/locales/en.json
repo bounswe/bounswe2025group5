@@ -106,6 +106,22 @@
     "successGoalDeleted": "Waste goal deleted successfully.",
     "errorGoalDeleteFailed": "Failed to delete waste goal",
     "errorGoalFetchFailed": "Failed to fetch waste goals",
-    "errorGoalFetchGeneric": "An error occurred while fetching goals"
+    "errorGoalFetchGeneric": "An error occurred while fetching goals",
+    "challengesTitle": "Challenges",
+    "attendedOnly": "Attended only",
+    "activeOnly": "Active only",
+    "leaveChallenge": "Leave Challenge",
+    "attendChallenge": "Attend Challenge",
+    "endChallenge": "End Challenge",
+    "viewLeaderboard": "View Leaderboard",
+    "noChallengesMatchFilters": "No challenges match your filters.",
+    "leaderboardTitle": "Leaderboard",
+    "remaining": "Remaining",
+    "leaderboardEmpty": "Leaderboard is empty.",
+    "close": "Close",
+    "errorFailedToLoadChallenges": "Failed to load challenges",
+    "errorActionFailed": "Action failed",
+    "errorFailedToLoadLeaderboard": "Failed to load leaderboard",
+    "challengeAmountAndType": "Amount: {{amount}} | Type: {{wasteType}}"
   }
 }
