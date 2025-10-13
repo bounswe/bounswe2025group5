@@ -87,6 +87,10 @@
     "deleteConfirmation": "Are you sure you want to delete the goal: \n'{{wasteType}}' for {{amount}} {{unit}}?",
     "deleting": "Deleting...",
     "edit": "Edit",
+
+
+
+    
     "targetDetails": "Target: {{amount}} {{unit}} in {{duration}} days",
     "remainingQuota": "Remaining Quota:",
     "wasteLoad": "Waste Load: {{progress}}%",
@@ -107,6 +111,7 @@
     "errorGoalDeleteFailed": "Failed to delete waste goal",
     "errorGoalFetchFailed": "Failed to fetch waste goals",
     "errorGoalFetchGeneric": "An error occurred while fetching goals",
+
     "challengesTitle": "Challenges",
     "attendedOnly": "Attended only",
     "activeOnly": "Active only",
