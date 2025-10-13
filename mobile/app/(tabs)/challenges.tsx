@@ -48,11 +48,15 @@ export default function ChallengesScreen() {
   const isAdmin = String(userType) === ADMIN_TYPE_PLACEHOLDER;
   const colorScheme = useColorScheme();
 
-  const [isTurkish, setIsTurkish] = useState(i18n.language === 'tr');
-  const toggleLanguage = () => {
-    const newLang = isTurkish ? 'en' : 'tr';
-    i18n.changeLanguage(newLang);
-    setIsTurkish(!isTurkish);
+  //const [isTurkish, setIsTurkish] = useState(i18n.language === 'tr');
+  //const toggleLanguage = () => {
+  //  const newLang = isTurkish ? 'en' : 'tr';
+  //  i18n.changeLanguage(newLang);
+  //  setIsTurkish(!isTurkish);
+  //};
+  const isTurkish = (i18n.resolvedLanguage || i18n.language || '').toLowerCase().startsWith('tr');
+  const toggleLanguage = (value: boolean) => {
+    i18n.changeLanguage(value ? 'tr-TR' : 'en-US');
   };
 
   const isDarkMode = colorScheme === 'dark';

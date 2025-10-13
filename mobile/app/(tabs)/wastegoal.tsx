@@ -48,12 +48,14 @@ export default function WasteGoalScreen() {
   const navigation = useNavigation<Navigation>();
 
   const { t, i18n } = useTranslation();
-  const [isTurkish, setIsTurkish] = useState(i18n.language === 'tr');
-  const toggleLanguage = () => {
-    const newLang = isTurkish ? 'en' : 'tr';
-    i18n.changeLanguage(newLang);
-    setIsTurkish(!isTurkish);
-  };
+  //const [isTurkish, setIsTurkish] = useState(i18n.language === 'tr');
+  //const toggleLanguage = () => {
+  //  const newLang = isTurkish ? 'en' : 'tr';
+  //  i18n.changeLanguage(newLang);
+  //  setIsTurkish(!isTurkish);
+  //};
+  const isTurkish = (i18n.resolvedLanguage || i18n.language || '').toLowerCase().startsWith('tr');
+  const toggleLanguage = (value: boolean) => i18n.changeLanguage(value ? 'tr-TR' : 'en-US');
 
   const { username, userType } = useContext(AuthContext);
   const colorScheme = useColorScheme();
@@ -423,7 +425,7 @@ export default function WasteGoalScreen() {
               trackColor={{ false: '#767577', true: '#81b0ff' }}
               thumbColor={isDarkMode ? (isTurkish ? '#f5dd4b' : '#f4f4f4') : (isTurkish ? '#f5dd4b' : '#f4f4f4')}
               ios_backgroundColor="#3e3e3e"
-              onValueChange={toggleLanguage}
+              onValueChange={value => { toggleLanguage(value); }}
               value={isTurkish}
           />
           <Text style={styles.languageLabel}>TR</Text>

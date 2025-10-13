@@ -23,6 +23,7 @@ import { API_BASE_URL } from '../apiConfig';
 import PostItem from '../components/PostItem';
 
 import { useTranslation } from 'react-i18next';
+import { useLanguageSwitch } from '@/hooks/useLanguageSwitch';
 
 const API_BASE = API_BASE_URL;
 
@@ -48,13 +49,14 @@ export default function ExploreScreen() {
   const navigation = useNavigation();
 
   const { t, i18n } = useTranslation();
-  const [isTurkish, setIsTurkish] = useState(i18n.language.startsWith('tr'));
-
-  const toggleLanguage = (value: boolean) => {
-    const lang = value ? 'tr-TR' : 'en-US';
-    i18n.changeLanguage(lang);
-    setIsTurkish(value);
-  };
+  //const { isTR, toggle } = useLanguageSwitch();
+  //const toggleLanguage = (value: boolean) => {
+  //  const lang = value ? 'tr-TR' : 'en-US';
+  //  i18n.changeLanguage(lang);
+  //  toggle(value);
+  //};
+  const isTurkish = (i18n.resolvedLanguage || i18n.language || '').toLowerCase().startsWith('tr');
+  const toggleLanguage = (value: boolean) => i18n.changeLanguage(value ? 'tr-TR' : 'en-US');
 
   const authContext = useContext(AuthContext);
   const userType = authContext?.userType;
@@ -555,7 +557,7 @@ export default function ExploreScreen() {
             trackColor={{ false: '#767577', true: '#81b0ff' }}
             thumbColor={isTurkish ? '#f5dd4b' : '#f4f3f4'}
             ios_backgroundColor="#3e3e3e"
-            onValueChange={toggleLanguage}
+            onValueChange={value => { toggleLanguage(value); }}
             value={isTurkish}
           />
           <ThemedText style={styles.languageLabel}>TR</ThemedText>

@@ -52,13 +52,14 @@ export default function HomeScreen() {
 
   // --- I18N ---
   const { t, i18n } = useTranslation();
-  const [isTurkish, setIsTurkish] = useState(i18n.language.startsWith('tr'));
-
-  const toggleLanguage = (value: boolean) => {
-    const lang = value ? 'tr-TR' : 'en-US';
-    i18n.changeLanguage(lang);
-    setIsTurkish(value);
-  };
+  //const [isTurkish, setIsTurkish] = useState(i18n.language.startsWith('tr'));
+  //const toggleLanguage = (value: boolean) => {
+  //  const lang = value ? 'tr-TR' : 'en-US';
+  //  i18n.changeLanguage(lang);
+  //  setIsTurkish(value);
+  //};
+  const isTurkish = (i18n.resolvedLanguage || i18n.language || '').toLowerCase().startsWith('tr');
+ const toggleLanguage = (value: boolean) => i18n.changeLanguage(value ? 'tr-TR' : 'en-US');
   // --- END I18N ---
 
   const [showAuthFields, setShowAuthFields] = useState(false);
@@ -259,7 +260,7 @@ export default function HomeScreen() {
             trackColor={{ false: '#767577', true: '#81b0ff' }}
             thumbColor={isTurkish ? '#f5dd4b' : '#f4f3f4'}
             ios_backgroundColor="#3e3e3e"
-            onValueChange={toggleLanguage}
+            onValueChange={value => { void toggleLanguage(value); }}
             value={isTurkish}
           />
           <Text style={styles.languageLabel}>TR</Text>
