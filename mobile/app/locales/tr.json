@@ -111,6 +111,15 @@
     "createPost": "Gönderi Oluştur",
     "managePosts": "Gönderileri Yönet",
     "savedPosts": "Kaydedilen Gönderiler",
-    "errorCouldNotFetchProfile": "Profil bilgileri alınamadı. Lütfen daha sonra tekrar deneyin."
+    "errorCouldNotFetchProfile": "Profil bilgileri alınamadı. Lütfen daha sonra tekrar deneyin.",
+    "pleaseLogInToLikePosts": "Gönderileri beğenmek için lütfen giriş yapın.",
+    "pleaseLogInToSavePosts": "Gönderileri kaydetmek için lütfen giriş yapın.",
+    "saved": "Kaydedildi",
+    "noCommentsYetBeFirst": "Henüz yorum yok. İlk sen ol!",
+    "addACommentPlaceholder": "Yorum ekle...",
+    "post": "Gönder",
+    "noBadgesYet": "Henüz bir rozetin yok.",
+    "errorBadgesFetchFailed": "Rozetler sunucudan alınamadı.",
+    "errorBadgesFetchGeneric": "Rozetler alınamadı. Lütfen bağlantınızı kontrol edip tekrar deneyin."
   }
 }

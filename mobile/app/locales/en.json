@@ -131,6 +131,15 @@
     "createPost": "Create Post",
     "managePosts": "Manage Posts",
     "savedPosts": "Saved Posts",
-    "errorCouldNotFetchProfile": "Could not fetch profile information. Please try again later."
+    "errorCouldNotFetchProfile": "Could not fetch profile information. Please try again later.",
+    "pleaseLogInToLikePosts": "Please log in to like posts.",
+    "pleaseLogInToSavePosts": "Please log in to save posts.",
+    "saved": "Saved",
+    "noCommentsYetBeFirst": "No comments yet. Be the first!",
+    "addACommentPlaceholder": "Add a comment...",
+    "post": "Post",
+    "noBadgesYet": "You don't have any badges yet.",
+    "errorBadgesFetchFailed": "Failed to fetch badges from server.",
+    "errorBadgesFetchGeneric": "Failed to fetch badges. Please check your connection and try again."
   }
 }
