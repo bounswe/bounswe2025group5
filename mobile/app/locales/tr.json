@@ -1,0 +1,23 @@
+{
+  "translation": {
+    "usersAreReducingWastes": "kullanıcı bizimle atıklarını azaltıyor",
+    "trendingPosts": "Öne çıkan gönderiler:",
+    "logIn": "Giriş Yap",
+    "register": "Kayıt Ol",
+    "continueAsGuest": "Misafir Olarak Devam Et",
+    "createAccount": "Hesap oluştur",
+    "loginHere": "Giriş yap",
+    "username": "Kullanıcı Adı",
+    "emailOrUsername": "E-posta veya Kullanıcı Adı",
+    "email": "E-posta",
+    "password": "Şifre",
+    "confirmPassword": "Şifreyi onayla",
+    "kvkkAcknowledge": "KVKK formunu okudum ve onaylıyorum",
+    "backToLogIn": "Giriş Yapmaya Geri Dön",
+    "errorFillCredentials": "Lütfen geçerli bilgiler girin",
+    "errorPasswordsDontMatch": "Şifreler eşleşmiyor",
+    "errorAcknowledgeKvkk": "KVKK formunu onaylamalısınız",
+    "errorInvalidCredentials": "Geçersiz kullanıcı adı veya şifre!",
+    "registrationSuccess": "Kayıt başarılı! Lütfen giriş yapın."
+  }
+}

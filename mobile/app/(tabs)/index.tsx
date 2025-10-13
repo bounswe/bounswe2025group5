@@ -7,6 +7,7 @@ import {
   View,
   TouchableOpacity,
   Text,
+  Switch, // Import Switch for the toggle
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,9 +20,12 @@ import { API_BASE_URL } from '../apiConfig';
 import { ScrollView } from 'react-native';
 import CheckBox from '../components/CheckBox';
 
-const API_BASE = `${API_BASE_URL}/api/auth`;
+// --- I18N ---
+import { useTranslation } from 'react-i18next';
+// --- END I18N ---
 
-const KG_SAVED     = 57492;
+const MOCK_API = true; // Set to true to use mock data instead of real API calls.
+const API_BASE = `${API_BASE_URL}/api/auth`;
 
 type Navigation = {
   navigate: (screen: string, params?: any) => void;
@@ -29,67 +33,80 @@ type Navigation = {
 };
 
 type TrendingPost = {
-  postId        : number;
-  content       : string;
-  likes         : number;
-  comments      : number;
+  postId: number;
+  content: string;
+  likes: number;
+  comments: number;
   creatorUsername: string;
-  photoUrl      : string | null;
+  photoUrl: string | null;
 };
-
-
 
 export default function HomeScreen() {
   const navigation = useNavigation<Navigation>();
-  const route     = useRoute<any>();
-  const { setUserType, setUsername} = useContext(AuthContext);
+  const route = useRoute<any>();
+  const { setUserType, setUsername } = useContext(AuthContext);
+
+  // --- I18N ---
+  const { t, i18n } = useTranslation();
+  const [isTurkish, setIsTurkish] = useState(i18n.language.startsWith('tr'));
+
+  const toggleLanguage = (value: boolean) => {
+    const lang = value ? 'tr-TR' : 'en-US';
+    i18n.changeLanguage(lang);
+    setIsTurkish(value);
+  };
+  // --- END I18N ---
 
   const [showAuthFields, setShowAuthFields] = useState(false);
-  const [isRegistering, setIsRegistering]   = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
 
-  const [usernameInput, setUsernameInput]   = useState('');
-  const [password, setPassword]             = useState('');
+  const [usernameInput, setUsernameInput] = useState('');
+  const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [email, setEmail]                   = useState('');
-  const [kvkkChecked, setKvkkChecked]       = useState(false);
+  const [email, setEmail] = useState('');
+  const [kvkkChecked, setKvkkChecked] = useState(false);
 
-  const [loggedIn, setLoggedIn]             = useState(false);
-  const [errorVisible, setErrorVisible]     = useState(false);
-  const [errorMessage, setErrorMessage]     = useState('');
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [errorVisible, setErrorVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [usersCount, setUsersCount] = useState<number>(0);
   const [trendingPosts, setTrendingPosts] = useState<TrendingPost[]>([]);
 
   useEffect(() => {
     const fetchUserCount = async () => {
+      if (MOCK_API) {
+        setUsersCount(57492);
+        return;
+      }
       try {
         const token = await AsyncStorage.getItem('token');
         const res = await fetch(`${API_BASE_URL}/api/users/count`, {
-          method : 'GET',
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
         });
-
         const body = await res.json().catch(() => ({}));
-        console.log('users/count response ➜', body);
-
-        if (!res.ok) {
-          return console.warn(body.message || 'Could not fetch user count');
+        if (res.ok) {
+          setUsersCount(body.userCount ?? 0);
         }
-
-        const userCount = body.userCount ?? 0;
-        console.log('setting usersCount ➜', userCount);
-        setUsersCount(userCount);
       } catch (err) {
         console.warn('Network error while fetching user count', err);
       }
     };
-
     fetchUserCount();
   }, []);
+
   useEffect(() => {
     const fetchTrending = async () => {
+      if (MOCK_API) {
+        setTrendingPosts([
+          { postId: 1, content: "Mock post content about recycling.", likes: 152, comments: 12, creatorUsername: 'EcoMock', photoUrl: null },
+          { postId: 2, content: "Another mock post here.", likes: 98, comments: 25, creatorUsername: 'GreenMock', photoUrl: null },
+        ]);
+        return;
+      }
       try {
         const res = await fetch(`${API_BASE_URL}/api/posts/mostLikedPosts?size=4`);
         if (!res.ok) throw new Error('Failed to fetch trending posts');
@@ -99,13 +116,12 @@ export default function HomeScreen() {
         console.warn('Unable to load trending posts', err);
       }
     };
-
     fetchTrending();
   }, []);
 
   useEffect(() => {
     (async () => {
-      const token      = await AsyncStorage.getItem('token');
+      const token = await AsyncStorage.getItem('token');
       const storedUser = await AsyncStorage.getItem('username');
       if (token && storedUser) {
         setUserType('user');
@@ -131,109 +147,90 @@ export default function HomeScreen() {
     }, [loggedIn])
   );
 
-  const showError = (msg: string) => {
-    setErrorMessage(msg);
+  const showError = (msgKey: string) => {
+    setErrorMessage(t(msgKey));
     setErrorVisible(true);
     setTimeout(() => setErrorVisible(false), 5000);
   };
 
   const sendLoginRequest = async (emailOrUsername: string, pwd: string) => {
-    if (emailOrUsername === 'test' && pwd === 'test') {
-      setUserType('user');
-      setUsername('test');
-      setLoggedIn(true);
-      navigation.navigate('explore');
-      return;
-    }
-  
+    if (MOCK_API) {
+        console.log(' MOCKING: Simulating login request.');
+        if (emailOrUsername === 'user' && pwd === 'password123') {
+          await AsyncStorage.multiSet([
+            ['token', 'mock-auth-token-12345'],
+            ['username', 'mockUser'],
+          ]);
+          setUserType('user');
+          setUsername('mockUser');
+          setLoggedIn(true);
+          navigation.navigate('explore');
+        } else {
+          showError('errorInvalidCredentials');
+        }
+        return;
+      }
+
     if (!emailOrUsername.trim() || pwd.length < 8) {
-      return showError('Please fill in valid credentials');
+      return showError('errorFillCredentials');
     }
-  
+
     try {
       const res = await fetch(`${API_BASE}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ emailOrUsername, password: pwd }),
       });
-  
-      if (!res.ok) {
-        const errBody = await res.json().catch(() => null);
-  
-        console.error('Login response error:', errBody);
-  
-        const fullMsg = errBody
-          ? JSON.stringify(errBody, null, 2)
-          : 'Login failed';
-        return showError("Invalid username or password!");
-      }
-  
-      // success path
-      const { token, username } = (await res.json()) as {
-        token: string;
 
-        username: string;
-      };
-      await AsyncStorage.multiSet([
-        ['token', token],
-        ['username', username]
-      ]);
+      if (!res.ok) {
+        return showError("errorInvalidCredentials");
+      }
+
+      const { token, username } = (await res.json()) as { token: string; username: string; };
+      await AsyncStorage.multiSet([['token', token], ['username', username]]);
       setUserType('user');
       setUsername(username);
       setLoggedIn(true);
-  
     } catch (error: any) {
-      console.error('Network/login exception:', error);
-  
-      const msg =
-        error instanceof Error
-          ? `${error.message}\n${error.stack}`
-          : JSON.stringify(error, null, 2);
-      showError(msg);
+      showError('Network error, please try again');
     }
   };
 
-  const sendRegisterRequest = async (
-    regUsername: string,
-    regEmail   : string,
-    regPass    : string
-  ) => {
+  const sendRegisterRequest = async (regUsername: string, regEmail: string, regPass: string) => {
     if (!regUsername.trim() || !regEmail.includes('@') || regPass.length < 8) {
-      return showError('Please fill in valid registration info');
+      return showError('errorFillCredentials');
     }
     if (regPass !== confirmPassword) {
-      return showError("Passwords don't match");
+      return showError("errorPasswordsDontMatch");
     }
     if (!kvkkChecked) {
-      return showError('You must acknowledge the KVKK form');
+      return showError('errorAcknowledgeKvkk');
     }
+
+    if (MOCK_API) {
+        setIsRegistering(false);
+        setUsernameInput(regUsername);
+        setKvkkChecked(false);
+        showError('registrationSuccess');
+        return;
+    }
+
     try {
       const res = await fetch(`${API_BASE}/register`, {
-        method : 'POST',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body   : JSON.stringify({
-          username: regUsername,
-          email   : regEmail,
-          password: regPass,
-        }),
+        body: JSON.stringify({ username: regUsername, email: regEmail, password: regPass }),
       });
       if (!res.ok) {
         const err = await res.json();
         return showError(err.message || 'Registration failed');
       }
-      const { username: u, email: e } = (await res.json()) as {
-        message : string;
-        username: string;
-        email   : string;
-      };
-      await AsyncStorage.multiSet([
-        ['username', u],
-        ['email'   , e],
-      ]);
+      const { username: u } = (await res.json()) as { username: string; };
+      await AsyncStorage.setItem('username', u);
       setIsRegistering(false);
       setUsernameInput(u);
       setKvkkChecked(false);
-      showError('Registered! Please log in.');
+      showError('registrationSuccess');
     } catch {
       showError('Network error, please try again');
     }
@@ -248,209 +245,161 @@ export default function HomeScreen() {
 
   return (
     <>
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#FFFFFF', dark: '#000000' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/wasteless-logo.png')}
-          style={styles.recycleLogo}
-        />
-      }
-    >
-
-      {!showAuthFields && (
-        <>
-          <View style={styles.statsContainer}>
-            <ThemedText style={styles.statLine}>
-              <Text style={styles.statNumber}>{usersCount}</Text>{' '}
-              users are reducing their wastes with us
-            </ThemedText>
-                     <ThemedText style={styles.sectionTitle}>Trending posts :</ThemedText>
-             <ScrollView
-               horizontal
-               pagingEnabled
-               showsHorizontalScrollIndicator={false}
-               style={styles.trendingContainer}
-             >
-              {trendingPosts.map(post => (
-                <View key={post.postId} style={styles.postContainer}>
-                  <ThemedText type="title" style={styles.postTitle}>
-                    {post.creatorUsername}
-                  </ThemedText>
-
-                  <ThemedText style={styles.postContent} numberOfLines={3}>
-                    {post.content}
-                  </ThemedText>
-
-                   {post.photoUrl && (
-                    <Image
-                      source={{
-                        uri: post.photoUrl.startsWith('http')
-                          ? post.photoUrl
-                          : `${API_BASE_URL}${post.photoUrl}`,
-                      }}
-                      style={styles.postImage}
-                      onError={(e) => console.warn('Image failed to load:', e.nativeEvent.error)}
-                    />
-                  )}
-
-                  <View style={styles.postFooter}>
-                    <Ionicons name="heart-outline" size={16} />
-                    <ThemedText style={styles.footerText}>{post.likes}</ThemedText>     
-                    <Ionicons name="chatbubble-outline" size={16} />
-                    <ThemedText style={styles.footerText}>{post.comments}</ThemedText>
-                  </View>
-                </View>
-              ))}
-
-             </ScrollView>
-          </View>
-
-          <View style={[styles.buttonsColumn, { marginTop: -5 }]}>
-            <TouchableOpacity
-              testID="main-login-button"
-              style={[styles.authButtonFull, styles.loginAreaFull]}
-              onPress={() => {
-                setShowAuthFields(true);
-                setIsRegistering(false);
-              }}
-            >
-              <Text style={styles.authText}>Log In</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              testID="main-register-button"
-              style={[styles.authButtonFull, styles.registerAreaFull]}
-              onPress={() => {
-                setShowAuthFields(true);
-                setIsRegistering(true);
-              }}
-            >
-              <Text style={styles.authText}>Register</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.continueButton} testID="main-guest-button" onPress={continueAsGuest}>
-              <Text style={styles.authText}>Continue as Guest</Text>
-            </TouchableOpacity>
-          </View>
-        </>
-      )}
-
-      {showAuthFields && (
-        <>
-          <Text style={styles.modeHeader}>
-            {isRegistering ? 'Create account' : 'Login here'}
-          </Text>
-
-          <TextInput
-            style={[styles.input, styles.inputLight]}
-            onChangeText={setUsernameInput}
-            placeholder={isRegistering ? 'Username' : 'Email or Username'}
-            placeholderTextColor="#888"
-            value={usernameInput}
-            autoCapitalize="none"
+      <ParallaxScrollView
+        headerBackgroundColor={{ light: '#FFFFFF', dark: '#000000' }}
+        headerImage={<Image source={require('@/assets/images/wasteless-logo.png')} style={styles.recycleLogo} />}
+      >
+        <View style={styles.languageToggleContainer}>
+          <Text style={styles.languageLabel}>EN</Text>
+          <Switch
+            trackColor={{ false: '#767577', true: '#81b0ff' }}
+            thumbColor={isTurkish ? '#f5dd4b' : '#f4f3f4'}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={toggleLanguage}
+            value={isTurkish}
           />
+          <Text style={styles.languageLabel}>TR</Text>
+        </View>
 
-          {isRegistering && (
+        {!showAuthFields && (
+          <>
+            <View style={styles.statsContainer}>
+              <ThemedText style={styles.statLine}>
+                <Text style={styles.statNumber}>{usersCount}</Text>{' '}
+                {t('usersAreReducingWastes', { count: usersCount })}
+              </ThemedText>
+              <ThemedText style={styles.sectionTitle}>{t('trendingPosts')}</ThemedText>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.trendingContainer}>
+                {trendingPosts.map(post => (
+                  <View key={post.postId} style={styles.postContainer}>
+                    <ThemedText type="title" style={styles.postTitle}>{post.creatorUsername}</ThemedText>
+                    <ThemedText style={styles.postContent} numberOfLines={3}>{post.content}</ThemedText>
+                    {post.photoUrl && <Image source={{ uri: post.photoUrl }} style={styles.postImage} />}
+                    <View style={styles.postFooter}>
+                      <Ionicons name="heart-outline" size={16} />
+                      <ThemedText style={styles.footerText}>{post.likes}</ThemedText>
+                      <Ionicons name="chatbubble-outline" size={16} />
+                      <ThemedText style={styles.footerText}>{post.comments}</ThemedText>
+                    </View>
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+
+            <View style={[styles.buttonsColumn, { marginTop: -5 }]}>
+              <TouchableOpacity style={[styles.authButtonFull, styles.loginAreaFull]} onPress={() => { setShowAuthFields(true); setIsRegistering(false); }}>
+                <Text style={styles.authText}>{t('logIn')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.authButtonFull, styles.registerAreaFull]} onPress={() => { setShowAuthFields(true); setIsRegistering(true); }}>
+                <Text style={styles.authText}>{t('register')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.continueButton} onPress={continueAsGuest}>
+                <Text style={styles.authText}>{t('continueAsGuest')}</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
+
+        {showAuthFields && (
+          <>
+            <Text style={styles.modeHeader}>{isRegistering ? t('createAccount') : t('loginHere')}</Text>
             <TextInput
               style={[styles.input, styles.inputLight]}
-              onChangeText={setEmail}
-              placeholder="Email"
+              onChangeText={setUsernameInput}
+              placeholder={isRegistering ? t('username') : t('emailOrUsername')}
               placeholderTextColor="#888"
-              value={email}
+              value={usernameInput}
               autoCapitalize="none"
             />
-          )}
-
-          <TextInput
-            style={[styles.input, styles.inputLight]}
-            onChangeText={setPassword}
-            placeholder="Password"
-            placeholderTextColor="#888"
-            secureTextEntry
-            value={password}
-          />
-
-          {isRegistering && (
-            <>
+            {isRegistering && (
               <TextInput
                 style={[styles.input, styles.inputLight]}
-                onChangeText={setConfirmPassword}
-                placeholder="Confirm password"
+                onChangeText={setEmail}
+                placeholder={t('email')}
                 placeholderTextColor="#888"
-                secureTextEntry
-                value={confirmPassword}
+                value={email}
+                autoCapitalize="none"
               />
-
-              <View style={styles.kvkkRow}>
-                <CheckBox
-                  checked={kvkkChecked}
-                  onPress={() => setKvkkChecked(!kvkkChecked)}
+            )}
+            <TextInput
+              style={[styles.input, styles.inputLight]}
+              onChangeText={setPassword}
+              placeholder={t('password')}
+              placeholderTextColor="#888"
+              secureTextEntry
+              value={password}
+            />
+            {isRegistering && (
+              <>
+                <TextInput
+                  style={[styles.input, styles.inputLight]}
+                  onChangeText={setConfirmPassword}
+                  placeholder={t('confirmPassword')}
+                  placeholderTextColor="#888"
+                  secureTextEntry
+                  value={confirmPassword}
                 />
-                <Text style={styles.kvkkText}>
-                  I have read and acknowledged KVKK form
-                </Text>
-              </View>
-            </>
-          )}
-
-          <View style={styles.buttonsColumn}>
-            {isRegistering ? (
-              <>
-                <TouchableOpacity
-                  testID="form-register-button"
-                  style={[styles.authButtonFull, styles.registerAreaFull]}
-                  onPress={() =>
-                    sendRegisterRequest(usernameInput, email, password)
-                  }
-                >
-                  <Text style={styles.authText}>Register</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  testID="form-back-to-login-button"
-                  style={[styles.authButtonFull, styles.loginAreaFull]}
-                  onPress={() => setIsRegistering(false)}
-                >
-                  <Text style={styles.authText}>Back to Log In</Text>
-                </TouchableOpacity>
-              </>
-            ) : (
-              <>
-                <TouchableOpacity
-                  testID="form-login-button" 
-                  style={[styles.authButtonFull, styles.loginAreaFull]}
-                  onPress={() => sendLoginRequest(usernameInput, password)}
-                >
-                  <Text style={styles.authText}>Log In</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  testID="form-register-switch-button"
-                  style={[styles.authButtonFull, styles.registerAreaFull]}
-                  onPress={() => setIsRegistering(true)}
-                >
-                  <Text style={styles.authText}>Register</Text>
-                </TouchableOpacity>
+                <View style={styles.kvkkRow}>
+                  <CheckBox checked={kvkkChecked} onPress={() => setKvkkChecked(!kvkkChecked)} />
+                  <Text style={styles.kvkkText}>{t('kvkkAcknowledge')}</Text>
+                </View>
               </>
             )}
 
-            <TouchableOpacity style={styles.continueButton} onPress={continueAsGuest}>
-              <Text style={styles.authText}>Continue as Guest</Text>
-            </TouchableOpacity>
-          </View>
-        </>
-      )}
+            <View style={styles.buttonsColumn}>
+              {isRegistering ? (
+                <>
+                  <TouchableOpacity style={[styles.authButtonFull, styles.registerAreaFull]} onPress={() => sendRegisterRequest(usernameInput, email, password)}>
+                    <Text style={styles.authText}>{t('register')}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.authButtonFull, styles.loginAreaFull]} onPress={() => setIsRegistering(false)}>
+                    <Text style={styles.authText}>{t('backToLogIn')}</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <>
+                  <TouchableOpacity style={[styles.authButtonFull, styles.loginAreaFull]} onPress={() => sendLoginRequest(usernameInput, password)}>
+                    <Text style={styles.authText}>{t('logIn')}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.authButtonFull, styles.registerAreaFull]} onPress={() => setIsRegistering(true)}>
+                    <Text style={styles.authText}>{t('register')}</Text>
+                  </TouchableOpacity>
+                </>
+              )}
+              <TouchableOpacity style={styles.continueButton} onPress={continueAsGuest}>
+                <Text style={styles.authText}>{t('continueAsGuest')}</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
 
-      {errorVisible && (
-        <View style={styles.errorBox}>
-          <Text style={styles.errorText}>{errorMessage}</Text>
-        </View>
-      )}
-    </ParallaxScrollView>
+        {errorVisible && (
+          <View style={styles.errorBox}>
+            <Text style={styles.errorText}>{errorMessage}</Text>
+          </View>
+        )}
+      </ParallaxScrollView>
     </>
   );
 }
 
 const styles = StyleSheet.create({
+  languageToggleContainer: {
+    position: 'absolute', // Use absolute positioning
+    top: 16,              // Distance from the top
+    right: 16,            // Distance from the right
+    zIndex: 1,            // Ensure it sits on top of other content
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    borderRadius: 20,
+  },
+  languageLabel: {
+    color: '#fff',
+    fontWeight: 'bold',
+    marginHorizontal: 8,
+  },
   titleContainer: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   recycleLogo: { width: '115%', height: undefined, aspectRatio: 290 / 178, alignSelf: 'center' },
   statsContainer: { marginTop: 24, marginHorizontal: 16 },
@@ -477,5 +426,4 @@ const styles = StyleSheet.create({
   kvkkText: { marginLeft: 8, color: '#fff' },
   errorBox: { position: 'absolute', bottom: 20, left: 16, right: 16, backgroundColor: 'red', padding: 12, borderRadius: 4, alignItems: 'center' },
   errorText: { color: '#fff', fontSize: 14, textAlign: 'center' },
-
 });

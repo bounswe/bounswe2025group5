@@ -1,0 +1,23 @@
+{
+  "translation": {
+    "usersAreReducingWastes": "users are reducing their wastes with us",
+    "trendingPosts": "Trending posts :",
+    "logIn": "Log In",
+    "register": "Register",
+    "continueAsGuest": "Continue as Guest",
+    "createAccount": "Create account",
+    "loginHere": "Login here",
+    "username": "Username",
+    "emailOrUsername": "Email or Username",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "kvkkAcknowledge": "I have read and acknowledged KVKK form",
+    "backToLogIn": "Back to Log In",
+    "errorFillCredentials": "Please fill in valid credentials",
+    "errorPasswordsDontMatch": "Passwords don't match",
+    "errorAcknowledgeKvkk": "You must acknowledge the KVKK form",
+    "errorInvalidCredentials": "Invalid username or password!",
+    "registrationSuccess": "Registered! Please log in."
+  }
+}

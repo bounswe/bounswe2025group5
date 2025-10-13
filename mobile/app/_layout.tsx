@@ -7,6 +7,8 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState, createContext } from 'react';
 import 'react-native-reanimated';
 
+import './i18n'; // Ensure i18n is initialized
+
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 export type UserType = 'guest' | 'user' | null;
