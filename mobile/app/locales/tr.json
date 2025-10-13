@@ -120,6 +120,23 @@
     "post": "Gönder",
     "noBadgesYet": "Henüz bir rozetin yok.",
     "errorBadgesFetchFailed": "Rozetler sunucudan alınamadı.",
-    "errorBadgesFetchGeneric": "Rozetler alınamadı. Lütfen bağlantınızı kontrol edip tekrar deneyin."
+    "errorBadgesFetchGeneric": "Rozetler alınamadı. Lütfen bağlantınızı kontrol edip tekrar deneyin.",
+    "createPostTitle": "Gönderi Oluştur",
+    "createNewPost": "Yeni Gönderi Oluştur",
+    "writePostPlaceholder": "Gönderinizi buraya yazın...",
+    "changeImage": "Görseli Değiştir",
+    "addImageOptional": "Görsel Ekle (İsteğe Bağlı)",
+    "post": "Paylaş",
+    "posting": "Paylaşılıyor...",
+    "success": "Başarılı",
+    "successPostCreated": "Gönderiniz başarıyla oluşturuldu.",
+    "error": "Hata",
+    "errorGeneric": "Bir şeyler ters gitti.",
+    "permissionRequired": "İzin Gerekli!",
+    "allowPhotosAccess": "Görsel yüklemek için fotoğraflara erişim izni vermelisiniz.",
+    "errorPostContentOrImage": "Paylaşmadan önce bir şeyler yazın ya da bir görsel seçin.",
+    "errorUserNotIdentified": "Kullanıcı tanımlanamadı. Gönderi oluşturulamadı.",
+    "errorCreatePostFailed": "Gönderi sunucuda oluşturulamadı.",
+    "errorCreatePostGeneric": "Gönderi oluşturulamadı. Lütfen tekrar deneyin."
   }
 }

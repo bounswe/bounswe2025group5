@@ -137,9 +137,23 @@
     "saved": "Saved",
     "noCommentsYetBeFirst": "No comments yet. Be the first!",
     "addACommentPlaceholder": "Add a comment...",
-    "post": "Post",
     "noBadgesYet": "You don't have any badges yet.",
     "errorBadgesFetchFailed": "Failed to fetch badges from server.",
-    "errorBadgesFetchGeneric": "Failed to fetch badges. Please check your connection and try again."
+    "errorBadgesFetchGeneric": "Failed to fetch badges. Please check your connection and try again.",
+    "createPostTitle": "Create Post",
+    "createNewPost": "Create a New Post",
+    "writePostPlaceholder": "Write your post here...",
+    "changeImage": "Change Image",
+    "addImageOptional": "Add Image (Optional)",
+    "post": "Post",
+    "posting": "Posting...",
+    "successPostCreated": "Your post was created successfully.",
+    "errorGeneric": "Something went wrong.",
+    "permissionRequired": "Permission Required!",
+    "allowPhotosAccess": "You need to allow access to your photos to upload an image.",
+    "errorPostContentOrImage": "Please write something or select an image before posting.",
+    "errorUserNotIdentified": "User not identified. Cannot create post.",
+    "errorCreatePostFailed": "Failed to create post on the server.",
+    "errorCreatePostGeneric": "Failed to create post. Please try again."
   }
 }
