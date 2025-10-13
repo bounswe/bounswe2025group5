@@ -48,6 +48,11 @@
     "commentCannotBeEmpty": "Yorum boş olamaz.",
     "commentUpdated": "Yorum güncellendi.",
     "couldNotUpdateComment": "Yorum güncellenemedi: {{message}}",
-    "errorFailedToLoadPosts": "Gönderiler yüklenemedi."
+    "errorFailedToLoadPosts": "Gönderiler yüklenemedi.",
+    "tabHome": "Anasayfa",
+    "tabExplore": "Keşfet",
+    "tabGoals": "Hedefler",
+    "tabChallenges": "Meydan Okumalar",
+    "tabProfile": "Profil"
   }
 }

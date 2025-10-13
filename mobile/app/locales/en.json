@@ -48,6 +48,11 @@
     "commentCannotBeEmpty": "Comment cannot be empty.",
     "commentUpdated": "Comment updated.",
     "couldNotUpdateComment": "Could not update comment: {{message}}",
-    "errorFailedToLoadPosts": "Failed to load posts."
+    "errorFailedToLoadPosts": "Failed to load posts.",
+    "tabHome": "Home",
+    "tabExplore": "Explore",
+    "tabGoals": "Goals",
+    "tabChallenges": "Challenges",
+    "tabProfile": "Profile"
   }
 }
