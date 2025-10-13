@@ -543,20 +543,25 @@ export default function ExploreScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} progressViewOffset={36} />
         }
       >
-        <View style={styles.header}>
+      <View style={styles.header}>
+        {/* --- WRAP THE TITLE IN THIS NEW VIEW --- */}
+        <View style={styles.titleContainer}>
           <ThemedText type="title">{t('explore')}</ThemedText>
-          <View style={styles.languageToggleContainer}>
-            <ThemedText style={styles.languageLabel}>EN</ThemedText>
-            <Switch
-              trackColor={{ false: '#767577', true: '#81b0ff' }}
-              thumbColor={isTurkish ? '#f5dd4b' : '#f4f3f4'}
-              ios_backgroundColor="#3e3e3e"
-              onValueChange={toggleLanguage}
-              value={isTurkish}
-            />
-            <ThemedText style={styles.languageLabel}>TR</ThemedText>
-          </View>
         </View>
+
+        <View style={styles.languageToggleContainer}>
+          <ThemedText style={styles.languageLabel}>EN</ThemedText>
+          <Switch
+            trackColor={{ false: '#767577', true: '#81b0ff' }}
+            thumbColor={isTurkish ? '#f5dd4b' : '#f4f3f4'}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={toggleLanguage}
+            value={isTurkish}
+          />
+          <ThemedText style={styles.languageLabel}>TR</ThemedText>
+        </View>
+      </View>
+
 
         {userType === 'guest' && (
           <View style={styles.guestActionHeader}>
@@ -708,6 +713,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     justifyContent: 'space-between', 
     alignItems: 'center',
+  },
+  titleContainer: {
+    flex: 1, // This is the key: it makes the title expand and pushes the toggle
+    marginRight: 8,
   },
   guestActionHeader: {
     paddingHorizontal: 16,
