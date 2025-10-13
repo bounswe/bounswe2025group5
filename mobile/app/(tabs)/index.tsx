@@ -25,7 +25,11 @@ import { useTranslation } from 'react-i18next';
 // --- END I18N ---
 
 const MOCK_API = true; // Set to true to use mock data instead of real API calls.
+// user
+// password123
+
 const API_BASE = `${API_BASE_URL}/api/auth`;
+
 
 type Navigation = {
   navigate: (screen: string, params?: any) => void;
