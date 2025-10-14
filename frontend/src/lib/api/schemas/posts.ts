@@ -4,7 +4,7 @@ export const PostItemSchema = z.object({
   postId: z.number().int(),
   content: z.string(),
   createdAt: z.string(),
-  username: z.string(),
+  creatorUsername: z.string(),
   photoUrl: z.string().nullable().optional(),
   likes: z.number().int().optional(),
   comments: z.number().int().optional(),

@@ -8,6 +8,7 @@
             "label": "Email",
             "placeholder": "m@example.com"
         },
+    "username": "Username",
         "password": {
             "label": "Password",
             "forgot": "Forgot your password?"
@@ -37,5 +38,19 @@
     },
     "challenge": {
         "navbar": "Challenge"
-    }
+  },
+  "mainpage": {
+    "navbar": "Mainpage",
+    "challengesTitle": "Your Challenges",
+    "challengesDesc": "Challenges you are currently attending",
+    "noChallenges": "No active challenges",
+    "type": "Type",
+    "status": "Status",
+    "dates": "Dates",
+    "feedTitle": "Following Feed",
+    "feedDesc": "Recent posts from accounts you follow",
+    "noPosts": "No posts yet",
+    "likes": "Likes",
+    "comments": "Comments"
+  }
 }

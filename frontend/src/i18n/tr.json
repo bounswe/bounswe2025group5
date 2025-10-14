@@ -8,6 +8,7 @@
         "label": "E-posta",
         "placeholder": "m@örnek.com"
     },
+    "username": "Kullanıcı Adı",
     "password": {
         "label": "Şifre",
         "forgot": "Şifrenizi mi unuttunuz?"
@@ -37,5 +38,19 @@
     },
     "challenge" : {
         "navbar": "Etkinlikler"
-    }
+  },
+  "mainpage": {
+    "navbar": "Ana Sayfa",
+    "challengesTitle": "Katıldığınız Etkinlikler",
+    "challengesDesc": "Şu an katıldığınız etkinlikler",
+    "noChallenges": "Aktif etkinlik yok",
+    "type": "Tür",
+    "status": "Durum",
+    "dates": "Tarih",
+    "feedTitle": "Takip Akışı",
+    "feedDesc": "Takip ettiklerinizden son gönderiler",
+    "noPosts": "Gönderi yok",
+    "likes": "Beğeni",
+    "comments": "Yorum"
+  }
 }

@@ -5,6 +5,7 @@ import Motivation from "@/components/homepage/motivation";
 import GlassCard from "@/components/ui/glass-card";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -12,9 +13,9 @@ export default function Index() {
   const pages = [Welcome, Motivation];
   const isAuthed = typeof window !== 'undefined' && !!localStorage.getItem('authToken');
   
-  if (isAuthed) {
-    return navigate("/main");
-  }
+  useEffect(() => {if (isAuthed) {
+    navigate("/mainpage");
+  }}, []);
   return (
     
     <div className="min-h-screen flex items-center justify-center p-4">
