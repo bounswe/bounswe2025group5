@@ -1,0 +1,16 @@
+{
+    "login": {
+        "title": "Login to your account",
+        "description": "Enter your email below to login to your account",
+        "signup": "Sign Up",
+        "email": {
+            "label": "Email",
+            "placeholder": "m@example.com"
+        },
+        "password": {
+            "label": "Password",
+            "forgot": "Forgot your password?"
+        },
+        "loginButton": "Login"
+    }
+}
