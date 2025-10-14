@@ -39,7 +39,9 @@ export default function Login() {
           Enter your email below to login to your account
         </CardDescription>
         <CardAction>
-          <Button variant="link">Sign Up</Button>
+          <a href="/auth/register">
+            <Button variant="link">Sign Up</Button>
+          </a>
         </CardAction>
       </CardHeader>
        <CardContent>
