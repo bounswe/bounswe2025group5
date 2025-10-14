@@ -7,9 +7,10 @@ export default function MainpageLayout({ children }: { children: React.ReactNode
       <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
         <Navbar />
       </div>
-      <main className="min-h-screen pt-24"
-        style={{ backgroundImage: `url(${wallpaper})` }}
-        >
+      <main
+  className="min-h-screen pt-24 bg-center bg-no-repeat bg-contain md:bg-cover"
+  style={{ backgroundImage: `url(${wallpaper})` }}
+>
         {children}
       </main>
     </div>
