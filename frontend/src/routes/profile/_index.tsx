@@ -109,8 +109,8 @@ export default function ProfileIndex() {
       <div className="max-w-2xl mx-auto mt-24">
         <Card>
           <CardHeader>
-            <CardTitle>{t('profile.title', 'Your Profile')}</CardTitle>
-            <CardDescription>{t('profile.description', 'Manage your profile information')}</CardDescription>
+            <CardTitle>{t('profile.title')}</CardTitle>
+            <CardDescription>{t('profile.description')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex items-start gap-6">
@@ -124,7 +124,7 @@ export default function ProfileIndex() {
                 </div>
                 <div className="mt-3">
                   <Button variant="outline" onClick={onPickPhoto} disabled={saving}>
-                    {t('profile.changePhoto', 'Change Photo')}
+                    {t('profile.changePhoto')}
                   </Button>
                   <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={onFileChange} />
                 </div>
@@ -132,18 +132,18 @@ export default function ProfileIndex() {
 
               <form className="flex-1 space-y-4" onSubmit={onSave}>
                 <div>
-                  <Label>{t('profile.username', 'Username')}</Label>
+                  <Label>{t('profile.username')}</Label>
                   <Input value={username ?? ''} disabled />
                 </div>
 
                 <div>
-                  <Label>{t('profile.biography', 'Biography')}</Label>
+                  <Label>{t('profile.biography')}</Label>
                   <Input value={bio} onChange={e => setBio(e.target.value)} placeholder={t('profile.bioPlaceholder', 'Tell us about yourself')} />
                 </div>
 
                 <CardFooter className="px-0">
                   <Button type="submit" disabled={saving}>
-                    {saving ? t('profile.saving', 'Saving...') : t('profile.save', 'Save')}
+                    {saving ? t('profile.saving') : t('profile.save')}
                   </Button>
                 </CardFooter>
               </form>

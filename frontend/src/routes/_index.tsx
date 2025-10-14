@@ -4,11 +4,19 @@ import Welcome from "@/components/homepage/welcome";
 import Motivation from "@/components/homepage/motivation";
 import GlassCard from "@/components/ui/glass-card";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function Index() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const pages = [Welcome, Motivation];
+  const isAuthed = typeof window !== 'undefined' && !!localStorage.getItem('authToken');
+  
+  if (isAuthed) {
+    return navigate("/main");
+  }
   return (
+    
     <div className="min-h-screen flex items-center justify-center p-4">
       <GlassCard className="flex flex-col">
       {/* Carousel content - takes up available space */}
@@ -30,14 +38,14 @@ export default function Index() {
           onClick={() => navigate('/auth/login')}
           className="bg-green-600 hover:bg-green-700 text-white"
         >
-          Login
+          {t('login.login')}
         </Button>
         <Button 
           onClick={() => navigate('/auth/register')}
           variant="outline" 
           className="bg-blue-600 text-white hover:bg-blue-700 border-blue-600 hover:border-blue-700"
         >
-          Sign Up
+          {t('login.signup')}
         </Button>
       </div>
       </GlassCard>
