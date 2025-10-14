@@ -41,6 +41,7 @@ async function tryRefreshAccessToken(): Promise<boolean> {
   } = await resp.json();
 
   setTokens(data.token, data.refreshToken);
+  try { localStorage.setItem('username', data.username); } catch {}
   return true;
 }
 

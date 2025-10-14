@@ -8,6 +8,7 @@
         "label": "E-posta",
         "placeholder": "m@örnek.com"
     },
+    "username": "Kullanıcı Adı",
     "password": {
         "label": "Şifre",
         "forgot": "Şifrenizi mi unuttunuz?"

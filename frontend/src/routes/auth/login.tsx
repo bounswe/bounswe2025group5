@@ -23,6 +23,7 @@ export default function Login() {
     try {
       const response = await AuthApi.login(emailOrUsername, password);
       setTokens(response.token, response.refreshToken);
+      try { localStorage.setItem('username', response.username); } catch {}
       navigate("/"); // Redirect to home after successful login
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
@@ -50,10 +51,9 @@ export default function Login() {
          <form id="login-form" onSubmit={handleSubmit} className="space-y-4">
           <div className="flex flex-col gap-6">
             <div className="grid gap-2">
-              <Label htmlFor="email">{t("login.email.label")}</Label>
+              <Label htmlFor="email">{t("login.email.label")} / {t("login.username", 'Username')}</Label>
               <Input
                 id="email"
-                type="email"
                 placeholder={t("login.email.placeholder")}
                 required
                 value={emailOrUsername}

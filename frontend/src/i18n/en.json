@@ -8,6 +8,7 @@
             "label": "Email",
             "placeholder": "m@example.com"
         },
+    "username": "Username",
         "password": {
             "label": "Password",
             "forgot": "Forgot your password?"
