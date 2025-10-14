@@ -1,0 +1,16 @@
+{
+    "login": {
+    "title": "Hesabınıza giriş yapın",
+    "description": "Hesabınıza giriş yapmak için lütfen e-posta adresinizi girin",
+    "signup": "Kayıt Ol",
+    "email": {
+        "label": "E-posta",
+        "placeholder": "m@örnek.com"
+    },
+    "password": {
+        "label": "Şifre",
+        "forgot": "Şifrenizi mi unuttunuz?"
+    },
+    "loginButton": "Giriş Yap"
+    }
+}
