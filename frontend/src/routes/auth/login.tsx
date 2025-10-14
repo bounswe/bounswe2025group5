@@ -51,7 +51,7 @@ export default function Login() {
          <form id="login-form" onSubmit={handleSubmit} className="space-y-4">
           <div className="flex flex-col gap-6">
             <div className="grid gap-2">
-              <Label htmlFor="email">{t("login.email.label")} / {t("login.username", 'Username')}</Label>
+              <Label htmlFor="email">{t("login.email.label")} / {t("login.username")}</Label>
               <Input
                 id="email"
                 placeholder={t("login.email.placeholder")}
