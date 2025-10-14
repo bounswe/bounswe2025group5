@@ -1,5 +1,6 @@
 import { ApiClient } from './client';
 import { UserCountResponseSchema, type UserCountResponse } from './schemas/users';
+import { ChallengeListItemSchema, type ChallengeListItem } from './schemas/challenges';
 import { ProfileResponseSchema, type ProfileResponse } from './schemas/profile';
 
 export const UsersApi = {
@@ -28,6 +29,12 @@ export const UsersApi = {
     const data = await ApiClient.post<ProfileResponse>(`/api/users/${encodeURIComponent(username)}/profile/picture`, form as unknown as BodyInit);
     ProfileResponseSchema.parse(data);
     return data;
+  },
+  listChallenges: async (username: string): Promise<ChallengeListItem[]> => {
+    const qs = new URLSearchParams({ username }).toString();
+    const data = await ApiClient.get<ChallengeListItem[]>(`/api/users/users/${encodeURIComponent(username)}/challenges?${qs}`);
+    data.forEach(item => ChallengeListItemSchema.parse(item));
+    return data.filter(c => c.attendee);
   },
 };
 

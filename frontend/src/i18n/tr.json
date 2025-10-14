@@ -37,5 +37,19 @@
     },
     "challenge" : {
         "navbar": "Etkinlikler"
-    }
+  },
+  "home": {
+    "navbar": "Ana Sayfa",
+    "challenges": "Etkinlikler",
+    "feed": "Gündem"
+  },
+  "challenges": {
+    "navbar": "Etkinlikler",
+    "title": "Etkinlikler",
+    "description": "Şu an katıldığınız etkinlikler",
+    "noChallenges": "Aktif etkinlik yok",
+    "type": "Tip",
+    "status": "Durum",
+    "dates": "Tarihler"
+  }
 }

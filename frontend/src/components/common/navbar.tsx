@@ -22,6 +22,13 @@ export default function Navbar({ className }: NavbarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const isAuthed = typeof window !== 'undefined' && !!localStorage.getItem('authToken');
+  if (isAuthed) {
+    const index = navRoutes.findIndex(r => r.path === '/');
+    if (index !== -1) {
+      navRoutes[index].path = '/home';
+      navRoutes[index].name = t('home.navbar');
+    }
+  }
   const routesToShow = navRoutes.filter(r =>
     isAuthed || (r.path !== '/profile' && r.path !== '/goals' && r.path !== '/challenges')
   );

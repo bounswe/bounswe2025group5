@@ -37,5 +37,19 @@
     },
     "challenge": {
         "navbar": "Challenge"
-    }
+  },
+  "home": {
+    "navbar": "Home",
+    "challenges": "Challenges",
+    "feed": "Feed"
+  },
+  "challenges": {
+    "navbar": "Challenges",
+    "title": "Challenges",
+    "description": "Challenges you are currently attending",
+    "noChallenges": "No active challenges",
+    "type": "Type",
+    "status": "Status",
+    "dates": "Dates"
+  }
 }
