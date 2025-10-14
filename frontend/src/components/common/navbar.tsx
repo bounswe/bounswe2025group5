@@ -1,6 +1,7 @@
 import logo from '@/assets/logo2.png';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { clearTokens } from '@/lib/api/client';
 
 interface NavbarProps {
   className?: string;
@@ -18,6 +19,13 @@ const navRoutes = [
 export default function Navbar({ className }: NavbarProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const isAuthed = typeof window !== 'undefined' && !!localStorage.getItem('authToken');
+
+  const handleLogout = () => {
+    clearTokens();
+    localStorage.removeItem('username');
+    navigate('/auth/login', { replace: true });
+  };
 
   return (
     <nav className={`bg-[#b07f5a]/90 backdrop-blur-sm text-white px-3 py-2 flex items-center gap-2 h-16 rounded-full shadow-lg border border-white/20 max-w-4xl mx-auto ${className || ''}`}>
@@ -44,6 +52,16 @@ export default function Navbar({ className }: NavbarProps) {
             </Button>
           );
         })}
+        {isAuthed && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLogout}
+            className="text-white hover:bg-white/20 transition-colors"
+          >
+            Logout
+          </Button>
+        )}
       </div>
     </nav>
   );

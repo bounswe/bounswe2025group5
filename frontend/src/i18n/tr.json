@@ -12,5 +12,16 @@
         "forgot": "Şifrenizi mi unuttunuz?"
     },
     "loginButton": "Giriş Yap"
+    },
+    "profile": {
+        "title": "Profiliniz",
+        "description": "Profil bilgilerinizi yönetin",
+        "username": "Kullanıcı adı",
+        "biography": "Biyografi",
+        "bioPlaceholder": "Kendinizden bahsedin",
+        "save": "Kaydet",
+        "saving": "Kaydediliyor...",
+        "noPhoto": "Fotoğraf yok",
+        "changePhoto": "Fotoğrafı Değiştir"
     }
 }

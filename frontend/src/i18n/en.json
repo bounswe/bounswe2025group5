@@ -12,5 +12,16 @@
             "forgot": "Forgot your password?"
         },
         "loginButton": "Login"
+    },
+    "profile": {
+        "title": "Your Profile",
+        "description": "Manage your profile information",
+        "username": "Username",
+        "biography": "Biography",
+        "bioPlaceholder": "Tell us about yourself",
+        "save": "Save",
+        "saving": "Saving...",
+        "noPhoto": "No photo",
+        "changePhoto": "Change Photo"
     }
 }
