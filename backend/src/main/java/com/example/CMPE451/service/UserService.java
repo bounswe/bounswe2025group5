@@ -1,5 +1,6 @@
 package com.example.CMPE451.service;
 
+import com.example.CMPE451.exception.InvalidCredentialsException;
 import com.example.CMPE451.exception.NotFoundException;
 import com.example.CMPE451.model.Badge;
 import com.example.CMPE451.model.Post;
@@ -8,6 +9,9 @@ import com.example.CMPE451.model.User;
 import com.example.CMPE451.model.response.*;
 import com.example.CMPE451.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -27,6 +31,9 @@ public class UserService {
     private final SavedPostRepository savedPostRepository;
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
+
+    @Autowired
+    private final PasswordEncoder passwordEncoder;
 
     public UserCountResponse getUserCount() {
         long count = userRepository.countAllUsers();
@@ -94,9 +101,13 @@ public class UserService {
                 .toList();
     }
 
-    public UserDeleteResponse deleteUser(String username) {
+    public UserDeleteResponse deleteUser(String username, String password) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NotFoundException("User not found: " + username));
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid username or password"));
+
+        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
+            throw new InvalidCredentialsException("Invalid username or password");
+        }
 
         UserDeleteResponse response = new UserDeleteResponse(user.getId(), username);
 
