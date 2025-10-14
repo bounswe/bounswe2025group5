@@ -38,18 +38,18 @@
     "challenge" : {
         "navbar": "Etkinlikler"
   },
-  "home": {
+  "mainpage": {
     "navbar": "Ana Sayfa",
-    "challenges": "Etkinlikler",
-    "feed": "Gündem"
-  },
-  "challenges": {
-    "navbar": "Etkinlikler",
-    "title": "Etkinlikler",
-    "description": "Şu an katıldığınız etkinlikler",
+    "challengesTitle": "Katıldığınız Etkinlikler",
+    "challengesDesc": "Şu an katıldığınız etkinlikler",
     "noChallenges": "Aktif etkinlik yok",
-    "type": "Tip",
+    "type": "Tür",
     "status": "Durum",
-    "dates": "Tarihler"
+    "dates": "Tarih",
+    "feedTitle": "Takip Akışı",
+    "feedDesc": "Takip ettiklerinizden son gönderiler",
+    "noPosts": "Gönderi yok",
+    "likes": "Beğeni",
+    "comments": "Yorum"
   }
 }

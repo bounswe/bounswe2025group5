@@ -25,8 +25,8 @@ export default function Navbar({ className }: NavbarProps) {
   if (isAuthed) {
     const index = navRoutes.findIndex(r => r.path === '/');
     if (index !== -1) {
-      navRoutes[index].path = '/home';
-      navRoutes[index].name = t('home.navbar');
+      navRoutes[index].path = '/mainpage';
+      navRoutes[index].name = t('mainpage.navbar');
     }
   }
   const routesToShow = navRoutes.filter(r =>

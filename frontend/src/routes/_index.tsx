@@ -14,7 +14,7 @@ export default function Index() {
   const isAuthed = typeof window !== 'undefined' && !!localStorage.getItem('authToken');
   
   useEffect(() => {if (isAuthed) {
-    navigate("/home");
+    navigate("/mainpage");
   }}, []);
   return (
     

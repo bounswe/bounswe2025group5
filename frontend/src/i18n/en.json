@@ -38,18 +38,18 @@
     "challenge": {
         "navbar": "Challenge"
   },
-  "home": {
-    "navbar": "Home",
-    "challenges": "Challenges",
-    "feed": "Feed"
-  },
-  "challenges": {
-    "navbar": "Challenges",
-    "title": "Challenges",
-    "description": "Challenges you are currently attending",
+  "mainpage": {
+    "navbar": "Mainpage",
+    "challengesTitle": "Your Challenges",
+    "challengesDesc": "Challenges you are currently attending",
     "noChallenges": "No active challenges",
     "type": "Type",
     "status": "Status",
-    "dates": "Dates"
+    "dates": "Dates",
+    "feedTitle": "Following Feed",
+    "feedDesc": "Recent posts from accounts you follow",
+    "noPosts": "No posts yet",
+    "likes": "Likes",
+    "comments": "Comments"
   }
 }

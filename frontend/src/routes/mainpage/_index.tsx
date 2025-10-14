@@ -5,7 +5,7 @@ import { PostsApi } from '@/lib/api/posts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 
-export default function HomeIndex() {
+export default function MainpageIndex() {
   const { t } = useTranslation();
   const [_username, setUsername] = useState<string | null>(null);
   const [challenges, setChallenges] = useState<any[]>([]);
@@ -68,12 +68,12 @@ export default function HomeIndex() {
       <section>
         <Card>
           <CardHeader>
-            <CardTitle>{t('home.challengesTitle', 'Your Challenges')}</CardTitle>
-            <CardDescription>{t('home.challengesDesc', 'Challenges you are currently attending')}</CardDescription>
+            <CardTitle>{t('mainpage.challengesTitle', 'Your Challenges')}</CardTitle>
+            <CardDescription>{t('mainpage.challengesDesc', 'Challenges you are currently attending')}</CardDescription>
           </CardHeader>
           <CardContent>
             {challenges.length === 0 ? (
-              <div className="text-muted-foreground">{t('home.noChallenges', 'No active challenges')}</div>
+              <div className="text-muted-foreground">{t('mainpage.noChallenges', 'No active challenges')}</div>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {challenges.map((ch) => (
@@ -83,9 +83,9 @@ export default function HomeIndex() {
                       <CardDescription>{ch.description}</CardDescription>
                     </CardHeader>
                     <CardContent className="text-sm text-muted-foreground">
-                      <div className="flex justify-between"><span>{t('home.type', 'Type')}</span><span>{ch.wasteType}</span></div>
-                      <div className="flex justify-between"><span>{t('home.status', 'Status')}</span><span>{ch.status}</span></div>
-                      <div className="flex justify-between"><span>{t('home.dates', 'Dates')}</span><span>{ch.startDate} → {ch.endDate}</span></div>
+                      <div className="flex justify-between"><span>{t('mainpage.type', 'Type')}</span><span>{ch.wasteType}</span></div>
+                      <div className="flex justify-between"><span>{t('mainpage.status', 'Status')}</span><span>{ch.status}</span></div>
+                      <div className="flex justify-between"><span>{t('mainpage.dates', 'Dates')}</span><span>{ch.startDate} → {ch.endDate}</span></div>
                     </CardContent>
                   </Card>
                 ))}
@@ -98,12 +98,12 @@ export default function HomeIndex() {
       <section>
         <Card>
           <CardHeader>
-            <CardTitle>{t('home.feedTitle', 'Following Feed')}</CardTitle>
-            <CardDescription>{t('home.feedDesc', 'Recent posts from accounts you follow')}</CardDescription>
+            <CardTitle>{t('mainpage.feedTitle', 'Following Feed')}</CardTitle>
+            <CardDescription>{t('mainpage.feedDesc', 'Recent posts from accounts you follow')}</CardDescription>
           </CardHeader>
           <CardContent>
             {posts.length === 0 ? (
-              <div className="text-muted-foreground">{t('home.noPosts', 'No posts yet')}</div>
+              <div className="text-muted-foreground">{t('mainpage.noPosts', 'No posts yet')}</div>
             ) : (
               <div className="space-y-4">
                 {posts.map((p) => (
@@ -117,7 +117,7 @@ export default function HomeIndex() {
                         <img src={p.photoUrl} alt="post" className="w-full rounded-lg border" />
                       )}
                       <p className="text-foreground text-sm">{p.content}</p>
-                      <div className="text-sm text-muted-foreground">{t('home.likes', 'Likes')}: {p.likes ?? 0} · {t('home.comments', 'Comments')}: {p.comments ?? 0}</div>
+                      <div className="text-sm text-muted-foreground">{t('mainpage.likes', 'Likes')}: {p.likes ?? 0} · {t('mainpage.comments', 'Comments')}: {p.comments ?? 0}</div>
                     </CardContent>
                   </Card>
                 ))}
