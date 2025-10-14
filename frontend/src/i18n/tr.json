@@ -14,6 +14,7 @@
     "loginButton": "Giriş Yap"
     },
     "profile": {
+        "navbar": "Profil",
         "title": "Profiliniz",
         "description": "Profil bilgilerinizi yönetin",
         "username": "Kullanıcı adı",
@@ -23,5 +24,17 @@
         "saving": "Kaydediliyor...",
         "noPhoto": "Fotoğraf yok",
         "changePhoto": "Fotoğrafı Değiştir"
+    },
+    "main" : {
+        "navbar": "Ana Sayfa"
+    },
+    "feed" : {
+        "navbar": "Gündem"
+    },
+    "goals" : {
+        "navbar": "Hedefler"
+    },
+    "challenge" : {
+        "navbar": "Savaş"
     }
 }

@@ -2,21 +2,23 @@ import logo from '@/assets/logo2.png';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import LogoutButton from '@/components/common/LogoutButton';
+import { useTranslation } from 'react-i18next';
 
 interface NavbarProps {
   className?: string;
 }
 
-const navRoutes = [
-  { name: 'Main', path: '/' },
-  { name: 'Profile', path: '/profile' },
-  { name: 'Feed', path: '/feed' },
-  { name: 'Goals', path: '/goals' },
-  { name: 'Challenge', path: '/challenges' },
-];
-
 //floating navbar with logo and title with rounded corners
 export default function Navbar({ className }: NavbarProps) {
+  
+  const { t } = useTranslation();
+  const navRoutes = [
+  { name: t('main.navbar'), path: '/' },
+  { name: t('profile.navbar'), path: '/profile' },
+  { name: t('feed.navbar'), path: '/feed' },
+  { name: t('goals.navbar'), path: '/goals' },
+  { name: t('challenge.navbar'), path: '/challenges' },
+];
   const navigate = useNavigate();
   const location = useLocation();
   const isAuthed = typeof window !== 'undefined' && !!localStorage.getItem('authToken');
@@ -49,6 +51,16 @@ export default function Navbar({ className }: NavbarProps) {
             </Button>
           );
         })}
+        {!isAuthed && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/auth/login')}
+            className="text-white hover:bg-white/20 transition-colors"
+          >
+            {t('login.signup')}
+          </Button>
+        )}
         <LogoutButton />
       </div>
     </nav>
