@@ -1,15 +1,46 @@
 import { Button } from "@/components/ui/button";
-
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import Welcome from "@/components/homepage/welcome";
+import Motivation from "@/components/homepage/motivation";
+import GlassCard from "@/components/ui/glass-card";
+import { useNavigate } from "react-router-dom";
 
 export default function Index() {
+  const navigate = useNavigate();
+  const pages = [Welcome, Motivation];
   return (
-    <div className="space-y-5 text-white">
-      <h1 className="text-4xl font-extrabold tracking-tight drop-shadow-sm">Welcome to Wasteless</h1>
-      <p className="max-w-prose text-white/85">Build your sustainability app with a clean, accessible, high-contrast UI powered by shadcn.</p>
-      <div className="flex gap-3">
-        <a href="/auth/login"><Button variant="outline" className="border-white/40 text-white hover:bg-white/10">Sign in</Button></a>
-        <a href="/register"><Button className="bg-white text-black hover:bg-white/90">Get started</Button></a>
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <GlassCard className="flex flex-col">
+      {/* Carousel content - takes up available space */}
+      <div className="flex-grow">
+        <Carousel>
+          <CarouselContent>
+            {pages.map((PageComponent, index) => (
+              <CarouselItem key={index}>
+                <PageComponent />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
       </div>
+
+      {/* Buttons at the bottom */}
+      <div className="flex gap-4 justify-center mt-6 pt-4 border-t border-white/20">
+        <Button 
+          onClick={() => navigate('/auth/login')}
+          className="bg-green-600 hover:bg-green-700 text-white"
+        >
+          Login
+        </Button>
+        <Button 
+          onClick={() => navigate('/auth/register')}
+          variant="outline" 
+          className="bg-blue-600 text-white hover:bg-blue-700 border-blue-600 hover:border-blue-700"
+        >
+          Sign Up
+        </Button>
+      </div>
+      </GlassCard>
     </div>
   );
 }

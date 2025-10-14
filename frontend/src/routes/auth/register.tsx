@@ -86,7 +86,7 @@ export default function Register() {
         </form>
         <p className="mt-4 text-center text-sm text-gray-700">
           Already have an account?{" "}
-          <a href="/login" className="text-blue-600 hover:underline">Log in</a>
+          <a href="/auth/login" className="text-blue-600 hover:underline">Log in</a>
         </p>
           </CardContent>
         </Card>

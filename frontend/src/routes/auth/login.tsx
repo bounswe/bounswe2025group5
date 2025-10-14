@@ -41,7 +41,9 @@ export default function Login() {
           {t("login.description")}
         </CardDescription>
         <CardAction>
-          <Button variant="link">{t("login.signup")}</Button>
+          <a href="/auth/register">
+            <Button variant="link">{t("login.signup")}</Button>
+          </a>
         </CardAction>
       </CardHeader>
        <CardContent>
