@@ -48,12 +48,6 @@ export default function WasteGoalScreen() {
   const navigation = useNavigation<Navigation>();
 
   const { t, i18n } = useTranslation();
-  //const [isTurkish, setIsTurkish] = useState(i18n.language === 'tr');
-  //const toggleLanguage = () => {
-  //  const newLang = isTurkish ? 'en' : 'tr';
-  //  i18n.changeLanguage(newLang);
-  //  setIsTurkish(!isTurkish);
-  //};
   const isTurkish = (i18n.resolvedLanguage || i18n.language || '').toLowerCase().startsWith('tr');
   const toggleLanguage = (value: boolean) => i18n.changeLanguage(value ? 'tr-TR' : 'en-US');
 

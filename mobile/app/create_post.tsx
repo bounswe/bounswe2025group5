@@ -38,7 +38,7 @@ export default function CreatePostScreen() {
   const navigation = useNavigation();
   const { username } = useContext(AuthContext);
   const colorScheme = useColorScheme();
-  const { t, i18n } = useTranslation(); // ensure this uses the namespace where your keys live (e.g., useTranslation('common'))
+  const { t, i18n } = useTranslation(); 
 
   useLayoutEffect(() => {
     navigation.setOptions({ headerTitle: t('createPostTitle') });
@@ -58,11 +58,9 @@ export default function CreatePostScreen() {
   const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // inline error banner state (so you see the message even if Alert doesn't show)
   const [errState, setErrState] = useState<ErrorState>({ key: null, message: null, resolved: null });
 
   const resolveErrorText = (state: ErrorState) => {
-    // Prefer localized key; fallback to raw message; finally to generic
     if (state.key) return t(state.key);
     if (state.message) return state.message;
     return t('errorGeneric');

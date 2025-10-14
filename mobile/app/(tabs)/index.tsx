@@ -7,7 +7,7 @@ import {
   View,
   TouchableOpacity,
   Text,
-  Switch, // Import Switch for the toggle
+  Switch,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,12 +19,9 @@ import { AuthContext } from '../_layout';
 import { API_BASE_URL } from '../apiConfig';
 import { ScrollView } from 'react-native';
 import CheckBox from '../components/CheckBox';
-
-// --- I18N ---
 import { useTranslation } from 'react-i18next';
-// --- END I18N ---
 
-const MOCK_API = true; // Set to true to use mock data instead of real API calls.
+const MOCK_API = true; // use mock data instead of real API calls.
 // user
 // password123
 
@@ -50,17 +47,10 @@ export default function HomeScreen() {
   const route = useRoute<any>();
   const { setUserType, setUsername } = useContext(AuthContext);
 
-  // --- I18N ---
+
   const { t, i18n } = useTranslation();
-  //const [isTurkish, setIsTurkish] = useState(i18n.language.startsWith('tr'));
-  //const toggleLanguage = (value: boolean) => {
-  //  const lang = value ? 'tr-TR' : 'en-US';
-  //  i18n.changeLanguage(lang);
-  //  setIsTurkish(value);
-  //};
   const isTurkish = (i18n.resolvedLanguage || i18n.language || '').toLowerCase().startsWith('tr');
- const toggleLanguage = (value: boolean) => i18n.changeLanguage(value ? 'tr-TR' : 'en-US');
-  // --- END I18N ---
+  const toggleLanguage = (value: boolean) => i18n.changeLanguage(value ? 'tr-TR' : 'en-US');
 
   const [showAuthFields, setShowAuthFields] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);

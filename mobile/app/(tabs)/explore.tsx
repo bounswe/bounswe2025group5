@@ -49,12 +49,6 @@ export default function ExploreScreen() {
   const navigation = useNavigation();
 
   const { t, i18n } = useTranslation();
-  //const { isTR, toggle } = useLanguageSwitch();
-  //const toggleLanguage = (value: boolean) => {
-  //  const lang = value ? 'tr-TR' : 'en-US';
-  //  i18n.changeLanguage(lang);
-  //  toggle(value);
-  //};
   const isTurkish = (i18n.resolvedLanguage || i18n.language || '').toLowerCase().startsWith('tr');
   const toggleLanguage = (value: boolean) => i18n.changeLanguage(value ? 'tr-TR' : 'en-US');
 
@@ -546,7 +540,6 @@ export default function ExploreScreen() {
         }
       >
       <View style={styles.header}>
-        {/* --- WRAP THE TITLE IN THIS NEW VIEW --- */}
         <View style={styles.titleContainer}>
           <ThemedText type="title">{t('explore')}</ThemedText>
         </View>

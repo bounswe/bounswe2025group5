@@ -38,17 +38,10 @@ export default function ProfileScreen() {
   const [avatarUri, setAvatarUri] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<ErrorState>({ key: null, message: null });
-
-  //const [isTurkish, setIsTurkish] = useState(i18n.language === 'tr');
-  //const toggleLanguage = () => {
-  //  const newLang = isTurkish ? 'en' : 'tr';
-  //  i18n.changeLanguage(newLang);
-  //  setIsTurkish(!isTurkish);
-  //};
   const isTurkish = (i18n.resolvedLanguage || i18n.language || '').toLowerCase().startsWith('tr');
- const toggleLanguage = (value: boolean) => {
-   i18n.changeLanguage(value ? 'tr-TR' : 'en-US');
- };
+  const toggleLanguage = (value: boolean) => {
+    i18n.changeLanguage(value ? 'tr-TR' : 'en-US');
+  };
 
   const isDarkMode = colorScheme === 'dark';
   const parallaxHeaderBgColor = isDarkMode ? '#000000' : '#FFFFFF';
