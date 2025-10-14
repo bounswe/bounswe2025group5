@@ -19,6 +19,10 @@ const navRoutes = [
 export default function Navbar({ className }: NavbarProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const isAuthed = typeof window !== 'undefined' && !!localStorage.getItem('authToken');
+  const routesToShow = navRoutes.filter(r =>
+    isAuthed || (r.path !== '/profile' && r.path !== '/goals' && r.path !== '/challenges')
+  );
 
   return (
     <nav className={`bg-[#b07f5a]/90 backdrop-blur-sm text-white px-3 py-2 flex items-center gap-2 h-16 rounded-full shadow-lg border border-white/20 max-w-4xl mx-auto ${className || ''}`}>
@@ -29,7 +33,7 @@ export default function Navbar({ className }: NavbarProps) {
 
       {/* Navigation Links */}
       <div className="flex items-center gap-1 ml-auto">
-        {navRoutes.map((route) => {
+        {routesToShow.map((route) => {
           const isActive = location.pathname === route.path;
           return (
             <Button
