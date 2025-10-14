@@ -4,7 +4,7 @@ import { UsersApi } from '@/lib/api/users';
 import { PostsApi } from '@/lib/api/posts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
-import ScrollPanel from '@/components/common/ScrollPanel';
+import ScrollPanel from '@/components/mainpage/ScrollPanel';
 
 export default function MainpageIndex() {
   const { t } = useTranslation();
