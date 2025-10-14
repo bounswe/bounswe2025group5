@@ -3,6 +3,7 @@
     "title": "Hesabınıza giriş yapın",
     "description": "Hesabınıza giriş yapmak için lütfen e-posta adresinizi girin",
     "signup": "Kayıt Ol",
+    "login": "Giriş Yap",
     "email": {
         "label": "E-posta",
         "placeholder": "m@örnek.com"
@@ -12,5 +13,29 @@
         "forgot": "Şifrenizi mi unuttunuz?"
     },
     "loginButton": "Giriş Yap"
+    },
+    "profile": {
+        "navbar": "Profil",
+        "title": "Profiliniz",
+        "description": "Profil bilgilerinizi yönetin",
+        "username": "Kullanıcı adı",
+        "biography": "Biyografi",
+        "bioPlaceholder": "Kendinizden bahsedin",
+        "save": "Kaydet",
+        "saving": "Kaydediliyor...",
+        "noPhoto": "Fotoğraf yok",
+        "changePhoto": "Fotoğrafı Değiştir"
+    },
+    "main" : {
+        "navbar": "Ana Sayfa"
+    },
+    "feed" : {
+        "navbar": "Gündem"
+    },
+    "goals" : {
+        "navbar": "Hedefler"
+    },
+    "challenge" : {
+        "navbar": "Etkinlikler"
     }
 }

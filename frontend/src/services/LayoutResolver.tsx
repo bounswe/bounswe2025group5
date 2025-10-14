@@ -1,4 +1,5 @@
 import { useLocation } from "react-router-dom";
+import ProtectedRoute from "@/services/ProtectedRoute";
 
 // Eagerly import all colocated layouts under routes/**/layout.tsx
 const localLayouts = import.meta.glob("../routes/**/layout.tsx", { eager: true });
@@ -39,7 +40,9 @@ function pickLayout(pathname: string): LayoutComponent | undefined {
 export function LayoutResolver({ children }: { children: React.ReactNode }) {
   const { pathname } = useLocation();
   const Layout = pickLayout(pathname);
-  return Layout ? <Layout>{children}</Layout> : <>{children}</>;
+  const element = Layout ? <Layout>{children}</Layout> : <>{children}</>;
+  const isUnprotected = pathname === "/" || pathname === "/feed" || pathname.startsWith("/auth");
+  return isUnprotected ? element : <ProtectedRoute>{element}</ProtectedRoute>;
 }
 
 
