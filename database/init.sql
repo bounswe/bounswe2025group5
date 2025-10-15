@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS `waste_goal` (
   INDEX `fk_goal_type_idx` (`type_id` ASC),
   CONSTRAINT `fk_goal_user`
     FOREIGN KEY (`user_id`)
-    REFERENCES `users` (`user_id`),
+    REFERENCES `users` (`user_id`) ON DELETE CASCADE,
   CONSTRAINT `fk_goal_type`
     FOREIGN KEY (`type_id`)
     REFERENCES `waste_type` (`type_id`)
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS `waste_log` (
   INDEX `fk_log_item_idx` (`item_id` ASC),
   CONSTRAINT `fk_log_user`
     FOREIGN KEY (`user_id`)
-    REFERENCES `users` (`user_id`),
+    REFERENCES `users` (`user_id`) ON DELETE CASCADE,
   CONSTRAINT `fk_log_goal`
     FOREIGN KEY (`goal_id`)
     REFERENCES `waste_goal` (`goal_id`),
@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS  `posts` (
   `photo_url` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`post_id`),
   KEY `user_id` (`user_id`),
-  CONSTRAINT `posts_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
+  CONSTRAINT `posts_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE IF NOT EXISTS `user_challenge_progress` (
@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS `user_challenge_progress` (
   INDEX `fk_progress_challenge_idx` (`challenge_id` ASC),
   CONSTRAINT `fk_progress_user`
     FOREIGN KEY (`user_id`)
-    REFERENCES `users` (`user_id`),
+    REFERENCES `users` (`user_id`) ON DELETE CASCADE,
   CONSTRAINT `fk_progress_challenge`
     FOREIGN KEY (`challenge_id`)
     REFERENCES `challenges` (`challenge_id`)
@@ -153,7 +153,7 @@ CREATE TABLE IF NOT EXISTS  `user_rewards` (
   `user_id` int NOT NULL,
   PRIMARY KEY (`reward_id`,`user_id`),
   KEY `FK4ear62j8k2olcikuil4rye8la` (`user_id`),
-  CONSTRAINT `FK4ear62j8k2olcikuil4rye8la` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
+  CONSTRAINT `FK4ear62j8k2olcikuil4rye8la` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
   CONSTRAINT `FKj53yk8gtooowu02nlq4isx5dd` FOREIGN KEY (`reward_id`) REFERENCES `rewards` (`reward_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -170,7 +170,7 @@ CREATE TABLE  IF NOT EXISTS  `comments` (
   KEY `post_id` (`post_id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE,
-  CONSTRAINT `comments_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
+  CONSTRAINT `comments_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -183,6 +183,8 @@ CREATE TABLE IF NOT EXISTS `post_likes` (
     FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
     FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
 CREATE TABLE `saved_posts` (
     `post_id` INT NOT NULL,
     `user_id` INT NOT NULL,
@@ -192,7 +194,7 @@ CREATE TABLE `saved_posts` (
     CONSTRAINT `FK9poxgdc1595vxdxkyg202x4ge` 
         FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`),
     CONSTRAINT `FKs9a5ulcshnympbu557ps3qdlv` 
-        FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+        FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB 
   DEFAULT CHARSET=utf8mb4 
   COLLATE=utf8mb4_0900_ai_ci;
@@ -285,6 +287,26 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+DELIMITER $$
+-- Trigger: Sets the owner of deleted posts and comments to the deleted_user. Which is the user with the id 12 currently
+CREATE TRIGGER before_user_delete
+    BEFORE DELETE ON users
+    FOR EACH ROW
+BEGIN
+    -- Reassign posts to anonymous user
+    UPDATE posts
+    SET user_id = 12
+    WHERE user_id = OLD.user_id;
+
+    -- Reassign comments to anonymous user
+    UPDATE comments
+    SET user_id = 12
+    WHERE user_id = OLD.user_id;
+    END$$
+
+DELIMITER ;
+
 -- THESE COULD BE CHANGED SINCE THE LOGIC OF CHALLENGE WILL BE CHANGED, SO THESE TRIGGERS WERE NOT CREATED BUT GIVEN AS REFERENCE FOR FUTURE
 /*
 DELIMITER $$
