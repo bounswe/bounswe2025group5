@@ -42,7 +42,8 @@ export function LayoutResolver({ children }: { children: React.ReactNode }) {
   const Layout = pickLayout(pathname);
   const element = Layout ? <Layout>{children}</Layout> : <>{children}</>;
   const isUnprotected = pathname === "/" || pathname === "/feed" || pathname.startsWith("/auth");
-  return isUnprotected ? element : <ProtectedRoute>{element}</ProtectedRoute>;
+  const guardEnabled = !import.meta.env.DEV; // disable guard during `npm run dev`
+  return isUnprotected || !guardEnabled ? element : <ProtectedRoute>{element}</ProtectedRoute>;
 }
 
 

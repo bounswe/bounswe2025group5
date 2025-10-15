@@ -30,6 +30,9 @@ export const UsersApi = {
     ProfileResponseSchema.parse(data);
     return data;
   },
+  deleteAccount: async (username: string): Promise<{ deleted?: boolean }> => {
+    return ApiClient.delete<{ deleted?: boolean }>(`/api/users/${encodeURIComponent(username)}`);
+  },
   listChallenges: async (username: string): Promise<ChallengeListItem[]> => {
     const qs = new URLSearchParams({ username }).toString();
     const data = await ApiClient.get<ChallengeListItem[]>(`/api/users/users/${encodeURIComponent(username)}/challenges?${qs}`);

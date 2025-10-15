@@ -25,7 +25,9 @@
         "save": "Save",
         "saving": "Saving...",
         "noPhoto": "No photo",
-        "changePhoto": "Change Photo"
+        "changePhoto": "Change Photo",
+        "delete": "Delete Account",
+        "confirmDelete": "This will permanently delete your account. Continue?"
     },
     "main": {
         "navbar": "Main"

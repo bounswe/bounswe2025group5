@@ -25,7 +25,9 @@
         "save": "Kaydet",
         "saving": "Kaydediliyor...",
         "noPhoto": "Fotoğraf yok",
-        "changePhoto": "Fotoğrafı Değiştir"
+        "changePhoto": "Fotoğrafı Değiştir",
+        "delete": "Hesabı Sil",
+        "confirmDelete": "Bu işlem hesabınızı kalıcı olarak silecek. Devam edilsin mi?"
     },
     "main" : {
         "navbar": "Ana Sayfa"

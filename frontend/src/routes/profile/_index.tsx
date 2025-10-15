@@ -88,6 +88,27 @@ export default function ProfileIndex() {
     }
   };
 
+  const onDeleteAccount = async () => {
+    if (!username) return;
+    const confirmed = window.confirm(t('profile.confirmDelete'));
+    if (!confirmed) return;
+    setSaving(true);
+    setError(null);
+    try {
+      await UsersApi.deleteAccount(username);
+      try {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('username');
+      } catch {}
+      window.location.href = '/auth/register';
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to delete account');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-foreground">
@@ -141,9 +162,12 @@ export default function ProfileIndex() {
                   <Input value={bio} onChange={e => setBio(e.target.value)} placeholder={t('profile.bioPlaceholder', 'Tell us about yourself')} />
                 </div>
 
-                <CardFooter className="px-0">
+                <CardFooter className="px-0 flex gap-3">
                   <Button type="submit" disabled={saving}>
                     {saving ? t('profile.saving') : t('profile.save')}
+                  </Button>
+                  <Button type="button" variant="destructive" disabled={saving} onClick={onDeleteAccount}>
+                    {t('profile.delete')}
                   </Button>
                 </CardFooter>
               </form>
