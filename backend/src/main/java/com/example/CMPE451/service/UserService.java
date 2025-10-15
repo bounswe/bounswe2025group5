@@ -10,6 +10,7 @@ import com.example.CMPE451.model.response.*;
 import com.example.CMPE451.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -103,10 +104,10 @@ public class UserService {
 
     public UserDeleteResponse deleteUser(String username, String password) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new InvalidCredentialsException("Invalid username or password"));
+                .orElseThrow(() -> new NotFoundException("User not found: " + username));
 
         if (!passwordEncoder.matches(password, user.getPasswordHash())) {
-            throw new InvalidCredentialsException("Invalid username or password");
+            throw new InvalidCredentialsException("Invalid password");
         }
 
         UserDeleteResponse response = new UserDeleteResponse(user.getId(), username);
