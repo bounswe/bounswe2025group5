@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers( "/api/users","/api/sessions","/api/refresh-token","/api/posts/mostLiked","api/users/count").permitAll()
+                        .requestMatchers( "/api/users","/api/sessions","/api/refresh-token","/api/challenges/homepage","/api/posts/mostLiked","/api/users/count").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
