@@ -7,6 +7,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class AttendChallengeResponse {
     private String username;
-    private Double remainingAmount;
     private int challengeId;
 }

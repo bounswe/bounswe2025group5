@@ -1,22 +1,25 @@
-package com.example.CMPE451.model.request;
+package com.example.CMPE451.model.response;
 
-import com.example.CMPE451.model.WasteGoal;
-import com.example.CMPE451.model.WasteType;
+import com.example.CMPE451.model.Challenge;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class CreateChallengeRequest {
+public class ChallengeInfoResponse {
 
+    private int challengeId;
     private String name;
-    private String description;
     private Double amount;
+    private String description;
     private LocalDate startDate;
     private LocalDate endDate;
+    private Challenge.Status status;
     private String type;
+    private boolean isUserInChallenge;
+
 }

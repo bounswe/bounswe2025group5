@@ -17,5 +17,5 @@ public class ChallengeResponse {
     private LocalDate startDate;
     private LocalDate endDate;
     private Challenge.Status status;
-    private WasteType wasteType;
+    private String type;
 }
