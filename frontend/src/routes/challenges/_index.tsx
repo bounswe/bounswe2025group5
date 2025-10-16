@@ -44,6 +44,7 @@ export default function ChallengesIndex() {
 
   return (
       <div className="min-h-screen flex items-center justify-center text-foreground">
+        <h1 className="text-3xl font-bold mb-4"> {t('challenges.title', 'Challenges')} </h1>
         {loading ? (
           <div className="min-h-screen flex items-center justify-center text-foreground">
             {t('challenges.loading', 'Loading...')}
