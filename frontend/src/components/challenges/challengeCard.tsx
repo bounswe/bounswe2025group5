@@ -14,6 +14,7 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
   const [busy, setBusy] = useState<Record<number, boolean>>({});
   const [username, setUsername] = useState<string>(localStorage.getItem('username') || '');
 
+  // a user leaves a challange with challengeId, meanwhile the challenge is set to busy
   const leave = async (challengeId: number, username: string) => {
     try {
       setBusy((b) => ({ ...b, [challengeId]: true }));

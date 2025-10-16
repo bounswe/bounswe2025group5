@@ -1,5 +1,5 @@
 
-import React from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ChallengeCard from '@/components/challenges/challengeCard';
 import { type ChallengeListItem } from '@/lib/api/schemas/challenges';
@@ -10,10 +10,10 @@ import { UsersApi } from '@/lib/api/users';
 export default function ChallengesIndex() {
 
   const { t } = useTranslation();
-  const [items, setItems] = React.useState<ChallengeListItem[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
-  const username = React.useMemo(() => {
+  const [items, setItems] = useState<ChallengeListItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const username = useMemo(() => {
     try {
       const raw = localStorage.getItem('username');
       if (raw) return raw;
@@ -27,7 +27,7 @@ export default function ChallengesIndex() {
       return null;
     }
   }, []);
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       try {
         setLoading(true);
@@ -59,7 +59,7 @@ export default function ChallengesIndex() {
         ) : (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {items.map((item) => (
-              <ChallengeCard challenge={item} />
+              <ChallengeCard key={item.challengeId} challenge={item} />
             ))}
           </div>
         )}
