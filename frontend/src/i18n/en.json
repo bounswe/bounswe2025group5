@@ -40,19 +40,33 @@
     },
     "challenge": {
         "navbar": "Challenge"
-  },
-  "mainpage": {
-    "navbar": "Mainpage",
-    "challengesTitle": "Your Challenges",
-    "challengesDesc": "Challenges you are currently attending",
-    "noChallenges": "No active challenges",
-    "type": "Type",
-    "status": "Status",
-    "dates": "Dates",
-    "feedTitle": "Following Feed",
-    "feedDesc": "Recent posts from accounts you follow",
-    "noPosts": "No posts yet",
-    "likes": "Likes",
-    "comments": "Comments"
-  }
+    },
+    "mainpage": {
+        "navbar": "Mainpage",
+        "challengesTitle": "Your Challenges",
+        "challengesDesc": "Challenges you are currently attending",
+        "noChallenges": "No active challenges",
+        "type": "Type",
+        "status": "Status",
+        "dates": "Dates",
+        "feedTitle": "Following Feed",
+        "feedDesc": "Recent posts from accounts you follow",
+        "noPosts": "No posts yet",
+        "likes": "Likes",
+        "comments": "Comments"
+    },
+    "challenges": {
+        "attendError": "Could not attend the challenge",
+        "leaveError": "Could not leave the challenge",
+        "type": "Type",
+        "status": "Status",
+        "dates": "Dates",
+        "target": "Target",
+        "leave": "Leave",
+        "leaving": "Leaving...",
+        "attend": "Attend",
+        "attending": "Attending...",
+        "loading": "Loading...",
+        "noChallenges": "No challenges found"
+    }
 }

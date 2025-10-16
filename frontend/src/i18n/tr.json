@@ -40,19 +40,33 @@
     },
     "challenge" : {
         "navbar": "Etkinlikler"
-  },
-  "mainpage": {
-    "navbar": "Ana Sayfa",
-    "challengesTitle": "Katıldığınız Etkinlikler",
-    "challengesDesc": "Şu an katıldığınız etkinlikler",
-    "noChallenges": "Aktif etkinlik yok",
-    "type": "Tür",
-    "status": "Durum",
-    "dates": "Tarih",
-    "feedTitle": "Takip Akışı",
-    "feedDesc": "Takip ettiklerinizden son gönderiler",
-    "noPosts": "Gönderi yok",
-    "likes": "Beğeni",
-    "comments": "Yorum"
-  }
+    },
+    "mainpage": {
+        "navbar": "Ana Sayfa",
+        "challengesTitle": "Katıldığınız Etkinlikler",
+        "challengesDesc": "Şu an katıldığınız etkinlikler",
+        "noChallenges": "Aktif etkinlik yok",
+        "type": "Tür",
+        "status": "Durum",
+        "dates": "Tarih",
+        "feedTitle": "Takip Akışı",
+        "feedDesc": "Takip ettiklerinizden son gönderiler",
+        "noPosts": "Gönderi yok",
+        "likes": "Beğeni",
+        "comments": "Yorum"
+    },
+    "challenges": {
+        "attendError": "Etkinliğe katılınamadı",
+        "leaveError": "Etkinlikten ayrılınamadı",
+        "type": "Tür",
+        "status": "Durum",
+        "dates": "Tarih",
+        "target": "Hedef",
+        "leave": "Ayrıl",
+        "leaving": "Ayrılıyor...",
+        "attend": "Katıl",
+        "attending": "Katılıyor...",
+        "loading": "Yükleniyor...",
+        "noChallenges": "Etkinlik bulunamadı"
+    }
 }

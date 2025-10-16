@@ -14,6 +14,19 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
   const [busy, setBusy] = useState<Record<number, boolean>>({});
   const [username, setUsername] = useState<string>(localStorage.getItem('username') || '');
 
+  // a user attends a challange with challengeId, meanwhile the challenge is set to busy
+  const attend = async (challengeId: number, username: string) => {
+    try {
+      setBusy((b) => ({ ...b, [challengeId]: true }));
+      await ChallengesApi.attend(challengeId, { username });
+    } catch (e) {
+      console.error(e);
+      alert(t('challenges.attendError', 'Could not attend the challenge'));
+    } finally {
+      setBusy((b) => ({ ...b, [challengeId]: false }));
+    }
+  };
+
   // a user leaves a challange with challengeId, meanwhile the challenge is set to busy
   const leave = async (challengeId: number, username: string) => {
     try {
@@ -56,11 +69,20 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
           <div className="flex justify-between"><span>{t('challenges.dates', 'Dates')}</span><span>{challenge.startDate} → {challenge.endDate}</span></div>
           {challenge.amount != null && <div className="flex justify-between"><span>{t('challenges.target', 'Target')}</span><span>{challenge.amount}</span></div>}
         </CardContent>
-        <div className="mt-auto p-4">
-          <Button size="sm" variant="outline" disabled={!!busy[challenge.challengeId]} onClick={() => leave(challenge.challengeId, username)}>
-            {busy[challenge.challengeId] ? t('challenges.leaving', 'Leaving...') : t('challenges.leave', 'Leave')}
-          </Button>
-        </div>
+        // if user is not attending the challenge, show attend button; otherwise leave button
+        {!challenge.attendee ? (
+          <div className="mt-auto p-4">
+            <Button size="sm" variant="outline" disabled={!!busy[challenge.challengeId]} onClick={() => attend(challenge.challengeId, username)}>
+              {busy[challenge.challengeId] ? t('challenges.attending', 'Attending...') : t('challenges.attend', 'Attend')}
+            </Button>
+          </div>
+        ) : (
+          <div className="mt-auto p-4">
+            <Button size="sm" variant="outline" disabled={!!busy[challenge.challengeId]} onClick={() => leave(challenge.challengeId, username)}>
+              {busy[challenge.challengeId] ? t('challenges.leaving', 'Leaving...') : t('challenges.leave', 'Leave')}
+            </Button>
+          </div>
+        )}
       </Card>
     </div>
   );
