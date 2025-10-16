@@ -40,12 +40,7 @@ public class UserController {
         UserCountResponse count = userService.getUserCount();
         return ResponseEntity.ok(count);
     }
-    @GetMapping("/users/{username}/challenges")
-    public ResponseEntity<List<ChallengeListResponse>> getAllChallenges(
-            @RequestParam("username") String username) {
-        List<ChallengeListResponse> list = userService.getAllChallenges(username);
-        return ResponseEntity.ok(list);
-    }
+
     @GetMapping("/{username}/badges")
     public ResponseEntity<List<BadgeResponse>> getBadges(@RequestParam String username) {
         List<BadgeResponse> response = userService.getBadges(username);
