@@ -307,101 +307,110 @@ BEGIN
 
 DELIMITER ;
 
--- THESE COULD BE CHANGED SINCE THE LOGIC OF CHALLENGE WILL BE CHANGED, SO THESE TRIGGERS WERE NOT CREATED BUT GIVEN AS REFERENCE FOR FUTURE
-/*
+
+
 DELIMITER $$
 
--- After INSERT on waste_log
-CREATE TRIGGER after_waste_log_insert
-AFTER INSERT ON waste_log
+-- ==========================================================================================
+-- TRIGGER  After a new waste log is INSERTED
+-- This trigger recalculates the progress for the goal associated with the newly added log.
+-- ==========================================================================================
+CREATE TRIGGER `log_after_insert`
+AFTER INSERT ON `waste_log`
 FOR EACH ROW
 BEGIN
-    -- Update active user challenge progress
-    UPDATE user_challenge_progress ucp
-    JOIN challenges c ON ucp.challenge_id = c.challenge_id
-    SET ucp.remaining_amount = ucp.remaining_amount - NEW.amount
-    WHERE ucp.user_id = NEW.user_id
-      AND ucp.waste_type = NEW.waste_type
-      AND c.status = 'Active'
-      AND c.start_date <= DATE(NEW.date)
-      AND c.end_date   >= DATE(NEW.date);
+    DECLARE total_waste_grams DOUBLE;
+    SELECT SUM(wi.weight_in_grams * wl.quantity)
+    INTO total_waste_grams
+    FROM `waste_log` wl
+    JOIN `waste_item` wi ON wl.item_id = wi.item_id
+    WHERE wl.goal_id = NEW.goal_id; 
 
-    -- Update waste goal progress
-    UPDATE waste_goal wg
-    SET wg.percent_of_progress = LEAST(100, wg.percent_of_progress + (NEW.amount / wg.amount) * 100)
-    WHERE wg.user_id = NEW.user_id
-      AND wg.waste_type = NEW.waste_type
-      AND wg.amount > 0
-      AND DATE(NEW.date) BETWEEN DATE_SUB(DATE(wg.date), INTERVAL wg.duration DAY) AND DATE(wg.date);
+    -- Update the percent_of_progress in the waste_goal table.
+    -- IFNULL is used to handle the case where a goal has no logs, preventing division by null.
+    UPDATE `waste_goal`
+    SET percent_of_progress = (IFNULL(total_waste_grams, 0) / restriction_amount_grams) * 100
+    WHERE goal_id = NEW.goal_id;
+END$$
+
+-- ==========================================================================================
+-- TRIGGER : After a waste log is UPDATED
+-- This trigger handles changes to a log, such as updating its quantity or moving it
+-- ==========================================================================================
+CREATE TRIGGER `log_after_update`
+AFTER UPDATE ON `waste_log`
+FOR EACH ROW
+BEGIN
+    DECLARE total_waste_grams DOUBLE;
+
+    SELECT SUM(wi.weight_in_grams * wl.quantity)
+    INTO total_waste_grams
+    FROM `waste_log` wl
+    JOIN `waste_item` wi ON wl.item_id = wi.item_id
+    WHERE wl.goal_id = OLD.goal_id; 
+
+    UPDATE `waste_goal`
+    SET percent_of_progress = (IFNULL(total_waste_grams, 0) / restriction_amount_grams) * 100
+    WHERE goal_id = OLD.goal_id;
+    
+END$$
+
+-- ==========================================================================================
+-- TRIGGER: After a waste log is DELETED
+-- This trigger recalculates the progress for the goal from which a log was removed.
+-- ==========================================================================================
+CREATE TRIGGER `log_after_delete`
+AFTER DELETE ON `waste_log`
+FOR EACH ROW
+BEGIN
+    DECLARE total_waste_grams DOUBLE;
+    
+    SELECT SUM(wi.weight_in_grams * wl.quantity)
+    INTO total_waste_grams
+    FROM `waste_log` wl
+    JOIN `waste_item` wi ON wl.item_id = wi.item_id
+    WHERE wl.goal_id = OLD.goal_id; 
+
+    -- Update the progress. If this was the last log for the goal, the total will be 0.
+    UPDATE `waste_goal`
+    SET percent_of_progress = (IFNULL(total_waste_grams, 0) / restriction_amount_grams) * 100
+    WHERE goal_id = OLD.goal_id;
+END$$
+
+DELIMITER ;
+
+
+DELIMITER $$
+--  TRIGGER 
+-- This single trigger handles all logic for the waste_goal table to prevent recursive update errors.
+-- It recalculates progress if the restriction changes AND sets the completed status.
+-- ==========================================================================================
+CREATE TRIGGER `goal_before_update`
+BEFORE UPDATE ON `waste_goal`
+FOR EACH ROW
+BEGIN
+    DECLARE total_waste_grams DOUBLE;
+
+    -- First, check if the restriction amount is being changed.
+    IF NEW.restriction_amount_grams <> OLD.restriction_amount_grams THEN
+        SELECT IFNULL(SUM(wi.weight_in_grams * wl.quantity), 0)
+        INTO total_waste_grams
+        FROM `waste_log` wl
+        JOIN `waste_item` wi ON wl.item_id = wi.item_id
+        WHERE wl.goal_id = NEW.goal_id;
+
+        -- Modify the NEW row directly. 
+        SET NEW.percent_of_progress = (total_waste_grams / NEW.restriction_amount_grams) * 100;
+    END IF;
+
+    -- Second, based on the final 'percent_of_progress' (whether it came from the
+    IF NEW.percent_of_progress >= 100 THEN
+        SET NEW.completed = 1;
+    ELSE
+        SET NEW.completed = 0;
+    END IF;
 END$$
 
 
--- After DELETE on waste_log
-CREATE TRIGGER after_waste_log_delete
-AFTER DELETE ON waste_log
-FOR EACH ROW
-BEGIN
-    -- Rollback challenge progress
-    UPDATE user_challenge_progress ucp
-    JOIN challenges c ON ucp.challenge_id = c.challenge_id
-    SET ucp.remaining_amount = ucp.remaining_amount + OLD.amount
-    WHERE ucp.user_id = OLD.user_id
-      AND ucp.waste_type = OLD.waste_type
-      AND c.status = 'Active'
-      AND c.start_date <= DATE(OLD.date)
-      AND c.end_date   >= DATE(OLD.date);
-
-    -- Rollback waste goal progress
-    UPDATE waste_goal wg
-    SET wg.percent_of_progress = GREATEST(0, wg.percent_of_progress - (OLD.amount / wg.amount) * 100)
-    WHERE wg.user_id = OLD.user_id
-      AND wg.waste_type = OLD.waste_type
-      AND wg.amount > 0
-      AND DATE(OLD.date) BETWEEN DATE_SUB(DATE(wg.date), INTERVAL wg.duration DAY) AND DATE(wg.date);
-END$$
-
-
--- After UPDATE on waste_log
-CREATE TRIGGER after_waste_log_update
-AFTER UPDATE ON waste_log
-FOR EACH ROW
-BEGIN
-    -- Rollback old challenge
-    UPDATE user_challenge_progress ucp
-    JOIN challenges c ON ucp.challenge_id = c.challenge_id
-    SET ucp.remaining_amount = ucp.remaining_amount + OLD.amount
-    WHERE ucp.user_id = OLD.user_id
-      AND ucp.waste_type = OLD.waste_type
-      AND c.status = 'Active'
-      AND c.start_date <= DATE(OLD.date)
-      AND c.end_date   >= DATE(OLD.date);
-
-    -- Apply new challenge
-    UPDATE user_challenge_progress ucp
-    JOIN challenges c ON ucp.challenge_id = c.challenge_id
-    SET ucp.remaining_amount = ucp.remaining_amount - NEW.amount
-    WHERE ucp.user_id = NEW.user_id
-      AND ucp.waste_type = NEW.waste_type
-      AND c.status = 'Active'
-      AND c.start_date <= DATE(NEW.date)
-      AND c.end_date   >= DATE(NEW.date);
-
-    -- Rollback old waste goal
-    UPDATE waste_goal wg
-    SET wg.percent_of_progress = GREATEST(0, wg.percent_of_progress - (OLD.amount / wg.amount) * 100)
-    WHERE wg.user_id = OLD.user_id
-      AND wg.waste_type = OLD.waste_type
-      AND wg.amount > 0
-      AND DATE(OLD.date) BETWEEN DATE_SUB(DATE(wg.date), INTERVAL wg.duration DAY) AND DATE(wg.date);
-
-    -- Apply new waste goal
-    UPDATE waste_goal wg
-    SET wg.percent_of_progress = LEAST(100, wg.percent_of_progress + (NEW.amount / wg.amount) * 100)
-    WHERE wg.user_id = NEW.user_id
-      AND wg.waste_type = NEW.waste_type
-      AND wg.amount > 0
-      AND DATE(NEW.date) BETWEEN DATE_SUB(DATE(wg.date), INTERVAL wg.duration DAY) AND DATE(wg.date);
-END$$
-
-*/
-
+-- Reset the delimiter back to the default
+DELIMITER ;
