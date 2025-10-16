@@ -20,6 +20,7 @@ public class ChallengeInfoResponse {
     private LocalDate endDate;
     private Challenge.Status status;
     private String type;
+    private Double currentAmount;
     private boolean isUserInChallenge;
 
 }

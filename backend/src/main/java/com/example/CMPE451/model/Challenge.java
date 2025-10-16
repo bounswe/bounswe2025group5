@@ -30,6 +30,9 @@ public class Challenge {
     @Column(name = "amount", nullable = false)
     private Double amount;
 
+    @Column(name = "current_amount", nullable = false)
+    private Double currentAmount;
+
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
@@ -48,11 +51,12 @@ public class Challenge {
         Completed
     }
 
-    public Challenge(String name, String description, String type, Double amount, LocalDate startDate, LocalDate endDate) {
+    public Challenge(String name, String description, String type, Double amount, LocalDate startDate, LocalDate endDate,Double currentAmount) {
         this.name = name;
         this.description = description;
         this.type = type;
         this.amount = amount;
+        this.currentAmount= currentAmount;
         this.startDate = startDate;
         this.endDate = endDate;
         this.status = Status.Active;

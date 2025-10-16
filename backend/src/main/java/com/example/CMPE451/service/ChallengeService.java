@@ -38,7 +38,8 @@ public class ChallengeService {
                 request.getType(),
                 request.getAmount(),
                 request.getStartDate(),
-                request.getEndDate()
+                request.getEndDate(),
+                0.0
         ));
 
         return new ChallengeResponse(
@@ -126,6 +127,7 @@ public class ChallengeService {
                         challenge.getEndDate(),
                         challenge.getStatus(),
                         challenge.getType(),
+                        challenge.getCurrentAmount(),
                         participatedChallengeIds.contains(challenge.getChallengeId())
                 ))
                 .collect(Collectors.toList());
