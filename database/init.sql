@@ -22,6 +22,20 @@ CREATE TABLE IF NOT EXISTS `refresh_tokens` (
   PRIMARY KEY (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+CREATE TABLE   IF NOT EXISTS waste_type (
+    type_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS  waste_item (
+    item_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    display_name VARCHAR(255) NOT NULL,
+    weight_in_grams DOUBLE PRECISION NOT NULL,
+    type_id INT NOT NULL,
+    FOREIGN KEY (type_id) REFERENCES waste_type(type_id)
+);
+
 CREATE TABLE IF NOT EXISTS `waste_goal` (
   `goal_id`               INT NOT NULL AUTO_INCREMENT,
   `user_id`               INT NOT NULL,
@@ -42,19 +56,6 @@ CREATE TABLE IF NOT EXISTS `waste_goal` (
     REFERENCES `waste_type` (`type_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE   IF NOT EXISTS waste_type (
-    type_id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL UNIQUE
-);
-
-CREATE TABLE IF NOT EXISTS  waste_item (
-    item_id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL UNIQUE,
-    display_name VARCHAR(255) NOT NULL,
-    weight_in_grams DOUBLE PRECISION NOT NULL,
-    type_id INT NOT NULL,
-    FOREIGN KEY (type_id) REFERENCES waste_type(type_id)
-);
 
 CREATE TABLE IF NOT EXISTS `waste_log` (
   `log_id`    INT NOT NULL AUTO_INCREMENT,
@@ -78,20 +79,54 @@ CREATE TABLE IF NOT EXISTS `waste_log` (
     REFERENCES `waste_item` (`item_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+
 CREATE TABLE `challenges` (
   `challenge_id`  INT NOT NULL AUTO_INCREMENT,
   `name`          VARCHAR(100) NOT NULL,
   `description`   VARCHAR(200) NOT NULL,
+  `type`          VARCHAR(50) NOT NULL,
   `amount`        DOUBLE NOT NULL,
+  `current_amount` DOUBLE NOT NULL DEFAULT 0,
   `start_date`    DATE NOT NULL,
   `end_date`      DATE NOT NULL,
-  `status`        ENUM('Active','Requested','Ended') DEFAULT 'Active',
-  `type_id`       INT NOT NULL,
-  PRIMARY KEY (`challenge_id`),
-  INDEX `fk_challenge_type_idx` (`type_id` ASC),
-  CONSTRAINT `fk_challenge_type`
-    FOREIGN KEY (`type_id`)
-    REFERENCES `waste_type` (`type_id`)
+  `status`        ENUM('Active','Requested','Ended','Completed') DEFAULT 'Active',
+  PRIMARY KEY (`challenge_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `challenge_log` (
+  `log_id`       INT NOT NULL AUTO_INCREMENT,
+  `challenge_id` INT NOT NULL,
+  `user_id`      INT NOT NULL,
+  `amount`       DOUBLE NOT NULL,
+  `timestamp`    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`log_id`),
+  INDEX `fk_log_challenge_idx` (`challenge_id` ASC),
+  INDEX `fk_log_user_idx` (`user_id` ASC),
+  CONSTRAINT `fk_log_challenge`
+    FOREIGN KEY (`challenge_id`)
+    REFERENCES `challenges` (`challenge_id`)
+    ON DELETE CASCADE,
+  CONSTRAINT `fk_challenge_log_user`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `users` (`user_id`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `challenge_user` (
+  `challenge_id`  INT NOT NULL,
+  `user_id`       INT NOT NULL,
+  `amount`        DOUBLE NOT NULL DEFAULT 0,
+  -- Composite Primary Key: A user can only be associated with a challenge once.
+  PRIMARY KEY (`challenge_id`, `user_id`),
+  INDEX `fk_cu_user_idx` (`user_id` ASC),
+  CONSTRAINT `fk_cu_challenge`
+    FOREIGN KEY (`challenge_id`)
+    REFERENCES `challenges` (`challenge_id`)
+    ON DELETE CASCADE,
+  CONSTRAINT `fk_cu_user`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `users` (`user_id`) -- Assuming you have a 'users' table
+    ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -108,19 +143,7 @@ CREATE TABLE IF NOT EXISTS  `posts` (
   CONSTRAINT `posts_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE IF NOT EXISTS `user_challenge_progress` (
-  `user_id`             INT NOT NULL,
-  `challenge_id`        INT NOT NULL,
-  `remaining_amount`    DOUBLE DEFAULT NULL,
-  PRIMARY KEY (`user_id`, `challenge_id`),
-  INDEX `fk_progress_challenge_idx` (`challenge_id` ASC),
-  CONSTRAINT `fk_progress_user`
-    FOREIGN KEY (`user_id`)
-    REFERENCES `users` (`user_id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_progress_challenge`
-    FOREIGN KEY (`challenge_id`)
-    REFERENCES `challenges` (`challenge_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 
 CREATE TABLE  IF NOT EXISTS  `profiles` (
   `profile_id` int NOT NULL AUTO_INCREMENT,
@@ -414,3 +437,56 @@ END$$
 
 -- Reset the delimiter back to the default
 DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+DELIMITER $$
+CREATE TRIGGER `after_challenge_user_insert`
+AFTER INSERT ON `challenge_user`
+FOR EACH ROW
+BEGIN
+    UPDATE `challenges`
+    SET `current_amount` = (
+        SELECT IFNULL(SUM(`amount`), 0)
+        FROM `challenge_user`
+        WHERE `challenge_id` = NEW.challenge_id
+    )
+    WHERE `challenge_id` = NEW.challenge_id;
+END$$
+
+CREATE TRIGGER `after_challenge_user_update`
+AFTER UPDATE ON `challenge_user`
+FOR EACH ROW
+BEGIN
+    UPDATE `challenges`
+    SET `current_amount` = (
+        SELECT IFNULL(SUM(`amount`), 0)
+        FROM `challenge_user`
+        WHERE `challenge_id` = NEW.challenge_id
+    )
+    WHERE `challenge_id` = NEW.challenge_id;
+END$$
+
+CREATE TRIGGER `after_challenge_user_delete`
+AFTER DELETE ON `challenge_user`
+FOR EACH ROW
+BEGIN
+    UPDATE `challenges`
+    SET `current_amount` = (
+        SELECT IFNULL(SUM(`amount`), 0)
+        FROM `challenge_user`
+        WHERE `challenge_id` = OLD.challenge_id
+    )
+    WHERE `challenge_id` = OLD.challenge_id;
+END$$
+DELIMITER ;
+
+
+

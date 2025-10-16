@@ -27,7 +27,6 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final ChallengeRepository  challengeRepository;
-    private final UserChallengeProgressRepository userChallengeProgressRepository;
     private final BadgeRepository badgeRepository;
     private final SavedPostRepository savedPostRepository;
     private final PostRepository postRepository;
@@ -67,29 +66,6 @@ public class UserService {
         return convertToGetPostsResponse(posts, user.getId());
     }
 
-    public List<ChallengeListResponse> getAllChallenges(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NotFoundException("User not found: " + username));
-        int userId = user.getId();
-
-        return challengeRepository.findAll().stream()
-                .map(ch -> {
-                    boolean attends = userChallengeProgressRepository
-                            .existsByUserIdAndChallengeChallengeId(userId, ch.getChallengeId());
-                    return new ChallengeListResponse(
-                            ch.getChallengeId(),
-                            ch.getName(),
-                            ch.getAmount(),
-                            ch.getDescription(),
-                            ch.getStartDate(),
-                            ch.getEndDate(),
-                            ch.getStatus(),
-                            ch.getType(),
-                            attends
-                    );
-                })
-                .collect(Collectors.toList());
-    }
     public List<BadgeResponse> getBadges(String username) {
         User user = userRepository
                 .findByUsername(username)
