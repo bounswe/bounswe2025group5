@@ -86,6 +86,7 @@ CREATE TABLE `challenges` (
   `description`   VARCHAR(200) NOT NULL,
   `type`          VARCHAR(50) NOT NULL,
   `amount`        DOUBLE NOT NULL,
+  `current_amount` DOUBLE NOT NULL DEFAULT 0,
   `start_date`    DATE NOT NULL,
   `end_date`      DATE NOT NULL,
   `status`        ENUM('Active','Requested','Ended','Completed') DEFAULT 'Active',
@@ -436,4 +437,56 @@ END$$
 
 -- Reset the delimiter back to the default
 DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+DELIMITER $$
+CREATE TRIGGER `after_challenge_user_insert`
+AFTER INSERT ON `challenge_user`
+FOR EACH ROW
+BEGIN
+    UPDATE `challenges`
+    SET `current_amount` = (
+        SELECT IFNULL(SUM(`amount`), 0)
+        FROM `challenge_user`
+        WHERE `challenge_id` = NEW.challenge_id
+    )
+    WHERE `challenge_id` = NEW.challenge_id;
+END$$
+
+CREATE TRIGGER `after_challenge_user_update`
+AFTER UPDATE ON `challenge_user`
+FOR EACH ROW
+BEGIN
+    UPDATE `challenges`
+    SET `current_amount` = (
+        SELECT IFNULL(SUM(`amount`), 0)
+        FROM `challenge_user`
+        WHERE `challenge_id` = NEW.challenge_id
+    )
+    WHERE `challenge_id` = NEW.challenge_id;
+END$$
+
+CREATE TRIGGER `after_challenge_user_delete`
+AFTER DELETE ON `challenge_user`
+FOR EACH ROW
+BEGIN
+    UPDATE `challenges`
+    SET `current_amount` = (
+        SELECT IFNULL(SUM(`amount`), 0)
+        FROM `challenge_user`
+        WHERE `challenge_id` = OLD.challenge_id
+    )
+    WHERE `challenge_id` = OLD.challenge_id;
+END$$
+DELIMITER ;
+
+
 
