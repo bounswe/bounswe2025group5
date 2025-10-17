@@ -15,12 +15,9 @@ import {
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from './_layout';
-import { API_BASE_URL } from './apiConfig';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { apiRequest } from './services/apiClient';
 import * as ImagePicker from 'expo-image-picker'; 
 import { Ionicons } from '@expo/vector-icons'; 
-
-const API_BASE = API_BASE_URL;
 
 export const unstable_settings = {
   initialRouteName: 'create_post',
@@ -90,8 +87,6 @@ export default function CreatePostScreen() {
 
     try {
       setLoading(true);
-      const token = await AsyncStorage.getItem('token');
-
       const formData = new FormData();
       formData.append('content', content.trim());
       formData.append('username', username);
@@ -110,14 +105,8 @@ export default function CreatePostScreen() {
       }
 
 
-      const headers: HeadersInit = {};
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      const res = await fetch(`${API_BASE}/api/posts/create`, {
+      const res = await apiRequest('/api/posts', {
         method: 'POST',
-        headers: headers,
         body: formData,
       });
 

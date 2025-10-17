@@ -16,9 +16,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from './_layout'; // Adjust path if necessary
-import { API_BASE_URL } from './apiConfig';
-
-const API_BASE = API_BASE_URL;
+import { apiUrl } from './apiConfig';
+import { apiRequest } from './services/apiClient';
 
 // Type Definition (using relevant fields)
 type PostData = {
@@ -69,7 +68,7 @@ function SavedPostCard({
         <TouchableOpacity onPress={handleViewPost} style={[styles.postContainer, { backgroundColor: cardBackgroundColor }]}>
             {post.photoUrl && (
                 <Image
-                    source={{ uri: post.photoUrl.startsWith('http') ? post.photoUrl : `${API_BASE}${post.photoUrl}` }}
+                    source={{ uri: post.photoUrl.startsWith('http') ? post.photoUrl : apiUrl(post.photoUrl) }}
                     style={styles.postImage}
                     onError={(e) => console.warn('Saved Post Card: Image load error', e.nativeEvent.error)}
                 />
@@ -149,7 +148,7 @@ export default function SavedPostsScreen() {
         try {
             // --- API Call to GET saved posts ---
             // Remember to encode username for URL safety
-            const response = await fetch(`${API_BASE}/api/posts/getSavedPosts?username=${encodeURIComponent(username)}`);
+            const response = await apiRequest(`/api/users/${encodeURIComponent(username)}/saved-posts`);
 
             if (!response.ok) {
                 if (response.status === 404) { // Handle no saved posts gracefully
@@ -220,9 +219,9 @@ export default function SavedPostsScreen() {
 
         try {
             // 2. API Call (DELETE)
-            const url = `${API_BASE}/api/posts/unsave${encodeURIComponent(username)}/${postId}`; // Ensure path structure is correct & encode username
-            console.log(`API Call: DELETE ${url}`);
-            const response = await fetch(url, { method: 'DELETE', /* Add Auth headers if needed */ });
+            const response = await apiRequest(`/api/posts/${postId}/saves/${encodeURIComponent(username)}`, {
+                method: 'DELETE',
+            });
             const responseBodyText = await response.text(); // Get text for potential validation/error
             console.log(`API Response: Status ${response.status}`);
 
@@ -268,12 +267,10 @@ export default function SavedPostsScreen() {
 
          try {
             // 2. API Call (POST)
-            const url = `${API_BASE}/api/posts/save`;
-            console.log(`API Call: POST ${url}`);
-            const response = await fetch(url, {
+            const response = await apiRequest(`/api/posts/${postId}/save`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', /* Add Auth headers if needed */ },
-                body: JSON.stringify({ username, postId }) // Verify if username is needed
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username }),
             });
             const responseBodyText = await response.text();
             console.log(`API Response: Status ${response.status}`);

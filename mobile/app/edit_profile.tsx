@@ -15,12 +15,9 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from './_layout';
-import { API_BASE_URL } from './apiConfig';
+import { apiRequest } from './services/apiClient';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const API_BASE = API_BASE_URL;
 
 export const unstable_settings = {
   initialRouteName: 'edit_profile',
@@ -73,7 +70,10 @@ export default function EditProfileScreen() {
       }
       setLoadingProfile(true);
       try {
-        const response = await fetch(`${API_BASE}/api/profile/info?username=${encodeURIComponent(username)}`);
+        const encodedUsername = encodeURIComponent(username);
+        const response = await apiRequest(
+          `/api/users/${encodedUsername}/profile?username=${encodedUsername}`
+        );
         if (!response.ok) {
             throw new Error(`Failed to load profile: ${response.status}`);
         }
@@ -132,17 +132,13 @@ export default function EditProfileScreen() {
         type: newAvatarAsset.mimeType || `image/${fileType}`,
       } as any);
 
-      const token = await AsyncStorage.getItem('token');
-      const headers: HeadersInit = {};
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      const response = await fetch(`${API_BASE}/api/profile/${username}/photo`, {
-        method: 'POST',
-        headers: headers,
-        body: formData,
-      });
+      const response = await apiRequest(
+        `/api/users/${encodeURIComponent(username)}/profile/picture`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.text();
@@ -180,16 +176,11 @@ export default function EditProfileScreen() {
     }
     setSavingBio(true);
     try {
-      const token = await AsyncStorage.getItem('token');
-      const headers: HeadersInit = { 'Content-Type': 'application/json' };
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-      // Now only sending username and biography to /api/profile/edit
+      // Now only sending username and biography to the profile endpoint
       // photoUrl is handled by the dedicated upload endpoint.
-      await fetch(`${API_BASE}/api/profile/edit`, {
+      await apiRequest(`/api/users/${encodeURIComponent(username)}/profile`, {
         method: 'PUT',
-        headers: headers,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, biography: bio }),
       });
       Alert.alert('Success', 'Biography updated successfully!');
