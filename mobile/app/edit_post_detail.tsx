@@ -15,12 +15,9 @@ import {
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { AuthContext } from './_layout';
-import { API_BASE_URL } from './apiConfig';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { apiRequest } from './services/apiClient';
 import * as ImagePicker from 'expo-image-picker'; // Import expo-image-picker
 import { Ionicons } from '@expo/vector-icons'; // For the attachment icon
-
-const API_BASE = API_BASE_URL;
 
 type EditPostDetailRouteParams = {
   postId: number;
@@ -112,8 +109,6 @@ export default function EditPostDetailScreen() {
 
     try {
       setLoading(true);
-      const token = await AsyncStorage.getItem('token');
-
       const formData = new FormData();
       formData.append('content', content.trim());
       formData.append('username', username);
@@ -147,14 +142,8 @@ export default function EditPostDetailScreen() {
       }
       // If newImage is null AND initialPhotoUrl was null, no 'photoFile' is appended.
 
-      const headers: HeadersInit = {};
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      const res = await fetch(`${API_BASE}/api/posts/edit/${postId}`, {
+      const res = await apiRequest(`/api/posts/${postId}`, {
         method: 'PUT',
-        headers: headers,
         body: formData,
       });
 

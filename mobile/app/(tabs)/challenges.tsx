@@ -12,9 +12,7 @@ import {
 } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { AuthContext } from '../_layout';
-import { API_BASE_URL } from '../apiConfig';
-
-const API_BASE = API_BASE_URL;
+import { apiRequest } from '../services/apiClient';
 const ADMIN_TYPE_PLACEHOLDER = 'admin';
 
 type Challenge = {
@@ -69,7 +67,12 @@ export default function ChallengesScreen() {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`${API_BASE}/api/challenges?username=${username}`);
+      if (!username) {
+        setChallenges([]);
+        setLoading(false);
+        return;
+      }
+      const res = await apiRequest(`/api/challenges/${encodeURIComponent(username)}`);
       if (!res.ok) throw new Error(`Status ${res.status}`);
       const data: Challenge[] = await res.json();
       setChallenges(data);
@@ -90,18 +93,25 @@ export default function ChallengesScreen() {
       )
     );
     try {
-      const url = attend
-        ? `${API_BASE}/api/challenges/attend`
-        : `${API_BASE}/api/challenges/leave/${username}/${challengeId}`;
-      const options = attend
-        ? {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, challengeId }),
+      if (!username) {
+        throw new Error('Username is required to manage challenge attendance');
+      }
+      if (attend) {
+        const res = await apiRequest(`/api/challenges/${challengeId}/attendees`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username }),
+        });
+        if (!res.ok) throw new Error(`Status ${res.status}`);
+      } else {
+        const res = await apiRequest(
+          `/api/challenges/${challengeId}/attendees/${encodeURIComponent(username)}`,
+          {
+            method: 'DELETE',
           }
-        : { method: 'DELETE' };
-      const res = await fetch(url, options);
-      if (!res.ok) throw new Error(`Status ${res.status}`);
+        );
+        if (!res.ok) throw new Error(`Status ${res.status}`);
+      }
     } catch (err) {
       console.error(err);
       setError('Action failed');
@@ -117,7 +127,7 @@ export default function ChallengesScreen() {
     setLbLoading(true);
     setLbError('');
     try {
-      const res = await fetch(`${API_BASE}/api/challenges/leaderboard?id=${challengeId}`);
+      const res = await apiRequest(`/api/challenges/${challengeId}/leaderboard`);
       if (!res.ok) throw new Error(`Status ${res.status}`);
       const data: LeaderboardEntry[] = await res.json();
       data.sort((a, b) => b.remainingAmount - a.remainingAmount);

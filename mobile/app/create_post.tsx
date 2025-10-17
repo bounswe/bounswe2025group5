@@ -15,12 +15,12 @@ import {
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from './_layout';
-import { API_BASE_URL } from './apiConfig';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { apiRequest, getAccessToken } from './services/apiClient';
+import { apiUrl } from './apiConfig';
 import * as ImagePicker from 'expo-image-picker'; 
 import { Ionicons } from '@expo/vector-icons'; 
+import * as FileSystem from 'expo-file-system';
 
-const API_BASE = API_BASE_URL;
 
 export const unstable_settings = {
   initialRouteName: 'create_post',
@@ -79,77 +79,75 @@ export default function CreatePostScreen() {
 
 
   const handleCreatePost = async () => {
-    if (!content.trim() && !image) { // Require content or an image
-      Alert.alert('Error', 'Please write something or select an image before posting.');
-      return;
-    }
-    if (!username) {
-      Alert.alert('Error', 'User not identified. Cannot create post.');
-      return;
-    }
+  if (!content.trim() && !image) {
+    Alert.alert('Error', 'Please write something or select an image before posting.');
+    return;
+  }
+  if (!username) {
+    Alert.alert('Error', 'User not identified. Cannot create post.');
+    return;
+  }
 
-    try {
-      setLoading(true);
-      const token = await AsyncStorage.getItem('token');
+  setLoading(true);
+  try {
+    const fd = new FormData();
+    fd.append('content', content.trim());
+    fd.append('username', username);
 
-      const formData = new FormData();
-      formData.append('content', content.trim());
-      formData.append('username', username);
-
-      if (image) {
-
-        const uriParts = image.uri.split('.');
-        const fileType = uriParts[uriParts.length - 1];
-        const fileName = image.fileName || `photo.${fileType}`; // Use original filename or generate one
-
-        formData.append('photoFile', {
-          uri: image.uri,
-          name: fileName,
-          type: image.mimeType || `image/${fileType}`, // Mime type
-        } as any); // Cast to any because TS definition for FormDataValue might be strict
-      }
-
-
-      const headers: HeadersInit = {};
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      const res = await fetch(`${API_BASE}/api/posts/create`, {
-        method: 'POST',
-        headers: headers,
-        body: formData,
-      });
-
-      if (!res.ok) {
-        const errorData = await res.text();
-        console.error("Create post API error:", res.status, errorData);
-        let backendMessage = `Failed to create post (Status: ${res.status})`;
-        try {
-            const parsedError = JSON.parse(errorData);
-            backendMessage = parsedError.message || parsedError.error || backendMessage;
-        } catch(e) {
-            if(errorData && errorData.length < 150 && errorData.length > 0) {
-                 backendMessage += `: ${errorData.substring(0,150)}`;
-            }
+    if (image) {
+      // iOS: convert ph:// → file:// so fetch can read it
+      const normalizeUri = async (uri: string) => {
+        if (Platform.OS !== 'web' && uri.startsWith('ph://')) {
+          const dest = `${FileSystem.cacheDirectory}upload-${Date.now()}.jpg`;
+          await FileSystem.copyAsync({ from: uri, to: dest });
+          return dest;
         }
-        throw new Error(backendMessage);
+        return uri;
+      };
+
+      const type = image.mimeType ?? 'image/jpeg';
+      const ext = type.split('/')[1] || 'jpg';
+      const name = image.fileName ?? `photo-${Date.now()}.${ext}`;
+
+      if (Platform.OS === 'web') {
+        // Web: convert URI → File
+        const resp = await fetch(image.uri);
+        const blob = await resp.blob();
+        const file = new File([blob], name, { type });
+        fd.append('photoFile', file);
+      } else {
+        const uri = await normalizeUri(image.uri);
+        fd.append('photoFile', { uri, name, type } as any);
       }
-
-      const data = await res.json();
-      console.log('Post created:', data);
-
-      Alert.alert('Success', 'Your post was created successfully.');
-      setContent(''); 
-      setImage(null); 
-      navigation.goBack();
-    } catch (err) {
-      console.error('Create post error:', err);
-      Alert.alert('Error', err instanceof Error ? err.message : 'Failed to create post. Please try again.');
-    } finally {
-      setLoading(false);
     }
-  };
+
+    const token = await getAccessToken();
+
+    const res = await fetch(apiUrl('/api/posts'), {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: fd, // DO NOT set Content-Type manually
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Post failed (${res.status}): ${text.slice(0, 200)}`);
+    }
+
+    Alert.alert('Success', 'Your post was created successfully.');
+    setContent('');
+    setImage(null);
+    navigation.goBack();
+  } catch (e) {
+    console.error('Create post error:', e);
+    Alert.alert('Error', e instanceof Error ? e.message : 'Failed to create post.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <KeyboardAvoidingView
