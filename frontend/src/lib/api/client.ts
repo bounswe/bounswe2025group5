@@ -77,6 +77,11 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
 
   if (!response.ok) {
     if (response.status === 401) {
+      const method = (options.method || 'GET').toString().toUpperCase();
+      const isDeleteAccount = method === 'DELETE' && endpoint.startsWith('/api/users/');
+      if (isDeleteAccount) {
+        throw new Error('Incorrect password');
+      }
       clearTokens();
       window.location.href = '/login';
       throw new Error('Authentication required');

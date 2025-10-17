@@ -16,6 +16,7 @@
         "loginButton": "Login"
     },
     "profile": {
+        "edit": "Edit Profile", 
         "navbar": "Profile",
         "title": "Your Profile",
         "description": "Manage your profile information",
@@ -27,7 +28,8 @@
         "noPhoto": "No photo",
         "changePhoto": "Change Photo",
         "delete": "Delete Account",
-        "confirmDelete": "This will permanently delete your account. Continue?"
+        "confirmDelete": "This will permanently delete your account. Continue?",
+        "deleting": "Deleting..."
     },
     "main": {
         "navbar": "Main"

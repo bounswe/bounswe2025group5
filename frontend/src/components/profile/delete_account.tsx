@@ -9,6 +9,8 @@ export default function DeleteAccount() {
     const { t } = useTranslation();
     const [password, setPassword] = useState<string | null>(null);
     const [passwordOpen, setPasswordOpen] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [saving, setSaving] = useState(false);
 
     const storedUsername = useMemo(() => {
         try {
@@ -24,9 +26,18 @@ export default function DeleteAccount() {
     const handlePasswordSubmit = async () => {
         if (!password) return;
         try {
+            setSaving(true);
+            setError(null);
             await UsersApi.deleteAccount(storedUsername ?? "", password);
         } catch (e) {
-            console.error(e);
+            const msg = e instanceof Error ? e.message : String(e);
+            if (msg.toLowerCase().includes('incorrect password')) {
+                setError(t('profile.incorrectPassword', 'Incorrect password'));
+            } else {
+                setError(t('profile.deleteFailed', 'Delete failed'));
+            }
+        } finally {
+            setSaving(false);
         }
     };
     const onDeleteAccount = () => {
@@ -40,10 +51,14 @@ export default function DeleteAccount() {
                     {t('profile.delete')}
                 </Button>
             </PopoverTrigger>
-        <PopoverContent>
+        <PopoverContent className="w-96">
+            <p className="text-sm text-accent-foreground mb-4">{t('profile.confirmDelete', 'This will permanently delete your account. Continue?')}</p>
             <Input value={password ?? ""} onChange={handlePasswordChange} placeholder={t('profile.passwordPlaceholder', 'Enter your password')} />
-            <Button type="button" variant="destructive" onClick={handlePasswordSubmit}>
-                {t('profile.delete')}
+            {error && (
+                <div className="text-destructive text-sm mt-2">{error}</div>
+            )}
+            <Button type="button" variant="destructive" onClick={handlePasswordSubmit} disabled={saving} aria-busy={saving}>
+                {saving ? t('profile.deleting', 'Deleting...') : t('profile.delete')}
             </Button>
         </PopoverContent>
         </Popover>

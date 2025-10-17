@@ -18,6 +18,7 @@ export default function EditProfile({ username, initialBio, initialPhotoUrl, onB
     const [profileOpen, setProfileOpen] = useState(false);
     const [bio, setBio] = useState<string | null>(initialBio ?? null);
     const [photoUrl, setPhotoUrl] = useState<string | null>(initialPhotoUrl ?? null);
+    const [saving, setSaving] = useState(false);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const storedUsername = useMemo(() => username ?? (() => {
         try {
@@ -34,10 +35,14 @@ export default function EditProfile({ username, initialBio, initialPhotoUrl, onB
     const handleBioSubmit = async () => {
         if (bio == null) return;
         try {
+            setSaving(true);
             await UsersApi.updateProfile(storedUsername ?? "", bio);
             onBioSaved?.(bio);
         } catch (e) {
             console.error(e);
+        } finally {
+            setSaving(false);
+            setProfileOpen(false);
         }
     };
     const handlePhotoUrlChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,8 +71,16 @@ export default function EditProfile({ username, initialBio, initialPhotoUrl, onB
             <div className="flex flex-col items-center gap-4">
                 {/* Photo with hover edit overlay */}
                 <div
-                    className="relative group w-32 h-32 rounded-full overflow-hidden bg-muted border border-border cursor-pointer"
+                    className="relative group w-32 h-32 rounded-full overflow-hidden bg-muted border border-border cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring"
                     onClick={() => fileInputRef.current?.click()}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            fileInputRef.current?.click();
+                        }
+                    }}
+                    role="button"
+                    tabIndex={0}
                     aria-label={t('profile.changePhoto')}
                 >
                     {photoUrl ? (
@@ -97,8 +110,8 @@ export default function EditProfile({ username, initialBio, initialPhotoUrl, onB
 
                 {/* Actions */}
                 <div className="flex gap-2">
-                    <Button type="button" variant="default" onClick={handleBioSubmit}>
-                        {t('profile.save')}
+                    <Button type="button" variant="default" onClick={handleBioSubmit} disabled={saving} aria-busy={saving}>
+                        {saving ? t('profile.saving', 'Saving...') : t('profile.save')}
                     </Button>
                     <Button type="button" variant="outline" onClick={() => setProfileOpen(false)}>
                         {t('profile.cancel', 'Cancel')}
