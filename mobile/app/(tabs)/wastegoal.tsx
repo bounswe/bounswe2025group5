@@ -14,17 +14,16 @@ import {
   useColorScheme,
   Switch,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
-import { API_BASE_URL } from '../apiConfig';
+import { apiRequest } from '../services/apiClient';
 import { Picker } from '@react-native-picker/picker';
-
 import { useTranslation } from 'react-i18next';
 
 const API_BASE = `${API_BASE_URL}/api`;
+
 
 type WasteGoal = {
   goalId: number;
@@ -32,6 +31,7 @@ type WasteGoal = {
   amount: number;
   duration: number;
   unit: string;
+  restrictionAmountGrams: number;
   progress?: number;
   createdAt: string;
   creatorUsername?: string;
@@ -42,6 +42,32 @@ type WasteGoal = {
 
 type Navigation = {
   navigate: (screen: string, params?: any) => void;
+};
+
+const convertInputToGrams = (value: number, unit: string) => {
+  if (!Number.isFinite(value)) return 0;
+  switch (unit) {
+    case 'Kilograms':
+      return value * 1000;
+    case 'Grams':
+      return value;
+    default:
+      return value;
+  }
+};
+
+const convertGramsToDisplay = (grams: number) => {
+  const safeGrams = Number.isFinite(grams) ? grams : 0;
+  if (safeGrams >= 1000) {
+    return {
+      amount: parseFloat((safeGrams / 1000).toFixed(2)),
+      unit: 'Kilograms',
+    };
+  }
+  return {
+    amount: parseFloat(safeGrams.toFixed(2)),
+    unit: 'Grams',
+  };
 };
 
 export default function WasteGoalScreen() {
@@ -99,6 +125,7 @@ export default function WasteGoalScreen() {
   );
 
   const getGoals = async () => {
+
       if (!username || loading) return;
       setLoading(true);
       setError({ key: null, message: null });
@@ -130,6 +157,52 @@ export default function WasteGoalScreen() {
       } finally {
         setLoading(false);
       }
+
+    if (!username) return;
+    setLoading(true);
+    setError({ key: null, message: null });
+    try {
+      const encodedUsername = encodeURIComponent(username);
+      const response = await apiRequest(`/api/users/${encodedUsername}/waste-goals?size=50`);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to fetch waste goals: ${response.status} ${errorText}`);
+      }
+
+      const raw = await response.json();
+      const goalsData: any[] = Array.isArray(raw) ? raw : raw?.goals ?? [];
+
+      const mapped: WasteGoal[] = goalsData.map((goal: any) => {
+        const grams = goal.restrictionAmountGrams ?? 0;
+        const { amount, unit } = convertGramsToDisplay(grams);
+        return {
+          goalId: goal.goalId,
+          wasteType: goal.wasteType,
+          amount,
+          unit,
+          duration: goal.duration,
+          restrictionAmountGrams: grams,
+          progress: goal.progress ?? goal.percentOfProgress ?? 0,
+          createdAt: goal.createdAt,
+          creatorUsername: goal.creatorUsername,
+        };
+      });
+
+      setGoals(mapped);
+    } catch (err) {
+        console.error('Error fetching goals:', err);
+        if (err instanceof Error && err.message.startsWith('Server error:')) {
+          setError({ key: 'errorGoalFetchFailed', message: err.message });
+        } else if (err instanceof Error) {
+          setError({ key: null, message: err.message });
+        } else {
+          setError({ key: 'errorGoalFetchGeneric', message: null });
+        }
+      } finally {
+        setLoading(false);
+      }
+
   };
 
   const validateGoalInput = (): boolean => {
@@ -211,19 +284,21 @@ export default function WasteGoalScreen() {
     if (!validateGoalInput()) return;
     setLoading(true);
     try {
-      const token = await AsyncStorage.getItem('token');
-      const requestBody = {
-        username,
-        unit,
-        wasteType,
-        duration: parseInt(duration, 10),
-        amount: parseFloat(amount)
-      };
-      const response = await fetch(`${API_BASE}/goals/create`, {
+      const encodedUsername = encodeURIComponent(username);
+      const parsedAmount = parseFloat(amount);
+      const parsedDuration = parseInt(duration, 10);
+      const restrictionAmountGrams = convertInputToGrams(parsedAmount, unit);
+
+      const response = await apiRequest(`/api/users/${encodedUsername}/waste-goals`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : '' },
-        body: JSON.stringify(requestBody),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: wasteType,
+          duration: parsedDuration,
+          restrictionAmountGrams,
+        }),
       });
+
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`Failed to create waste goal: ${response.status} ${errorText}`);
@@ -248,18 +323,18 @@ export default function WasteGoalScreen() {
     if (!validateGoalInput()) return;
     setLoading(true);
     try {
-      const token = await AsyncStorage.getItem('token');
-      const requestBody = {
-        username,
-        unit,
-        wasteType,
-        duration: parseInt(duration, 10),
-        amount: parseFloat(amount)
-      };
-      const response = await fetch(`${API_BASE}/goals/edit/${editingGoal.goalId}`, {
+      const parsedAmount = parseFloat(amount);
+      const parsedDuration = parseInt(duration, 10);
+      const restrictionAmountGrams = convertInputToGrams(parsedAmount, unit);
+
+      const response = await apiRequest(`/api/waste-goals/${editingGoal.goalId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : '' },
-        body: JSON.stringify(requestBody),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: wasteType,
+          duration: parsedDuration,
+          restrictionAmountGrams,
+        }),
       });
       if (!response.ok) {
         const errorText = await response.text();
@@ -287,10 +362,8 @@ export default function WasteGoalScreen() {
     setLoading(true);
     setIsDeleteModalVisible(false);
     try {
-      const token = await AsyncStorage.getItem('token');
-      const response = await fetch(`${API_BASE}/goals/delete/${goalToDelete.goalId}`, {
+      const response = await apiRequest(`/api/waste-goals/${goalToDelete.goalId}`, {
         method: 'DELETE',
-        headers: { Authorization: token ? `Bearer ${token}` : '' },
       });
       if (!response.ok) {
         const errorText = await response.text();
@@ -312,7 +385,7 @@ export default function WasteGoalScreen() {
     setGoalFormError(null);
     setEditingGoal(goal);
     setWasteType(goal.wasteType);
-    setUnit(goal.unit);
+    setUnit(goal.unit || 'Grams');
     setDuration(goal.duration.toString());
     setAmount(goal.amount.toString());
     setModalVisible(true);

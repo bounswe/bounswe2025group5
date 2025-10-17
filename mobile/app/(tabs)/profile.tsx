@@ -15,16 +15,9 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
-import { API_BASE_URL } from '../apiConfig';
+import { apiRequest, clearSession } from '../services/apiClient';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useTranslation } from 'react-i18next';
-
-const API_BASE = API_BASE_URL;
-
-type ErrorState = {
-  key: string | null;
-  message: string | null;
-};
 
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
@@ -63,29 +56,35 @@ export default function ProfileScreen() {
 
       (async () => {
         try {
+
           setLoading(true);
           setError({ key: null, message: null });
-          const res = await fetch(`${API_BASE}/api/profile/info?username=${username}`);
+          const encodedUsername = encodeURIComponent(username);
+          const profileUrl = `/api/users/${encodedUsername}/profile?username=${encodedUsername}`;
+
+          let res = await apiRequest(profileUrl);
+
           if (res.status === 404) {
-            await fetch(`${API_BASE}/api/profile/create`, {
-              method: 'POST',
+            await apiRequest(`/api/users/${encodedUsername}/profile`, {
+              method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ username, biography: '', photoUrl: '' }),
+              body: JSON.stringify({ username, biography: '' }),
             });
-            const retryRes = await fetch(`${API_BASE}/api/profile/info?username=${username}`);
-            const retryData = await retryRes.json();
-            setBio(retryData.biography ?? '');
-            setAvatarUri(retryData.photoUrl ?? '');
-          } else if (!res.ok) {
-            throw new Error('Server error');
-          } else {
-            const data = await res.json();
-            setBio(data.biography ?? '');
-            setAvatarUri(data.photoUrl ?? '');
+            res = await apiRequest(profileUrl);
           }
+
+          if (!res.ok) {
+            throw new Error(`Failed to fetch profile: ${res.status}`);
+          }
+
+          const data = await res.json();
+          setBio(data.biography ?? '');
+          setAvatarUri(data.photoUrl ?? '');
         } catch (err) {
           console.error('Failed to fetch or create profile:', err);
+          console.error('Failed to fetch or initialize profile:', err);
           setError({ key: 'errorCouldNotFetchProfile', message: null });
+
         } finally {
           setLoading(false);
         }
@@ -94,7 +93,8 @@ export default function ProfileScreen() {
   );
 
   const handleLogout = async () => {
-    await AsyncStorage.multiRemove(['username', 'password', 'email', 'token']);
+    await clearSession();
+    await AsyncStorage.multiRemove(['password', 'email']);
     setUserType(null);
     setUsername('');
     navigation.reset({ index: 0, routes: [{ name: 'index' }] });

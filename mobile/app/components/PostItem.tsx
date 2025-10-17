@@ -15,10 +15,9 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
 import CommentItemDisplay from './CommentItemDisplay';
-import { API_BASE_URL } from '../apiConfig';
-import { useTranslation } from 'react-i18next';
 
-const API_BASE = API_BASE_URL;
+import { useTranslation } from 'react-i18next';
+import { apiUrl } from '../apiConfig';
 
 interface CommentData {
   commentId: number;
@@ -125,40 +124,25 @@ function PostItem({
     onSavePress(post.id, post.savedByUser);
   };
 
-  const canPostComment =
-    userType !== 'guest' && !!loggedInUsername && !editingCommentDetailsForPost;
-
-  return (
-    <View testID={`post-${post.id}`} style={[styles.postContainer, { backgroundColor: cardBackgroundColor }]}>
-      {/* Title / Image / Content */}
-      <ThemedText type="title" style={styles.postTitle}>
-        {post.title}
-      </ThemedText>
-
-      {post.photoUrl && (
-        <Image
-          source={{
-            uri: post.photoUrl.startsWith('http') ? post.photoUrl : `${API_BASE}${post.photoUrl}`,
+    
+  
+    const canPostComment = userType !== 'guest' && loggedInUsername && !editingCommentDetailsForPost; // Disable new comment if editing one in this post
+  
+    return (
+      <View testID={`post-${post.id}`} style={[styles.postContainer, { backgroundColor: cardBackgroundColor }]}>
+        {/* ... Post title, image, content, footer (likes/comment count) ... no changes here */}
+        <ThemedText type="title" style={styles.postTitle}>
+          {post.title}
+        </ThemedText>
+        {post.photoUrl && (
+          <Image
+                    source={{
+            uri: post.photoUrl.startsWith('http')
+              ? post.photoUrl
+              : apiUrl(post.photoUrl),
           }}
-          style={styles.postImage}
-          onError={(e) =>
-            console.warn('Explore: Image failed to load:', e.nativeEvent.error, post.photoUrl)
-          }
-        />
-      )}
-
-      <ThemedText style={[styles.postContent, { color: textColor }]} numberOfLines={post.photoUrl ? 2 : 5}>
-        {post.content}
-      </ThemedText>
-
-      {/* Footer actions */}
-      <View style={styles.postFooter}>
-        <TouchableOpacity testID="like-toggle" onPress={handleLike} style={styles.footerAction}>
-          <Ionicons
-            testID={`icon-${post.likedByUser ? 'heart' : 'heart-outline'}`}
-            name={post.likedByUser ? 'heart' : 'heart-outline'}
-            size={20}
-            color={post.likedByUser ? 'red' : iconColor}
+            style={styles.postImage}
+            onError={(e) => console.warn('Explore: Image failed to load:', e.nativeEvent.error, post.photoUrl)}
           />
           <ThemedText style={[styles.footerText, { color: post.likedByUser ? 'red' : iconColor, marginLeft: 4 }]}>
             {post.likes}

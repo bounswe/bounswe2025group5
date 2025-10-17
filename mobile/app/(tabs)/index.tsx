@@ -17,6 +17,11 @@ import { ThemedText } from '@/components/ThemedText';
 import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
 import { API_BASE_URL } from '../apiConfig';
+import {
+  apiRequest,
+  login as loginRequest,
+  register as registerRequest,
+} from '../services/apiClient';
 import { ScrollView } from 'react-native';
 import CheckBox from '../components/CheckBox';
 import { useTranslation } from 'react-i18next';
@@ -25,8 +30,7 @@ const MOCK_API = true; // use mock data instead of real API calls.
 // user
 // password123
 
-const API_BASE = `${API_BASE_URL}/api/auth`;
-
+const KG_SAVED     = 57492;
 
 type Navigation = {
   navigate: (screen: string, params?: any) => void;
@@ -74,18 +78,18 @@ export default function HomeScreen() {
         return;
       }
       try {
-        const token = await AsyncStorage.getItem('token');
-        const res = await fetch(`${API_BASE_URL}/api/users/count`, {
+        const res = await apiRequest('/api/users/count', {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
+          auth: false,
         });
         const body = await res.json().catch(() => ({}));
-        if (res.ok) {
-          setUsersCount(body.userCount ?? 0);
+
+        if (!res.ok) {
+          return console.warn(body.message || 'Could not fetch user count');
         }
+
+        const userCount = body.userCount ?? 0;
+        setUsersCount(userCount);
       } catch (err) {
         console.warn('Network error while fetching user count', err);
       }
@@ -103,7 +107,9 @@ export default function HomeScreen() {
         return;
       }
       try {
-        const res = await fetch(`${API_BASE_URL}/api/posts/mostLikedPosts?size=4`);
+        const res = await apiRequest('/api/posts/mostLiked?size=4', {
+          auth: false,
+        });
         if (!res.ok) throw new Error('Failed to fetch trending posts');
         const data = (await res.json()) as TrendingPost[];
         setTrendingPosts(data);
@@ -171,23 +177,19 @@ export default function HomeScreen() {
     }
 
     try {
-      const res = await fetch(`${API_BASE}/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ emailOrUsername, password: pwd }),
-      });
-
-      if (!res.ok) {
-        return showError("errorInvalidCredentials");
-      }
-
-      const { token, username } = (await res.json()) as { token: string; username: string; };
-      await AsyncStorage.multiSet([['token', token], ['username', username]]);
+      const result = await loginRequest(emailOrUsername, pwd);
       setUserType('user');
-      setUsername(username);
+      setUsername(result.username);
       setLoggedIn(true);
+      navigation.navigate('explore');
     } catch (error: any) {
-      showError('Network error, please try again');
+      console.error('Network/login exception:', error);
+
+      const message =
+        error instanceof Error && error.message
+          ? error.message
+          : 'Invalid username or password!';
+      showError(message);
     }
   };
 
@@ -211,23 +213,16 @@ export default function HomeScreen() {
     }
 
     try {
-      const res = await fetch(`${API_BASE}/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: regUsername, email: regEmail, password: regPass }),
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        return showError(err.message || 'Registration failed');
-      }
-      const { username: u } = (await res.json()) as { username: string; };
-      await AsyncStorage.setItem('username', u);
+      await registerRequest(regUsername, regEmail, regPass);
       setIsRegistering(false);
-      setUsernameInput(u);
+      setUsernameInput(regUsername);
       setKvkkChecked(false);
-      showError('registrationSuccess');
-    } catch {
-      showError('Network error, please try again');
+      showError('Registered! Please log in.');
+    } catch (err) {
+      console.error('Registration exception:', err);
+      showError(
+        err instanceof Error ? err.message : 'Registration failed'
+      );
     }
   };
 

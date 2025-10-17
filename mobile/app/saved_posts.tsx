@@ -14,11 +14,11 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { AuthContext } from './_layout';
-import { API_BASE_URL } from './apiConfig';
-import { useTranslation } from 'react-i18next';
 
-const API_BASE = API_BASE_URL;
+import { useTranslation } from 'react-i18next';
+import { AuthContext } from './_layout'; // Adjust path if necessary
+import { apiUrl } from './apiConfig';
+import { apiRequest } from './services/apiClient';
 
 // Types
 type PostData = {
@@ -138,8 +138,61 @@ export default function SavedPostsScreen() {
       return;
     }
 
-    if (!refreshing) setLoading(true);
-    setError({ key: null, message: null });
+        // Indicate loading only if not refreshing
+        if (!refreshing) {
+            setLoading(true);
+        }
+        setError({ key: null, message: null });
+
+        try {
+            // --- API Call to GET saved posts ---
+            // Remember to encode username for URL safety
+            const response = await apiRequest(`/api/users/${encodeURIComponent(username)}/saved-posts`);
+
+            if (!response.ok) {
+                if (response.status === 404) { // Handle no saved posts gracefully
+                    setSavedPosts([]);
+                } else {
+                    throw new Error(`Failed to fetch saved posts. Status: ${response.status}`);
+                }
+            } else {
+                const data: PostData[] = await response.json();
+                setSavedPosts(data);
+            }
+            // --- Sync local state with fetch results ---
+            setLocallyUnsavedIds(new Set()); // Reset local unsaved status on successful fetch/refresh
+
+        } catch (err: any) {
+            console.error("Error fetching saved posts:", err);
+            setError(err.message || "An unknown error occurred.");
+            // Keep potentially stale 'savedPosts' data visible on error? Or clear? Current: Keep.
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
+        }
+    }, [username, refreshing]); // Dependencies
+
+    // Effect to fetch data on focus or when username changes
+    useFocusEffect(
+        useCallback(() => {
+            console.log("SavedPostsScreen Focus: Username =", username);
+            // Wait for AuthContext to provide definitive status (null or string)
+            if (username === undefined) {
+                console.log("SavedPostsScreen Focus: Waiting for Auth Context...");
+                setLoading(true); // Show loader while waiting
+                setError(null);
+            } else if (username) {
+                console.log("SavedPostsScreen Focus: Username present, fetching data.");
+                fetchSavedPosts(); // Fetch data only when logged in
+            } else { // username is null or empty string
+                console.log("SavedPostsScreen Focus: Username null/empty, setting Login Required error.");
+                setError("Login Required: Cannot fetch saved posts.");
+                setSavedPosts([]);
+                setLocallyUnsavedIds(new Set());
+                setLoading(false);
+            }
+        }, [username, fetchSavedPosts]) // Dependencies: username, fetchSavedPosts
+    );
 
     try {
       const response = await fetch(`${API_BASE}/api/posts/getSavedPosts?username=${encodeURIComponent(username)}`);
@@ -148,25 +201,117 @@ export default function SavedPostsScreen() {
         if (response.status === 404) {
           setSavedPosts([]);
         } else {
-          const txt = await response.text().catch(() => '');
-          throw new Error(`Server error: ${response.status} ${txt}`);
+            Alert.alert("Login Required", "Please log in to view saved posts.");
         }
-      } else {
-        const data: PostData[] = await response.json();
-        setSavedPosts(Array.isArray(data) ? data : []);
-      }
+    };
 
-      setLocallyUnsavedIds(new Set());
-    } catch (err) {
-      console.error('Error fetching saved posts:', err);
-      const s: ErrorState =
-        err instanceof Error && /Server error:\s*\d+/.test(err.message)
-          ? { key: 'errorSavedFetchFailed', message: err.message }
-          : { key: 'errorSavedFetchGeneric', message: err instanceof Error ? err.message : null };
-      setError(s);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
+    // --- Handle UNsaving a Post ---
+    const handleUnsavePost = async (postId: number) => {
+        if (!username) { Alert.alert("Login Required"); return; }
+
+        // 1. Optimistic UI Update (Mark as locally unsaved)
+        setLocallyUnsavedIds(prevIds => {
+            const newIds = new Set(prevIds);
+            newIds.add(postId);
+            console.log(`Optimistic UI: Marking Post ${postId} as locally unsaved.`);
+            return newIds;
+        });
+
+        try {
+            // 2. API Call (DELETE)
+            const response = await apiRequest(`/api/posts/${postId}/saves/${encodeURIComponent(username)}`, {
+                method: 'DELETE',
+            });
+            const responseBodyText = await response.text(); // Get text for potential validation/error
+            console.log(`API Response: Status ${response.status}`);
+
+            if (!response.ok) { throw new Error(`Failed to unsave post. Status: ${response.status}`); }
+
+            // 3. Validate Success Response (Optional but Recommended)
+            // Expecting { "deleted": true } based on previous info
+            try {
+                const result = JSON.parse(responseBodyText);
+                if (!result || result.deleted !== true) {
+                   throw new Error("Backend unsave confirmation format mismatch.");
+                }
+                console.log(`API Success: Post ${postId} unsaved.`);
+            } catch(e: any) {
+                 throw new Error(`Failed to parse unsave confirmation or format mismatch: ${e.message}`);
+            }
+            // If validation passes, do nothing - local state is already updated
+
+        } catch (err: any) {
+            // 4. Revert UI on Error
+            console.error("Error during unsave:", err);
+            Alert.alert("Error", err.message || "Could not unsave post.");
+            setLocallyUnsavedIds(prevIds => {
+                const newIds = new Set(prevIds);
+                newIds.delete(postId);
+                console.log(`Reverting UI: Removing Post ${postId} from locally unsaved.`);
+                return newIds;
+            });
+        }
+    };
+
+    // --- Handle SAVING a Post (that was locally unsaved) ---
+    const handleSavePost = async (postId: number) => {
+         if (!username) { Alert.alert("Login Required"); return; }
+
+         // 1. Optimistic UI Update (Mark as locally saved)
+         setLocallyUnsavedIds(prevIds => {
+            const newIds = new Set(prevIds);
+            newIds.delete(postId);
+            console.log(`Optimistic UI: Marking Post ${postId} as locally saved (removing from unsaved).`);
+            return newIds;
+        });
+
+         try {
+            // 2. API Call (POST)
+            const response = await apiRequest(`/api/posts/${postId}/save`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username }),
+            });
+            const responseBodyText = await response.text();
+            console.log(`API Response: Status ${response.status}`);
+
+            if (!response.ok) { throw new Error(`Failed to save post. Status: ${response.status}`); }
+
+            // 3. Validate Success Response (Optional but Recommended)
+            // Expecting { "username": "...", "postId": ... } based on previous info
+             try {
+                const result = JSON.parse(responseBodyText);
+                if (!result || result.username !== username || result.postId !== postId) {
+                   throw new Error("Backend save confirmation format mismatch.");
+                }
+                console.log(`API Success: Post ${postId} saved.`);
+            } catch(e: any) {
+                 throw new Error(`Failed to parse save confirmation or format mismatch: ${e.message}`);
+            }
+            // If validation passes, do nothing - local state is already updated
+
+         } catch (err: any) {
+            // 4. Revert UI on Error
+             console.error("Error during save:", err);
+             Alert.alert("Error", err.message || "Could not save post.");
+             setLocallyUnsavedIds(prevIds => {
+                const newIds = new Set(prevIds);
+                newIds.add(postId); // Add back to unsaved list
+                console.log(`Reverting UI: Re-adding Post ${postId} to locally unsaved.`);
+                return newIds;
+            });
+         }
+    };
+
+    // --- Render Logic ---
+
+    // 1. Initial Auth Loading State
+    if (username === undefined) {
+        return (
+            <View style={[styles.loadingContainer, { backgroundColor: screenBackgroundColor }]}>
+                <ActivityIndicator size="large" color={activityIndicatorColor} />
+            </View>
+        );
     }
   }, [username, refreshing]);
 

@@ -15,13 +15,13 @@ import {
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from './_layout';
-import { API_BASE_URL } from './apiConfig';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as ImagePicker from 'expo-image-picker';
-import { Ionicons } from '@expo/vector-icons';
-import { useTranslation } from 'react-i18next';
 
-const API_BASE = API_BASE_URL;
+import { apiRequest, getAccessToken } from './services/apiClient';
+import { apiUrl } from './apiConfig';
+import * as ImagePicker from 'expo-image-picker'; 
+import { Ionicons } from '@expo/vector-icons'; 
+import * as FileSystem from 'expo-file-system';
+import { useTranslation } from 'react-i18next';
 
 export const unstable_settings = {
   initialRouteName: 'create_post',
@@ -116,35 +116,50 @@ export default function CreatePostScreen() {
       setLoading(true);
       setErrState({ key: null, message: null, resolved: null });
 
-      const token = await AsyncStorage.getItem('token');
+  setLoading(true);
+  try {
+    const fd = new FormData();
+    fd.append('content', content.trim());
+    fd.append('username', username);
+    if (image) {
+      // iOS: convert ph:// → file:// so fetch can read it
+      const normalizeUri = async (uri: string) => {
+        if (Platform.OS !== 'web' && uri.startsWith('ph://')) {
+          const dest = `${FileSystem.cacheDirectory}upload-${Date.now()}.jpg`;
+          await FileSystem.copyAsync({ from: uri, to: dest });
+          return dest;
+        }
+        return uri;
+      };
 
-      const formData = new FormData();
-      formData.append('content', content.trim());
-      formData.append('username', username);
+      const type = image.mimeType ?? 'image/jpeg';
+      const ext = type.split('/')[1] || 'jpg';
+      const name = image.fileName ?? `photo-${Date.now()}.${ext}`;
 
-      if (image) {
-        const uriParts = image.uri.split('.');
-        const fileType = uriParts[uriParts.length - 1] || 'jpg';
-        const fileName = (image as any).fileName || `photo.${fileType}`;
-
-        formData.append('photoFile', {
-          uri: image.uri,
-          name: fileName,
-          type: image.mimeType || `image/${fileType}`,
-        } as any);
+      if (Platform.OS === 'web') {
+        // Web: convert URI → File
+        const resp = await fetch(image.uri);
+        const blob = await resp.blob();
+        const file = new File([blob], name, { type });
+        fd.append('photoFile', file);
+      } else {
+        const uri = await normalizeUri(image.uri);
+        fd.append('photoFile', { uri, name, type } as any);
       }
+    }
 
-      const headers: HeadersInit = {};
-      if (token) headers['Authorization'] = `Bearer ${token}`;
+    const token = await getAccessToken();
 
-      console.log('[create_post] POST', `${API_BASE}/api/posts/create`);
-      const res = await fetch(`${API_BASE}/api/posts/create`, {
-        method: 'POST',
-        headers,
-        body: formData,
-      });
+    const res = await fetch(apiUrl('/api/posts'), {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: fd, // DO NOT set Content-Type manually
+    });
 
-      if (!res.ok) {
+    if (!res.ok) {
         const errorText = await res.text().catch(() => '');
         let raw = `Server error: ${res.status}`;
         try {
@@ -186,7 +201,18 @@ export default function CreatePostScreen() {
     } finally {
       setLoading(false);
     }
-  };
+
+    Alert.alert('Success', 'Your post was created successfully.');
+    setContent('');
+    setImage(null);
+    navigation.goBack();
+  } catch (e) {
+    console.error('Create post error:', e);
+    Alert.alert('Error', e instanceof Error ? e.message : 'Failed to create post.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const isDisabled = loading || (!content.trim() && !image);
 

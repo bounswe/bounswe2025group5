@@ -8,8 +8,10 @@ import {
 } from 'react-native';
 import { AuthContext } from './_layout';
 import { ThemedText } from '@/components/ThemedText';
-import { apiUrl } from './apiConfig';
+
 import { useTranslation } from 'react-i18next';
+import { apiRequest } from './services/apiClient';
+
 
 // Badge interface
 interface Badge {
@@ -44,10 +46,13 @@ export default function BadgesScreen() {
 
       try {
         setLoading(true);
+
         setError({ key: null, message: null });
-
-        const response = await fetch(apiUrl(`/api/profile/badges?username=${username}`));
-
+        const encodedUsername = encodeURIComponent(username);
+        const response = await apiRequest(
+          `/api/users/${encodedUsername}/badges?username=${encodedUsername}`
+        );
+        
         if (!response.ok) {
           // server responded but not OK → show a translated, generic failure with status
           const text = await response.text().catch(() => '');

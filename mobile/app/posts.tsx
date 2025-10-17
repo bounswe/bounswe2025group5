@@ -16,10 +16,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from './_layout'; 
-import { API_BASE_URL } from './apiConfig';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const API_BASE = API_BASE_URL;
+import { apiUrl } from './apiConfig';
+import { apiRequest } from './services/apiClient';
 
 type PostData = {
   postId: number;
@@ -50,7 +48,7 @@ function UserPostCard({
           source={{
             uri: post.photoUrl.startsWith('http')
               ? post.photoUrl
-              : `${API_BASE}${post.photoUrl}`, 
+              : apiUrl(post.photoUrl), 
           }}
           style={styles.postImage}
           onError={(e) => console.warn('User Post: Image failed to load:', e.nativeEvent.error, post.photoUrl)}
@@ -118,7 +116,7 @@ export default function MyPostsScreen() {
     }
     setError('');
     try {
-      const response = await fetch(`${API_BASE}/api/posts/getPostsForUser?username=${encodeURIComponent(username)}`); 
+      const response = await apiRequest(`/api/users/${encodeURIComponent(username)}/posts`);
       
       if (!response.ok) {
         const errorText = await response.text();
@@ -170,14 +168,8 @@ export default function MyPostsScreen() {
         { text: "Cancel", style: "cancel" },
         { text: "Delete", style: "destructive", onPress: async () => {
           try {
-            const token = await AsyncStorage.getItem('token');
-            const headers: HeadersInit = {};
-            if (token) {
-                headers['Authorization'] = `Bearer ${token}`;
-            }
-            const response = await fetch(`${API_BASE}/api/posts/delete/${postId}`, {
+            const response = await apiRequest(`/api/posts/${postId}`, {
               method: 'DELETE',
-              headers: headers,
             });
             if (!response.ok) {
                  const errorBody = await response.text(); 

@@ -63,7 +63,12 @@ jest.mock('../../components/CheckBox', () => {
 
 // --- Mock fetch for user count & trending posts ---
 global.fetch = jest.fn((url: string | URL | Request) => {
-  const u = url.toString();
+  const u =
+    typeof url === 'string'
+      ? url
+      : url instanceof URL
+        ? url.toString()
+        : (url as Request).url ?? '';
   if (u.includes('/api/users/count')) {
     return Promise.resolve({
       ok: true,
@@ -71,7 +76,7 @@ global.fetch = jest.fn((url: string | URL | Request) => {
       json: () => Promise.resolve({ userCount: 55 }),
     });
   }
-  if (u.includes('/api/posts/mostLikedPosts')) {
+  if (u.includes('/api/posts/mostLiked')) {
     return Promise.resolve({
       ok: true,
       status: 200,

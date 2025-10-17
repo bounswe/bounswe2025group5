@@ -14,13 +14,16 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from './_layout';
-import { API_BASE_URL } from './apiConfig';
+import { apiRequest, getAccessToken} from './services/apiClient';
+import { apiUrl } from './apiConfig';
+
+import * as FileSystem from 'expo-file-system';
+
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
 
-const API_BASE = API_BASE_URL;
 
 export const unstable_settings = {
   initialRouteName: 'edit_profile',
@@ -89,7 +92,10 @@ export default function EditProfileScreen() {
       setLoadingProfile(true);
       setErrState({ key: null, message: null, resolved: null });
       try {
-        const response = await fetch(`${API_BASE}/api/profile/info?username=${encodeURIComponent(username)}`);
+        const encodedUsername = encodeURIComponent(username);
+        const response = await apiRequest(
+          `/api/users/${encodedUsername}/profile?username=${encodedUsername}`
+        );
         if (!response.ok) {
           const txt = await response.text().catch(() => '');
           throw new Error(`Server error: ${response.status} ${txt}`);
@@ -132,58 +138,83 @@ export default function EditProfileScreen() {
   };
 
   const handleUploadProfilePhoto = async () => {
-    if (!newAvatarAsset) {
-      Alert.alert(t('noNewPhoto'), t('selectPhotoFirst'));
-      return;
-    }
-    if (!username) {
+  if (!newAvatarAsset) {
+    Alert.alert(t('noNewPhoto'), t('selectPhotoFirst'));
+    return;
+  }
+  if (!username) {
       const s = { key: 'errorUserNotIdentified', message: null };
       setErrState({ ...s, resolved: resolveErrorText(s) });
       alertError(s);
       return;
     }
 
-    setUploadingPhoto(true);
-    setErrState({ key: null, message: null, resolved: null });
-    try {
-      const formData = new FormData();
-      const uriParts = newAvatarAsset.uri.split('.');
-      const fileType = uriParts[uriParts.length - 1] || 'jpg';
-      const fileName = (newAvatarAsset as any).fileName || `avatar-${username}.${fileType}`;
+  setUploadingPhoto(true);
+  setErrState({ key: null, message: null, resolved: null });
+  try {
+    const asset = newAvatarAsset;
 
-      formData.append('file', {
-        uri: newAvatarAsset.uri,
-        name: fileName,
-        type: newAvatarAsset.mimeType || `image/${fileType}`,
-      } as any);
+    // iOS fix: convert ph:// to file:// so RN/fetch can read it
+    const normalizeNativeUri = async (uri: string) => {
+      if (Platform.OS !== 'web' && uri.startsWith('ph://')) {
+        const dest = `${FileSystem.cacheDirectory}upload-${Date.now()}.jpg`;
+        await FileSystem.copyAsync({ from: uri, to: dest });
+        return dest;
+      }
+      return uri;
+    };
 
-      const token = await AsyncStorage.getItem('token');
-      const headers: HeadersInit = {};
-      if (token) headers['Authorization'] = `Bearer ${token}`;
+    const guessExt = (mime?: string) => (mime?.split('/')[1] || 'jpg');
+    const type = asset.mimeType ?? 'image/jpeg';
+    const defaultName = `avatar-${username}.${guessExt(type)}`;
 
-      const response = await fetch(`${API_BASE}/api/profile/${encodeURIComponent(username)}/photo`, {
+    const fd = new FormData();
+
+    if (Platform.OS === 'web') {
+      // Web: turn the ImagePicker URI (blob/object URL) into a real File
+      const resp = await fetch(asset.uri);
+      const blob = await resp.blob();
+      const webType = blob.type || type;
+      const webName = asset.fileName ?? defaultName;
+      const file = new File([blob], webName, { type: webType });
+      fd.append('file', file); 
+    } else {
+      // iOS/Android: append RN-style file descriptor
+      const uri = await normalizeNativeUri(asset.uri);
+      const name = asset.fileName ?? defaultName;
+      fd.append('file', { uri, name, type } as any);
+    }
+
+    const token = await getAccessToken();
+    const res = await fetch(
+      apiUrl(`/api/users/${encodeURIComponent(username)}/profile/picture`),
+      {
         method: 'POST',
-        headers,
-        body: formData,
-      });
+        headers: {
+          Accept: 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: fd,
+      }
+    );
 
-      if (!response.ok) {
-        const errorData = await response.text().catch(() => '');
-        let raw = `Server error: ${response.status}`;
+    if (!res.ok) {
+        const errorData = await res.text().catch(() => '');
+        let raw = `Server error: ${res.status}`;
         try {
           const parsed = JSON.parse(errorData);
           if (parsed?.message || parsed?.error) {
-            raw = `Server error: ${response.status} ${parsed.message || parsed.error}`;
+            raw = `Server error: ${res.status} ${parsed.message || parsed.error}`;
           } else if (errorData) {
-            raw = `Server error: ${response.status} ${errorData}`;
+            raw = `Server error: ${res.status} ${errorData}`;
           }
         } catch {
-          if (errorData) raw = `Server error: ${response.status} ${errorData}`;
+          if (errorData) raw = `Server error: ${res.status} ${errorData}`;
         }
         throw new Error(raw);
       }
 
-      const updatedProfileInfo = await response.json().catch(() => ({}));
+      const updatedProfileInfo = await res.json().catch(() => ({}));
       if (updatedProfileInfo && updatedProfileInfo.photoUrl) {
         setAvatarDisplayUrl(updatedProfileInfo.photoUrl);
       }
@@ -199,8 +230,20 @@ export default function EditProfileScreen() {
       alertError(s);
     } finally {
       setUploadingPhoto(false);
+
     }
-  };
+
+    const updated = await res.json();
+    if (updated?.photoUrl) setAvatarDisplayUrl(updated.photoUrl);
+    setNewAvatarAsset(null);
+    Alert.alert('Success', 'Profile photo uploaded successfully!');
+  } catch (e) {
+    console.error('Photo upload error:', e);
+    Alert.alert('Error', e instanceof Error ? e.message : 'Upload failed');
+  } finally {
+    setUploadingPhoto(false);
+  }
+};
 
   const onSaveBio = async () => {
     if (!username) {
@@ -212,33 +255,15 @@ export default function EditProfileScreen() {
     setSavingBio(true);
     setErrState({ key: null, message: null, resolved: null });
     try {
-      const token = await AsyncStorage.getItem('token');
-      const headers: HeadersInit = { 'Content-Type': 'application/json' };
-      if (token) headers['Authorization'] = `Bearer ${token}`;
 
-      const response = await fetch(`${API_BASE}/api/profile/edit`, {
+      await apiRequest(`/api/users/${encodeURIComponent(username)}/profile`, {
         method: 'PUT',
-        headers,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, biography: bio }),
       });
+      Alert.alert(t'success', t('successBioUpdated'));
+      // navigation.goBack(); // if on, go back after only bio save
 
-      if (!response.ok) {
-        const errorText = await response.text().catch(() => '');
-        let raw = `Server error: ${response.status}`;
-        try {
-          const parsed = JSON.parse(errorText);
-          if (parsed?.message || parsed?.error) {
-            raw = `Server error: ${response.status} ${parsed.message || parsed.error}`;
-          } else if (errorText) {
-            raw = `Server error: ${response.status} ${errorText}`;
-          }
-        } catch {
-          if (errorText) raw = `Server error: ${response.status} ${errorText}`;
-        }
-        throw new Error(raw);
-      }
-
-      Alert.alert(t('success'), t('successBioUpdated'));
     } catch (e) {
       console.error('Bio update error:', e);
       const s: ErrorState =
