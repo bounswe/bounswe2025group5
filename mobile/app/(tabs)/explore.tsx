@@ -143,14 +143,23 @@ export default function ExploreScreen() {
 
 
   const fetchPosts = async (loadMore = false) => {
+    const isGuestUser = userType === 'guest';
     const currentOperation = loadMore ? 'loading more' : 'fetching initial/refresh';
     try {
+      if (isGuestUser && loadMore) {
+        setLoadingMore(false);
+        setNoMorePosts(true);
+        return;
+      }
+
       if (loadMore) setLoadingMore(true);
       else setLoading(true);
 
-      const query = loadMore && lastPostId !== null
-        ? `/api/posts?size=5&lastPostId=${lastPostId}`
-        : '/api/posts?size=5';
+      const query = isGuestUser
+        ? '/api/posts/mostLiked?size=10'
+        : loadMore && lastPostId !== null
+          ? `/api/posts?size=5&lastPostId=${lastPostId}`
+          : '/api/posts?size=5';
       
       const res = await apiRequest(query);
       if (!res.ok) throw new Error(`Fetch failed with status ${res.status}`);
@@ -186,9 +195,14 @@ export default function ExploreScreen() {
         }
       }
       
-      if (data.length > 0) setLastPostId(processedNewItems[processedNewItems.length - 1].id);
-      if (data.length < 5) setNoMorePosts(true);
-      else setNoMorePosts(false);
+      if (isGuestUser) {
+        setLastPostId(null);
+        setNoMorePosts(true);
+      } else {
+        if (data.length > 0) setLastPostId(processedNewItems[processedNewItems.length - 1].id);
+        if (data.length < 5) setNoMorePosts(true);
+        else setNoMorePosts(false);
+      }
       
       setError(false);
     } catch (err) {
