@@ -15,7 +15,11 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from './_layout';
-import { apiRequest } from './services/apiClient';
+import { apiRequest, getAccessToken} from './services/apiClient';
+import { apiUrl } from './apiConfig';
+
+import * as FileSystem from 'expo-file-system';
+
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
 
@@ -110,63 +114,80 @@ export default function EditProfileScreen() {
   };
 
   const handleUploadProfilePhoto = async () => {
-    if (!newAvatarAsset) {
-      Alert.alert("No New Photo", "Please select a new photo to upload.");
-      return;
-    }
-    if (!username) {
-      Alert.alert("Error", "User not identified.");
-      return;
-    }
+  if (!newAvatarAsset) {
+    Alert.alert('No New Photo', 'Please select a new photo to upload.');
+    return;
+  }
+  if (!username) {
+    Alert.alert('Error', 'User not identified.');
+    return;
+  }
 
-    setUploadingPhoto(true);
-    try {
-      const formData = new FormData();
-      const uriParts = newAvatarAsset.uri.split('.');
-      const fileType = uriParts[uriParts.length - 1];
-      const fileName = newAvatarAsset.fileName || `avatar-${username}.${fileType}`;
+  setUploadingPhoto(true);
+  try {
+    const asset = newAvatarAsset;
 
-      formData.append('file', { // Key is 'file' as per your Postman
-        uri: newAvatarAsset.uri,
-        name: fileName,
-        type: newAvatarAsset.mimeType || `image/${fileType}`,
-      } as any);
-
-      const response = await apiRequest(
-        `/api/users/${encodeURIComponent(username)}/profile/picture`,
-        {
-          method: 'POST',
-          body: formData,
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.error("Upload photo API error:", response.status, errorData);
-        let backendMessage = `Failed to upload photo (Status: ${response.status})`;
-        try {
-            const parsedError = JSON.parse(errorData);
-            backendMessage = parsedError.message || parsedError.error || backendMessage;
-        } catch(e) {
-            if(errorData && errorData.length < 150) backendMessage += `: ${errorData}`;
-        }
-        throw new Error(backendMessage);
+    // iOS fix: convert ph:// to file:// so RN/fetch can read it
+    const normalizeNativeUri = async (uri: string) => {
+      if (Platform.OS !== 'web' && uri.startsWith('ph://')) {
+        const dest = `${FileSystem.cacheDirectory}upload-${Date.now()}.jpg`;
+        await FileSystem.copyAsync({ from: uri, to: dest });
+        return dest;
       }
+      return uri;
+    };
 
-      const updatedProfileInfo = await response.json(); // Assuming API returns updated profile info or new URL
-      if (updatedProfileInfo && updatedProfileInfo.photoUrl) {
-        setAvatarDisplayUrl(updatedProfileInfo.photoUrl); // Update display with URL from server
-      }
-      setNewAvatarAsset(null); // Clear the selected asset after successful upload
-      Alert.alert('Success', 'Profile photo uploaded successfully!');
+    const guessExt = (mime?: string) => (mime?.split('/')[1] || 'jpg');
+    const type = asset.mimeType ?? 'image/jpeg';
+    const defaultName = `avatar-${username}.${guessExt(type)}`;
 
-    } catch (e) {
-      console.error('Photo upload error:', e);
-      Alert.alert('Error', `Failed to upload photo. ${e instanceof Error ? e.message : ''}`);
-    } finally {
-      setUploadingPhoto(false);
+    const fd = new FormData();
+
+    if (Platform.OS === 'web') {
+      // Web: turn the ImagePicker URI (blob/object URL) into a real File
+      const resp = await fetch(asset.uri);
+      const blob = await resp.blob();
+      const webType = blob.type || type;
+      const webName = asset.fileName ?? defaultName;
+      const file = new File([blob], webName, { type: webType });
+      fd.append('file', file); // <-- part name MUST be 'file'
+    } else {
+      // iOS/Android: append RN-style file descriptor
+      const uri = await normalizeNativeUri(asset.uri);
+      const name = asset.fileName ?? defaultName;
+      fd.append('file', { uri, name, type } as any); // <-- key 'file' matches backend @RequestParam("file")
     }
-  };
+
+    const token = await getAccessToken();
+    const res = await fetch(
+      apiUrl(`/api/users/${encodeURIComponent(username)}/profile/picture`),
+      {
+        method: 'POST',
+        // DO NOT set 'Content-Type' — let fetch set multipart boundary
+        headers: {
+          Accept: 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: fd,
+      }
+    );
+
+    if (!res.ok) {
+      const t = await res.text();
+      throw new Error(`Upload failed (${res.status}): ${t.slice(0, 200)}`);
+    }
+
+    const updated = await res.json();
+    if (updated?.photoUrl) setAvatarDisplayUrl(updated.photoUrl);
+    setNewAvatarAsset(null);
+    Alert.alert('Success', 'Profile photo uploaded successfully!');
+  } catch (e) {
+    console.error('Photo upload error:', e);
+    Alert.alert('Error', e instanceof Error ? e.message : 'Upload failed');
+  } finally {
+    setUploadingPhoto(false);
+  }
+};
 
 
   const onSaveBio = async () => { // Renamed from onSave to be specific
