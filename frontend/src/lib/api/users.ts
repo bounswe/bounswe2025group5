@@ -30,14 +30,14 @@ export const UsersApi = {
     ProfileResponseSchema.parse(data);
     return data;
   },
-  deleteAccount: async (username: string): Promise<{ deleted?: boolean }> => {
-    return ApiClient.delete<{ deleted?: boolean }>(`/api/users/${encodeURIComponent(username)}`);
+  deleteAccount: async (username: string, password: string): Promise<{ deleted?: boolean }> => {
+    const qs = new URLSearchParams({ password }).toString();
+    return ApiClient.delete<{ deleted?: boolean }>(`/api/users/${encodeURIComponent(username)}?${qs}`);
   },
   listChallenges: async (username: string): Promise<ChallengeListItem[]> => {
-    const qs = new URLSearchParams({ username }).toString();
-    const data = await ApiClient.get<ChallengeListItem[]>(`/api/users/users/${encodeURIComponent(username)}/challenges?${qs}`);
+    const data = await ApiClient.get<ChallengeListItem[]>(`/api/challenges/${encodeURIComponent(username)}`);
     data.forEach(item => ChallengeListItemSchema.parse(item));
-    return data.filter(c => c.attendee);
+    return data;
   },
 };
 

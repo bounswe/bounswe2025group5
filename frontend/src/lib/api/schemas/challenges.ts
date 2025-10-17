@@ -8,10 +8,7 @@ export const ChallengeListItemSchema = z.object({
   startDate: z.string(),
   endDate: z.string(),
   status: z.string(),
-  wasteType: z.string(),
-  attendee: z.boolean(),
+  type: z.string(),
+  userInChallenge: z.boolean(),
 });
-
 export type ChallengeListItem = z.infer<typeof ChallengeListItemSchema>;
-
-

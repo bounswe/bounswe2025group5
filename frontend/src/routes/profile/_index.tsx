@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import DeleteAccount from "@/components/profile/delete_account";
+import EditProfile from "@/components/profile/edit_profile";
 
 export default function ProfileIndex() {
   const { t } = useTranslation();
@@ -13,9 +15,7 @@ export default function ProfileIndex() {
   const [bio, setBio] = useState("");
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Pull username from token payload stored in localStorage via API client refresh
   const storedUsername = useMemo(() => {
@@ -54,60 +54,7 @@ export default function ProfileIndex() {
     })();
   }, [storedUsername]);
 
-  const onSave = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!username) return;
-    setSaving(true);
-    setError(null);
-    try {
-      const updated = await UsersApi.updateProfile(username, bio);
-      setBio(updated.biography ?? "");
-      setPhotoUrl(updated.photoUrl ?? null);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to save");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const onPickPhoto = () => fileInputRef.current?.click();
-  const onFileChange: React.ChangeEventHandler<HTMLInputElement> = async (ev) => {
-    if (!username) return;
-    const file = ev.target.files?.[0];
-    if (!file) return;
-    setSaving(true);
-    setError(null);
-    try {
-      const updated = await UsersApi.uploadProfilePhoto(username, file);
-      setPhotoUrl(updated.photoUrl ?? null);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to upload photo");
-    } finally {
-      setSaving(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
-  };
-
-  const onDeleteAccount = async () => {
-    if (!username) return;
-    const confirmed = window.confirm(t('profile.confirmDelete'));
-    if (!confirmed) return;
-    setSaving(true);
-    setError(null);
-    try {
-      await UsersApi.deleteAccount(username);
-      try {
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('username');
-      } catch {}
-      window.location.href = '/auth/register';
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to delete account');
-    } finally {
-      setSaving(false);
-    }
-  };
+  
 
   if (loading) {
     return (
@@ -144,14 +91,11 @@ export default function ProfileIndex() {
                   )}
                 </div>
                 <div className="mt-3">
-                  <Button variant="outline" onClick={onPickPhoto} disabled={saving}>
-                    {t('profile.changePhoto')}
-                  </Button>
-                  <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={onFileChange} />
+                  <EditProfile />
                 </div>
               </div>
 
-              <form className="flex-1 space-y-4" onSubmit={onSave}>
+              <form className="flex-1 space-y-4">
                 <div>
                   <Label>{t('profile.username')}</Label>
                   <Input value={username ?? ''} disabled />
@@ -163,12 +107,7 @@ export default function ProfileIndex() {
                 </div>
 
                 <CardFooter className="px-0 flex gap-3">
-                  <Button type="submit" disabled={saving}>
-                    {saving ? t('profile.saving') : t('profile.save')}
-                  </Button>
-                  <Button type="button" variant="destructive" disabled={saving} onClick={onDeleteAccount}>
-                    {t('profile.delete')}
-                  </Button>
+                  <DeleteAccount />
                 </CardFooter>
               </form>
             </div>
