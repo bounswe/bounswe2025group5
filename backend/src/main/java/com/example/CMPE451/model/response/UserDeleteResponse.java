@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class AttendChallengeResponse {
+public class UserDeleteResponse {
+    private Integer userId;
     private String username;
-    private int challengeId;
 }

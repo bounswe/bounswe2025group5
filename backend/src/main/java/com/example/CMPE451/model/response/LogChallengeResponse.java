@@ -1,15 +1,14 @@
 package com.example.CMPE451.model.response;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
 @AllArgsConstructor
-public class LeaderboardEntry {
+@NoArgsConstructor
+public class LogChallengeResponse {
     private String username;
-    private Double logAmount;
+    private Integer challengeId;
+    private Double newTotalAmount;
 }

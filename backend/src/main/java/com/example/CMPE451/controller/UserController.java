@@ -1,11 +1,14 @@
 package com.example.CMPE451.controller;
 
+import com.example.CMPE451.exception.InvalidCredentialsException;
 import com.example.CMPE451.model.response.*;
 import com.example.CMPE451.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 
@@ -37,14 +40,27 @@ public class UserController {
         UserCountResponse count = userService.getUserCount();
         return ResponseEntity.ok(count);
     }
-    @GetMapping("/users/{username}/challenges")
-    public ResponseEntity<List<ChallengeListResponse>> getAllChallenges(
-            @RequestParam("username") String username) {
-        List<ChallengeListResponse> list = userService.getAllChallenges(username);
-        return ResponseEntity.ok(list);
-    }
+
     @GetMapping("/{username}/badges")
     public ResponseEntity<List<BadgeResponse>> getBadges(@RequestParam String username) {
         List<BadgeResponse> response = userService.getBadges(username);
         return ResponseEntity.ok(response);    }
+
+    @DeleteMapping("/{username}")
+    public ResponseEntity<UserDeleteResponse> deleteUser(
+            @PathVariable String username,
+            @RequestParam String password) {
+
+        try {
+            UserDeleteResponse response = userService.deleteUser(username, password);
+            return ResponseEntity.ok(response);
+        }
+        catch ( InvalidCredentialsException e ) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }
