@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { UsersApi } from "@/lib/api/users";
+import { clearTokens } from "@/lib/api/client";
 
 export default function DeleteAccount() {
     const { t } = useTranslation();
@@ -28,7 +29,13 @@ export default function DeleteAccount() {
         try {
             setSaving(true);
             setError(null);
-            await UsersApi.deleteAccount(storedUsername ?? "", password);
+            const res = await UsersApi.deleteAccount(storedUsername ?? "", password);
+            if (res) {
+                clearTokens();
+                try { localStorage.removeItem('username'); } catch {}
+            window.location.href = '/auth/login';
+        }
+            
         } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);
             if (msg.toLowerCase().includes('incorrect password')) {

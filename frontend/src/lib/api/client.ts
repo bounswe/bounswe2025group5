@@ -83,8 +83,7 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
         throw new Error('Incorrect password');
       }
       clearTokens();
-      window.location.href = '/login';
-      throw new Error('Authentication required');
+      window.location.href = '/auth/login';
     }
     throw new Error(`API Error: ${response.status} ${response.statusText}`);
   }

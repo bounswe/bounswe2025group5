@@ -62,7 +62,7 @@ export default function Navbar({ className }: NavbarProps) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate('/auth/login')}
+            onClick={() => navigate('/auth/register')}
             className="text-white hover:bg-white/20 transition-colors"
           >
             {t('login.signup')}

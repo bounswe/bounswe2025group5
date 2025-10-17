@@ -30,7 +30,7 @@ export default function Register() {
       setLoading(true);
       await AuthApi.register(username, email, password);
       setSuccess("Account created successfully. Redirecting to login...");
-      setTimeout(() => navigate("/login"), 1200);
+      setTimeout(() => navigate("/auth/login"), 1200);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
       console.error("Registration error:", err);
