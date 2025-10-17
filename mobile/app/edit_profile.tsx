@@ -150,12 +150,12 @@ export default function EditProfileScreen() {
       const webType = blob.type || type;
       const webName = asset.fileName ?? defaultName;
       const file = new File([blob], webName, { type: webType });
-      fd.append('file', file); // <-- part name MUST be 'file'
+      fd.append('file', file); 
     } else {
       // iOS/Android: append RN-style file descriptor
       const uri = await normalizeNativeUri(asset.uri);
       const name = asset.fileName ?? defaultName;
-      fd.append('file', { uri, name, type } as any); // <-- key 'file' matches backend @RequestParam("file")
+      fd.append('file', { uri, name, type } as any);
     }
 
     const token = await getAccessToken();
@@ -163,7 +163,6 @@ export default function EditProfileScreen() {
       apiUrl(`/api/users/${encodeURIComponent(username)}/profile/picture`),
       {
         method: 'POST',
-        // DO NOT set 'Content-Type' — let fetch set multipart boundary
         headers: {
           Accept: 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -190,22 +189,20 @@ export default function EditProfileScreen() {
 };
 
 
-  const onSaveBio = async () => { // Renamed from onSave to be specific
+  const onSaveBio = async () => {
     if (!username) {
         Alert.alert('Error', 'User not identified.');
         return;
     }
     setSavingBio(true);
     try {
-      // Now only sending username and biography to the profile endpoint
-      // photoUrl is handled by the dedicated upload endpoint.
       await apiRequest(`/api/users/${encodeURIComponent(username)}/profile`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, biography: bio }),
       });
       Alert.alert('Success', 'Biography updated successfully!');
-      // navigation.goBack(); // Consider if you want to go back after only bio save
+      // navigation.goBack(); // if on, go back after only bio save
     } catch (e) {
       console.error('Bio update error:', e);
       Alert.alert('Error', `Failed to update biography. ${e instanceof Error ? e.message : ''}`);
