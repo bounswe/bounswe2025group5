@@ -5,27 +5,37 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { UsersApi } from "@/lib/api/users";
 
-export default function EditProfile() {
+type EditProfileProps = {
+    username: string | null;
+    initialBio: string;
+    initialPhotoUrl: string | null;
+    onBioSaved?: (newBio: string) => void;
+    onPhotoSaved?: (newPhotoUrl: string | null) => void;
+};
+
+export default function EditProfile({ username, initialBio, initialPhotoUrl, onBioSaved, onPhotoSaved }: EditProfileProps) {
     const { t } = useTranslation();
     const [profileOpen, setProfileOpen] = useState(false);
-    const [bio, setBio] = useState<string | null>(null);
-    const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+    const [bio, setBio] = useState<string | null>(initialBio ?? null);
+    const [photoUrl, setPhotoUrl] = useState<string | null>(initialPhotoUrl ?? null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const storedUsername = useMemo(() => {
+    const storedUsername = useMemo(() => username ?? (() => {
         try {
             const raw = localStorage.getItem("username");
             if (raw) return raw;
         } catch {
             return null;
         }
-    }, []);
+        return null;
+    })(), [username]);
     const handleBioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setBio(e.target.value);
     };
     const handleBioSubmit = async () => {
-        if (!bio) return;
+        if (bio == null) return;
         try {
             await UsersApi.updateProfile(storedUsername ?? "", bio);
+            onBioSaved?.(bio);
         } catch (e) {
             console.error(e);
         }
@@ -35,7 +45,9 @@ export default function EditProfile() {
         if (!file) return;
         try {
             const updated = await UsersApi.uploadProfilePhoto(storedUsername ?? "", file);
-            setPhotoUrl(updated.photoUrl ?? null);
+            const newUrl = updated.photoUrl ?? null;
+            setPhotoUrl(newUrl);
+            onPhotoSaved?.(newUrl);
         } catch (e) {
             console.error(e);
         }
@@ -50,15 +62,49 @@ export default function EditProfile() {
                     {t('profile.edit')}
                 </Button>
             </PopoverTrigger>
-        <PopoverContent>
-            <Input value={bio ?? ""} onChange={handleBioChange} placeholder={t('profile.bioPlaceholder', 'Tell us about yourself')} />
-            <Button type="button" variant="outline" onClick={handleBioSubmit}>
-                {t('profile.save')}
-            </Button>
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUrlChange} />
-            <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
-                {t('profile.changePhoto')}
-            </Button>
+        <PopoverContent className="w-96">
+            <div className="flex flex-col items-center gap-4">
+                {/* Photo with hover edit overlay */}
+                <div
+                    className="relative group w-32 h-32 rounded-full overflow-hidden bg-muted border border-border cursor-pointer"
+                    onClick={() => fileInputRef.current?.click()}
+                    aria-label={t('profile.changePhoto')}
+                >
+                    {photoUrl ? (
+                        <img src={photoUrl} alt="Profile" className="w-full h-full object-cover" />
+                    ) : (
+                        <div className="w-full h-full grid place-items-center text-muted-foreground">{t('profile.noPhoto', 'No photo')}</div>
+                    )}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <div className="flex items-center gap-2 text-white text-sm">
+                            {/* Pencil icon */}
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M12 20h9" />
+                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+                            </svg>
+                            <span>{t('profile.editImage', 'Edit image')}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUrlChange} />
+
+                {/* Username */}
+                <div className="text-lg font-semibold">{storedUsername}</div>
+
+                {/* Bio */}
+                <Input value={bio ?? ""} onChange={handleBioChange} placeholder={t('profile.bioPlaceholder', 'Tell us about yourself')} />
+
+                {/* Actions */}
+                <div className="flex gap-2">
+                    <Button type="button" variant="default" onClick={handleBioSubmit}>
+                        {t('profile.save')}
+                    </Button>
+                    <Button type="button" variant="outline" onClick={() => setProfileOpen(false)}>
+                        {t('profile.cancel', 'Cancel')}
+                    </Button>
+                </div>
+            </div>
         </PopoverContent>
         </Popover>
     );
