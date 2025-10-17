@@ -41,6 +41,7 @@
     "challenge" : {
         "navbar": "Etkinlikler"
     },
+    "logout": "Çıkış Yap",
     "mainpage": {
         "navbar": "Ana Sayfa",
         "challengesTitle": "Katıldığınız Etkinlikler",

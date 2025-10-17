@@ -41,6 +41,7 @@
     "challenge": {
         "navbar": "Challenge"
     },
+    "logout": "Logout",
     "mainpage": {
         "navbar": "Mainpage",
         "challengesTitle": "Your Challenges",

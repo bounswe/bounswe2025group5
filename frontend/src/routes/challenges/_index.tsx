@@ -1,10 +1,10 @@
-
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ChallengeCard from '@/components/challenges/challengeCard';
 import { type ChallengeListItem } from '@/lib/api/schemas/challenges';
 import { ChallengesApi } from '@/lib/api/challenges';
 import { UsersApi } from '@/lib/api/users';
+import { Button } from '@/components/ui/button';
 
 
 export default function ChallengesIndex() {
@@ -64,6 +64,11 @@ export default function ChallengesIndex() {
             ))}
           </div>
         )}
+        <div className="fixed bottom-4 right-4">
+          <Button size="lg" onClick={() => window.location.href = '/challenges/create'}>
+            {t('challenges.create', 'Create Challenge')}
+          </Button>
+        </div>
       </div>
     );
 }
