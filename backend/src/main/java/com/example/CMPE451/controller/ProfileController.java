@@ -21,14 +21,14 @@ public class ProfileController {
     private final ProfileService service;
 
     @GetMapping("/{username}/profile")
-    public ProfileResponse getProfileInfo(@RequestParam String username) {
+    public ProfileResponse getProfileInfo(@PathVariable String username) {
         return service.getProfileInfo(username);
     }
 
     @PutMapping("/{username}/profile")
-    public ProfileResponse editProfile(
+    public ProfileResponse editProfile(@PathVariable String username,
             @RequestBody ProfileEditAndCreateRequest newProfileInfo) {
-        return service.editProfileInfo(newProfileInfo);
+        return service.editProfileInfo(newProfileInfo,username);
     }
 
     @PostMapping(value = "/{username}/profile/picture", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

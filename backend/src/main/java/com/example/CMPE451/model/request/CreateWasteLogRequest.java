@@ -10,7 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateWasteLogRequest {
-    private Double amount;
     private String username;
-
+    private Integer itemId;
+    private int quantity;
 }

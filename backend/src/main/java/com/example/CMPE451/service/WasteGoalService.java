@@ -1,19 +1,13 @@
 package com.example.CMPE451.service;
 import com.example.CMPE451.exception.NotFoundException;
-import com.example.CMPE451.model.request.CreateWasteGoalRequest;
+import com.example.CMPE451.model.request.CreateOrEditWasteGoalRequest;
 import com.example.CMPE451.model.response.CreateWasteGoalResponse;
 import com.example.CMPE451.model.response.GetWasteGoalResponse;
 import com.example.CMPE451.repository.UserRepository;
-import com.example.CMPE451.exception.AccessDeniedException;
-import com.example.CMPE451.repository.WasteLogRepository;
-import jakarta.persistence.Transient;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.transaction.Transactional;
+import com.example.CMPE451.repository.WasteTypeRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import com.example.CMPE451.model.*;
 import com.example.CMPE451.repository.WasteGoalRepository;
 import org.springframework.stereotype.Service;
@@ -27,6 +21,7 @@ import java.util.stream.Collectors;
 public class WasteGoalService {
 
     private final WasteGoalRepository wasteGoalRepository;
+    private final WasteTypeRepository wasteTypeRepository;
 
     private final UserRepository userRepository;
 
@@ -37,10 +32,9 @@ public class WasteGoalService {
                 .map(goal -> {
                     GetWasteGoalResponse goalResponse = new GetWasteGoalResponse();
                     goalResponse.setGoalId(goal.getGoalId());
-                    goalResponse.setWasteType(goal.getWasteType().name());
-                    goalResponse.setAmount(goal.getAmount());
+                    goalResponse.setWasteType(goal.getType().getName());
+                    goalResponse.setRestrictionAmountGrams(goal.getRestrictionAmountGrams());
                     goalResponse.setDuration(goal.getDuration());
-                    goalResponse.setUnit(goal.getUnit().name());
                     goalResponse.setProgress(goal.getPercentOfProgress());
                     goalResponse.setCreatedAt(goal.getDate());
                     goalResponse.setCreatorUsername(goal.getOwner().getUsername());
@@ -50,33 +44,35 @@ public class WasteGoalService {
     }
 
 
-    public CreateWasteGoalResponse saveWasteGoal(CreateWasteGoalRequest request, String username) {
+    public CreateWasteGoalResponse saveWasteGoal(CreateOrEditWasteGoalRequest request, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException("User not found: " +username));
+        WasteType wasteType = wasteTypeRepository.findByName(request.getType())
+                .orElseThrow(() -> new NotFoundException("WasteType not found: " + request.getType()));
 
         WasteGoal goal = new WasteGoal(
                 user,
                 request.getDuration(),
-                request.getUnit(),
-                request.getWasteType(),
-                request.getAmount()
+                wasteType,
+                request.getRestrictionAmountGrams()
         );
         WasteGoal wasteGoal= wasteGoalRepository.save(goal);
         return new CreateWasteGoalResponse(user.getUsername(),wasteGoal.getGoalId());
     }
 
-    public CreateWasteGoalResponse editWasteGoal(Integer goalId, WasteGoal editGoalRequest) {
+    public CreateWasteGoalResponse editWasteGoal(Integer goalId, CreateOrEditWasteGoalRequest request) {
         WasteGoal existingGoal = wasteGoalRepository.findById(goalId)
                 .orElseThrow(() -> new NotFoundException("Goal not found: " + goalId));
+        WasteType wasteType = wasteTypeRepository.findByName(request.getType())
+                .orElseThrow(() -> new NotFoundException("WasteType not found: " + request.getType()));
 
-        double oldAmount = existingGoal.getAmount();
+        double oldAmount = existingGoal.getRestrictionAmountGrams();
         double oldProgress = existingGoal.getPercentOfProgress();
-        double newAmount = editGoalRequest.getAmount();
+        double newAmount = request.getRestrictionAmountGrams();
 
-        existingGoal.setDuration(editGoalRequest.getDuration());
-        existingGoal.setUnit(editGoalRequest.getUnit());
-        existingGoal.setWasteType(editGoalRequest.getWasteType());
-        existingGoal.setAmount(newAmount);
+        existingGoal.setDuration(request.getDuration());
+        existingGoal.setType(wasteType);
+        existingGoal.setRestrictionAmountGrams(request.getRestrictionAmountGrams());
 
         double newProgress = 0.0;
         if (newAmount > 0 && oldAmount > 0) {

@@ -10,7 +10,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LeaderboardEntry {
-    private Integer userId;
     private String username;
-    private Double remainingAmount;
+    private Double logAmount;
 }

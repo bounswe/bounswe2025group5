@@ -1,0 +1,60 @@
+{
+    "login": {
+        "title": "Login to your account",
+        "description": "Enter your email below to login to your account",
+        "login": "Login",
+        "signup": "Sign Up",
+        "email": {
+            "label": "Email",
+            "placeholder": "m@example.com"
+        },
+    "username": "Username",
+        "password": {
+            "label": "Password",
+            "forgot": "Forgot your password?"
+        },
+        "loginButton": "Login"
+    },
+    "profile": {
+        "edit": "Edit Profile", 
+        "navbar": "Profile",
+        "title": "Your Profile",
+        "description": "Manage your profile information",
+        "username": "Username",
+        "biography": "Biography",
+        "bioPlaceholder": "Tell us about yourself",
+        "save": "Save",
+        "saving": "Saving...",
+        "noPhoto": "No photo",
+        "changePhoto": "Change Photo",
+        "delete": "Delete Account",
+        "confirmDelete": "This will permanently delete your account. Continue?",
+        "deleting": "Deleting..."
+    },
+    "main": {
+        "navbar": "Main"
+    },
+    "feed": {
+        "navbar": "Feed"
+    },
+    "goals": {
+        "navbar": "Goals"
+    },
+    "challenge": {
+        "navbar": "Challenge"
+  },
+  "mainpage": {
+    "navbar": "Mainpage",
+    "challengesTitle": "Your Challenges",
+    "challengesDesc": "Challenges you are currently attending",
+    "noChallenges": "No active challenges",
+    "type": "Type",
+    "status": "Status",
+    "dates": "Dates",
+    "feedTitle": "Following Feed",
+    "feedDesc": "Recent posts from accounts you follow",
+    "noPosts": "No posts yet",
+    "likes": "Likes",
+    "comments": "Comments"
+  }
+}

@@ -1,15 +1,11 @@
 package com.example.CMPE451.controller;
 
-import com.example.CMPE451.model.request.CreateWasteGoalRequest;
+import com.example.CMPE451.model.request.CreateOrEditWasteGoalRequest;
+import com.example.CMPE451.model.request.CreateOrEditWasteGoalRequest;
 import com.example.CMPE451.model.response.CreateWasteGoalResponse;
 import com.example.CMPE451.model.response.DeleteWasteGoalResponse;
 import com.example.CMPE451.model.response.GetWasteGoalResponse;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.PageRequest;
-import com.example.CMPE451.model.*;
 import com.example.CMPE451.service.WasteGoalService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,7 +35,7 @@ public class WasteGoalController {
 
 
     @PostMapping("/{username}/waste-goals")
-    public ResponseEntity<CreateWasteGoalResponse> createWasteGoal(@RequestBody CreateWasteGoalRequest createWasteGoalRequest, @PathVariable String username) {
+    public ResponseEntity<CreateWasteGoalResponse> createWasteGoal(@RequestBody CreateOrEditWasteGoalRequest createWasteGoalRequest, @PathVariable String username) {
         CreateWasteGoalResponse goal = wasteGoalService.saveWasteGoal(createWasteGoalRequest,username);
         return ResponseEntity.ok(goal);
 
@@ -48,7 +44,7 @@ public class WasteGoalController {
     @PutMapping("/waste-goals/{goalId}")
     public ResponseEntity<CreateWasteGoalResponse> editWasteGoal(
             @PathVariable Integer goalId,
-            @RequestBody WasteGoal updatedGoal) {
+            @RequestBody CreateOrEditWasteGoalRequest updatedGoal) {
         CreateWasteGoalResponse updatedGoalResponse = wasteGoalService.editWasteGoal(goalId, updatedGoal);
         return ResponseEntity.ok(updatedGoalResponse);
     }
