@@ -11,6 +11,8 @@ import {
   useColorScheme,
   Switch,
   Modal,
+  Alert,
+  Keyboard,
 } from 'react-native';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -19,6 +21,25 @@ import { AuthContext } from '../_layout';
 import { apiRequest, clearSession } from '../services/apiClient';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useTranslation } from 'react-i18next';
+import PostItem from '../components/PostItem';
+
+type CommentData = {
+  commentId: number;
+  username: string;
+  content: string;
+  createdAt: string | Date;
+};
+
+type Post = {
+  id: number;
+  title: string;
+  content: string;
+  likes: number;
+  comments: number;
+  photoUrl: string | null;
+  likedByUser: boolean;
+  savedByUser: boolean;
+};
 
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
@@ -38,6 +59,20 @@ export default function ProfileScreen() {
   const [error, setError] = useState<ErrorState>({ key: null, message: null });
   const [profileUpdateBannerVisible, setProfileUpdateBannerVisible] = useState(false);
   const [isAvatarModalVisible, setAvatarModalVisible] = useState(false);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [postsLoading, setPostsLoading] = useState(false);
+  const [postsError, setPostsError] = useState<string | null>(null);
+  const [expandedPostId, setExpandedPostId] = useState<number | null>(null);
+  const [commentsByPostId, setCommentsByPostId] = useState<{ [postId: number]: CommentData[] }>({});
+  const [loadingCommentsPostId, setLoadingCommentsPostId] = useState<number | null>(null);
+  const [commentInputs, setCommentInputs] = useState<{ [postId: number]: string }>({});
+  const [postingCommentPostId, setPostingCommentPostId] = useState<number | null>(null);
+  const [editingCommentDetails, setEditingCommentDetails] = useState<{
+    postId: number;
+    commentId: number;
+    currentText: string;
+  } | null>(null);
+  const [isSubmittingCommentEdit, setIsSubmittingCommentEdit] = useState(false);
   const isTurkish = (i18n.resolvedLanguage || i18n.language || '').toLowerCase().startsWith('tr');
   const toggleLanguage = (value: boolean) => {
     i18n.changeLanguage(value ? 'tr-TR' : 'en-US');
@@ -52,6 +87,388 @@ export default function ProfileScreen() {
   const errorBackgroundColor = isDarkMode ? '#5D1F1A' : '#FFCDD2';
   const successBannerBgColor = isDarkMode ? 'rgba(46, 125, 50, 0.25)' : '#E8F5E9';
   const successBannerTextColor = isDarkMode ? '#A5D6A7' : '#2E7D32';
+  const cardBackgroundColor = isDarkMode ? '#1C1C1E' : '#FFFFFF';
+  const generalTextColor = isDarkMode ? '#E5E5E7' : '#1C1C1E';
+  const iconColor = isDarkMode ? '#8E8E93' : '#6C6C70';
+  const commentInputBorderColor = isDarkMode ? '#545458' : '#C7C7CD';
+  const commentInputTextColor = generalTextColor;
+  const commentInputPlaceholderColor = iconColor;
+  const commentInputBackgroundColor = isDarkMode ? '#2C2C2E' : '#F0F2F5';
+
+  const handleLogout = async () => {
+    await clearSession();
+    await AsyncStorage.multiRemove(['password', 'email']);
+    setUserType(null);
+    setUsername('');
+    navigation.reset({ index: 0, routes: [{ name: 'index' }] });
+  };
+
+  const mapApiItemToPost = (item: any): Post => ({
+    id: item.postId,
+    title: item.creatorUsername,
+    content: item.content,
+    likes: item.likes || 0,
+    comments: Array.isArray(item.comments) ? item.comments.length : Number(item.comments) || 0,
+    photoUrl: item.photoUrl ?? null,
+    likedByUser: false,
+    savedByUser: false,
+  });
+
+  const fetchLikeStatusesForPosts = async (currentPostsToUpdate: Post[], currentUsername: string): Promise<Post[]> => {
+    if (!currentUsername || currentPostsToUpdate.length === 0) return currentPostsToUpdate;
+    const promises = currentPostsToUpdate.map(async (post) => {
+      try {
+        const res = await apiRequest(`/api/posts/${post.id}/likes`);
+        if (!res.ok) return post;
+        const likesData = await res.json();
+        const likedByCurrent =
+          likesData.likedByUsers?.some((liker: any) => liker.username === currentUsername) || false;
+        return { ...post, likedByUser: likedByCurrent };
+      } catch (e) {
+        console.warn('Failed to fetch like status for post', post.id, e);
+        return post;
+      }
+    });
+    return Promise.all(promises);
+  };
+
+  const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentUsername: string): Promise<Post[]> => {
+    if (!currentUsername || currentPostsToUpdate.length === 0) return currentPostsToUpdate;
+    try {
+      const res = await apiRequest(`/api/users/${encodeURIComponent(currentUsername)}/saved-posts`);
+      if (!res.ok) return currentPostsToUpdate;
+      const savedPostsData = await res.json();
+      const savedPostIds = new Set(savedPostsData.map((post: any) => post.postId));
+      return currentPostsToUpdate.map((post) => ({
+        ...post,
+        savedByUser: savedPostIds.has(post.id),
+      }));
+    } catch (e) {
+      console.warn('Error fetching saved statuses:', e);
+      return currentPostsToUpdate;
+    }
+  };
+
+  const fetchUserPosts = useCallback(async () => {
+    if (!username) {
+      setPosts([]);
+      setPostsLoading(false);
+      return;
+    }
+    setPostsLoading(true);
+    setPostsError(null);
+    try {
+      const res = await apiRequest(`/api/users/${encodeURIComponent(username)}/posts`);
+      if (!res.ok) {
+        throw new Error(`Failed to fetch posts: ${res.status}`);
+      }
+      const data = await res.json();
+      let mappedPosts: Post[] = Array.isArray(data) ? data.map(mapApiItemToPost) : [];
+      if (userType === 'user') {
+        mappedPosts = await fetchLikeStatusesForPosts(mappedPosts, username);
+        mappedPosts = await fetchSavedStatusesForPosts(mappedPosts, username);
+      }
+      setPosts(mappedPosts);
+    } catch (err) {
+      console.error('Failed to fetch profile posts:', err);
+      setPostsError(t('profilePostsLoadError'));
+      setPosts([]);
+    } finally {
+      setPostsLoading(false);
+    }
+  }, [username, userType, t]);
+
+  const handleLikeToggle = async (postId: number, currentlyLiked: boolean) => {
+    if (userType === 'guest' || !username) {
+      Alert.alert(t('loginRequired'), t('pleaseLogInToLikePosts'));
+      return;
+    }
+    setPosts((currentList) =>
+      currentList.map((p) =>
+        p.id === postId
+          ? { ...p, likedByUser: !currentlyLiked, likes: currentlyLiked ? Math.max(0, p.likes - 1) : p.likes + 1 }
+          : p
+      )
+    );
+    try {
+      const response = await apiRequest('/api/posts/like', {
+        method: currentlyLiked ? 'DELETE' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, postId }),
+      });
+      const responseBodyText = await response.text();
+      if (!response.ok) {
+        let errorMsg = `Failed to ${currentlyLiked ? 'unlike' : 'like'} post.`;
+        try {
+          const errorData = JSON.parse(responseBodyText);
+          errorMsg = errorData.message || errorMsg;
+        } catch {
+          errorMsg = `${errorMsg} ${responseBodyText.substring(0, 120)}`;
+        }
+        throw new Error(errorMsg);
+      }
+      const parsed = JSON.parse(responseBodyText || '{}');
+      if (!parsed.success) {
+        throw new Error(parsed.message || `Backend error on ${currentlyLiked ? 'unlike' : 'like'}.`);
+      }
+    } catch (err: any) {
+      console.error('Failed to toggle like:', err);
+      Alert.alert(t('error'), err.message || t('couldNotUpdateLike'));
+      setPosts((currentList) =>
+        currentList.map((p) =>
+          p.id === postId
+            ? { ...p, likedByUser: currentlyLiked, likes: currentlyLiked ? p.likes + 1 : Math.max(0, p.likes - 1) }
+            : p
+        )
+      );
+    }
+  };
+
+  const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
+    if (userType === 'guest' || !username) {
+      Alert.alert(t('loginRequired'), t('pleaseLogInToSavePosts'));
+      return;
+    }
+    setPosts((currentList) =>
+      currentList.map((p) => (p.id === postId ? { ...p, savedByUser: !currentlySaved } : p))
+    );
+    try {
+      const encodedUsername = encodeURIComponent(username);
+      const response = currentlySaved
+        ? await apiRequest(`/api/posts/${postId}/saves/${encodedUsername}`, { method: 'DELETE' })
+        : await apiRequest(`/api/posts/${postId}/save`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username }),
+          });
+      const responseBodyText = await response.text();
+      if (!response.ok) {
+        let errorMsg = `Failed to ${currentlySaved ? 'unsave' : 'save'} post.`;
+        try {
+          const errorData = JSON.parse(responseBodyText);
+          errorMsg = errorData.message || errorMsg;
+        } catch {
+          errorMsg = `${errorMsg} ${responseBodyText.substring(0, 120)}`;
+        }
+        throw new Error(errorMsg);
+      }
+      const parsed = JSON.parse(responseBodyText || '{}');
+      const successField = currentlySaved ? parsed.deleted : parsed.username;
+      if (!successField) {
+        throw new Error(parsed.message || `Backend error on ${currentlySaved ? 'unsave' : 'save'}.`);
+      }
+    } catch (err: any) {
+      console.error('Failed to toggle save:', err);
+      Alert.alert(t('error'), err.message || t('couldNotUpdateSave'));
+      setPosts((currentList) =>
+        currentList.map((p) => (p.id === postId ? { ...p, savedByUser: currentlySaved } : p))
+      );
+    }
+  };
+
+  const fetchCommentsForPost = async (postId: number, forceRefresh = false) => {
+    if (commentsByPostId[postId] && !forceRefresh && commentsByPostId[postId].length > 0) {
+      return;
+    }
+    if (editingCommentDetails?.postId === postId && !forceRefresh) {
+      return;
+    }
+    setLoadingCommentsPostId(postId);
+    try {
+      const response = await apiRequest(`/api/posts/${postId}/comments`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch comments: ${response.status}`);
+      }
+      const apiResponse = await response.json();
+      const fetchedComments: CommentData[] = (apiResponse.comments || []).map((apiComment: any) => ({
+        commentId: apiComment.commentId,
+        content: apiComment.content,
+        createdAt: apiComment.createdAt,
+        username: apiComment.creatorUsername,
+      }));
+      setCommentsByPostId((prev) => ({ ...prev, [postId]: fetchedComments }));
+      if (typeof apiResponse.totalComments === 'number') {
+        setPosts((prev) =>
+          prev.map((p) => (p.id === postId ? { ...p, comments: apiResponse.totalComments } : p))
+        );
+      }
+    } catch (e) {
+      console.error('Failed to load comments for post', postId, e);
+      Alert.alert(t('error'), t('couldNotLoadComments'));
+    } finally {
+      setLoadingCommentsPostId(null);
+    }
+  };
+
+  const handleToggleComments = (postId: number) => {
+    const isCurrentlyExpanded = expandedPostId === postId;
+    if (isCurrentlyExpanded) {
+      if (editingCommentDetails && editingCommentDetails.postId === postId) {
+        setEditingCommentDetails(null);
+      }
+      setExpandedPostId(null);
+    } else {
+      setExpandedPostId(postId);
+      if (!commentsByPostId[postId] || commentsByPostId[postId].length === 0) {
+        fetchCommentsForPost(postId, false);
+      }
+    }
+  };
+
+  const handleCommentInputChange = (postId: number, text: string) => {
+    if (editingCommentDetails && editingCommentDetails.postId === postId) {
+      setEditingCommentDetails(null);
+    }
+    setCommentInputs((prev) => ({ ...prev, [postId]: text }));
+  };
+
+  const handlePostComment = async (postId: number) => {
+    if (!username) {
+      Alert.alert(t('loginRequired'), t('mustBeLoggedIn'));
+      return;
+    }
+    const content = commentInputs[postId]?.trim();
+    if (!content) {
+      Alert.alert(t('emptyComment'), t('commentCannotBeEmpty'));
+      return;
+    }
+    if (editingCommentDetails?.postId === postId) {
+      setEditingCommentDetails(null);
+    }
+    setPostingCommentPostId(postId);
+    Keyboard.dismiss();
+    try {
+      const response = await apiRequest(`/api/posts/${postId}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, content }),
+      });
+      const responseData = await response.json();
+      if (!response.ok) {
+        throw new Error(responseData.message || 'Failed to post comment.');
+      }
+      const newComment: CommentData = {
+        commentId: responseData.commentId,
+        content: responseData.content,
+        createdAt: responseData.createdAt,
+        username: responseData.creatorUsername || username,
+      };
+      setCommentsByPostId((prev) => ({ ...prev, [postId]: [newComment, ...(prev[postId] || [])] }));
+      setPosts((prev) =>
+        prev.map((p) => (p.id === postId ? { ...p, comments: p.comments + 1 } : p))
+      );
+      setCommentInputs((prev) => ({ ...prev, [postId]: '' }));
+    } catch (err: any) {
+      console.error('Failed to post comment:', err);
+      Alert.alert(t('error'), t('couldNotPostComment', { message: err.message }));
+    } finally {
+      setPostingCommentPostId(null);
+    }
+  };
+
+  const handleDeleteComment = async (postId: number, commentId: number) => {
+    if (!username) {
+      Alert.alert(t('error'), t('mustBeLoggedIn'));
+      return;
+    }
+    if (editingCommentDetails && editingCommentDetails.commentId === commentId) {
+      setEditingCommentDetails(null);
+    }
+    Alert.alert(t('deleteCommentTitle'), t('deleteCommentMessage'), [
+      { text: t('cancel'), style: 'cancel' },
+      {
+        text: t('delete'),
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            const response = await apiRequest(`/api/comments/${commentId}`, { method: 'DELETE' });
+            if (!response.ok) {
+              throw new Error(`Failed to delete comment: ${response.status}`);
+            }
+            setCommentsByPostId((prev) => ({
+              ...prev,
+              [postId]: (prev[postId] || []).filter((c) => c.commentId !== commentId),
+            }));
+            setPosts((prev) =>
+              prev.map((p) =>
+                p.id === postId ? { ...p, comments: Math.max(0, p.comments - 1) } : p
+              )
+            );
+            Alert.alert(t('success'), t('commentDeleted'));
+          } catch (err) {
+            console.error('Failed to delete comment:', err);
+            Alert.alert(t('error'), t('couldNotDeleteComment', { message: (err as Error).message }));
+          }
+        },
+      },
+    ]);
+  };
+
+  const handleStartEditComment = (postId: number, commentToEdit: CommentData) => {
+    setEditingCommentDetails({
+      postId,
+      commentId: commentToEdit.commentId,
+      currentText: commentToEdit.content,
+    });
+    setCommentInputs((prev) => ({ ...prev, [postId]: '' }));
+    if (expandedPostId !== postId) {
+      setExpandedPostId(postId);
+    }
+  };
+
+  const handleEditingCommentTextChange = (newText: string) => {
+    setEditingCommentDetails((prev) => (prev ? { ...prev, currentText: newText } : null));
+  };
+
+  const handleCancelCommentEdit = () => {
+    setEditingCommentDetails(null);
+  };
+
+  const handleSaveCommentEdit = async (postIdToSave: number, commentIdToSave: number) => {
+    if (!editingCommentDetails || editingCommentDetails.commentId !== commentIdToSave || !username) {
+      Alert.alert(t('error'), t('couldNotSaveEdit'));
+      setEditingCommentDetails(null);
+      return;
+    }
+    const newContent = editingCommentDetails.currentText.trim();
+    if (!newContent) {
+      Alert.alert(t('emptyComment'), t('commentCannotBeEmpty'));
+      return;
+    }
+    setIsSubmittingCommentEdit(true);
+    Keyboard.dismiss();
+    try {
+      const response = await apiRequest(`/api/comments/${commentIdToSave}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: newContent }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Failed to update comment.' }));
+        throw new Error(errorData.message || `Failed to update comment: ${response.status}`);
+      }
+      const updatedCommentData = await response.json();
+      setCommentsByPostId((prev) => {
+        const postComments = (prev[postIdToSave] || []).map((c) =>
+          c.commentId === commentIdToSave
+            ? {
+                ...c,
+                content: updatedCommentData.content,
+                createdAt: updatedCommentData.createdAt || c.createdAt,
+              }
+            : c
+        );
+        return { ...prev, [postIdToSave]: postComments };
+      });
+      Alert.alert(t('success'), t('commentUpdated'));
+      setEditingCommentDetails(null);
+    } catch (err: any) {
+      console.error('Error updating comment:', err);
+      Alert.alert(t('error'), t('couldNotUpdateComment', { message: err.message }));
+    } finally {
+      setIsSubmittingCommentEdit(false);
+    }
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -63,9 +480,10 @@ export default function ProfileScreen() {
         return;
       }
 
+      let isMounted = true;
+
       (async () => {
         try {
-
           setLoading(true);
           setError({ key: null, message: null });
           const encodedUsername = encodeURIComponent(username);
@@ -87,37 +505,38 @@ export default function ProfileScreen() {
           }
 
           const data = await res.json();
+          if (!isMounted) return;
           setBio(data.biography ?? '');
           setAvatarUri(data.photoUrl ?? '');
+          await fetchUserPosts();
         } catch (err) {
           console.error('Failed to fetch or create profile:', err);
-          console.error('Failed to fetch or initialize profile:', err);
-          setError({ key: 'errorCouldNotFetchProfile', message: null });
-
+          if (isMounted) {
+            setError({ key: 'errorCouldNotFetchProfile', message: null });
+          }
         } finally {
-          setLoading(false);
+          if (isMounted) {
+            setLoading(false);
+          }
         }
       })();
-    }, [userType, username]) 
-  );
 
-  const handleLogout = async () => {
-    await clearSession();
-    await AsyncStorage.multiRemove(['password', 'email']);
-    setUserType(null);
-    setUsername('');
-    navigation.reset({ index: 0, routes: [{ name: 'index' }] });
-  };
+      return () => {
+        isMounted = false;
+      };
+    }, [userType, username, navigation, fetchUserPosts])
+  );
 
   useEffect(() => {
     const hasProfileUpdated = route?.params?.profileUpdated;
     if (hasProfileUpdated) {
       setProfileUpdateBannerVisible(true);
+      fetchUserPosts();
       const timeout = setTimeout(() => setProfileUpdateBannerVisible(false), 3000);
       navigation.setParams?.({ profileUpdated: undefined });
       return () => clearTimeout(timeout);
     }
-  }, [route?.params?.profileUpdated, navigation]);
+  }, [route?.params?.profileUpdated, navigation, fetchUserPosts]);
 
   if (userType !== 'user' || loading) {
     return (
@@ -274,6 +693,59 @@ export default function ProfileScreen() {
           <Text style={[styles.actionText, {color: buttonTextColor}]}>{t('savedPosts')}</Text>
         </TouchableOpacity>
 
+        <View style={[styles.sectionDivider, { backgroundColor: isDarkMode ? '#2E2E2E' : '#D9D9D9' }]} />
+
+        <ThemedText style={[styles.postsHeader, { color: generalTextColor }]}>{t('profilePostsTitle')}</ThemedText>
+
+        <View style={styles.postListContainer}>
+          {postsLoading ? (
+            <ActivityIndicator style={styles.postsLoadingIndicator} color={iconColor} />
+          ) : postsError ? (
+            <ThemedText style={[styles.postsErrorText, { color: errorTextColor }]}>{postsError}</ThemedText>
+          ) : posts.length === 0 ? (
+            <ThemedText style={[styles.emptyPostsText, { color: iconColor }]}>{t('noPostsYet')}</ThemedText>
+          ) : (
+            posts.map((post) => (
+              <PostItem
+                key={`profile-post-${post.id}`}
+                post={post}
+                cardBackgroundColor={cardBackgroundColor}
+                iconColor={iconColor}
+                textColor={generalTextColor}
+                commentInputBorderColor={commentInputBorderColor}
+                commentInputTextColor={commentInputTextColor}
+                commentInputPlaceholderColor={commentInputPlaceholderColor}
+                commentInputBackgroundColor={commentInputBackgroundColor}
+                onLikePress={handleLikeToggle}
+                onSavePress={handleSaveToggle}
+                userType={userType}
+                loggedInUsername={username}
+                isExpanded={expandedPostId === post.id}
+                commentsList={commentsByPostId[post.id] || []}
+                isLoadingComments={loadingCommentsPostId === post.id}
+                commentInputText={
+                  editingCommentDetails?.postId === post.id ? '' : commentInputs[post.id] || ''
+                }
+                isPostingComment={postingCommentPostId === post.id}
+                onToggleComments={() => handleToggleComments(post.id)}
+                onCommentInputChange={(text) => handleCommentInputChange(post.id, text)}
+                onPostComment={() => handlePostComment(post.id)}
+                onDeleteComment={handleDeleteComment}
+                onTriggerEditComment={handleStartEditComment}
+                editingCommentDetailsForPost={
+                  editingCommentDetails?.postId === post.id ? editingCommentDetails : null
+                }
+                onEditCommentContentChange={handleEditingCommentTextChange}
+                onSaveEditedCommentForPost={handleSaveCommentEdit}
+                onCancelCommentEdit={handleCancelCommentEdit}
+                isSubmittingCommentEditForPost={
+                  editingCommentDetails?.postId === post.id && isSubmittingCommentEdit
+                }
+              />
+            ))
+          )}
+        </View>
+
 
       </View>
     </ParallaxScrollView>
@@ -297,6 +769,12 @@ const styles = StyleSheet.create({
   profilePic: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#ddd' }, 
   actionButton: { width: '100%', paddingVertical: 12, borderRadius: 8, marginBottom: 12, alignItems: 'center' },
   actionText: { fontSize: 16 }, 
+  sectionDivider: { height: 1, width: '100%', marginVertical: 20, borderRadius: 999 },
+  postsHeader: { fontSize: 18, fontWeight: '700', marginBottom: 12 },
+  postListContainer: { paddingBottom: 24 },
+  postsLoadingIndicator: { marginVertical: 20 },
+  postsErrorText: { textAlign: 'center', marginVertical: 12 },
+  emptyPostsText: { textAlign: 'center', marginVertical: 12, fontStyle: 'italic' },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center'},
   errorText: { textAlign: 'center', marginBottom: 12, padding: 10, borderRadius: 6 }, // STYLE FOR ERROR
   successBanner: {
