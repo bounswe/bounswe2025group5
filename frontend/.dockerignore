@@ -11,7 +11,6 @@ dist
 .vite
 coverage
 *.local
-.env*
 **/.DS_Store
 **/Thumbs.db
 
