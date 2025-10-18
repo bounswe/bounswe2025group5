@@ -14,6 +14,7 @@ import {
   useColorScheme,
   Switch,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -21,8 +22,6 @@ import { AuthContext } from '../_layout';
 import { apiRequest } from '../services/apiClient';
 import { Picker } from '@react-native-picker/picker';
 import { useTranslation } from 'react-i18next';
-
-const API_BASE = `${API_BASE_URL}/api`;
 
 
 type WasteGoal = {
@@ -126,38 +125,6 @@ export default function WasteGoalScreen() {
 
   const getGoals = async () => {
 
-      if (!username || loading) return;
-      setLoading(true);
-      setError({ key: null, message: null });
-      try {
-        const token = await AsyncStorage.getItem('token');
-        const url = `${API_BASE}/goals/info?username=${username}&size=50`;
-        const response = await fetch(url, {
-          headers: { Authorization: token ? `Bearer ${token}` : '' },
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`Server error: ${response.status} ${errorText}`);
-        }
-
-        const data = await response.json();
-        const goalsData: WasteGoal[] = Array.isArray(data) ? data : data.goals || [];
-        setGoals(goalsData);
-
-      } catch (err) {
-        console.error('Error fetching goals:', err);
-        if (err instanceof Error && err.message.startsWith('Server error:')) {
-          setError({ key: 'errorGoalFetchFailed', message: err.message });
-        } else if (err instanceof Error) {
-          setError({ key: null, message: err.message });
-        } else {
-          setError({ key: 'errorGoalFetchGeneric', message: null });
-        }
-      } finally {
-        setLoading(false);
-      }
-
     if (!username) return;
     setLoading(true);
     setError({ key: null, message: null });
@@ -252,8 +219,7 @@ export default function WasteGoalScreen() {
         amount: parseFloat(logEntryAmount),
         unit: currentGoalForLog.unit,
       };
-      const apiEndpoint = `${API_BASE}/logs/create`;
-      const response = await fetch(apiEndpoint, {
+      const response = await apiRequest('/api/logs/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : '' },
         body: JSON.stringify(requestBody),

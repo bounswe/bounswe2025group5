@@ -67,7 +67,7 @@ function SavedPostCard({
     <TouchableOpacity onPress={handleViewPost} style={[styles.postContainer, { backgroundColor: cardBackgroundColor }]}>
       {post.photoUrl && (
         <Image
-          source={{ uri: post.photoUrl.startsWith('http') ? post.photoUrl : `${API_BASE}${post.photoUrl}` }}
+          source={{ uri: post.photoUrl.startsWith('http') ? post.photoUrl : `${apiUrl}${post.photoUrl}` }}
           style={styles.postImage}
           onError={(e) => console.warn('Saved Post Card: Image load error', e.nativeEvent.error)}
         />
@@ -164,7 +164,7 @@ export default function SavedPostsScreen() {
 
         } catch (err: any) {
             console.error("Error fetching saved posts:", err);
-            setError(err.message || "An unknown error occurred.");
+            setError({ key: null, message: err.message || "An unknown error occurred." });
             // Keep potentially stale 'savedPosts' data visible on error? Or clear? Current: Keep.
         } finally {
             setLoading(false);
@@ -172,148 +172,23 @@ export default function SavedPostsScreen() {
         }
     }, [username, refreshing]); // Dependencies
 
-    // Effect to fetch data on focus or when username changes
+  // Effect to fetch data on focus or when username changes
     useFocusEffect(
-        useCallback(() => {
-            console.log("SavedPostsScreen Focus: Username =", username);
-            // Wait for AuthContext to provide definitive status (null or string)
-            if (username === undefined) {
-                console.log("SavedPostsScreen Focus: Waiting for Auth Context...");
-                setLoading(true); // Show loader while waiting
-                setError(null);
-            } else if (username) {
-                console.log("SavedPostsScreen Focus: Username present, fetching data.");
-                fetchSavedPosts(); // Fetch data only when logged in
-            } else { // username is null or empty string
-                console.log("SavedPostsScreen Focus: Username null/empty, setting Login Required error.");
-                setError("Login Required: Cannot fetch saved posts.");
-                setSavedPosts([]);
-                setLocallyUnsavedIds(new Set());
-                setLoading(false);
-            }
-        }, [username, fetchSavedPosts]) // Dependencies: username, fetchSavedPosts
-    );
-
-    try {
-      const response = await fetch(`${API_BASE}/api/posts/getSavedPosts?username=${encodeURIComponent(username)}`);
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          setSavedPosts([]);
+      useCallback(() => {
+        // If auth is still resolving, show loader; if logged in, fetch; if logged out, show login required
+        if (username === undefined) {
+          setLoading(true);
+          setError({ key: null, message: null });
+        } else if (username) {
+          fetchSavedPosts();
         } else {
-            Alert.alert("Login Required", "Please log in to view saved posts.");
+          setError({ key: 'loginRequiredSaved', message: null });
+          setSavedPosts([]);
+          setLocallyUnsavedIds(new Set());
+          setLoading(false);
         }
-    };
-
-    // --- Handle UNsaving a Post ---
-    const handleUnsavePost = async (postId: number) => {
-        if (!username) { Alert.alert("Login Required"); return; }
-
-        // 1. Optimistic UI Update (Mark as locally unsaved)
-        setLocallyUnsavedIds(prevIds => {
-            const newIds = new Set(prevIds);
-            newIds.add(postId);
-            console.log(`Optimistic UI: Marking Post ${postId} as locally unsaved.`);
-            return newIds;
-        });
-
-        try {
-            // 2. API Call (DELETE)
-            const response = await apiRequest(`/api/posts/${postId}/saves/${encodeURIComponent(username)}`, {
-                method: 'DELETE',
-            });
-            const responseBodyText = await response.text(); // Get text for potential validation/error
-            console.log(`API Response: Status ${response.status}`);
-
-            if (!response.ok) { throw new Error(`Failed to unsave post. Status: ${response.status}`); }
-
-            // 3. Validate Success Response (Optional but Recommended)
-            // Expecting { "deleted": true } based on previous info
-            try {
-                const result = JSON.parse(responseBodyText);
-                if (!result || result.deleted !== true) {
-                   throw new Error("Backend unsave confirmation format mismatch.");
-                }
-                console.log(`API Success: Post ${postId} unsaved.`);
-            } catch(e: any) {
-                 throw new Error(`Failed to parse unsave confirmation or format mismatch: ${e.message}`);
-            }
-            // If validation passes, do nothing - local state is already updated
-
-        } catch (err: any) {
-            // 4. Revert UI on Error
-            console.error("Error during unsave:", err);
-            Alert.alert("Error", err.message || "Could not unsave post.");
-            setLocallyUnsavedIds(prevIds => {
-                const newIds = new Set(prevIds);
-                newIds.delete(postId);
-                console.log(`Reverting UI: Removing Post ${postId} from locally unsaved.`);
-                return newIds;
-            });
-        }
-    };
-
-    // --- Handle SAVING a Post (that was locally unsaved) ---
-    const handleSavePost = async (postId: number) => {
-         if (!username) { Alert.alert("Login Required"); return; }
-
-         // 1. Optimistic UI Update (Mark as locally saved)
-         setLocallyUnsavedIds(prevIds => {
-            const newIds = new Set(prevIds);
-            newIds.delete(postId);
-            console.log(`Optimistic UI: Marking Post ${postId} as locally saved (removing from unsaved).`);
-            return newIds;
-        });
-
-         try {
-            // 2. API Call (POST)
-            const response = await apiRequest(`/api/posts/${postId}/save`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username }),
-            });
-            const responseBodyText = await response.text();
-            console.log(`API Response: Status ${response.status}`);
-
-            if (!response.ok) { throw new Error(`Failed to save post. Status: ${response.status}`); }
-
-            // 3. Validate Success Response (Optional but Recommended)
-            // Expecting { "username": "...", "postId": ... } based on previous info
-             try {
-                const result = JSON.parse(responseBodyText);
-                if (!result || result.username !== username || result.postId !== postId) {
-                   throw new Error("Backend save confirmation format mismatch.");
-                }
-                console.log(`API Success: Post ${postId} saved.`);
-            } catch(e: any) {
-                 throw new Error(`Failed to parse save confirmation or format mismatch: ${e.message}`);
-            }
-            // If validation passes, do nothing - local state is already updated
-
-         } catch (err: any) {
-            // 4. Revert UI on Error
-             console.error("Error during save:", err);
-             Alert.alert("Error", err.message || "Could not save post.");
-             setLocallyUnsavedIds(prevIds => {
-                const newIds = new Set(prevIds);
-                newIds.add(postId); // Add back to unsaved list
-                console.log(`Reverting UI: Re-adding Post ${postId} to locally unsaved.`);
-                return newIds;
-            });
-         }
-    };
-
-    // --- Render Logic ---
-
-    // 1. Initial Auth Loading State
-    if (username === undefined) {
-        return (
-            <View style={[styles.loadingContainer, { backgroundColor: screenBackgroundColor }]}>
-                <ActivityIndicator size="large" color={activityIndicatorColor} />
-            </View>
-        );
-    }
-  }, [username, refreshing]);
+      }, [username, fetchSavedPosts])
+    );
 
   // On focus / username change
   useFocusEffect(
@@ -351,7 +226,7 @@ export default function SavedPostsScreen() {
     setLocallyUnsavedIds((prev) => new Set(prev).add(postId));
 
     try {
-      const url = `${API_BASE}/api/posts/unsave/${encodeURIComponent(username)}/${postId}`;
+      const url = `${apiUrl}/api/posts/unsave/${encodeURIComponent(username)}/${postId}`;
       const response = await fetch(url, { method: 'DELETE' });
       const responseBodyText = await response.text();
 
@@ -392,7 +267,7 @@ export default function SavedPostsScreen() {
     });
 
     try {
-      const url = `${API_BASE}/api/posts/save`;
+      const url = `${apiUrl}/api/posts/save`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

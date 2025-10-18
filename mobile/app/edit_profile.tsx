@@ -9,6 +9,7 @@ import {
   Image,
   ScrollView,
   Alert,
+  Platform,
   useColorScheme,
   ActivityIndicator,
 } from 'react-native';
@@ -136,21 +137,21 @@ export default function EditProfileScreen() {
       setAvatarDisplayUrl(result.assets[0].uri);
     }
   };
-
-  const handleUploadProfilePhoto = async () => {
+const handleUploadProfilePhoto = async () => {
   if (!newAvatarAsset) {
     Alert.alert(t('noNewPhoto'), t('selectPhotoFirst'));
     return;
   }
   if (!username) {
-      const s = { key: 'errorUserNotIdentified', message: null };
-      setErrState({ ...s, resolved: resolveErrorText(s) });
-      alertError(s);
-      return;
-    }
+    const s = { key: 'errorUserNotIdentified', message: null };
+    setErrState({ ...s, resolved: resolveErrorText(s) });
+    alertError(s);
+    return;
+  }
 
   setUploadingPhoto(true);
   setErrState({ key: null, message: null, resolved: null });
+
   try {
     const asset = newAvatarAsset;
 
@@ -177,7 +178,7 @@ export default function EditProfileScreen() {
       const webType = blob.type || type;
       const webName = asset.fileName ?? defaultName;
       const file = new File([blob], webName, { type: webType });
-      fd.append('file', file); 
+      fd.append('file', file);
     } else {
       // iOS/Android: append RN-style file descriptor
       const uri = await normalizeNativeUri(asset.uri);
@@ -199,83 +200,69 @@ export default function EditProfileScreen() {
     );
 
     if (!res.ok) {
-        const errorData = await res.text().catch(() => '');
-        let raw = `Server error: ${res.status}`;
-        try {
-          const parsed = JSON.parse(errorData);
-          if (parsed?.message || parsed?.error) {
-            raw = `Server error: ${res.status} ${parsed.message || parsed.error}`;
-          } else if (errorData) {
-            raw = `Server error: ${res.status} ${errorData}`;
-          }
-        } catch {
-          if (errorData) raw = `Server error: ${res.status} ${errorData}`;
+      const errorData = await res.text().catch(() => '');
+      let raw = `Server error: ${res.status}`;
+      try {
+        const parsed = JSON.parse(errorData);
+        if (parsed?.message || parsed?.error) {
+          raw = `Server error: ${res.status} ${parsed.message || parsed.error}`;
+        } else if (errorData) {
+          raw = `Server error: ${res.status} ${errorData}`;
         }
-        throw new Error(raw);
+      } catch {
+        if (errorData) raw = `Server error: ${res.status} ${errorData}`;
       }
-
-      const updatedProfileInfo = await res.json().catch(() => ({}));
-      if (updatedProfileInfo && updatedProfileInfo.photoUrl) {
-        setAvatarDisplayUrl(updatedProfileInfo.photoUrl);
-      }
-      setNewAvatarAsset(null);
-      Alert.alert(t('success'), t('successPhotoUploaded'));
-    } catch (e) {
-      console.error('Photo upload error:', e);
-      const s: ErrorState =
-        e instanceof Error && /Server error:\s*\d+/.test(e.message)
-          ? { key: 'errorUploadPhotoFailed', message: e.message }
-          : { key: 'errorUploadPhotoGeneric', message: e instanceof Error ? e.message : null };
-      setErrState({ ...s, resolved: resolveErrorText(s) });
-      alertError(s);
-    } finally {
-      setUploadingPhoto(false);
-
+      throw new Error(raw);
     }
 
-    const updated = await res.json();
-    if (updated?.photoUrl) setAvatarDisplayUrl(updated.photoUrl);
+    const updatedProfileInfo = await res.json().catch(() => ({}));
+    if (updatedProfileInfo && updatedProfileInfo.photoUrl) {
+      setAvatarDisplayUrl(updatedProfileInfo.photoUrl);
+    }
     setNewAvatarAsset(null);
-    Alert.alert('Success', 'Profile photo uploaded successfully!');
+    Alert.alert(t('success'), t('successPhotoUploaded'));
   } catch (e) {
     console.error('Photo upload error:', e);
-    Alert.alert('Error', e instanceof Error ? e.message : 'Upload failed');
+    const s: ErrorState =
+      e instanceof Error && /Server error:\s*\d+/.test(e.message)
+        ? { key: 'errorUploadPhotoFailed', message: e.message }
+        : { key: 'errorUploadPhotoGeneric', message: e instanceof Error ? e.message : null };
+    setErrState({ ...s, resolved: resolveErrorText(s) });
+    alertError(s);
   } finally {
     setUploadingPhoto(false);
   }
 };
 
-  const onSaveBio = async () => {
-    if (!username) {
-      const s = { key: 'errorUserNotIdentified', message: null };
-      setErrState({ ...s, resolved: resolveErrorText(s) });
-      alertError(s);
-      return;
-    }
-    setSavingBio(true);
-    setErrState({ key: null, message: null, resolved: null });
-    try {
-
-      await apiRequest(`/api/users/${encodeURIComponent(username)}/profile`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, biography: bio }),
-      });
-      Alert.alert(t'success', t('successBioUpdated'));
-      // navigation.goBack(); // if on, go back after only bio save
-
-    } catch (e) {
-      console.error('Bio update error:', e);
-      const s: ErrorState =
-        e instanceof Error && /Server error:\s*\d+/.test(e.message)
-          ? { key: 'errorBioUpdateFailed', message: e.message }
-          : { key: 'errorBioUpdateGeneric', message: e instanceof Error ? e.message : null };
-      setErrState({ ...s, resolved: resolveErrorText(s) });
-      alertError(s);
-    } finally {
-      setSavingBio(false);
-    }
-  };
+const onSaveBio = async () => {
+  if (!username) {
+    const s = { key: 'errorUserNotIdentified', message: null };
+    setErrState({ ...s, resolved: resolveErrorText(s) });
+    alertError(s);
+    return;
+  }
+  setSavingBio(true);
+  setErrState({ key: null, message: null, resolved: null });
+  try {
+    await apiRequest(`/api/users/${encodeURIComponent(username)}/profile`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, biography: bio }),
+    });
+    Alert.alert(t('success'), t('successBioUpdated'));
+    // navigation.goBack(); // if desired, go back after saving bio
+  } catch (e) {
+    console.error('Bio update error:', e);
+    const s: ErrorState =
+      e instanceof Error && /Server error:\s*\d+/.test(e.message)
+        ? { key: 'errorBioUpdateFailed', message: e.message }
+        : { key: 'errorBioUpdateGeneric', message: e instanceof Error ? e.message : null };
+    setErrState({ ...s, resolved: resolveErrorText(s) });
+    alertError(s);
+  } finally {
+    setSavingBio(false);
+  }
+};
 
   const onCancel = () => navigation.goBack();
 

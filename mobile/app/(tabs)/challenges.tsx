@@ -14,8 +14,6 @@ import {
 import { ThemedText } from '@/components/ThemedText';
 import { AuthContext } from '../_layout';
 
-const API_BASE = API_BASE_URL;
-
 import { useTranslation } from 'react-i18next';
 import { apiRequest } from '../services/apiClient';
 
@@ -125,18 +123,21 @@ export default function ChallengesScreen() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username }),
         });
-        if (!res.ok) throw new Error(`Status ${res.status}`);
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(errorText || `Server error: ${res.status}`);
+        }
       } else {
         const res = await apiRequest(
           `/api/challenges/${challengeId}/attendees/${encodeURIComponent(username)}`,
           {
             method: 'DELETE',
           }
-        : { method: 'DELETE' };
-      const res = await fetch(url, options);
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(errorText || `Server error: ${res.status}`);
+        );
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(errorText || `Server error: ${res.status}`);
+        }
       }
     } catch (err) {
       console.error(err);
@@ -154,7 +155,6 @@ export default function ChallengesScreen() {
     setLbLoading(true);
     setLbError({ key: null, message: null });
     try {
-      const res = await fetch(`${API_BASE}/api/challenges/leaderboard?id=${challengeId}`);
       const res = await apiRequest(`/api/challenges/${challengeId}/leaderboard`);
       if (!res.ok) {
         const errorText = await res.text();

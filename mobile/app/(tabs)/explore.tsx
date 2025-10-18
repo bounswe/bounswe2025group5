@@ -376,54 +376,22 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
       else {
         if (!result.username) throw new Error(result.message || `Backend error on save.`);
       }
-      const listToUpdate = inSearchMode ? searchResults : posts;
+      // success: optimistic update already applied above
+    } catch (err: any) {
+      console.error('Failed to toggle save:', err.message);
+      Alert.alert(t('error'), err.message || t('couldNotUpdateSave'));
       const setListFunction = inSearchMode ? setSearchResults : setPosts;
-
       setListFunction(currentList =>
         currentList.map(p =>
           p.id === postId
-            ? { ...p, savedByUser: !currentlySaved }
+            ? { ...p, savedByUser: currentlySaved }
             : p
         )
       );
-      
-      // api call for save POST {{base_url}}/api/posts/save with body { "username": "{{username} }", "postId": {{post_id}} } and header Content-Type: application/json
-      // api call for unsave DELETE {{base_url}}/api/posts/unsave{{username}}/{{post_id}} no body
-      try {
-        const url = currentlySaved
-          ? `${API_BASE}/api/posts/unsave${username}/${postId}`
-          : `${API_BASE}/api/posts/save`;
-        const method = currentlySaved ? 'DELETE' : 'POST';
-        const body = currentlySaved ? null : JSON.stringify({ username, postId });
-        const response = currentlySaved ? await fetch(url, { method }) : await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body });
-        const responseBodyText = await response.text();
-        if (!response.ok) {
-          let errorMsg = `Failed to ${currentlySaved ? 'unsave' : 'save'}. Status: ${response.status}`;
-          try { const errorData = JSON.parse(responseBodyText); errorMsg = errorData.message || errorMsg; }
-          catch (e) { errorMsg += ` Response: ${responseBodyText.substring(0,100)}`; }
-          throw new Error(errorMsg);
-        }
-        const result = JSON.parse(responseBodyText);
-        if (currentlySaved) {
-          if (!result.deleted) throw new Error(result.message || `Backend error on unsave.`);
-        }
-        else {
-          if (!result.username) throw new Error(result.message || `Backend error on save.`);
-        }
-      } catch (err: any) {
-        console.error('Failed to toggle save:', err.message);
-        Alert.alert(t('error'), err.message || t('couldNotUpdateSave'));
-        setListFunction(currentList =>
-          currentList.map(p =>
-            p.id === postId
-              ? { ...p, savedByUser: currentlySaved }
-              : p
-          )
-        );
-      }
+    }
   };
 
-  const fetchCommentsForPost = async (postId: number, forceRefresh = false) => {
+  async function fetchCommentsForPost(postId: number, forceRefresh = false) {
     if (commentsByPostId[postId] && !forceRefresh && commentsByPostId[postId].length > 0) {
       return;
     }
@@ -442,7 +410,7 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
       if (typeof apiResponse.totalComments === 'number') { /* ... update post comment count ... */ }
     } catch (e: any) { /* ... error handling ... */ Alert.alert(t('error'), t('couldNotLoadComments'));
     } finally { setLoadingCommentsPostId(null); }
-  };
+  }
 
   const handleToggleComments = (postId: number) => {
     const isCurrentlyExpanded = expandedPostId === postId;

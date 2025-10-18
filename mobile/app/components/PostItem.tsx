@@ -128,7 +128,7 @@ function PostItem({
   
     const canPostComment = userType !== 'guest' && loggedInUsername && !editingCommentDetailsForPost; // Disable new comment if editing one in this post
   
-    return (
+  return (
       <View testID={`post-${post.id}`} style={[styles.postContainer, { backgroundColor: cardBackgroundColor }]}>
         {/* ... Post title, image, content, footer (likes/comment count) ... no changes here */}
         <ThemedText type="title" style={styles.postTitle}>
@@ -136,43 +136,56 @@ function PostItem({
         </ThemedText>
         {post.photoUrl && (
           <Image
-                    source={{
-            uri: post.photoUrl.startsWith('http')
-              ? post.photoUrl
-              : apiUrl(post.photoUrl),
-          }}
+            source={{
+              uri: post.photoUrl.startsWith('http') ? post.photoUrl : apiUrl(post.photoUrl),
+            }}
             style={styles.postImage}
             onError={(e) => console.warn('Explore: Image failed to load:', e.nativeEvent.error, post.photoUrl)}
           />
-          <ThemedText style={[styles.footerText, { color: post.likedByUser ? 'red' : iconColor, marginLeft: 4 }]}>
-            {post.likes}
-          </ThemedText>
-        </TouchableOpacity>
+        )}
 
-        <TouchableOpacity onPress={onToggleComments} style={styles.footerAction}>
-          <Ionicons name="chatbubble-outline" size={20} color={iconColor} />
-          <ThemedText style={[styles.footerText, { color: iconColor, marginLeft: 4 }]}>
-            {post.comments}
+        {post.content ? (
+          <ThemedText style={[styles.postContent, { color: textColor }]}>
+            {post.content}
           </ThemedText>
-        </TouchableOpacity>
+        ) : null}
 
-        <TouchableOpacity testID="save-toggle" onPress={handleSave} style={[styles.footerAction, { marginLeft: 246 }]}>
-          <Ionicons
-            testID={`icon-${post.savedByUser ? 'bookmark' : 'bookmark-outline'}`}
-            name={post.savedByUser ? 'bookmark' : 'bookmark-outline'}
-            size={20}
-            color={post.savedByUser ? '#FFC107' : iconColor}
-          />
-          <ThemedText
-            style={[
-              styles.footerText,
-              { color: post.savedByUser ? '#FFC107' : iconColor, marginLeft: 4 },
-            ]}
-          >
-            {post.savedByUser ? t('saved') : t('save')}
-          </ThemedText>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.postFooter}>
+          <TouchableOpacity onPress={handleLike} style={styles.footerAction}>
+            <Ionicons
+              name={post.likedByUser ? 'heart' : 'heart-outline'}
+              size={20}
+              color={post.likedByUser ? 'red' : iconColor}
+            />
+            <ThemedText style={[styles.footerText, { color: post.likedByUser ? 'red' : iconColor, marginLeft: 4 }]}>
+              {post.likes}
+            </ThemedText>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={onToggleComments} style={styles.footerAction}>
+            <Ionicons name="chatbubble-outline" size={20} color={iconColor} />
+            <ThemedText style={[styles.footerText, { color: iconColor, marginLeft: 4 }]}>
+              {post.comments}
+            </ThemedText>
+          </TouchableOpacity>
+
+          <TouchableOpacity testID="save-toggle" onPress={handleSave} style={[styles.footerAction, { marginLeft: 'auto' }]}>
+            <Ionicons
+              testID={`icon-${post.savedByUser ? 'bookmark' : 'bookmark-outline'}`}
+              name={post.savedByUser ? 'bookmark' : 'bookmark-outline'}
+              size={20}
+              color={post.savedByUser ? '#FFC107' : iconColor}
+            />
+            <ThemedText
+              style={[
+                styles.footerText,
+                { color: post.savedByUser ? '#FFC107' : iconColor, marginLeft: 4 },
+              ]}
+            >
+              {post.savedByUser ? t('saved') : t('save')}
+            </ThemedText>
+          </TouchableOpacity>
+        </View>
 
       {/* Comments */}
       {isExpanded && (

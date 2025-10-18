@@ -25,6 +25,9 @@ export default function ProfileScreen() {
   
   const { userType, setUserType, username, setUsername} = useContext(AuthContext);
     
+  // Define ErrorState so useState<ErrorState> is valid
+  type ErrorState = { key: string | null; message: string | null };
+
   const colorScheme = useColorScheme();
 
   const [bio, setBio] = useState('');
