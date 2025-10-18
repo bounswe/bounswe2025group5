@@ -1,4 +1,7 @@
 {
+    "common": {
+        "create": "Create"
+    },
     "login": {
         "title": "Login to your account",
         "description": "Enter your email below to login to your account",
@@ -71,6 +74,7 @@
         "attend": "Attend",
         "attending": "Attending...",
         "loading": "Loading...",
-        "noChallenges": "No challenges found"
+        "noChallenges": "No challenges found",
+        "createChallenge": "Create Challenge"
     }
 }

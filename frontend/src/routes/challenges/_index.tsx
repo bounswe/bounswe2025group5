@@ -5,6 +5,15 @@ import { type ChallengeListItem } from '@/lib/api/schemas/challenges';
 import { ChallengesApi } from '@/lib/api/challenges';
 import { UsersApi } from '@/lib/api/users';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+
 
 
 export default function ChallengesIndex() {
@@ -64,10 +73,21 @@ export default function ChallengesIndex() {
             ))}
           </div>
         )}
-        <div className="fixed bottom-4 right-4">
-          <Button size="lg" onClick={() => window.location.href = '/challenges/create'}>
-            {t('challenges.create', 'Create Challenge')}
-          </Button>
+        <div>
+          <Dialog>
+            <DialogTrigger>
+              <Button variant="outline">{t("common.create")}</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{t("challenges.createChallenge")}</DialogTitle>
+                <DialogDescription>
+                  This action cannot be undone. This will permanently delete your account
+                  and remove your data from our servers.
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     );

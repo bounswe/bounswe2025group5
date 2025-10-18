@@ -1,4 +1,7 @@
 {
+    "common": {
+        "create": "Yarat"
+    },
     "login": {
     "title": "Hesabınıza giriş yapın",
     "description": "Hesabınıza giriş yapmak için lütfen e-posta adresinizi girin",
@@ -71,6 +74,7 @@
         "attend": "Katıl",
         "attending": "Katılıyor...",
         "loading": "Yükleniyor...",
-        "noChallenges": "Etkinlik bulunamadı"
+        "noChallenges": "Etkinlik bulunamadı",
+        "createChallenge": "Etkinlik Oluştur"
     }
 }
