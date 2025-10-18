@@ -75,6 +75,10 @@
         "attending": "Katılıyor...",
         "loading": "Yükleniyor...",
         "noChallenges": "Etkinlik bulunamadı",
-        "createChallenge": "Etkinlik Oluştur"
+        "create": {
+            "titleLabel": "Etkinlik Oluştur",
+            "name": "Başlık",
+            "namePlaceholder": "Etkinlik başlığını girin"
+        }
     }
 }

@@ -3,9 +3,11 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChallengesApi } from '@/lib/api/challenges';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Spinner } from '@/components/ui/spinner';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
 export default function CreateChallenge() {
     const { t } = useTranslation();
@@ -56,4 +58,23 @@ export default function CreateChallenge() {
             setLoading(false);
         }
     };
+
+    return (
+        <Dialog>
+          <DialogTrigger>
+            <Button variant="outline">{t("common.create")}</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{t("challenges.create.titleLabel")}</DialogTitle>
+              <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+                <div>
+                  <Label htmlFor="title" className="mb-1 block">{t("challenges.create.name")}</Label>
+                  <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder={t("challenges.create.namePlaceholder")} />
+                </div>
+              </form>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
+    );
 }

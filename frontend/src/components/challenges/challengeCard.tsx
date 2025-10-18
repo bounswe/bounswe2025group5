@@ -64,13 +64,13 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
           {challenge.description && <CardDescription>{challenge.description}</CardDescription>}
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground space-y-1">
-          <div className="flex justify-between"><span>{t('challenges.type', 'Type')}</span><span>{challenge.wasteType}</span></div>
+          <div className="flex justify-between"><span>{t('challenges.type', 'Type')}</span><span>{challenge.type}</span></div>
           <div className="flex justify-between"><span>{t('challenges.status', 'Status')}</span><span>{challenge.status}</span></div>
           <div className="flex justify-between"><span>{t('challenges.dates', 'Dates')}</span><span>{challenge.startDate} → {challenge.endDate}</span></div>
           {challenge.amount != null && <div className="flex justify-between"><span>{t('challenges.target', 'Target')}</span><span>{challenge.amount}</span></div>}
         </CardContent>
         // if user is not attending the challenge, show attend button; otherwise leave button
-        {!challenge.attendee ? (
+        {!challenge.userInChallenge ? (
           <div className="mt-auto p-4">
             <Button size="sm" variant="outline" disabled={!!busy[challenge.challengeId]} onClick={() => attend(challenge.challengeId, username)}>
               {busy[challenge.challengeId] ? t('challenges.attending', 'Attending...') : t('challenges.attend', 'Attend')}

@@ -75,6 +75,10 @@
         "attending": "Attending...",
         "loading": "Loading...",
         "noChallenges": "No challenges found",
-        "createChallenge": "Create Challenge"
+        "create": {
+            "titleLabel": "Create Challenge",
+            "name": "Title",
+            "namePlaceholder": "Enter challenge title"
+        }
     }
 }

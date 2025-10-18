@@ -4,15 +4,7 @@ import ChallengeCard from '@/components/challenges/challengeCard';
 import { type ChallengeListItem } from '@/lib/api/schemas/challenges';
 import { ChallengesApi } from '@/lib/api/challenges';
 import { UsersApi } from '@/lib/api/users';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import CreateChallenge from '@/components/challenges/createChallenge';
 
 
 
@@ -52,43 +44,35 @@ export default function ChallengesIndex() {
   }, [username]);
 
   return (
-      <div className="min-h-screen flex items-center justify-center text-foreground">
-        <h1 className="text-3xl font-bold mb-4"> {t('challenges.title', 'Challenges')} </h1>
-        {loading ? (
-          <div className="min-h-screen flex items-center justify-center text-foreground">
-            {t('challenges.loading', 'Loading...')}
-          </div>
-        ) : error ? (
-          <div className="min-h-screen flex items-center justify-center text-destructive">
-            {error}
-          </div>
-        ) : items.length === 0 ? (
-          <div className="min-h-screen flex items-center justify-center text-muted-foreground">
-            {t('challenges.noChallenges', 'No challenges found.')}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {items.map((item) => (
-              <ChallengeCard key={item.challengeId} challenge={item} />
-            ))}
-          </div>
-        )}
-        <div>
-          <Dialog>
-            <DialogTrigger>
-              <Button variant="outline">{t("common.create")}</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{t("challenges.createChallenge")}</DialogTitle>
-                <DialogDescription>
-                  This action cannot be undone. This will permanently delete your account
-                  and remove your data from our servers.
-                </DialogDescription>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
+      <div className="min-h-screen flex flex-col text-foreground p-4">
+        <div className="text-center mb-4 mt-30">
+          <h1 className="text-3xl font-bold"> {t('challenges.title', 'Challenges')} </h1>
         </div>
+        
+        <div className="flex-1 flex items-center justify-center">
+          {loading ? (
+            <div className="text-foreground">
+              {t('challenges.loading', 'Loading...')}
+            </div>
+          ) : error ? (
+            <div className="text-destructive">
+              {error}
+            </div>
+          ) : items.length === 0 ? (
+            <div className="text-muted-foreground">
+              {t('challenges.noChallenges', 'No challenges found.')}
+            </div>
+          ) : (
+            <div className="w-full max-w-6xl">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {items.map((item) => (
+                  <ChallengeCard key={item.challengeId} challenge={item} />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+        < CreateChallenge />
       </div>
     );
 }
