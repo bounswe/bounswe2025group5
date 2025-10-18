@@ -40,6 +40,7 @@ type Post = {
   photoUrl: string | null;
   likedByUser: boolean;
   savedByUser: boolean;
+  createdAt?: string | null;
 };
 
 export default function ExploreScreen() {
@@ -114,6 +115,7 @@ export default function ExploreScreen() {
     photoUrl: item.photoUrl,
     likedByUser: false,
     savedByUser: false,
+    createdAt: item.createdAt ?? null,
   });
 
   const fetchLikeStatusesForPosts = async (currentPostsToUpdate: Post[], currentUsername: string): Promise<Post[]> => {

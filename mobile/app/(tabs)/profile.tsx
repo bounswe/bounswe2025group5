@@ -39,6 +39,7 @@ type Post = {
   photoUrl: string | null;
   likedByUser: boolean;
   savedByUser: boolean;
+  createdAt?: string | Date | null;
 };
 
 export default function ProfileScreen() {
@@ -112,6 +113,7 @@ export default function ProfileScreen() {
     photoUrl: item.photoUrl ?? null,
     likedByUser: false,
     savedByUser: false,
+    createdAt: item.createdAt ?? null,
   });
 
   const fetchLikeStatusesForPosts = async (currentPostsToUpdate: Post[], currentUsername: string): Promise<Post[]> => {

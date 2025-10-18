@@ -1,5 +1,5 @@
 // components/PostItem.tsx
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -36,6 +36,7 @@ type Post = {
   photoUrl: string | null;
   likedByUser: boolean;
   savedByUser: boolean;
+  createdAt?: string | Date | null;
 };
 
 interface PostItemProps {
@@ -100,7 +101,7 @@ function PostItem({
   onCancelCommentEdit,
   isSubmittingCommentEditForPost,
 }: PostItemProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const colorScheme = useColorScheme();
   const [isImageViewerVisible, setImageViewerVisible] = useState(false);
   const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
@@ -115,6 +116,20 @@ function PostItem({
       ? post.photoUrl
       : apiUrl(post.photoUrl)
     : null;
+  const resolvedLanguage = (i18n.resolvedLanguage || i18n.language || 'en').toString();
+  const formattedPublishedAt = useMemo(() => {
+    if (!post.createdAt) return null;
+    const dateInstance = post.createdAt instanceof Date ? post.createdAt : new Date(post.createdAt);
+    if (Number.isNaN(dateInstance.getTime())) return null;
+    try {
+      return dateInstance.toLocaleString(resolvedLanguage, {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      });
+    } catch {
+      return dateInstance.toISOString();
+    }
+  }, [post.createdAt, resolvedLanguage]);
 
   const handleLike = () => {
     if (userType === 'guest') {
@@ -225,6 +240,11 @@ function PostItem({
         {post.content ? (
           <ThemedText style={[styles.postContent, { color: textColor }]}>
             {post.content}
+          </ThemedText>
+        ) : null}
+        {formattedPublishedAt ? (
+          <ThemedText style={[styles.postTimestamp, { color: iconColor }]} accessibilityLabel={formattedPublishedAt}>
+            {formattedPublishedAt}
           </ThemedText>
         ) : null}
 
@@ -428,6 +448,7 @@ const styles = StyleSheet.create({
   },
   postTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 8 },
   postContent: { fontSize: 14, lineHeight: 20, marginBottom: 12 },
+  postTimestamp: { fontSize: 12, opacity: 0.7, marginBottom: 8 },
   postFooter: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
   footerAction: { flexDirection: 'row', alignItems: 'center', minHeight: 20 },
   footerText: { fontSize: 14, marginRight: 8 },
