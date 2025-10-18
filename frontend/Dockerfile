@@ -1,7 +1,6 @@
 ## Simple single-stage image: build then serve with Vite preview on port 3000
 FROM node:20-alpine
 
-ENV NODE_ENV=production
 WORKDIR /app
 
 # Install dependencies
@@ -11,6 +10,8 @@ RUN npm ci --no-audit --no-fund
 # Copy source and build
 COPY . .
 RUN npm run build
+
+ENV NODE_ENV=production
 
 EXPOSE 3000
 
