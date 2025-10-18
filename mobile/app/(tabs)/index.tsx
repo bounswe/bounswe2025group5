@@ -530,12 +530,12 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   languageToggleContainer: {
     position: 'absolute',
-    top: 16,
-    right: 16,
+    top: 8,
+    right: 48,
     zIndex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 8,
+    padding: 0,
     backgroundColor: 'rgba(0,0,0,0.3)',
     borderRadius: 20,
   },
