@@ -64,17 +64,17 @@ public class ProfileService {
 
     @Transactional
     public ProfileResponse editProfileInfo(
-            ProfileEditAndCreateRequest newProfileInfo,String username) {
+            ProfileEditAndCreateRequest newProfileInfo) {
         User user = userRepository
-                .findByUsername(username)
-                .orElseThrow(() -> new NotFoundException("User not found: " + username));
+                .findByUsername(newProfileInfo.getUsername())
+                .orElseThrow(() -> new NotFoundException("User not found: " + newProfileInfo.getUsername()));
         Profile p = profileRepository
                 .findByUser(user)
-                .orElseThrow(() -> new NotFoundException("Profile not found for user: " + username));
+                .orElseThrow(() -> new NotFoundException("Profile not found for user: " + newProfileInfo.getUsername()));
         p.setBiography(newProfileInfo.getBiography());
         profileRepository.save(p);
         return new ProfileResponse(
-                username,
+                newProfileInfo.getUsername(),
                 newProfileInfo.getBiography(),
                 p.getPhotoUrl()
         );
