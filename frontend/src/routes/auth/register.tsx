@@ -30,7 +30,7 @@ export default function Register() {
       setLoading(true);
       await AuthApi.register(username, email, password);
       setSuccess("Account created successfully. Redirecting to login...");
-      setTimeout(() => navigate("/login"), 1200);
+      setTimeout(() => navigate("/auth/login"), 1200);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
       console.error("Registration error:", err);
@@ -86,7 +86,7 @@ export default function Register() {
         </form>
         <p className="mt-4 text-center text-sm text-gray-700">
           Already have an account?{" "}
-          <a href="/login" className="text-blue-600 hover:underline">Log in</a>
+          <a href="/auth/login" className="text-blue-600 hover:underline">Log in</a>
         </p>
           </CardContent>
         </Card>

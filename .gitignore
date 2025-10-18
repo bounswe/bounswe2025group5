@@ -5,3 +5,4 @@ node_modules
 .vscode
 .idea
 backend/src/main/resources/application.properties
+copilot-instructions.md

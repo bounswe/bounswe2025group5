@@ -5,6 +5,7 @@ import { BrowserRouter, useRoutes } from "react-router-dom";
 import routes from "~react-pages";
 import { LayoutResolver } from "./services/LayoutResolver";
 import "./index.css";
+import "./services/useClientTranslation.tsx";
 
 function App() {
   const element = useRoutes(routes);
