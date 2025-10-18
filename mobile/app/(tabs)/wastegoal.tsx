@@ -28,6 +28,7 @@ import { Ionicons } from '@expo/vector-icons';
 type WasteGoal = {
   goalId: number;
   wasteType: string;
+  rawWasteType?: string;
   amount: number;
   duration: number;
   unit: string;
@@ -54,6 +55,9 @@ type Navigation = {
   navigate: (screen: string, params?: any) => void;
 };
 
+const WASTE_TYPE_VALUES = ['Plastic', 'Paper', 'Glass', 'Metal', 'Organic'] as const;
+type WasteTypeValue = (typeof WASTE_TYPE_VALUES)[number];
+
 const convertInputToGrams = (value: number, unit: string) => {
   if (!Number.isFinite(value)) return 0;
   switch (unit) {
@@ -78,6 +82,21 @@ const convertGramsToDisplay = (grams: number) => {
     amount: parseFloat(safeGrams.toFixed(2)),
     unit: 'Grams',
   };
+};
+
+const canonicalizeWasteType = (value: string | null | undefined): WasteTypeValue => {
+  if (!value) return WASTE_TYPE_VALUES[0];
+  const normalized = value.trim().toLowerCase();
+  const match = WASTE_TYPE_VALUES.find((type) => type.toLowerCase() === normalized);
+  if (match) return match;
+  const formatted = value
+    .replace(/[_-]+/g, ' ')
+    .split(' ')
+    .map((word) => (word ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase() : ''))
+    .join(' ')
+    .trim();
+  const fallbackMatch = WASTE_TYPE_VALUES.find((type) => type.toLowerCase() === formatted.toLowerCase());
+  return fallbackMatch ?? WASTE_TYPE_VALUES[0];
 };
 
 const formatWasteType = (value: string | undefined | null) => {
@@ -170,9 +189,11 @@ export default function WasteGoalScreen() {
       const mapped: WasteGoal[] = goalsData.map((goal: any) => {
         const grams = goal.restrictionAmountGrams ?? 0;
         const { amount, unit } = convertGramsToDisplay(grams);
+        const canonicalType = canonicalizeWasteType(goal.wasteType);
         return {
           goalId: goal.goalId,
-          wasteType: goal.wasteType,
+          wasteType: canonicalType,
+          rawWasteType: goal.wasteType ?? canonicalType,
           amount,
           unit,
           duration: goal.duration,
@@ -332,12 +353,16 @@ export default function WasteGoalScreen() {
       const parsedAmount = parseFloat(amount);
       const parsedDuration = parseInt(duration, 10);
       const restrictionAmountGrams = convertInputToGrams(parsedAmount, unit);
+      const canonicalType = canonicalizeWasteType(wasteType);
+      if (canonicalType !== wasteType) {
+        setWasteType(canonicalType);
+      }
 
       const response = await apiRequest(`/api/users/${encodedUsername}/waste-goals`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          type: wasteType,
+          type: canonicalType,
           duration: parsedDuration,
           restrictionAmountGrams,
         }),
@@ -370,12 +395,16 @@ export default function WasteGoalScreen() {
       const parsedAmount = parseFloat(amount);
       const parsedDuration = parseInt(duration, 10);
       const restrictionAmountGrams = convertInputToGrams(parsedAmount, unit);
+      const canonicalType = canonicalizeWasteType(wasteType);
+      if (canonicalType !== wasteType) {
+        setWasteType(canonicalType);
+      }
 
-      const response = await apiRequest(`/api/waste-goals/${editingGoal.goalId}`, {
+      const response = await apiRequest(`/api/users/waste-goals/${editingGoal.goalId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          type: wasteType,
+          type: canonicalType,
           duration: parsedDuration,
           restrictionAmountGrams,
         }),
@@ -406,7 +435,7 @@ export default function WasteGoalScreen() {
     setLoading(true);
     setIsDeleteModalVisible(false);
     try {
-      const response = await apiRequest(`/api/waste-goals/${goalToDelete.goalId}`, {
+      const response = await apiRequest(`/api/users/waste-goals/${goalToDelete.goalId}`, {
         method: 'DELETE',
       });
       if (!response.ok) {
@@ -428,7 +457,7 @@ export default function WasteGoalScreen() {
   const openEditModal = (goal: WasteGoal) => {
     setGoalFormError(null);
     setEditingGoal(goal);
-    setWasteType(goal.wasteType);
+    setWasteType(canonicalizeWasteType(goal.wasteType ?? goal.rawWasteType));
     setUnit(goal.unit || 'Grams');
     setDuration(goal.duration.toString());
     setAmount(goal.amount.toString());
@@ -738,7 +767,15 @@ export default function WasteGoalScreen() {
             <View style={styles.modalContainer}>
               <View style={[styles.modalContent, { backgroundColor: modalContentBgColor }]}>
                 <ThemedText style={styles.modalTitle}>{t('confirmDeletion')}</ThemedText>
-                {goalToDelete && (<ThemedText style={styles.deleteConfirmText}>{t('deleteConfirmation', { wasteType: goalToDelete.wasteType, amount: goalToDelete.amount, unit: goalToDelete.unit })}</ThemedText>)}
+                {goalToDelete && (
+                  <ThemedText style={styles.deleteConfirmText}>
+                    {t('deleteConfirmation', {
+                      wasteType: formatWasteType(goalToDelete.wasteType ?? goalToDelete.rawWasteType),
+                      amount: goalToDelete.amount,
+                      unit: goalToDelete.unit,
+                    })}
+                  </ThemedText>
+                )}
                 <View style={styles.modalButtons}>
                   <TouchableOpacity style={styles.cancelButton} onPress={() => { setIsDeleteModalVisible(false); setGoalToDelete(null); }}>
                     <Text style={styles.buttonText}>{t('cancel')}</Text>
