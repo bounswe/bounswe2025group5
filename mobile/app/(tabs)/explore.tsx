@@ -13,6 +13,7 @@ import {
   Image,
   Alert,
   Keyboard,
+  Switch,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
@@ -20,6 +21,8 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
 import { apiRequest } from '../services/apiClient';
 import PostItem from '../components/PostItem';
+import { useTranslation } from 'react-i18next';
+import { useLanguageSwitch } from '@/hooks/useLanguageSwitch';
 
 type CommentData = {
   commentId: number;
@@ -41,6 +44,10 @@ type Post = {
 
 export default function ExploreScreen() {
   const navigation = useNavigation();
+
+  const { t, i18n } = useTranslation();
+  const isTurkish = (i18n.resolvedLanguage || i18n.language || '').toLowerCase().startsWith('tr');
+  const toggleLanguage = (value: boolean) => i18n.changeLanguage(value ? 'tr-TR' : 'en-US');
 
   const authContext = useContext(AuthContext);
   const userType = authContext?.userType;
@@ -281,7 +288,7 @@ export default function ExploreScreen() {
 
   const handleLikeToggle = async (postId: number, currentlyLiked: boolean) => {
     if (userType === 'guest' || !username) {
-      Alert.alert("Login Required", "Please log in to like posts.");
+      Alert.alert(t('loginRequired'), t('pleaseLogInToLike'));
       return;
     }
     const listToUpdate = inSearchMode ? searchResults : posts;
@@ -314,7 +321,7 @@ export default function ExploreScreen() {
       if (!result.success) throw new Error(result.message || `Backend error on ${currentlyLiked ? 'unlike' : 'like'}.`);
     } catch (err: any) {
       console.error('Failed to toggle like:', err.message);
-      Alert.alert("Error", err.message || "Could not update like status.");
+      Alert.alert(t('error'), err.message || t('couldNotUpdateLike'));
       setListFunction(currentList =>
         currentList.map(p =>
           p.id === postId
@@ -326,10 +333,9 @@ export default function ExploreScreen() {
   };
 
 
-
 const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
     if (userType === 'guest' || !username) {
-      Alert.alert("Login Required", "Please log in to save posts.");
+      Alert.alert(t('loginRequired'), t('pleaseLogInToSave'));
       return;
     }
     const listToUpdate = inSearchMode ? searchResults : posts;
@@ -370,9 +376,11 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
       else {
         if (!result.username) throw new Error(result.message || `Backend error on save.`);
       }
+      // success: optimistic update already applied above
     } catch (err: any) {
       console.error('Failed to toggle save:', err.message);
-      Alert.alert("Error", err.message || "Could not update save status.");
+      Alert.alert(t('error'), err.message || t('couldNotUpdateSave'));
+      const setListFunction = inSearchMode ? setSearchResults : setPosts;
       setListFunction(currentList =>
         currentList.map(p =>
           p.id === postId
@@ -383,7 +391,7 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
     }
   };
 
-  const fetchCommentsForPost = async (postId: number, forceRefresh = false) => {
+  async function fetchCommentsForPost(postId: number, forceRefresh = false) {
     if (commentsByPostId[postId] && !forceRefresh && commentsByPostId[postId].length > 0) {
       return;
     }
@@ -400,9 +408,9 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
       }));
       setCommentsByPostId(prev => ({ ...prev, [postId]: fetchedComments }));
       if (typeof apiResponse.totalComments === 'number') { /* ... update post comment count ... */ }
-    } catch (e: any) { /* ... error handling ... */ Alert.alert("Error", `Could not load comments.`);
+    } catch (e: any) { /* ... error handling ... */ Alert.alert(t('error'), t('couldNotLoadComments'));
     } finally { setLoadingCommentsPostId(null); }
-  };
+  }
 
   const handleToggleComments = (postId: number) => {
     const isCurrentlyExpanded = expandedPostId === postId;
@@ -429,9 +437,9 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
   };
 
   const handlePostComment = async (postId: number) => { // For NEW comments
-    if (!username) { Alert.alert("Login required..."); return; }
+    if (!username) { Alert.alert(t('loginRequired'), t('mustBeLoggedIn')); return; }
     const content = commentInputs[postId]?.trim();
-    if (!content) { Alert.alert("Empty comment..."); return; }
+    if (!content) { Alert.alert(t('emptyComment'), t('commentCannotBeEmpty')); return; }
     if (editingCommentDetails?.postId === postId) { 
         setEditingCommentDetails(null);
     }
@@ -451,7 +459,7 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
         setPosts(listUpdater);
         if (inSearchMode) setSearchResults(listUpdater);
         setCommentInputs(prev => ({ ...prev, [postId]: '' }));
-    } catch (e: any) { Alert.alert("Error", `Could not post comment: ${e.message}`);
+    } catch (e: any) { Alert.alert(t('error'), t('couldNotPostComment', { message: e.message }));
     } finally { setPostingCommentPostId(null); }
   };
 
@@ -459,8 +467,8 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
     if (editingCommentDetails && editingCommentDetails.commentId === commentId) {
         setEditingCommentDetails(null);
     }
-    if (!username) { Alert.alert("Error", "You must be logged in..."); return; }
-    Alert.alert("Delete Comment", "Are you sure?", [ { text: "Cancel", style: "cancel" }, { text: "Delete", style: "destructive", onPress: async () => {
+    if (!username) { Alert.alert(t('error'), t('mustBeLoggedIn')); return; }
+    Alert.alert(t('deleteCommentTitle'), t('deleteCommentMessage'), [ { text: t('cancel'), style: "cancel" }, { text: t('delete'), style: "destructive", onPress: async () => {
         try {
             const response = await apiRequest(`/api/comments/${commentId}`, { method: 'DELETE' });
             if (!response.ok) { /* ... error handling ... */ throw new Error(`Failed to delete comment.`); }
@@ -468,8 +476,8 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
             const listUpdater = (list: Post[]) => list.map(p => p.id === postId ? { ...p, comments: Math.max(0, p.comments - 1) } : p);
             setPosts(listUpdater);
             if (inSearchMode) setSearchResults(listUpdater);
-            Alert.alert("Success", "Comment deleted.");
-        } catch (e: any) { Alert.alert("Error", `Could not delete comment: ${e.message}`); }
+            Alert.alert(t('success'), t('commentDeleted'));
+        } catch (e: any) { Alert.alert(t('error'), t('couldNotDeleteComment', { message: e.message })); }
     }}]);
   };
 
@@ -495,14 +503,14 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
 
   const handleSaveCommentEdit = async (postIdToSave: number, commentIdToSave: number) => {
     if (!editingCommentDetails || editingCommentDetails.commentId !== commentIdToSave || !username) {
-      Alert.alert("Error", "Could not save edit. Mismatch or not logged in.");
+      Alert.alert(t('error'), t('couldNotSaveEdit'));
       setEditingCommentDetails(null); // Reset state if something is wrong
       return;
     }
 
     const newContent = editingCommentDetails.currentText.trim();
     if (!newContent) {
-      Alert.alert("Empty Comment", "Comment cannot be empty.");
+      Alert.alert(t('emptyComment'), t('commentCannotBeEmpty'));
       return;
     }
 
@@ -531,11 +539,11 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
         return { ...prev, [postIdToSave]: postComments };
       });
 
-      Alert.alert("Success", "Comment updated.");
+      Alert.alert(t('success'), t('commentUpdated'));
       setEditingCommentDetails(null);
     } catch (e: any) {
       console.error(`Error updating comment ${commentIdToSave}:`, e.message);
-      Alert.alert("Error", `Could not update comment: ${e.message}`);
+      Alert.alert(t('error'), t('couldNotUpdateComment', { message: e.message }));
     } finally {
       setIsSubmittingCommentEdit(false);
     }
@@ -548,154 +556,194 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
   const currentDisplayPosts = inSearchMode ? searchResults : posts;
   const isContentLoading = (loading && !inSearchMode && currentDisplayPosts.length === 0) || (isSearching && inSearchMode && currentDisplayPosts.length === 0);
 
-
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: screenBackgroundColor }]}
-      contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
-      refreshControl={
-        <RefreshControl /* ... */ refreshing={refreshing} onRefresh={handleRefresh}  progressViewOffset={36}/>
-      }
-    >
+      <ScrollView
+        style={[styles.container, { backgroundColor: screenBackgroundColor }]}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} progressViewOffset={36} />
+        }
+      >
       <View style={styles.header}>
-        <ThemedText type="title">Explore</ThemedText>
-        {userType === 'guest' && (
-          <TouchableOpacity
-            style={styles.loginButton}
-            onPress={() => navigation.navigate('index' as never)}
-          >
-            <ThemedText style={styles.loginButtonText}>Go to Login</ThemedText>
-          </TouchableOpacity>
-        )}
-      </View>
-
-      <View style={[styles.searchBar, { backgroundColor: searchBarBackgroundColor }]}>
-        {inSearchMode && (
-          <TouchableOpacity onPress={handleBack} disabled={isSearching}>
-            <Ionicons name="arrow-back" size={25} color={iconColor} style={[styles.searchIcon, { marginRight: 8 }]} />
-          </TouchableOpacity>
-        )}
-        <TouchableOpacity onPress={performSearch} disabled={isSearching || !!editingCommentDetails}>
-          {isSearching ? (
-            <ActivityIndicator size="small" color={iconColor} style={styles.searchIcon} />
-          ) : (
-            <Ionicons name="search" size={30} color={iconColor} style={styles.searchIcon} />
-          )}
-        </TouchableOpacity>
-        <TextInput
-          style={[styles.searchInput, { color: searchInputColor }]}
-          placeholder="Search for posts…"
-          placeholderTextColor={searchPlaceholderColor}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          returnKeyType="search"
-          onSubmitEditing={performSearch}
-          editable={!isSearching && !editingCommentDetails}
-        />
-      </View>
-
-
-      {isContentLoading ? (
-        <ActivityIndicator style={{ marginTop: 20 }} size="large" color={activityIndicatorColor} />
-      ) : error && currentDisplayPosts.length === 0 ? (
-        <View>...</View> /* Error box */
-      ) : inSearchMode ? (
-        searchResults.length > 0 ? (
-          searchResults.map(post => (
-            <PostItem
-              key={`search-${post.id}`}
-              post={post}
-              cardBackgroundColor={cardBackgroundColor} iconColor={iconColor} textColor={generalTextColor}
-              commentInputBorderColor={commentInputBorderColor} commentInputTextColor={commentInputTextColor}
-              commentInputPlaceholderColor={commentInputPlaceholderColor} commentInputBackgroundColor={commentInputBackgroundColor}
-
-              onLikePress={handleLikeToggle} userType={userType} loggedInUsername={username} 
-              onSavePress={handleSaveToggle}
-
-        isExpanded={expandedPostId === post.id}
-              commentsList={commentsByPostId[post.id] || []}
-              isLoadingComments={loadingCommentsPostId === post.id}
-              commentInputText={editingCommentDetails?.postId === post.id ? '' : (commentInputs[post.id] || '')} 
-              isPostingComment={postingCommentPostId === post.id}
-              onToggleComments={() => handleToggleComments(post.id)}
-              onCommentInputChange={(text) => handleCommentInputChange(post.id, text)}
-              onPostComment={() => handlePostComment(post.id)}
-              onDeleteComment={handleDeleteComment}
-              onTriggerEditComment={handleStartEditComment}
-              editingCommentDetailsForPost={editingCommentDetails?.postId === post.id ? editingCommentDetails : null}
-              onEditCommentContentChange={handleEditingCommentTextChange}
-              onSaveEditedCommentForPost={handleSaveCommentEdit}
-              onCancelCommentEdit={handleCancelCommentEdit}
-              isSubmittingCommentEditForPost={editingCommentDetails?.postId === post.id && isSubmittingCommentEdit}
-            />
-          ))
-        ) : (
-          <View>...</View> 
-        )
-      ) : posts.length > 0 ? (
-        <>
-          {posts.map(post => (
-            <PostItem
-              key={`feed-${post.id}`}
-              post={post}
-              cardBackgroundColor={cardBackgroundColor} iconColor={iconColor} textColor={generalTextColor}
-              commentInputBorderColor={commentInputBorderColor} commentInputTextColor={commentInputTextColor}
-              commentInputPlaceholderColor={commentInputPlaceholderColor} commentInputBackgroundColor={commentInputBackgroundColor}
-              onLikePress={handleLikeToggle} onSavePress={handleSaveToggle}
-              userType={userType} loggedInUsername={username}
-              isExpanded={expandedPostId === post.id}
-              commentsList={commentsByPostId[post.id] || []}
-              isLoadingComments={loadingCommentsPostId === post.id}
-              commentInputText={editingCommentDetails?.postId === post.id ? '' : (commentInputs[post.id] || '')}
-              isPostingComment={postingCommentPostId === post.id}
-              onToggleComments={() => handleToggleComments(post.id)}
-              onCommentInputChange={(text) => handleCommentInputChange(post.id, text)}
-              onPostComment={() => handlePostComment(post.id)}
-              onDeleteComment={handleDeleteComment}
-              onTriggerEditComment={handleStartEditComment}
-              editingCommentDetailsForPost={editingCommentDetails?.postId === post.id ? editingCommentDetails : null}
-              onEditCommentContentChange={handleEditingCommentTextChange}
-              onSaveEditedCommentForPost={handleSaveCommentEdit}
-              onCancelCommentEdit={handleCancelCommentEdit}
-              isSubmittingCommentEditForPost={editingCommentDetails?.postId === post.id && isSubmittingCommentEdit}
-            />
-          ))}
-      {!noMorePosts && !refreshing && posts.length > 0 && (
-        <TouchableOpacity 
-          style={styles.loadMoreButton} 
-          onPress={handleLoadMore} 
-          disabled={loadingMore || refreshing || isSearching}
-        >
-          {loadingMore ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <ThemedText style={styles.loadMoreText}>Load More Posts</ThemedText>
-          )}
-        </TouchableOpacity>
-      )}
-      {noMorePosts && posts.length > 0 && !loadingMore && !refreshing && (
-        <View style={[styles.noMoreBox, { backgroundColor: themedNoMoreBoxBackgroundColor, marginTop: 20, marginBottom: 20 }]}>
-          <ThemedText style={[styles.noMoreText, { color: themedNoMoreBoxTextColor }]}>You've reached the end!</ThemedText>
+        <View style={styles.titleContainer}>
+          <ThemedText type="title">{t('explore')}</ThemedText>
         </View>
-      )}
-    </>
-  ) : ( 
-     !loading && !error && !refreshing && !isSearching && (
-      <View style={[styles.noMoreBox, { backgroundColor: themedNoMoreBoxBackgroundColor }]}>
-        <ThemedText style={[styles.noMoreText, { color: themedNoMoreBoxTextColor }]}>No posts available</ThemedText>
-        <ThemedText style={[styles.noMoreText, { color: themedNoMoreBoxTextColor, fontSize: 14, marginTop: 8 }]}>Pull down to refresh.</ThemedText>
+
+        <View style={styles.languageToggleContainer}>
+          <ThemedText style={styles.languageLabel}>EN</ThemedText>
+          <Switch
+            trackColor={{ false: '#767577', true: '#81b0ff' }}
+            thumbColor={isTurkish ? '#f5dd4b' : '#f4f3f4'}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={value => { toggleLanguage(value); }}
+            value={isTurkish}
+          />
+          <ThemedText style={styles.languageLabel}>TR</ThemedText>
+        </View>
       </View>
-    )
-  )}
-</ScrollView>
-);
+
+
+        {userType === 'guest' && (
+          <View style={styles.guestActionHeader}>
+            <TouchableOpacity
+              style={styles.loginButton}
+              onPress={() => navigation.navigate('index' as never)}
+            >
+              <ThemedText style={styles.loginButtonText}>{t('goToLogin')}</ThemedText>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        <View style={[styles.searchBar, { backgroundColor: searchBarBackgroundColor }]}>
+          {inSearchMode && (
+            <TouchableOpacity onPress={handleBack} disabled={isSearching}>
+              <Ionicons name="arrow-back" size={25} color={iconColor} style={[styles.searchIcon, { marginRight: 8 }]} />
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity onPress={performSearch} disabled={isSearching || !!editingCommentDetails}>
+            {isSearching ? (
+              <ActivityIndicator size="small" color={iconColor} style={styles.searchIcon} />
+            ) : (
+              <Ionicons name="search" size={30} color={iconColor} style={styles.searchIcon} />
+            )}
+          </TouchableOpacity>
+          <TextInput
+            style={[styles.searchInput, { color: searchInputColor }]}
+            placeholder={t('searchPlaceholder')}
+            placeholderTextColor={searchPlaceholderColor}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            returnKeyType="search"
+            onSubmitEditing={performSearch}
+            editable={!isSearching && !editingCommentDetails}
+          />
+        </View>
+
+        {isContentLoading ? (
+          <ActivityIndicator style={{ marginTop: 20 }} size="large" color={activityIndicatorColor} />
+        ) : error && currentDisplayPosts.length === 0 ? (
+          <View style={[styles.errorBox, { backgroundColor: themedErrorBoxBackgroundColor }]}>
+            <ThemedText style={[styles.errorText, { color: themedErrorBoxTextColor }]}>{t('errorFailedToLoadPosts')} </ThemedText>
+          </View>
+        ) : inSearchMode ? (
+          <>
+            {searchResults.length > 0 ? (
+              searchResults.map(post => (
+                <PostItem
+                  key={`search-${post.id}`}
+                  post={post}
+                  cardBackgroundColor={cardBackgroundColor} iconColor={iconColor} textColor={generalTextColor}
+                  commentInputBorderColor={commentInputBorderColor} commentInputTextColor={commentInputTextColor}
+                  commentInputPlaceholderColor={commentInputPlaceholderColor} commentInputBackgroundColor={commentInputBackgroundColor}
+                  onLikePress={handleLikeToggle} userType={userType} loggedInUsername={username}
+                  onSavePress={handleSaveToggle}
+                  isExpanded={expandedPostId === post.id}
+                  commentsList={commentsByPostId[post.id] || []}
+                  isLoadingComments={loadingCommentsPostId === post.id}
+                  commentInputText={editingCommentDetails?.postId === post.id ? '' : (commentInputs[post.id] || '')}
+                  isPostingComment={postingCommentPostId === post.id}
+                  onToggleComments={() => handleToggleComments(post.id)}
+                  onCommentInputChange={(text) => handleCommentInputChange(post.id, text)}
+                  onPostComment={() => handlePostComment(post.id)}
+                  onDeleteComment={handleDeleteComment}
+                  onTriggerEditComment={handleStartEditComment}
+                  editingCommentDetailsForPost={editingCommentDetails?.postId === post.id ? editingCommentDetails : null}
+                  onEditCommentContentChange={handleEditingCommentTextChange}
+                  onSaveEditedCommentForPost={handleSaveCommentEdit}
+                  onCancelCommentEdit={handleCancelCommentEdit}
+                  isSubmittingCommentEditForPost={editingCommentDetails?.postId === post.id && isSubmittingCommentEdit}
+                />
+              ))
+            ) : (
+              <View style={[styles.noMoreBox, { backgroundColor: themedNoMoreBoxBackgroundColor }]}>
+                <ThemedText style={[styles.noMoreText, { color: themedNoMoreBoxTextColor }]}>No results found.</ThemedText>
+              </View>
+            )}
+          </>
+        ) : (
+          <>
+            {posts.length > 0 ? (
+              <>
+                {posts.map(post => (
+                  <PostItem
+                    key={`feed-${post.id}`}
+                    post={post}
+                    cardBackgroundColor={cardBackgroundColor} iconColor={iconColor} textColor={generalTextColor}
+                    commentInputBorderColor={commentInputBorderColor} commentInputTextColor={commentInputTextColor}
+                    commentInputPlaceholderColor={commentInputPlaceholderColor} commentInputBackgroundColor={commentInputBackgroundColor}
+                    onLikePress={handleLikeToggle} onSavePress={handleSaveToggle}
+                    userType={userType} loggedInUsername={username}
+                    isExpanded={expandedPostId === post.id}
+                    commentsList={commentsByPostId[post.id] || []}
+                    isLoadingComments={loadingCommentsPostId === post.id}
+                    commentInputText={editingCommentDetails?.postId === post.id ? '' : (commentInputs[post.id] || '')}
+                    isPostingComment={postingCommentPostId === post.id}
+                    onToggleComments={() => handleToggleComments(post.id)}
+                    onCommentInputChange={(text) => handleCommentInputChange(post.id, text)}
+                    onPostComment={() => handlePostComment(post.id)}
+                    onDeleteComment={handleDeleteComment}
+                    onTriggerEditComment={handleStartEditComment}
+                    editingCommentDetailsForPost={editingCommentDetails?.postId === post.id ? editingCommentDetails : null}
+                    onEditCommentContentChange={handleEditingCommentTextChange}
+                    onSaveEditedCommentForPost={handleSaveCommentEdit}
+                    onCancelCommentEdit={handleCancelCommentEdit}
+                    isSubmittingCommentEditForPost={editingCommentDetails?.postId === post.id && isSubmittingCommentEdit}
+                  />
+                ))}
+                {!noMorePosts && !refreshing && posts.length > 0 && (
+                  <TouchableOpacity
+                    style={styles.loadMoreButton}
+                    onPress={handleLoadMore}
+                    disabled={loadingMore || refreshing || isSearching}
+                  >
+                    {loadingMore ? (
+                      <ActivityIndicator color="#fff" />
+                    ) : (
+                      <ThemedText style={styles.loadMoreText}>{t('loadMorePosts')}</ThemedText>
+                    )}
+                  </TouchableOpacity>
+                )}
+                {noMorePosts && posts.length > 0 && !loadingMore && !refreshing && (
+                  <View style={[styles.noMoreBox, { backgroundColor: themedNoMoreBoxBackgroundColor, marginTop: 20, marginBottom: 20 }]}>
+                    <ThemedText style={[styles.noMoreText, { color: themedNoMoreBoxTextColor }]}>{t('endOfFeed')}</ThemedText>
+                  </View>
+                )}
+              </>
+            ) : (
+              !loading && !error && !refreshing && !isSearching && (
+                <View style={[styles.noMoreBox, { backgroundColor: themedNoMoreBoxBackgroundColor }]}>
+                  <ThemedText style={[styles.noMoreText, { color: themedNoMoreBoxTextColor }]}>{t('noPostsAvailable')}</ThemedText>
+                  <ThemedText style={[styles.noMoreText, { color: themedNoMoreBoxTextColor, fontSize: 14, marginTop: 8 }]}>{t('pullToRefresh')}</ThemedText>
+                </View>
+              )
+            )}
+          </>
+        )}
+      </ScrollView>
+    );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
   content: { paddingBottom: 24 },
-  header: { paddingHorizontal: 16, marginTop: Platform.OS === 'ios' ? 48 : 48, marginBottom: 18, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  header: { 
+    paddingHorizontal: 16, 
+    marginTop: Platform.OS === 'ios' ? 48 : 48, 
+    marginBottom: 18, 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center',
+  },
+  titleContainer: {
+    flex: 1, // This is the key: it makes the title expand and pushes the toggle
+    marginRight: 8,
+  },
+  guestActionHeader: {
+    paddingHorizontal: 16,
+    marginBottom: 18,
+    alignItems: 'flex-start',
+  },
   searchBar: { flexDirection: 'row', alignItems: 'center', borderRadius: 30, marginHorizontal: 16, paddingHorizontal: 12, paddingVertical: Platform.OS === 'ios' ? 12 : 8, marginBottom: 18, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 },
   searchIcon: { marginRight: 8 },
   searchInput: { flex: 1, fontSize: 16, marginLeft: 5 },
@@ -706,7 +754,12 @@ const styles = StyleSheet.create({
   postFooter: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
   footerAction: { flexDirection: 'row', alignItems: 'center', minHeight: 20 },
   footerText: { fontSize: 14, marginRight: 8 },
-  loginButton: { paddingVertical: 8, paddingHorizontal: 16, backgroundColor: '#2196F3', borderRadius: 20, alignSelf: 'flex-start' },
+  loginButton: { 
+    paddingVertical: 8, 
+    paddingHorizontal: 16, 
+    backgroundColor: '#2196F3', 
+    borderRadius: 20, 
+  },
   loginButtonText: { color: '#fff', fontSize: 14, fontWeight: '500' },
   errorBox: { marginTop: 40, marginHorizontal: 20, padding: 16, borderRadius: 8, alignItems: 'center' },
   errorText: { fontSize: 16, fontWeight: 'bold', textAlign: 'center' },
@@ -734,4 +787,18 @@ const styles = StyleSheet.create({
   postCommentButton: { paddingHorizontal: 12, paddingVertical: 10, borderRadius: 20, backgroundColor: '#007AFF' },
   postCommentButtonDisabled: { backgroundColor: '#B0C4DE' },
   postCommentButtonText: { color: '#FFFFFF', fontWeight: '600', fontSize: 14 },
+  languageToggleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    borderRadius: 20,
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+  },
+  languageLabel: {
+    color: '#fff',
+    fontWeight: 'bold',
+    marginHorizontal: 6,
+    fontSize: 12,
+  },
 });

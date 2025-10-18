@@ -3,14 +3,15 @@ import {
   StyleSheet,
   View,
   FlatList,
-  Text,
   ActivityIndicator,
-  Platform,
   useColorScheme,
 } from 'react-native';
 import { AuthContext } from './_layout';
 import { ThemedText } from '@/components/ThemedText';
+
+import { useTranslation } from 'react-i18next';
 import { apiRequest } from './services/apiClient';
+
 
 // Badge interface
 interface Badge {
@@ -18,39 +19,62 @@ interface Badge {
   badgeName: string;
 }
 
+type ErrorState = { key: string | null; message: string | null };
 
 export default function BadgesScreen() {
   const { username } = useContext(AuthContext);
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
-  
+  const { t } = useTranslation();
+
   const [badges, setBadges] = useState<Badge[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ErrorState>({ key: null, message: null });
 
   // Background colors based on theme
   const backgroundColor = isDarkMode ? '#151718' : '#F0F2F5';
-  const cardBackgroundColor = isDarkMode ? '#2D2D2D' : '#FFFFFF';
   const textColor = isDarkMode ? '#FFFFFF' : '#000000';
 
   useEffect(() => {
     const fetchBadges = async () => {
+      if (!username) {
+        setBadges([]);
+        setLoading(false);
+        setError({ key: null, message: null });
+        return;
+      }
+
       try {
         setLoading(true);
+
+        setError({ key: null, message: null });
         const encodedUsername = encodeURIComponent(username);
         const response = await apiRequest(
           `/api/users/${encodedUsername}/badges?username=${encodedUsername}`
         );
         
         if (!response.ok) {
-          throw new Error(`Failed to fetch badges: ${response.status}`);
+          // server responded but not OK → show a translated, generic failure with status
+          const text = await response.text().catch(() => '');
+          throw new Error(`Server error: ${response.status} ${text}`);
         }
-        
+
         const data = await response.json();
-        setBadges(data);
+        setBadges(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Error fetching badges:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch badges');
+        // network errors often surface as "TypeError: Failed to fetch"
+        // follow your earlier pattern: prefer a key when possible
+        if (err instanceof Error) {
+          if (err.message.startsWith('Server error:')) {
+            setError({ key: 'errorBadgesFetchFailed', message: err.message });
+          } else {
+            // likely network or parsing issue
+            setError({ key: 'errorBadgesFetchGeneric', message: null });
+          }
+        } else {
+          setError({ key: 'errorBadgesFetchGeneric', message: null });
+        }
       } finally {
         setLoading(false);
       }
@@ -60,7 +84,7 @@ export default function BadgesScreen() {
   }, [username]);
 
   // Render each badge item
-  const renderBadgeItem = ({ item, index }: { item: Badge, index: number }) => {
+  const renderBadgeItem = ({ item }: { item: Badge }) => {
     // Array of lively colors for badges
     const badgeColors = [
       '#FF6B6B', // Coral Red
@@ -74,11 +98,11 @@ export default function BadgesScreen() {
       '#06D6A0', // Mint
       '#EF476F', // Pink
     ];
-    
+
     // Get color based on badge name to keep it consistent
     const colorIndex = item.badgeName.length % badgeColors.length;
     const badgeColor = badgeColors[colorIndex];
-    
+
     return (
       <View style={[styles.badgeCard, { backgroundColor: badgeColor }]}>
         <ThemedText style={styles.badgeName}>{item.badgeName}</ThemedText>
@@ -94,20 +118,23 @@ export default function BadgesScreen() {
     );
   }
 
-  if (error) {
+  if (error.key || error.message) {
     return (
       <View style={[styles.container, { backgroundColor }]}>
-        <ThemedText style={styles.errorText}>Error: {error}</ThemedText>
+        <ThemedText style={[styles.errorText, { color: isDarkMode ? '#FF9DA3' : 'red' }]}>
+          {t('error')}: {error.key ? t(error.key) : error.message}
+        </ThemedText>
       </View>
     );
   }
 
   return (
     <View style={[styles.container, { backgroundColor }]}>
-      
       {badges.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <ThemedText style={styles.emptyText}>You don't have any badges yet.</ThemedText>
+          <ThemedText style={[styles.emptyText, { color: textColor }]}>
+            {t('noBadgesYet')}
+          </ThemedText>
         </View>
       ) : (
         <FlatList
@@ -124,24 +151,9 @@ export default function BadgesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  listContainer: {
-    paddingBottom: 20,
-  },
-  row: {
-    flex: 1,
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
+  container: { flex: 1, padding: 16 },
+  listContainer: { paddingBottom: 20 },
+  row: { flex: 1, justifyContent: 'space-between', marginBottom: 12 },
   badgeCard: {
     padding: 16,
     borderRadius: 16,
@@ -163,18 +175,7 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 1,
   },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyText: {
-    fontSize: 16,
-    fontStyle: 'italic',
-  },
-  errorText: {
-    color: 'red',
-    textAlign: 'center',
-    marginTop: 20,
-  },
+  emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  emptyText: { fontSize: 16, fontStyle: 'italic' },
+  errorText: { textAlign: 'center', marginTop: 20 },
 });

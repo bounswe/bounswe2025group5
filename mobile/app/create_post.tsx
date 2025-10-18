@@ -9,18 +9,19 @@ import {
   Platform,
   Alert,
   useColorScheme,
-  Image, // Import Image for preview
-  ActivityIndicator, // Import ActivityIndicator
+  Image,
+  ActivityIndicator,
 } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from './_layout';
+
 import { apiRequest, getAccessToken } from './services/apiClient';
 import { apiUrl } from './apiConfig';
 import * as ImagePicker from 'expo-image-picker'; 
 import { Ionicons } from '@expo/vector-icons'; 
 import * as FileSystem from 'expo-file-system';
-
+import { useTranslation } from 'react-i18next';
 
 export const unstable_settings = {
   initialRouteName: 'create_post',
@@ -31,17 +32,17 @@ export const options = {
   tabBarButton: () => null,
 };
 
+type ErrorState = { key: string | null; message: string | null; resolved?: string | null };
 
 export default function CreatePostScreen() {
   const navigation = useNavigation();
   const { username } = useContext(AuthContext);
   const colorScheme = useColorScheme();
+  const { t, i18n } = useTranslation(); 
 
   useLayoutEffect(() => {
-    navigation.setOptions({
-      headerTitle: 'Create Post',
-    });
-  }, [navigation]);
+    navigation.setOptions({ headerTitle: t('createPostTitle') });
+  }, [navigation, i18n.language, t]);
 
   const isDarkMode = colorScheme === 'dark';
   const screenBackgroundColor = isDarkMode ? '#151718' : '#F0F2F5';
@@ -53,23 +54,40 @@ export default function CreatePostScreen() {
   const postButtonTextColor = '#FFFFFF';
   const iconColor = isDarkMode ? inputTextColor : '#555';
 
-
   const [content, setContent] = useState('');
-  const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null); // Store selected image asset
+  const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const [errState, setErrState] = useState<ErrorState>({ key: null, message: null, resolved: null });
+
+  const resolveErrorText = (state: ErrorState) => {
+    if (state.key) return t(state.key);
+    if (state.message) return state.message;
+    return t('errorGeneric');
+  };
+
+  const showErrorAlert = (state: ErrorState) => {
+    const base = resolveErrorText(state);
+    const raw = state.message && __DEV__ ? `\n\n${state.message}` : '';
+    Alert.alert(t('error'), `${base}${raw}`);
+  };
+
+  const showSuccessAlert = (key: string) => {
+    Alert.alert(t('success'), t(key));
+  };
 
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.granted === false) {
-      Alert.alert("Permission Required!", "You need to allow access to your photos to upload an image.");
+      Alert.alert(t('permissionRequired'), t('allowPhotosAccess'));
       return;
     }
 
-    let result = await ImagePicker.launchImageLibraryAsync({
+    const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [4, 3], // You can adjust aspect ratio
-      quality: 0.7,    // Compress image slightly
+      aspect: [4, 3],
+      quality: 0.7,
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
@@ -77,23 +95,32 @@ export default function CreatePostScreen() {
     }
   };
 
-
   const handleCreatePost = async () => {
-  if (!content.trim() && !image) {
-    Alert.alert('Error', 'Please write something or select an image before posting.');
-    return;
-  }
-  if (!username) {
-    Alert.alert('Error', 'User not identified. Cannot create post.');
-    return;
-  }
+    console.log('[create_post] submit pressed');
+    if (!content.trim() && !image) {
+      const s = { key: 'errorPostContentOrImage', message: null };
+      setErrState({ ...s, resolved: resolveErrorText(s) });
+      showErrorAlert(s);
+      console.log('[create_post] validation: empty content & no image');
+      return;
+    }
+    if (!username) {
+      const s = { key: 'errorUserNotIdentified', message: null };
+      setErrState({ ...s, resolved: resolveErrorText(s) });
+      showErrorAlert(s);
+      console.log('[create_post] validation: no username');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setErrState({ key: null, message: null, resolved: null });
 
   setLoading(true);
   try {
     const fd = new FormData();
     fd.append('content', content.trim());
     fd.append('username', username);
-
     if (image) {
       // iOS: convert ph:// → file:// so fetch can read it
       const normalizeUri = async (uri: string) => {
@@ -133,8 +160,46 @@ export default function CreatePostScreen() {
     });
 
     if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`Post failed (${res.status}): ${text.slice(0, 200)}`);
+        const errorText = await res.text().catch(() => '');
+        let raw = `Server error: ${res.status}`;
+        try {
+          const parsed = JSON.parse(errorText);
+          if (parsed?.message || parsed?.error) {
+            raw = `Server error: ${res.status} ${parsed.message || parsed.error}`;
+          } else if (errorText) {
+            raw = `Server error: ${res.status} ${errorText}`;
+          }
+        } catch {
+          if (errorText) raw = `Server error: ${res.status} ${errorText}`;
+        }
+        console.log('[create_post] response not ok -> throwing', raw);
+        throw new Error(raw);
+      }
+
+      const data = await res.json().catch(() => ({}));
+      console.log('[create_post] success payload', data);
+
+      showSuccessAlert('successPostCreated');
+      setContent('');
+      setImage(null);
+      (navigation as any).goBack();
+    } catch (err) {
+      console.log('[create_post] catch reached', err);
+      let rawMessage: string | null = null;
+      if (err instanceof Error) rawMessage = err.message;
+      else if (typeof err === 'string') rawMessage = err;
+
+      const isServerish = !!rawMessage && /Server error:\s*\d+/.test(rawMessage);
+      const s: ErrorState = isServerish
+        ? { key: 'errorCreatePostFailed', message: rawMessage }
+        : { key: 'errorCreatePostGeneric', message: rawMessage };
+
+      const resolved = resolveErrorText(s);
+      setErrState({ ...s, resolved });
+      // show alert no matter what
+      showErrorAlert({ ...s, resolved });
+    } finally {
+      setLoading(false);
     }
 
     Alert.alert('Success', 'Your post was created successfully.');
@@ -149,6 +214,8 @@ export default function CreatePostScreen() {
   }
 };
 
+  const isDisabled = loading || (!content.trim() && !image);
+
   return (
     <KeyboardAvoidingView
       style={[styles.container, { backgroundColor: screenBackgroundColor }]}
@@ -156,8 +223,17 @@ export default function CreatePostScreen() {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
     >
       <ThemedText type="title" style={styles.title}>
-        Create a New Post
+        {t('createNewPost')}
       </ThemedText>
+
+      {/* Inline error banner */}
+      {(errState.key || errState.message) && (
+        <View style={[styles.errorBanner, { backgroundColor: isDarkMode ? '#5D1F1A' : '#FFCDD2' }]}>
+          <ThemedText style={[styles.errorBannerText, { color: isDarkMode ? '#FF9DA3' : '#C62828' }]}>
+            {t('error')}: {errState.resolved}
+          </ThemedText>
+        </View>
+      )}
 
       <TextInput
         style={[
@@ -166,9 +242,9 @@ export default function CreatePostScreen() {
             borderColor: inputBorderColor,
             color: inputTextColor,
             backgroundColor: inputBackgroundColor,
-          }
+          },
         ]}
-        placeholder="Write your post here..."
+        placeholder={t('writePostPlaceholder')}
         placeholderTextColor={placeholderTextColor}
         multiline
         value={content}
@@ -179,88 +255,86 @@ export default function CreatePostScreen() {
       <View style={styles.imagePickerContainer}>
         <TouchableOpacity onPress={pickImage} style={styles.imagePickerButton}>
           <Ionicons name="attach" size={28} color={iconColor} />
-          <ThemedText style={[styles.imagePickerText, {color: inputTextColor}]}>
-            {image ? 'Change Image' : 'Add Image (Optional)'}
+          <ThemedText style={[styles.imagePickerText, { color: inputTextColor }]}>
+            {image ? t('changeImage') : t('addImageOptional')}
           </ThemedText>
         </TouchableOpacity>
-        {image && (
-          <Image source={{ uri: image.uri }} style={styles.imagePreview} />
-        )}
+        {image && <Image source={{ uri: image.uri }} style={styles.imagePreview} />}
       </View>
-
 
       <TouchableOpacity
         style={[
-            styles.postButton,
-            { backgroundColor: postButtonBackgroundColor },
-            (loading || (!content.trim() && !image)) && { opacity: 0.6 } 
+          styles.postButton,
+          { backgroundColor: postButtonBackgroundColor },
+          isDisabled && { opacity: 0.6 },
         ]}
         onPress={handleCreatePost}
-        disabled={loading || (!content.trim() && !image)}
+        disabled={isDisabled}
       >
-        <ThemedText style={[styles.postButtonText, { color: postButtonTextColor }]}>
-          {loading ? 'Posting...' : 'Post'}
-        </ThemedText>
+        {loading ? (
+          <ActivityIndicator size="small" color={postButtonTextColor} />
+        ) : (
+          <ThemedText style={[styles.postButtonText, { color: postButtonTextColor }]}>
+            {t('post')}
+          </ThemedText>
+        )}
       </TouchableOpacity>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      padding: 16,
-      justifyContent: 'center',
-    },
-    title: {
-      marginBottom: 20,
-      textAlign: 'center',
-    },
-    input: {
-      width: '100%',
-      borderColor: '#ccc',
-      borderWidth: 1,
-      borderRadius: 8,
-      padding: 12,
-      textAlignVertical: 'top',
-      fontSize: 16,
-      marginBottom: 16,
-      minHeight: 150,
-    },
-    imagePickerContainer: {
-        alignItems: 'center',
-        marginBottom: 24,
-    },
-    imagePickerButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 10,
-        paddingHorizontal: 15,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: '#ccc', 
-        marginBottom: 10,
-    },
-    imagePickerText: {
-        marginLeft: 10,
-        fontSize: 16,
-    },
-    imagePreview: {
-        width: 200,
-        height: 200,
-        resizeMode: 'contain', 
-        borderRadius: 8,
-        marginTop: 10,
-    },
-    postButton: {
-      paddingVertical: 12,
-      paddingHorizontal: 24,
-      borderRadius: 8,
-      alignSelf: 'center',
-      marginTop: 10,
-    },
-    postButtonText: {
-      fontSize: 16,
-      fontWeight: 'bold',
-    },
-  });
+  container: { flex: 1, padding: 16, justifyContent: 'center' },
+  title: { marginBottom: 12, textAlign: 'center' },
+
+  errorBanner: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  errorBannerText: {
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+
+  input: {
+    width: '100%',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    textAlignVertical: 'top',
+    fontSize: 16,
+    marginBottom: 16,
+    minHeight: 150,
+  },
+  imagePickerContainer: { alignItems: 'center', marginBottom: 24 },
+  imagePickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginBottom: 10,
+  },
+  imagePickerText: { marginLeft: 10, fontSize: 16 },
+  imagePreview: {
+    width: 200,
+    height: 200,
+    resizeMode: 'contain',
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  postButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignSelf: 'center',
+    marginTop: 10,
+  },
+  postButtonText: { fontSize: 16, fontWeight: 'bold' },
+});
