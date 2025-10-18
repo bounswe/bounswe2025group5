@@ -446,13 +446,13 @@ const styles = StyleSheet.create({
   },
   imageWrapper: {
     position: 'relative',
+    marginBottom: 10,
   },
   postImage: {
     width: '100%',
     aspectRatio: 16 / 9,
-    maxHeight: 180,
     borderRadius: 6,
-    marginBottom: 10,
+    marginBottom: 0,
     backgroundColor: '#eee',
     resizeMode: 'cover',
   },
