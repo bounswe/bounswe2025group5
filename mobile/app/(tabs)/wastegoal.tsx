@@ -28,10 +28,10 @@ import { Ionicons } from '@expo/vector-icons';
 type WasteGoal = {
   goalId: number;
   wasteType: string;
-  rawWasteType?: string;
+  displayWasteType: string;
   amount: number;
   duration: number;
-  unit: string;
+  unit: GoalUnit;
   restrictionAmountGrams: number;
   progress?: number;
   createdAt: string;
@@ -40,6 +40,8 @@ type WasteGoal = {
   username?: string;
   completed?: number;
 };
+
+type GoalUnit = 'Kilograms' | 'Grams';
 
 type WasteItemOption = {
   id: number;
@@ -55,8 +57,18 @@ type Navigation = {
   navigate: (screen: string, params?: any) => void;
 };
 
-const WASTE_TYPE_VALUES = ['Plastic', 'Paper', 'Glass', 'Metal', 'Organic'] as const;
-type WasteTypeValue = (typeof WASTE_TYPE_VALUES)[number];
+const WASTE_TYPE_OPTIONS = [
+  { value: 'PLASTIC', translationKey: 'plastic' },
+  { value: 'PAPER', translationKey: 'paper' },
+  { value: 'GLASS', translationKey: 'glass' },
+  { value: 'METAL', translationKey: 'metal' },
+  { value: 'ORGANIC', translationKey: 'organic' },
+] as const;
+
+const DEFAULT_WASTE_TYPE_VALUE = WASTE_TYPE_OPTIONS[0].value;
+const GOAL_UNITS: GoalUnit[] = ['Kilograms', 'Grams'];
+const coerceGoalUnit = (value: string | null | undefined): GoalUnit =>
+  value === 'Grams' ? 'Grams' : 'Kilograms';
 
 const convertInputToGrams = (value: number, unit: string) => {
   if (!Number.isFinite(value)) return 0;
@@ -70,7 +82,7 @@ const convertInputToGrams = (value: number, unit: string) => {
   }
 };
 
-const convertGramsToDisplay = (grams: number) => {
+const convertGramsToDisplay = (grams: number): { amount: number; unit: GoalUnit } => {
   const safeGrams = Number.isFinite(grams) ? grams : 0;
   if (safeGrams >= 1000) {
     return {
@@ -84,19 +96,11 @@ const convertGramsToDisplay = (grams: number) => {
   };
 };
 
-const canonicalizeWasteType = (value: string | null | undefined): WasteTypeValue => {
-  if (!value) return WASTE_TYPE_VALUES[0];
-  const normalized = value.trim().toLowerCase();
-  const match = WASTE_TYPE_VALUES.find((type) => type.toLowerCase() === normalized);
-  if (match) return match;
-  const formatted = value
-    .replace(/[_-]+/g, ' ')
-    .split(' ')
-    .map((word) => (word ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase() : ''))
-    .join(' ')
-    .trim();
-  const fallbackMatch = WASTE_TYPE_VALUES.find((type) => type.toLowerCase() === formatted.toLowerCase());
-  return fallbackMatch ?? WASTE_TYPE_VALUES[0];
+const normalizeWasteTypeValue = (value: string | null | undefined): string => {
+  if (!value) return DEFAULT_WASTE_TYPE_VALUE;
+  const normalized = value.trim().toUpperCase();
+  const match = WASTE_TYPE_OPTIONS.find((option) => option.value === normalized);
+  return match ? match.value : normalized;
 };
 
 const formatWasteType = (value: string | undefined | null) => {
@@ -135,14 +139,25 @@ export default function WasteGoalScreen() {
   const emptyTextColor = isDarkMode ? '#A0A0A0' : '#757575';
   const goalTypeLabelColor = isDarkMode ? '#C8C8C8' : '#6B6B6B';
 
+  const getWasteTypeLabel = React.useCallback(
+    (value: string | null | undefined) => {
+      if (!value) return t(WASTE_TYPE_OPTIONS[0].translationKey);
+      const normalized = normalizeWasteTypeValue(value);
+      const option = WASTE_TYPE_OPTIONS.find((opt) => opt.value === normalized);
+      if (option) return t(option.translationKey);
+      return formatWasteType(value);
+    },
+    [t]
+  );
+
   const [goals, setGoals] = useState<WasteGoal[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<{ key: string | null; message: string | null }>({ key: null, message: null });
 
   const [modalVisible, setModalVisible] = useState(false);
   const [editingGoal, setEditingGoal] = useState<WasteGoal | null>(null);
-  const [wasteType, setWasteType] = useState('Plastic');
-  const [unit, setUnit] = useState('Kilograms');
+  const [wasteType, setWasteType] = useState<string>(DEFAULT_WASTE_TYPE_VALUE);
+  const [unit, setUnit] = useState<GoalUnit>('Kilograms');
   const [duration, setDuration] = useState('30');
   const [amount, setAmount] = useState('5.0');
   const [goalFormError, setGoalFormError] = useState<string | null>(null);
@@ -188,12 +203,14 @@ export default function WasteGoalScreen() {
 
       const mapped: WasteGoal[] = goalsData.map((goal: any) => {
         const grams = goal.restrictionAmountGrams ?? 0;
-        const { amount, unit } = convertGramsToDisplay(grams);
-        const canonicalType = canonicalizeWasteType(goal.wasteType);
+        const { amount, unit: displayUnit } = convertGramsToDisplay(grams);
+        const unit = coerceGoalUnit(displayUnit);
+        const normalizedType = normalizeWasteTypeValue(goal.wasteType);
+        const displayWasteType = getWasteTypeLabel(goal.wasteType);
         return {
           goalId: goal.goalId,
-          wasteType: canonicalType,
-          rawWasteType: goal.wasteType ?? canonicalType,
+          wasteType: normalizedType,
+          displayWasteType,
           amount,
           unit,
           duration: goal.duration,
@@ -353,16 +370,16 @@ export default function WasteGoalScreen() {
       const parsedAmount = parseFloat(amount);
       const parsedDuration = parseInt(duration, 10);
       const restrictionAmountGrams = convertInputToGrams(parsedAmount, unit);
-      const canonicalType = canonicalizeWasteType(wasteType);
-      if (canonicalType !== wasteType) {
-        setWasteType(canonicalType);
+      const normalizedType = normalizeWasteTypeValue(wasteType);
+      if (normalizedType !== wasteType) {
+        setWasteType(normalizedType);
       }
 
       const response = await apiRequest(`/api/users/${encodedUsername}/waste-goals`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          type: canonicalType,
+          type: normalizedType,
           duration: parsedDuration,
           restrictionAmountGrams,
         }),
@@ -395,16 +412,16 @@ export default function WasteGoalScreen() {
       const parsedAmount = parseFloat(amount);
       const parsedDuration = parseInt(duration, 10);
       const restrictionAmountGrams = convertInputToGrams(parsedAmount, unit);
-      const canonicalType = canonicalizeWasteType(wasteType);
-      if (canonicalType !== wasteType) {
-        setWasteType(canonicalType);
+      const normalizedType = normalizeWasteTypeValue(wasteType);
+      if (normalizedType !== wasteType) {
+        setWasteType(normalizedType);
       }
 
       const response = await apiRequest(`/api/users/waste-goals/${editingGoal.goalId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          type: canonicalType,
+          type: normalizedType,
           duration: parsedDuration,
           restrictionAmountGrams,
         }),
@@ -457,15 +474,15 @@ export default function WasteGoalScreen() {
   const openEditModal = (goal: WasteGoal) => {
     setGoalFormError(null);
     setEditingGoal(goal);
-    setWasteType(canonicalizeWasteType(goal.wasteType ?? goal.rawWasteType));
-    setUnit(goal.unit || 'Grams');
+    setWasteType(goal.wasteType);
+    setUnit(coerceGoalUnit(goal.unit));
     setDuration(goal.duration.toString());
     setAmount(goal.amount.toString());
     setModalVisible(true);
   };
 
   const resetForm = () => {
-    setWasteType('Plastic');
+    setWasteType(DEFAULT_WASTE_TYPE_VALUE);
     setUnit('Kilograms');
     setDuration('30');
     setAmount('5.0');
@@ -530,7 +547,7 @@ export default function WasteGoalScreen() {
       <View style={styles.goalHeader}>
         <View style={styles.goalTypeContainer}>
           <ThemedText style={[styles.goalTypeLabel, { color: goalTypeLabelColor }]}>{t('wasteTypeLabel')}</ThemedText>
-          <ThemedText style={styles.goalType}>{formatWasteType(item.wasteType)}</ThemedText>
+          <ThemedText style={styles.goalType}>{item.displayWasteType}</ThemedText>
         </View>
         <View style={styles.goalActions}>
           {progressPercentage < 100 && (
@@ -639,22 +656,32 @@ export default function WasteGoalScreen() {
                 <ThemedText style={styles.modalTitle}>{editingGoal ? t('editWasteGoal') : t('createNewGoal')}</ThemedText>
                 <ThemedText style={styles.inputLabel}>{t('wasteType')}</ThemedText>
                 <View style={[styles.pickerContainer, { borderColor: inputBorderColor, backgroundColor: pickerBackgroundColor }]}>
-                  <Picker selectedValue={wasteType} onValueChange={setWasteType} style={[styles.picker, {color: pickerItemColor}]} itemStyle={{ color: pickerItemColor, backgroundColor: pickerBackgroundColor }}>
-                    <Picker.Item label={t('plastic')} value="Plastic" />
-                    <Picker.Item label={t('paper')} value="Paper" />
-                    <Picker.Item label={t('glass')} value="Glass" />
-                    <Picker.Item label={t('metal')} value="Metal" />
-                    <Picker.Item label={t('organic')} value="Organic" />
+                  <Picker
+                    selectedValue={wasteType}
+                    onValueChange={(value) => setWasteType(String(value))}
+                    style={[styles.picker, { color: pickerItemColor }]}
+                    itemStyle={{ color: pickerItemColor, backgroundColor: pickerBackgroundColor }}
+                  >
+                    {WASTE_TYPE_OPTIONS.map((option) => (
+                      <Picker.Item key={option.value} label={t(option.translationKey)} value={option.value} />
+                    ))}
                   </Picker>
                 </View>
                 <ThemedText style={styles.inputLabel}>{t('unit')}</ThemedText>
                 <View style={[styles.pickerContainer, { borderColor: inputBorderColor, backgroundColor: pickerBackgroundColor }]}>
-                  <Picker selectedValue={unit} onValueChange={setUnit} style={[styles.picker, {color: pickerItemColor}]} itemStyle={{ color: pickerItemColor, backgroundColor: pickerBackgroundColor }}>
-                    <Picker.Item label={t('kilograms')} value="Kilograms" />
-                    <Picker.Item label={t('grams')} value="Grams" />
-                    <Picker.Item label={t('liters')} value="Liters" />
-                    <Picker.Item label={t('units')} value="Units" />
-                    <Picker.Item label={t('bottles')} value="Bottles" />
+                  <Picker
+                    selectedValue={unit}
+                    onValueChange={(value) => setUnit(coerceGoalUnit(String(value)))}
+                    style={[styles.picker, { color: pickerItemColor }]}
+                    itemStyle={{ color: pickerItemColor, backgroundColor: pickerBackgroundColor }}
+                  >
+                    {GOAL_UNITS.map((goalUnit) => (
+                      <Picker.Item
+                        key={goalUnit}
+                        label={goalUnit === 'Kilograms' ? t('kilograms') : t('grams')}
+                        value={goalUnit}
+                      />
+                    ))}
                   </Picker>
                 </View>
                 <ThemedText style={styles.inputLabel}>{t('amount')}</ThemedText>
@@ -692,7 +719,7 @@ export default function WasteGoalScreen() {
                 {currentGoalForLog && (
                   <ThemedText style={styles.modalSubtitle}>
                     {t('forGoal', {
-                      wasteType: formatWasteType(currentGoalForLog.wasteType),
+                      wasteType: currentGoalForLog.displayWasteType,
                       amount: currentGoalForLog.amount,
                       unit: currentGoalForLog.unit,
                     })}
@@ -770,7 +797,7 @@ export default function WasteGoalScreen() {
                 {goalToDelete && (
                   <ThemedText style={styles.deleteConfirmText}>
                     {t('deleteConfirmation', {
-                      wasteType: formatWasteType(goalToDelete.wasteType ?? goalToDelete.rawWasteType),
+                      wasteType: goalToDelete.displayWasteType,
                       amount: goalToDelete.amount,
                       unit: goalToDelete.unit,
                     })}
