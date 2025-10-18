@@ -1,0 +1,17 @@
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-store
+.git
+.gitignore
+Dockerfile
+dist
+.cache
+.vite
+coverage
+*.local
+.env*
+**/.DS_Store
+**/Thumbs.db
+
