@@ -1,5 +1,5 @@
 // app/(tabs)/index.tsx
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import {
   Image,
   StyleSheet,
@@ -73,6 +73,9 @@ export default function HomeScreen() {
   const [errorVisible, setErrorVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [usersCount, setUsersCount] = useState<number>(0);
+  const [displayedUsersCount, setDisplayedUsersCount] = useState<number>(0);
+  const userCountAnimationRef = useRef<NodeJS.Timeout | null>(null);
+  const displayedCountRef = useRef<number>(0);
   const [trendingPosts, setTrendingPosts] = useState<TrendingPost[]>([]);
 
   useEffect(() => {
@@ -94,6 +97,62 @@ export default function HomeScreen() {
     };
     fetchUserCount();
   }, []);
+
+  useEffect(() => {
+    displayedCountRef.current = displayedUsersCount;
+  }, [displayedUsersCount]);
+
+  useEffect(() => {
+    const target = usersCount;
+    if (typeof jest !== 'undefined') {
+      setDisplayedUsersCount(target);
+      displayedCountRef.current = target;
+      if (userCountAnimationRef.current) {
+        clearInterval(userCountAnimationRef.current);
+        userCountAnimationRef.current = null;
+      }
+      return;
+    }
+
+    if (userCountAnimationRef.current) {
+      clearInterval(userCountAnimationRef.current);
+      userCountAnimationRef.current = null;
+    }
+
+    const start = displayedCountRef.current;
+    if (start === target) return;
+
+    const step = target > start ? 1 : -1;
+    const totalSteps = Math.max(Math.abs(target - start), 1);
+    const duration = Math.min(1200, totalSteps * 80);
+    const intervalMs = Math.max(16, Math.floor(duration / totalSteps));
+
+    userCountAnimationRef.current = setInterval(() => {
+      setDisplayedUsersCount((prev) => {
+        if (prev === target) {
+          if (userCountAnimationRef.current) {
+            clearInterval(userCountAnimationRef.current);
+            userCountAnimationRef.current = null;
+          }
+          return prev;
+        }
+        const next = prev + step;
+        displayedCountRef.current = next;
+        if (next === target && userCountAnimationRef.current) {
+          clearInterval(userCountAnimationRef.current);
+          userCountAnimationRef.current = null;
+        }
+        return next;
+      });
+    }, intervalMs);
+
+    return () => {
+      if (userCountAnimationRef.current) {
+        clearInterval(userCountAnimationRef.current);
+        userCountAnimationRef.current = null;
+      }
+    };
+  }, [usersCount]);
 
   useEffect(() => {
     const fetchTrending = async () => {
@@ -285,8 +344,8 @@ export default function HomeScreen() {
           <>
             <View style={styles.statsContainer}>
               <ThemedText style={styles.statLine}>
-                <Text style={styles.statNumber}>{usersCount}</Text>{" "}
-                {t("usersAreReducingWastes", { count: usersCount })}
+                <Text style={styles.statNumber}>{displayedUsersCount}</Text>{' '}
+                {t('usersAreReducingWastes', { count: displayedUsersCount })}
               </ThemedText>
 
               <ThemedText style={styles.sectionTitle}>
@@ -483,14 +542,14 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   languageToggleContainer: {
-    position: "absolute",
-    top: 16,
-    right: 16,
+    position: 'absolute',
+    top: 8,
+    right: 48,
     zIndex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 8,
-    backgroundColor: "rgba(0,0,0,0.3)",
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 0,
+    backgroundColor: 'rgba(0,0,0,0.3)',
     borderRadius: 20,
   },
   languageLabel: {

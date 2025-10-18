@@ -1,7 +1,6 @@
 // Base API client with automatic token refresh and helpers
-
-//const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
-const API_BASE_URL = "http://localhost:8080";
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
+//const API_BASE_URL = "http://localhost:8080";
 
 export const ACCESS_TOKEN_KEY = 'authToken';
 export const REFRESH_TOKEN_KEY = 'refreshToken';
@@ -46,6 +45,7 @@ async function tryRefreshAccessToken(): Promise<boolean> {
 }
 
 export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  console.log(`API_BASE_URL: ${API_BASE_URL}`);
   const token = getAccessToken();
   const authBypass = [
     '/api/sessions',

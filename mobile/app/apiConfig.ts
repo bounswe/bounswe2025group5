@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 
 type GlobalWithLocation = typeof globalThis & { location?: { hostname?: string } };
 
@@ -11,7 +12,30 @@ const browserHost =
     ? (globalThis as GlobalWithLocation).location?.hostname
     : undefined;
 
-export const API_HOST = envHost ?? browserHost ?? 'localhost';
+const getExpoHost = () => {
+  const hostUri =
+    Constants.expoGoConfig?.hostUri ||
+    Constants.manifest2?.extra?.expoClient?.hostUri ||
+    (Constants.manifest as any)?.debuggerHost;
+
+  if (!hostUri || typeof hostUri !== 'string') return undefined;
+  return hostUri.split(':')[0];
+};
+
+const expoDetectedHost = Platform.OS === 'web' ? undefined : getExpoHost();
+
+const fallbackHost = Platform.select({
+  android: '10.0.2.2',
+  default: 'localhost',
+});
+
+export const API_HOST =
+  envHost ??
+  (Platform.OS === 'web' ? browserHost : undefined) ??
+  expoDetectedHost ??
+  fallbackHost ??
+  'localhost';
+
 export const API_PORT = envPort;
 export const API_BASE_URL = envBaseUrl ?? `http://${API_HOST}:${API_PORT}`;
 
