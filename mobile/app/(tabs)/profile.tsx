@@ -123,14 +123,8 @@ export default function ProfileScreen() {
       }
     >
       <View style={[styles.contentContainer, {backgroundColor: contentBackgroundColor}]}>
-        <View style={styles.logoutContainer}>
-          <TouchableOpacity testID="logout-button" onPress={handleLogout} style={styles.logoutButton}>
-            <Text style={[styles.topButtonText, {color: buttonTextColor}]}>{t('logOut')}</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* ========================================================== */}
-        {/* LANGUAGE TOGGLE INSERTED HERE IN ITS OWN CONTAINER         */}
+      {/* ========================================================== */}
+        {/* LANGUAGE TOGGLE SITS ABOVE LOGOUT                         */}
         {/* ========================================================== */}
         <View style={styles.languageToggleOuterContainer}>
             <View style={styles.languageToggleContainer}>
@@ -144,6 +138,12 @@ export default function ProfileScreen() {
                 />
                 <Text style={styles.languageLabel}>TR</Text>
             </View>
+        </View>
+
+        <View style={styles.logoutContainer}>
+          <TouchableOpacity testID="logout-button" onPress={handleLogout} style={styles.logoutButton}>
+            <Text style={[styles.topButtonText, {color: buttonTextColor}]}>{t('logOut')}</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.badgesContainer}>
