@@ -4,6 +4,5 @@ import lombok.Data;
 
 @Data
 public class ProfileEditAndCreateRequest {
-    private String username;
     private String biography;
 }
