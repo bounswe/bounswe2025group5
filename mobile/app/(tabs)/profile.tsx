@@ -604,20 +604,50 @@ export default function ProfileScreen() {
     >
       <View style={[styles.contentContainer, {backgroundColor: contentBackgroundColor}]}>
       {/* ========================================================== */}
-        {/* LANGUAGE TOGGLE SITS ABOVE LOGOUT                         */}
+        {/* TOP ACTIONS: BUTTONS LEFT, LANGUAGE TOGGLE RIGHT          */}
         {/* ========================================================== */}
-        <View style={styles.languageToggleOuterContainer}>
-            <View style={styles.languageToggleContainer}>
-                <Text style={styles.languageLabel}>EN</Text>
-                <Switch
-                    trackColor={{ false: '#767577', true: '#81b0ff' }}
-                    thumbColor={isDarkMode ? (isTurkish ? '#f5dd4b' : '#f4f4f4') : (isTurkish ? '#f5dd4b' : '#f4f4f4')}
-                    ios_backgroundColor="#3e3e3e"
-                    onValueChange={toggleLanguage}
-                    value={isTurkish}
-                />
-                <Text style={styles.languageLabel}>TR</Text>
+        <View style={styles.topActionsContainer}>
+          <View style={styles.leftActionsStack}>
+            <View style={styles.logoutContainer}>
+              <TouchableOpacity testID="logout-button" onPress={handleLogout} style={styles.logoutButton}>
+                <Text style={[styles.topButtonText, {color: buttonTextColor}]}>{t('logOut')}</Text>
+              </TouchableOpacity>
             </View>
+
+            <View style={styles.badgesContainer}>
+              <TouchableOpacity
+                testID="my-badges-button"
+                style={styles.badgesButton}
+                onPress={() => navigation.navigate('badges')}
+              >
+                <Text style={[styles.topButtonText, {color: buttonTextColor}]}>{t('myBadges')}</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.editProfileContainer}>
+              <TouchableOpacity
+                testID="edit-profile-button"
+                style={styles.editButton}
+                onPress={() => navigation.navigate('edit_profile')}
+              >
+                <Text style={[styles.topButtonText, {color: buttonTextColor}]}>{t('editProfile')}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.languageToggleOuterContainer}>
+              <View style={styles.languageToggleContainer}>
+                  <Text style={styles.languageLabel}>EN</Text>
+                  <Switch
+                      trackColor={{ false: '#767577', true: '#81b0ff' }}
+                      thumbColor={isDarkMode ? (isTurkish ? '#f5dd4b' : '#f4f4f4') : (isTurkish ? '#f5dd4b' : '#f4f4f4')}
+                      ios_backgroundColor="#3e3e3e"
+                      onValueChange={toggleLanguage}
+                      value={isTurkish}
+                  />
+                  <Text style={styles.languageLabel}>TR</Text>
+              </View>
+          </View>
         </View>
 
         {profileUpdateBannerVisible && (
@@ -625,32 +655,6 @@ export default function ProfileScreen() {
             <Text style={[styles.successBannerText, { color: successBannerTextColor }]}>{t('successBioUpdated')}</Text>
           </View>
         )}
-
-        <View style={styles.logoutContainer}>
-          <TouchableOpacity testID="logout-button" onPress={handleLogout} style={styles.logoutButton}>
-            <Text style={[styles.topButtonText, {color: buttonTextColor}]}>{t('logOut')}</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.badgesContainer}>
-          <TouchableOpacity
-            testID="my-badges-button"
-            style={styles.badgesButton}
-            onPress={() => navigation.navigate('badges')}
-          >
-            <Text style={[styles.topButtonText, {color: buttonTextColor}]}>{t('myBadges')}</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.editProfileContainer}>
-          <TouchableOpacity
-            testID="edit-profile-button"
-            style={styles.editButton}
-            onPress={() => navigation.navigate('edit_profile')}
-          >
-            <Text style={[styles.topButtonText, {color: buttonTextColor}]}>{t('editProfile')}</Text>
-          </TouchableOpacity>
-        </View>
 
         <View style={styles.profileContainer}>
           {avatarUri ? (
@@ -892,14 +896,16 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   headerImage: { width: '100%', height: undefined, aspectRatio: 0.88 },
   contentContainer: { flex: 1, padding: 16, marginTop: -20 }, 
-  logoutContainer: { alignItems: 'flex-end', margin: 4  },
+  topActionsContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 },
+  leftActionsStack: { flex: 1 },
+  logoutContainer: { alignItems: 'flex-start', margin: 4  },
   logoutButton: { paddingHorizontal: 20, paddingVertical: 6, borderRadius: 4, backgroundColor: '#E53935' },
   languageToggleOuterContainer: { alignItems: 'flex-end', margin: 4 }, 
   languageToggleContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(128,128,128,0.3)', borderRadius: 20, paddingHorizontal: 8, paddingVertical: 0 },
   languageLabel: { color: '#888', fontWeight: 'bold', marginHorizontal: 0, fontSize: 12 },
-  editProfileContainer: { alignItems: 'flex-end', margin: 4 },
+  editProfileContainer: { alignItems: 'flex-start', margin: 4 },
   editButton: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 4, backgroundColor: '#007AFF' },
-  badgesContainer: { alignItems: 'flex-end', margin: 4 },
+  badgesContainer: { alignItems: 'flex-start', margin: 4 },
   badgesButton: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 4, backgroundColor: '#FF9800' },
   topButtonText: { fontSize: 14, color: '#FFFFFF' },
   profileContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
