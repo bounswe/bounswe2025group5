@@ -126,8 +126,7 @@ export default function ChallengesScreen() {
       console.error(err);
       setError({
         key: "errorFailedToLoadChallenges",
-        message:
-          err instanceof Error ? err.message : t("unknownError"),
+        message: err instanceof Error ? err.message : t("unknownError"),
       });
     } finally {
       setLoading(false);
@@ -179,8 +178,7 @@ export default function ChallengesScreen() {
       console.error(err);
       setError({
         key: "errorActionFailed",
-        message:
-          err instanceof Error ? err.message : t("unknownError"),
+        message: err instanceof Error ? err.message : t("unknownError"),
       });
       setChallenges((prev) =>
         prev.map((ch) =>
@@ -211,8 +209,7 @@ export default function ChallengesScreen() {
       console.error(err);
       setLbError({
         key: "errorFailedToLoadLeaderboard",
-        message:
-          err instanceof Error ? err.message : t("unknownError"),
+        message: err instanceof Error ? err.message : t("unknownError"),
       });
     } finally {
       setLbLoading(false);
@@ -548,8 +545,8 @@ export default function ChallengesScreen() {
                         { color: colors.textSecondary },
                       ]}
                     >
-                      {t("progressText")}: {item.currentAmount?.toFixed(1) || 0} /{" "}
-                      {item.amount} kg
+                      {t("progressText")}: {item.currentAmount?.toFixed(1) || 0}{" "}
+                      / {item.amount} kg
                     </ThemedText>
                     <ThemedText
                       type="default"
@@ -826,7 +823,9 @@ export default function ChallengesScreen() {
               {t("createNewChallengeModal")}
             </ThemedText>
 
-            <ThemedText style={styles.inputLabel}>{t("challengeNameLabel")}</ThemedText>
+            <ThemedText style={styles.inputLabel}>
+              {t("challengeNameLabel")}
+            </ThemedText>
             <TextInput
               style={[
                 styles.input,
@@ -842,7 +841,9 @@ export default function ChallengesScreen() {
               placeholderTextColor={colors.textSubtle}
             />
 
-            <ThemedText style={styles.inputLabel}>{t("descriptionLabel")}</ThemedText>
+            <ThemedText style={styles.inputLabel}>
+              {t("descriptionLabel")}
+            </ThemedText>
             <TextInput
               style={[
                 styles.input,
@@ -861,7 +862,9 @@ export default function ChallengesScreen() {
               numberOfLines={3}
             />
 
-            <ThemedText style={styles.inputLabel}>{t("wasteTypeLabel")}</ThemedText>
+            <ThemedText style={styles.inputLabel}>
+              {t("wasteTypeLabel")}
+            </ThemedText>
             <TextInput
               style={[
                 styles.input,
@@ -896,7 +899,9 @@ export default function ChallengesScreen() {
               keyboardType="numeric"
             />
 
-            <ThemedText style={styles.inputLabel}>{t("durationLabel")}</ThemedText>
+            <ThemedText style={styles.inputLabel}>
+              {t("durationLabel")}
+            </ThemedText>
             <TextInput
               style={[
                 styles.input,
@@ -947,7 +952,9 @@ export default function ChallengesScreen() {
                 {loading ? (
                   <ActivityIndicator size="small" color="#FFF" />
                 ) : (
-                  <Text style={styles.buttonText}>{t("createChallengeButton")}</Text>
+                  <Text style={styles.buttonText}>
+                    {t("createChallengeButton")}
+                  </Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -982,7 +989,9 @@ export default function ChallengesScreen() {
               </ThemedText>
             )}
 
-            <ThemedText style={styles.inputLabel}>{t("amountKgLabel")}</ThemedText>
+            <ThemedText style={styles.inputLabel}>
+              {t("amountKgLabel")}
+            </ThemedText>
             <TextInput
               style={[
                 styles.input,
@@ -1080,8 +1089,12 @@ export default function ChallengesScreen() {
                           { color: colors.textSecondary },
                         ]}
                       >
-                        {new Date(item.timestamp).toLocaleDateString(i18n.language === 'tr' ? 'tr-TR' : 'en-US')}{" "}
-                        {new Date(item.timestamp).toLocaleTimeString(i18n.language === 'tr' ? 'tr-TR' : 'en-US')}
+                        {new Date(item.timestamp).toLocaleDateString(
+                          i18n.language === "tr" ? "tr-TR" : "en-US"
+                        )}{" "}
+                        {new Date(item.timestamp).toLocaleTimeString(
+                          i18n.language === "tr" ? "tr-TR" : "en-US"
+                        )}
                       </ThemedText>
                     </View>
                   </View>
