@@ -1,4 +1,7 @@
 {
+    "common": {
+        "create": "Create"
+    },
     "login": {
         "title": "Login to your account",
         "description": "Enter your email below to login to your account",
@@ -42,19 +45,40 @@
     },
     "challenge": {
         "navbar": "Challenge"
-  },
-  "mainpage": {
-    "navbar": "Mainpage",
-    "challengesTitle": "Your Challenges",
-    "challengesDesc": "Challenges you are currently attending",
-    "noChallenges": "No active challenges",
-    "type": "Type",
-    "status": "Status",
-    "dates": "Dates",
-    "feedTitle": "Following Feed",
-    "feedDesc": "Recent posts from accounts you follow",
-    "noPosts": "No posts yet",
-    "likes": "Likes",
-    "comments": "Comments"
-  }
+    },
+    "logout": "Logout",
+    "mainpage": {
+        "navbar": "Mainpage",
+        "challengesTitle": "Your Challenges",
+        "challengesDesc": "Challenges you are currently attending",
+        "noChallenges": "No active challenges",
+        "type": "Type",
+        "status": "Status",
+        "dates": "Dates",
+        "feedTitle": "Following Feed",
+        "feedDesc": "Recent posts from accounts you follow",
+        "noPosts": "No posts yet",
+        "likes": "Likes",
+        "comments": "Comments"
+    },
+    "challenges": {
+        "title": "Challenges",
+        "attendError": "Could not attend the challenge",
+        "leaveError": "Could not leave the challenge",
+        "type": "Type",
+        "status": "Status",
+        "dates": "Dates",
+        "target": "Target",
+        "leave": "Leave",
+        "leaving": "Leaving...",
+        "attend": "Attend",
+        "attending": "Attending...",
+        "loading": "Loading...",
+        "noChallenges": "No challenges found",
+        "create": {
+            "titleLabel": "Create Challenge",
+            "name": "Title",
+            "namePlaceholder": "Enter challenge title"
+        }
+    }
 }

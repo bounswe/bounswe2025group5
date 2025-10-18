@@ -1,4 +1,7 @@
 {
+    "common": {
+        "create": "Yarat"
+    },
     "login": {
     "title": "Hesabınıza giriş yapın",
     "description": "Hesabınıza giriş yapmak için lütfen e-posta adresinizi girin",
@@ -42,19 +45,40 @@
     },
     "challenge" : {
         "navbar": "Etkinlikler"
-  },
-  "mainpage": {
-    "navbar": "Ana Sayfa",
-    "challengesTitle": "Katıldığınız Etkinlikler",
-    "challengesDesc": "Şu an katıldığınız etkinlikler",
-    "noChallenges": "Aktif etkinlik yok",
-    "type": "Tür",
-    "status": "Durum",
-    "dates": "Tarih",
-    "feedTitle": "Takip Akışı",
-    "feedDesc": "Takip ettiklerinizden son gönderiler",
-    "noPosts": "Gönderi yok",
-    "likes": "Beğeni",
-    "comments": "Yorum"
-  }
+    },
+    "logout": "Çıkış Yap",
+    "mainpage": {
+        "navbar": "Ana Sayfa",
+        "challengesTitle": "Katıldığınız Etkinlikler",
+        "challengesDesc": "Şu an katıldığınız etkinlikler",
+        "noChallenges": "Aktif etkinlik yok",
+        "type": "Tür",
+        "status": "Durum",
+        "dates": "Tarih",
+        "feedTitle": "Takip Akışı",
+        "feedDesc": "Takip ettiklerinizden son gönderiler",
+        "noPosts": "Gönderi yok",
+        "likes": "Beğeni",
+        "comments": "Yorum"
+    },
+    "challenges": {
+        "title": "Etkinlikler",
+        "attendError": "Etkinliğe katılınamadı",
+        "leaveError": "Etkinlikten ayrılınamadı",
+        "type": "Tür",
+        "status": "Durum",
+        "dates": "Tarih",
+        "target": "Hedef",
+        "leave": "Ayrıl",
+        "leaving": "Ayrılıyor...",
+        "attend": "Katıl",
+        "attending": "Katılıyor...",
+        "loading": "Yükleniyor...",
+        "noChallenges": "Etkinlik bulunamadı",
+        "create": {
+            "titleLabel": "Etkinlik Oluştur",
+            "name": "Başlık",
+            "namePlaceholder": "Etkinlik başlığını girin"
+        }
+    }
 }

@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { clearTokens } from '@/lib/api/client';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface LogoutButtonProps {
   className?: string;
@@ -9,6 +10,7 @@ interface LogoutButtonProps {
 export default function LogoutButton({ className }: LogoutButtonProps) {
   const navigate = useNavigate();
   const isAuthed = typeof window !== 'undefined' && !!localStorage.getItem('authToken');
+  const { t } = useTranslation();
 
   const handleLogout = () => {
     clearTokens();
@@ -25,7 +27,7 @@ export default function LogoutButton({ className }: LogoutButtonProps) {
       onClick={handleLogout}
       className={className ?? 'text-white hover:bg-white/20 transition-colors'}
     >
-      Logout
+      {t('logout', 'Logout')}
     </Button>
   );
 }
