@@ -23,10 +23,9 @@ export const PostsApi = {
 
   listMostLiked: async (params: { size: number; username?: string }) => {
     const query = new URLSearchParams();
-    query.set('mostLiked', 'true');
     query.set('size', String(params.size));
     if (params.username) query.set('username', params.username);
-    const data = await ApiClient.get<PostItem[]>(`/api/posts?${query.toString()}`);
+    const data = await ApiClient.get<PostItem[]>(`/api/posts/mostLiked?${query.toString()}`);
     data.forEach(item => PostItemSchema.parse(item));
     return data;
   },

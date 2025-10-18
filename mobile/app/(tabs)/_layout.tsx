@@ -9,9 +9,13 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { AuthContext } from '../_layout';
 
+import { useTranslation } from 'react-i18next';
+
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { username, userType } = useContext(AuthContext);
+
+  const { t } = useTranslation();
 
   const iconSize = 28;
   const tint = Colors[colorScheme ?? 'light'].tint;
@@ -37,7 +41,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: t('tabHome'),
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="home" size={iconSize} color={color} />
           ),
@@ -49,7 +53,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="explore"
         options={{
-          title: 'Explore',
+          title: t('tabExplore'),
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="send" size={iconSize} color={color} />
           ),
@@ -58,7 +62,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="wastegoal"
         options={{
-          title: 'Goals',
+          title: t('tabGoals'),
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons
               name="target"
@@ -74,7 +78,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="challenges"
         options={{
-          title: 'Challenges',
+          title: t('tabChallenges'),
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons
               name="flag"
@@ -87,7 +91,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: t('tabProfile'),
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="person" size={iconSize} color={color} />
           ),

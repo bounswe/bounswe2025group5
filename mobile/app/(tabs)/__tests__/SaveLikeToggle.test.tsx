@@ -19,8 +19,15 @@ jest.mock('@/components/ThemedText', () => ({
 }));
 
 // Mock fetch globally
-global.fetch = jest.fn((url, options) => {
-  if (url.includes('/api/posts/info')) {
+global.fetch = jest.fn((url: RequestInfo | URL, options?: RequestInit) => {
+  const urlString =
+    typeof url === 'string'
+      ? url
+      : url instanceof URL
+        ? url.toString()
+        : (url as Request)?.url ?? '';
+
+  if (urlString.includes('/api/posts?')) {
     return Promise.resolve({
       ok: true,
       json: () => Promise.resolve([
@@ -36,21 +43,21 @@ global.fetch = jest.fn((url, options) => {
     });
   }
 
-  if (url.includes('/api/posts/likes')) {
+  if (urlString.includes('/api/posts/') && urlString.includes('/likes')) {
     return Promise.resolve({
       ok: true,
       json: () => Promise.resolve({ likedByUsers: [] }),
     });
   }
 
-  if (url.includes('/api/posts/getSavedPosts')) {
+  if (urlString.includes('/api/users/') && urlString.includes('/saved-posts')) {
     return Promise.resolve({
       ok: true,
       json: () => Promise.resolve([]),
     });
   }
 
-  if (url.includes('/api/posts/like') || url.includes('/api/posts/save')) {
+  if (urlString.includes('/api/posts/like') || urlString.includes('/api/posts/save')) {
     return Promise.resolve({
       ok: true,
       text: () => Promise.resolve(JSON.stringify({ success: true, username: 'testuser' })),

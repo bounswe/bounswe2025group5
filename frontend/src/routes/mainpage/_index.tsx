@@ -82,7 +82,7 @@ export default function MainpageIndex() {
                     <CardDescription>{ch.description}</CardDescription>
                   </CardHeader>
                   <CardContent className="text-sm text-muted-foreground">
-                    <div className="flex justify-between"><span>{t('mainpage.type', 'Type')}</span><span>{ch.wasteType}</span></div>
+                    <div className="flex justify-between"><span>{t('mainpage.type', 'Type')}</span><span>{ch.type}</span></div>
                     <div className="flex justify-between"><span>{t('mainpage.status', 'Status')}</span><span>{ch.status}</span></div>
                     <div className="flex justify-between"><span>{t('mainpage.dates', 'Dates')}</span><span>{ch.startDate} → {ch.endDate}</span></div>
                   </CardContent>
