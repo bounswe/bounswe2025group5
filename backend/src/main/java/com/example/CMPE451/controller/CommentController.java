@@ -29,7 +29,7 @@ public class CommentController {
         return ResponseEntity.ok(getCommentsResponse);
     }
 
-    @PutMapping("/{commentId}")
+    @PutMapping("/comment/{commentId}")
     public ResponseEntity<CommentResponse> updateComment(
             @PathVariable Integer commentId,
             @RequestBody CommentRequest request) {
@@ -37,7 +37,7 @@ public class CommentController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{commentId}")
+    @DeleteMapping("/comment/{commentId}")
     public ResponseEntity<Map<String, Boolean>> deleteComment(
             @PathVariable Integer commentId) {
         Map<String, Boolean> response =commentService.deleteComment(commentId);

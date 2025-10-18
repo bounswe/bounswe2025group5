@@ -7,6 +7,8 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState, createContext } from 'react';
 import 'react-native-reanimated';
 
+import './i18n'; 
+
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 export type UserType = 'guest' | 'user' | null;
@@ -84,7 +86,7 @@ export default function RootLayout() {
             }}
           />
           <Stack.Screen 
-            name="edit_post_detail" // Ensure this matches your file name if in app/
+            name="edit_post_detail" 
             options={{ 
               presentation: 'modal', 
             }} 

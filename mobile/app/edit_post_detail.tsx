@@ -9,15 +9,15 @@ import {
   Platform,
   Alert,
   useColorScheme,
-  Image, // Import Image
-  ActivityIndicator,
+  Image,
 } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { AuthContext } from './_layout';
 import { apiRequest } from './services/apiClient';
-import * as ImagePicker from 'expo-image-picker'; // Import expo-image-picker
-import { Ionicons } from '@expo/vector-icons'; // For the attachment icon
+import * as ImagePicker from 'expo-image-picker';
+import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 type EditPostDetailRouteParams = {
   postId: number;
@@ -32,6 +32,7 @@ export default function EditPostDetailScreen() {
   const route = useRoute<EditPostDetailScreenRouteProp>();
   const { username } = useContext(AuthContext);
   const colorScheme = useColorScheme();
+  const { t } = useTranslation();
 
   const postId = route.params?.postId;
   const initialContent = route.params?.initialContent;
@@ -39,9 +40,9 @@ export default function EditPostDetailScreen() {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: 'Edit Post',
+      headerTitle: t('editPostHeader'),
     });
-  }, [navigation]);
+  }, [navigation, t]);
 
   const isDarkMode = colorScheme === 'dark';
   const screenBackgroundColor = isDarkMode ? '#151718' : '#F0F2F5';
@@ -54,33 +55,29 @@ export default function EditPostDetailScreen() {
   const iconColor = isDarkMode ? inputTextColor : '#555';
 
   const [content, setContent] = useState(initialContent || '');
-  // newImage will store the newly selected image asset from ImagePicker
   const [newImage, setNewImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
-  // currentPhotoDisplayUrl will store the URL of the image to be displayed (either initial or new)
   const [currentPhotoDisplayUrl, setCurrentPhotoDisplayUrl] = useState<string | null>(initialPhotoUrl || null);
   const [loading, setLoading] = useState(false);
 
-
   useEffect(() => {
     if (!postId) {
-      Alert.alert('Error', 'Post ID is missing. Cannot edit.');
+      Alert.alert(t('error'), t('postIdMissing'));
       navigation.goBack();
       return;
     }
     setContent(initialContent || '');
-    setCurrentPhotoDisplayUrl(initialPhotoUrl || null); // Initialize display URL
-    setNewImage(null); // Reset any newly picked image when params change
-  }, [postId, initialContent, initialPhotoUrl, navigation]);
-
+    setCurrentPhotoDisplayUrl(initialPhotoUrl || null);
+    setNewImage(null);
+  }, [postId, initialContent, initialPhotoUrl, navigation, t]);
 
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.granted === false) {
-      Alert.alert("Permission Required!", "You need to allow access to your photos to upload an image.");
+      Alert.alert(t('permissionRequiredTitle'), t('permissionRequiredBody'));
       return;
     }
 
-    let result = await ImagePicker.launchImageLibraryAsync({
+    const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
@@ -88,23 +85,23 @@ export default function EditPostDetailScreen() {
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      setNewImage(result.assets[0]); // Store the full asset for upload
-      setCurrentPhotoDisplayUrl(result.assets[0].uri); // Update display URL to the local URI of the new image
+      setNewImage(result.assets[0]);
+      setCurrentPhotoDisplayUrl(result.assets[0].uri);
     }
   };
 
   const handleSaveChanges = async () => {
-    if (!content.trim() && !currentPhotoDisplayUrl) { // Check if there's content or any image to display/upload
-      Alert.alert('Error', 'Post content cannot be empty if no image is present.');
+    if (!content.trim() && !currentPhotoDisplayUrl) {
+      Alert.alert(t('error'), t('contentEmptyIfNoImage'));
       return;
     }
     if (!postId) {
-        Alert.alert('Error', 'Post ID is missing, cannot save changes.');
-        return;
+      Alert.alert(t('error'), t('postIdMissing'));
+      return;
     }
     if (!username) {
-        Alert.alert('Error', 'Username is missing. Cannot save changes.');
-        return;
+      Alert.alert(t('error'), t('usernameMissingGeneric'));
+      return;
     }
 
     try {
@@ -113,10 +110,10 @@ export default function EditPostDetailScreen() {
       formData.append('content', content.trim());
       formData.append('username', username);
 
-      if (newImage) { // If a new image was picked, upload it
+      if (newImage) {
         const uriParts = newImage.uri.split('.');
         const fileType = uriParts[uriParts.length - 1];
-        const fileName = newImage.fileName || `photo-edit-${postId}.${fileType}`;
+        const fileName = (newImage as any).fileName || `photo-edit-${postId}.${fileType}`;
 
         formData.append('photoFile', {
           uri: newImage.uri,
@@ -124,23 +121,10 @@ export default function EditPostDetailScreen() {
           type: newImage.mimeType || `image/${fileType}`,
         } as any);
       } else if (initialPhotoUrl && !currentPhotoDisplayUrl) {
-        // If there was an initialPhotoUrl but currentPhotoDisplayUrl is now null/empty,
-        // it means the user wants to remove the existing image.
-        // Your backend needs to handle how to remove an image.
-        // Sending an empty string or a specific flag for 'photoFile' might be one way.
-        // This example assumes sending empty 'photoFile' signals removal IF backend supports it.
-        formData.append('photoFile', ''); 
-      } else if (initialPhotoUrl && currentPhotoDisplayUrl === initialPhotoUrl) {
-        // No new image picked, and the initial photo URL is still the one to display
-        // This means "keep the existing image".
-        // For PUT requests, some backends might require you to resend the existing URL
-        // if 'photoFile' is a required field in the form-data, or omit it if it's truly optional
-        // and the absence of a new file means "no change to image".
-        // The Postman screenshot does not check 'content', but checks 'photoFile' and 'username'.
-        // This implies 'photoFile' might be expected. If so, send the existing URL.
-        // formData.append('photoFile', initialPhotoUrl); // Uncomment if backend expects this to keep image
+        // Signal removal if backend supports it:
+        formData.append('photoFile', '');
       }
-      // If newImage is null AND initialPhotoUrl was null, no 'photoFile' is appended.
+      // else: keep existing image by omitting photoFile
 
       const res = await apiRequest(`/api/posts/${postId}`, {
         method: 'PUT',
@@ -149,27 +133,25 @@ export default function EditPostDetailScreen() {
 
       if (!res.ok) {
         const errorData = await res.text();
-        console.error("API Error Data on Save:", errorData);
-        let specificErrorMessage = `Failed to update post. Status: ${res.status}`;
+        console.error('API Error Data on Save:', errorData);
+        let specificErrorMessage = t('failedToUpdatePostWithStatus', { status: res.status });
         try {
-            const jsonError = JSON.parse(errorData);
-            specificErrorMessage = jsonError.message || jsonError.error || specificErrorMessage;
-        } catch (e) {
-            if (errorData.length < 200) {
-                specificErrorMessage += ` Server response: ${errorData}`;
-            }
+          const jsonError = JSON.parse(errorData);
+          specificErrorMessage = (jsonError.message || jsonError.error) ?? specificErrorMessage;
+        } catch {
+          if (errorData.length < 200) {
+            specificErrorMessage += ` ${t('serverResponse')}: ${errorData}`;
+          }
         }
         throw new Error(specificErrorMessage);
       }
 
-      const data = await res.json();
-      console.log('Post updated:', data);
-
-      Alert.alert('Success', 'Your post was updated successfully.');
+      await res.json(); // not strictly needed, but keeps symmetry
+      Alert.alert(t('success'), t('postUpdated'));
       navigation.goBack();
     } catch (err) {
       console.error('Update post error:', err);
-      Alert.alert('Error', `${err instanceof Error ? err.message : 'An unknown error occurred. Please try again.'}`);
+      Alert.alert(t('error'), `${err instanceof Error ? err.message : t('unknownError')}`);
     } finally {
       setLoading(false);
     }
@@ -182,7 +164,7 @@ export default function EditPostDetailScreen() {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
     >
       <ThemedText type="title" style={styles.title}>
-        Edit Your Post
+        {t('editYourPost')}
       </ThemedText>
 
       <TextInput
@@ -192,9 +174,9 @@ export default function EditPostDetailScreen() {
             borderColor: inputBorderColor,
             color: inputTextColor,
             backgroundColor: inputBackgroundColor,
-          }
+          },
         ]}
-        placeholder="Edit your post content here..."
+        placeholder={t('editPostPlaceholder')}
         placeholderTextColor={placeholderTextColor}
         multiline
         value={content}
@@ -205,35 +187,37 @@ export default function EditPostDetailScreen() {
       <View style={styles.imagePickerContainer}>
         <TouchableOpacity onPress={pickImage} style={styles.imagePickerButton}>
           <Ionicons name="attach" size={28} color={iconColor} />
-          <ThemedText style={[styles.imagePickerText, {color: inputTextColor}]}>
-            {newImage ? 'Change Image' : (currentPhotoDisplayUrl ? 'Change Image' : 'Add New Image')}
+          <ThemedText style={[styles.imagePickerText, { color: inputTextColor }]}>
+            {newImage ? t('changeImage') : currentPhotoDisplayUrl ? t('changeImage') : t('addNewImage')}
           </ThemedText>
         </TouchableOpacity>
+
         {currentPhotoDisplayUrl && (
-          <Image source={{ uri: currentPhotoDisplayUrl }} style={styles.imagePreview} />
-        )}
-        {currentPhotoDisplayUrl && !newImage && ( // Show remove button only if it's an existing image
-            <TouchableOpacity 
-                onPress={() => {
-                    setCurrentPhotoDisplayUrl(null); // Clear display
-                    // setNewImage(null); // newImage is already null or will be replaced by pickImage
-                }} 
-            >
-            </TouchableOpacity>
+          <>
+            <Image source={{ uri: currentPhotoDisplayUrl }} style={styles.imagePreview} />
+            {!newImage && (
+              <TouchableOpacity
+                onPress={() => setCurrentPhotoDisplayUrl(null)}
+                style={styles.removeImageButton}
+              >
+                <ThemedText style={styles.removeImageText}>{t('removeImage')}</ThemedText>
+              </TouchableOpacity>
+            )}
+          </>
         )}
       </View>
 
       <TouchableOpacity
         style={[
-            styles.saveButton,
-            { backgroundColor: saveButtonBackgroundColor },
-            (loading || (!content.trim() && !currentPhotoDisplayUrl)) && { opacity: 0.6 }
+          styles.saveButton,
+          { backgroundColor: saveButtonBackgroundColor },
+          (loading || (!content.trim() && !currentPhotoDisplayUrl)) && { opacity: 0.6 },
         ]}
         onPress={handleSaveChanges}
         disabled={loading || (!content.trim() && !currentPhotoDisplayUrl)}
       >
         <ThemedText style={[styles.saveButtonText, { color: saveButtonTextColor }]}>
-          {loading ? 'Saving...' : 'Save Changes'}
+          {loading ? t('saving') : t('saveChanges')}
         </ThemedText>
       </TouchableOpacity>
     </KeyboardAvoidingView>
@@ -241,71 +225,46 @@ export default function EditPostDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      padding: 16,
-      justifyContent: 'center',
-    },
-    title: {
-      marginBottom: 20,
-      textAlign: 'center',
-    },
-    input: {
-      width: '100%',
-      borderColor: '#ccc',
-      borderWidth: 1,
-      borderRadius: 8,
-      padding: 12,
-      textAlignVertical: 'top',
-      fontSize: 16,
-      marginBottom: 16,
-      minHeight: 150,
-    },
-    imagePickerContainer: {
-        alignItems: 'center',
-        marginBottom: 24,
-    },
-    imagePickerButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 10,
-        paddingHorizontal: 15,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        marginBottom: 10,
-    },
-    imagePickerText: {
-        marginLeft: 10,
-        fontSize: 16,
-    },
-    imagePreview: {
-        width: 200,
-        height: 200,
-        resizeMode: 'contain',
-        borderRadius: 8,
-        marginTop: 10,
-    },
-    removeImageButton: {
-        marginTop: 10,
-        paddingVertical: 6,
-        paddingHorizontal: 12,
-        backgroundColor: '#E53935', // A red color for remove
-        borderRadius: 6,
-    },
-    removeImageText: {
-        color: '#FFFFFF',
-        fontSize: 14,
-    },
-    saveButton: {
-      paddingVertical: 12,
-      paddingHorizontal: 24,
-      borderRadius: 8,
-      alignSelf: 'center',
-      marginTop: 10,
-    },
-    saveButtonText: {
-      fontSize: 16,
-      fontWeight: 'bold',
-    },
+  container: { flex: 1, padding: 16, justifyContent: 'center' },
+  title: { marginBottom: 20, textAlign: 'center' },
+  input: {
+    width: '100%',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    textAlignVertical: 'top',
+    fontSize: 16,
+    marginBottom: 16,
+    minHeight: 150,
+  },
+  imagePickerContainer: { alignItems: 'center', marginBottom: 24 },
+  imagePickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginBottom: 10,
+  },
+  imagePickerText: { marginLeft: 10, fontSize: 16 },
+  imagePreview: { width: 200, height: 200, resizeMode: 'contain', borderRadius: 8, marginTop: 10 },
+  removeImageButton: {
+    marginTop: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: '#E53935',
+    borderRadius: 6,
+  },
+  removeImageText: { color: '#FFFFFF', fontSize: 14 },
+  saveButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignSelf: 'center',
+    marginTop: 10,
+  },
+  saveButtonText: { fontSize: 16, fontWeight: 'bold' },
 });

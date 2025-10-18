@@ -18,6 +18,7 @@ import { useSwitchColors } from "@/utils/colorUtils";
 import { ThemedText } from "@/components/ThemedText";
 import { AuthContext } from "../_layout";
 import { apiRequest } from "../services/apiClient";
+import { useTranslation } from "react-i18next";
 
 const ADMIN_TYPE_PLACEHOLDER = "admin";
 
@@ -45,7 +46,13 @@ type ChallengeLogInfo = {
   timestamp: string;
 };
 
+type ErrorState = {
+  key: string | null;
+  message: string | null;
+};
+
 export default function ChallengesScreen() {
+  const { t, i18n } = useTranslation();
   const { userType, username } = useContext(AuthContext);
   const isAdmin = String(userType) === ADMIN_TYPE_PLACEHOLDER;
 
@@ -55,14 +62,26 @@ export default function ChallengesScreen() {
 
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+
+  const isTurkish = (i18n.resolvedLanguage || i18n.language || "")
+    .toLowerCase()
+    .startsWith("tr");
+  const toggleLanguage = (value: boolean) => {
+    i18n.changeLanguage(value ? "tr-TR" : "en-US");
+  };
+
+  const [error, setError] = useState<ErrorState>({ key: null, message: null });
   const [showAttendedOnly, setShowAttendedOnly] = useState(false);
   const [showActiveOnly, setShowActiveOnly] = useState(false);
   const [expanded, setExpanded] = useState<number[]>([]);
 
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [lbLoading, setLbLoading] = useState(false);
-  const [lbError, setLbError] = useState("");
+
+  const [lbError, setLbError] = useState<ErrorState>({
+    key: null,
+    message: null,
+  });
   const [leaderboardVisible, setLeaderboardVisible] = useState(false);
 
   // Create Challenge Modal states
@@ -91,17 +110,25 @@ export default function ChallengesScreen() {
 
   const fetchData = async () => {
     setLoading(true);
-    setError("");
+    setError({ key: null, message: null });
+
     try {
       // Use username endpoint to get user-specific challenges
       const res = await apiRequest(`/api/challenges/${username}`);
-      if (!res.ok) throw new Error(`Status ${res.status}`);
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || `Server error: ${res.status}`);
+      }
       const data: Challenge[] = await res.json();
       console.log("Fetched challenges:", data);
       setChallenges(data);
     } catch (err) {
       console.error(err);
-      setError("Failed to load challenges");
+      setError({
+        key: "errorFailedToLoadChallenges",
+        message:
+          err instanceof Error ? err.message : "An unknown error occurred",
+      });
     } finally {
       setLoading(false);
     }
@@ -130,7 +157,10 @@ export default function ChallengesScreen() {
             body: JSON.stringify({ username }),
           }
         );
-        if (!res.ok) throw new Error(`Status ${res.status}`);
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(errorText || `Server error: ${res.status}`);
+        }
       } else {
         const res = await apiRequest(
           `/api/challenges/${challengeId}/attendees/${encodeURIComponent(
@@ -140,14 +170,23 @@ export default function ChallengesScreen() {
             method: "DELETE",
           }
         );
-        if (!res.ok) throw new Error(`Status ${res.status}`);
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(errorText || `Server error: ${res.status}`);
+        }
       }
     } catch (err) {
       console.error(err);
-      setError("Action failed");
+      setError({
+        key: "errorActionFailed",
+        message:
+          err instanceof Error ? err.message : "An unknown error occurred",
+      });
       setChallenges((prev) =>
         prev.map((ch) =>
-          ch.challengeId === challengeId ? { ...ch, attendee: !attend } : ch
+          ch.challengeId === challengeId
+            ? { ...ch, userInChallenge: !attend }
+            : ch
         )
       );
     }
@@ -155,19 +194,26 @@ export default function ChallengesScreen() {
 
   const handleViewLeaderboard = async (challengeId: number) => {
     setLbLoading(true);
-    setLbError("");
+    setLbError({ key: null, message: null });
     try {
       const res = await apiRequest(
         `/api/challenges/${challengeId}/leaderboard`
       );
-      if (!res.ok) throw new Error(`Status ${res.status}`);
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || `Server error: ${res.status}`);
+      }
       const data: LeaderboardEntry[] = await res.json();
       data.sort((a, b) => b.remainingAmount - a.remainingAmount);
       setLeaderboard(data);
       setLeaderboardVisible(true);
     } catch (err) {
       console.error(err);
-      setLbError("Failed to load leaderboard");
+      setLbError({
+        key: "errorFailedToLoadLeaderboard",
+        message:
+          err instanceof Error ? err.message : "An unknown error occurred",
+      });
     } finally {
       setLbLoading(false);
     }
@@ -361,7 +407,6 @@ export default function ChallengesScreen() {
   });
 
   if (loading && challenges.length === 0) {
-    // Full screen loading
     return (
       <View
         style={[styles.center, { backgroundColor: colors.screenBackground }]}
@@ -381,7 +426,20 @@ export default function ChallengesScreen() {
     >
       {/* Header to match Explore and WasteGoal */}
       <View style={styles.headerContainer}>
-        <ThemedText type="title">Challenges</ThemedText>
+        <View style={styles.titleContainer}>
+          <ThemedText type="title">{t("challengesTitle")}</ThemedText>
+        </View>
+        <View style={styles.languageToggleContainer}>
+          <Text style={styles.languageLabel}>EN</Text>
+          <Switch
+            trackColor={{ false: "#767577", true: "#81b0ff" }}
+            thumbColor={isTurkish ? "#f5dd4b" : "#f4f4f4"}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={toggleLanguage}
+            value={isTurkish}
+          />
+          <Text style={styles.languageLabel}>TR</Text>
+        </View>
       </View>
 
       {/* Create Challenge Button */}
@@ -392,7 +450,7 @@ export default function ChallengesScreen() {
           setCreateError("");
         }}
       >
-        <Text style={styles.buttonText}>Create New Challenge</Text>
+        <Text style={styles.buttonText}>{t("createChallenge")}</Text>
       </TouchableOpacity>
 
       {loading && (
@@ -402,12 +460,14 @@ export default function ChallengesScreen() {
           color={colors.activityIndicator}
         />
       )}
-      {error && (
+
+      {/* Render error using the key */}
+      {(error.key || error.message) && !loading && (
         <ThemedText
           type="default"
           style={[styles.error, { color: colors.error }]}
         >
-          {error}
+          {error.key ? t(error.key) : error.message}
         </ThemedText>
       )}
 
@@ -421,7 +481,7 @@ export default function ChallengesScreen() {
             trackColor={switchColors.trackColor}
           />
           <ThemedText type="default" style={styles.switchLabel}>
-            Attended only
+            {t("attendedOnly")}
           </ThemedText>
         </View>
         <View style={styles.switchRow}>
@@ -433,7 +493,7 @@ export default function ChallengesScreen() {
             trackColor={switchColors.trackColor}
           />
           <ThemedText type="default" style={styles.switchLabel}>
-            Active only
+            {t("activeOnly")}
           </ThemedText>
         </View>
       </View>
@@ -442,7 +502,7 @@ export default function ChallengesScreen() {
         testID="challenges-list"
         data={filtered}
         keyExtractor={(item) => String(item.challengeId)}
-        contentContainerStyle={styles.listContentContainer} // Adjusted for new padding structure
+        contentContainerStyle={styles.listContentContainer}
         renderItem={({ item }) => (
           <View
             style={[styles.card, { backgroundColor: colors.cardBackground }]}
@@ -472,7 +532,10 @@ export default function ChallengesScreen() {
                   {item.description}
                 </ThemedText>
                 <ThemedText type="default" style={styles.cardInfo}>
-                  Amount: {item.amount} kg | Type: {item.type}
+                  {t("challengeAmountAndType", {
+                    amount: item.amount,
+                    wasteType: item.type,
+                  })}
                 </ThemedText>
 
                 {/* Progress Bar */}
@@ -636,7 +699,7 @@ export default function ChallengesScreen() {
                       type="defaultSemiBold"
                       style={styles.buttonText}
                     >
-                      End Challenge
+                      {t("endChallenge")}
                     </ThemedText>
                   </TouchableOpacity>
                 )}
@@ -645,9 +708,9 @@ export default function ChallengesScreen() {
           </View>
         )}
         ListEmptyComponent={
-          !loading && !error ? (
+          !loading && !error.key ? (
             <View style={styles.emptyListContainer}>
-              <ThemedText>No challenges match your filters.</ThemedText>
+              <ThemedText>{t("noChallengesMatchFilters")}</ThemedText>
             </View>
           ) : null
         }
@@ -667,7 +730,7 @@ export default function ChallengesScreen() {
             ]}
           >
             <ThemedText type="title" style={styles.lbTitle}>
-              Leaderboard
+              {t("leaderboardTitle")}
             </ThemedText>
             {lbLoading ? (
               <View style={styles.center}>
@@ -677,12 +740,12 @@ export default function ChallengesScreen() {
                   color={colors.activityIndicator}
                 />
               </View>
-            ) : lbError ? (
+            ) : lbError.key || lbError.message ? (
               <ThemedText
                 type="default"
                 style={[styles.error, { color: colors.error }]}
               >
-                {lbError}
+                {lbError.key ? t(lbError.key) : lbError.message}
               </ThemedText>
             ) : (
               <>
@@ -696,13 +759,13 @@ export default function ChallengesScreen() {
                     type="defaultSemiBold"
                     style={styles.lbHeaderCell}
                   >
-                    Username
+                    {t("username")}
                   </ThemedText>
                   <ThemedText
                     type="defaultSemiBold"
                     style={styles.lbHeaderCell}
                   >
-                    Remaining
+                    {t("remaining")}
                   </ThemedText>
                 </View>
                 <FlatList
@@ -725,7 +788,7 @@ export default function ChallengesScreen() {
                   )}
                   ListEmptyComponent={
                     <View style={styles.emptyListContainer}>
-                      <ThemedText>Leaderboard is empty.</ThemedText>
+                      <ThemedText>{t("leaderboardEmpty")}</ThemedText>
                     </View>
                   }
                 />
@@ -736,7 +799,7 @@ export default function ChallengesScreen() {
               testID="leaderboard-close-button"
               onPress={() => setLeaderboardVisible(false)}
             >
-              <ThemedText type="defaultSemiBold">Close</ThemedText>
+              <ThemedText type="defaultSemiBold">{t("close")}</ThemedText>
             </TouchableOpacity>
           </View>
         </View>
@@ -1053,8 +1116,32 @@ export default function ChallengesScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  headerContainer: { paddingHorizontal: 16, marginTop: 48, marginBottom: 18 },
-  listContentContainer: { paddingHorizontal: 16, paddingBottom: 100 },
+  headerContainer: {
+    paddingHorizontal: 16,
+    marginTop: 48,
+    marginBottom: 18,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  titleContainer: {
+    flex: 1,
+  },
+  languageToggleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(128,128,128,0.2)",
+    borderRadius: 20,
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+  },
+  languageLabel: {
+    color: "#888",
+    fontWeight: "bold",
+    marginHorizontal: 6,
+    fontSize: 12,
+  },
+  listContentContainer: { paddingHorizontal: 16, paddingBottom: 16 },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
   inlineSpinner: { alignSelf: "center", marginVertical: 8 },
   error: { textAlign: "center", marginBottom: 12, marginHorizontal: 16 },

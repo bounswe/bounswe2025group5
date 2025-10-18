@@ -7,6 +7,8 @@ import {
   View,
   TouchableOpacity,
   Text,
+  Switch,
+  ScrollView,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
@@ -24,8 +26,11 @@ import {
   login as loginRequest,
   register as registerRequest,
 } from "../services/apiClient";
-import { ScrollView } from "react-native";
 import CheckBox from "../components/CheckBox";
+import { useTranslation } from "react-i18next";
+
+// Toggle this if you want to run without a backend during development
+const MOCK_API = false;
 
 const KG_SAVED = 57492;
 
@@ -47,6 +52,13 @@ export default function HomeScreen() {
   const navigation = useNavigation<Navigation>();
   const route = useRoute<any>();
   const { setUserType, setUsername } = useContext(AuthContext);
+
+  const { t, i18n } = useTranslation();
+  const isTurkish = (i18n.resolvedLanguage || i18n.language || "")
+    .toLowerCase()
+    .startsWith("tr");
+  const toggleLanguage = (value: boolean) =>
+    i18n.changeLanguage(value ? "tr-TR" : "en-US");
 
   const [showAuthFields, setShowAuthFields] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
@@ -70,24 +82,42 @@ export default function HomeScreen() {
           method: "GET",
           auth: false,
         });
-
         const body = await res.json().catch(() => ({}));
-
         if (!res.ok) {
           return console.warn(body.message || "Could not fetch user count");
         }
-
         const userCount = body.userCount ?? 0;
         setUsersCount(userCount);
       } catch (err) {
         console.warn("Network error while fetching user count", err);
       }
     };
-
     fetchUserCount();
   }, []);
+
   useEffect(() => {
     const fetchTrending = async () => {
+      if (MOCK_API) {
+        setTrendingPosts([
+          {
+            postId: 1,
+            content: "Mock post content about recycling.",
+            likes: 152,
+            comments: 12,
+            creatorUsername: "EcoMock",
+            photoUrl: null,
+          },
+          {
+            postId: 2,
+            content: "Another mock post here.",
+            likes: 98,
+            comments: 25,
+            creatorUsername: "GreenMock",
+            photoUrl: null,
+          },
+        ]);
+        return;
+      }
       try {
         const res = await apiRequest("/api/posts/mostLiked?size=4", {
           auth: false,
@@ -99,7 +129,6 @@ export default function HomeScreen() {
         console.warn("Unable to load trending posts", err);
       }
     };
-
     fetchTrending();
   }, []);
 
@@ -131,23 +160,38 @@ export default function HomeScreen() {
     }, [loggedIn])
   );
 
-  const showError = (msg: string) => {
-    setErrorMessage(msg);
+  // Accepts either an i18n key or a literal message; preserves translations.
+  const showError = (msgKeyOrText: string) => {
+    const maybeTranslated = t(msgKeyOrText);
+    const safeText =
+      typeof maybeTranslated === "string" && maybeTranslated !== msgKeyOrText
+        ? maybeTranslated
+        : msgKeyOrText;
+    setErrorMessage(safeText);
     setErrorVisible(true);
     setTimeout(() => setErrorVisible(false), 5000);
   };
 
   const sendLoginRequest = async (emailOrUsername: string, pwd: string) => {
-    if (emailOrUsername === "test" && pwd === "test") {
-      setUserType("user");
-      setUsername("test");
-      setLoggedIn(true);
-      navigation.navigate("explore");
+    if (MOCK_API) {
+      // Dev-only happy path for quick testing
+      if (emailOrUsername === "user" && pwd === "password123") {
+        await AsyncStorage.multiSet([
+          ["token", "mock-auth-token-12345"],
+          ["username", "mockUser"],
+        ]);
+        setUserType("user");
+        setUsername("mockUser");
+        setLoggedIn(true);
+        navigation.navigate("explore");
+      } else {
+        showError("errorInvalidCredentials");
+      }
       return;
     }
 
     if (!emailOrUsername.trim() || pwd.length < 8) {
-      return showError("Please fill in valid credentials");
+      return showError("errorFillCredentials");
     }
 
     try {
@@ -158,11 +202,10 @@ export default function HomeScreen() {
       navigation.navigate("explore");
     } catch (error: any) {
       console.error("Network/login exception:", error);
-
       const message =
         error instanceof Error && error.message
           ? error.message
-          : "Invalid username or password!";
+          : t("errorInvalidCredentials");
       showError(message);
     }
   };
@@ -173,23 +216,36 @@ export default function HomeScreen() {
     regPass: string
   ) => {
     if (!regUsername.trim() || !regEmail.includes("@") || regPass.length < 8) {
-      return showError("Please fill in valid registration info");
+      return showError("errorFillCredentials");
     }
     if (regPass !== confirmPassword) {
-      return showError("Passwords don't match");
+      return showError("errorPasswordsDontMatch");
     }
     if (!kvkkChecked) {
-      return showError("You must acknowledge the KVKK form");
+      return showError("errorAcknowledgeKvkk");
     }
+
+    if (MOCK_API) {
+      setIsRegistering(false);
+      setUsernameInput(regUsername);
+      setKvkkChecked(false);
+      showError("registrationSuccess");
+      return;
+    }
+
     try {
       await registerRequest(regUsername, regEmail, regPass);
       setIsRegistering(false);
       setUsernameInput(regUsername);
       setKvkkChecked(false);
-      showError("Registered! Please log in.");
-    } catch (err) {
+      showError("registrationSuccessPromptLogin"); // e.g., "Registered! Please log in."
+    } catch (err: any) {
       console.error("Registration exception:", err);
-      showError(err instanceof Error ? err.message : "Registration failed");
+      showError(
+        err instanceof Error && err.message
+          ? err.message
+          : t("errorRegistrationFailed")
+      );
     }
   };
 
@@ -211,19 +267,34 @@ export default function HomeScreen() {
           />
         }
       >
+        <View style={styles.languageToggleContainer}>
+          <Text style={styles.languageLabel}>EN</Text>
+          <Switch
+            trackColor={{ false: "#767577", true: "#81b0ff" }}
+            thumbColor={isTurkish ? "#f5dd4b" : "#f4f3f4"}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={(value) => {
+              void toggleLanguage(value);
+            }}
+            value={isTurkish}
+          />
+          <Text style={styles.languageLabel}>TR</Text>
+        </View>
+
         {!showAuthFields && (
           <>
             <View style={styles.statsContainer}>
               <ThemedText style={styles.statLine}>
-                <Text style={styles.statNumber}>{usersCount}</Text> users are
-                reducing their wastes with us
+                <Text style={styles.statNumber}>{usersCount}</Text>{" "}
+                {t("usersAreReducingWastes", { count: usersCount })}
               </ThemedText>
+
               <ThemedText style={styles.sectionTitle}>
-                Trending posts :
+                {t("trendingPosts")}
               </ThemedText>
+
               <ScrollView
                 horizontal
-                pagingEnabled
                 showsHorizontalScrollIndicator={false}
                 style={styles.trendingContainer}
               >
@@ -271,33 +342,30 @@ export default function HomeScreen() {
 
             <View style={[styles.buttonsColumn, { marginTop: -5 }]}>
               <TouchableOpacity
-                testID="main-login-button"
                 style={[styles.authButtonFull, styles.loginAreaFull]}
                 onPress={() => {
                   setShowAuthFields(true);
                   setIsRegistering(false);
                 }}
               >
-                <Text style={styles.authText}>Log In</Text>
+                <Text style={styles.authText}>{t("logIn")}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                testID="main-register-button"
                 style={[styles.authButtonFull, styles.registerAreaFull]}
                 onPress={() => {
                   setShowAuthFields(true);
                   setIsRegistering(true);
                 }}
               >
-                <Text style={styles.authText}>Register</Text>
+                <Text style={styles.authText}>{t("register")}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.continueButton}
-                testID="main-guest-button"
                 onPress={continueAsGuest}
               >
-                <Text style={styles.authText}>Continue as Guest</Text>
+                <Text style={styles.authText}>{t("continueAsGuest")}</Text>
               </TouchableOpacity>
             </View>
           </>
@@ -306,13 +374,13 @@ export default function HomeScreen() {
         {showAuthFields && (
           <>
             <Text style={styles.modeHeader}>
-              {isRegistering ? "Create account" : "Login here"}
+              {isRegistering ? t("createAccount") : t("loginHere")}
             </Text>
 
             <TextInput
               style={[styles.input, styles.inputLight]}
               onChangeText={setUsernameInput}
-              placeholder={isRegistering ? "Username" : "Email or Username"}
+              placeholder={isRegistering ? t("username") : t("emailOrUsername")}
               placeholderTextColor="#888"
               value={usernameInput}
               autoCapitalize="none"
@@ -322,7 +390,7 @@ export default function HomeScreen() {
               <TextInput
                 style={[styles.input, styles.inputLight]}
                 onChangeText={setEmail}
-                placeholder="Email"
+                placeholder={t("email")}
                 placeholderTextColor="#888"
                 value={email}
                 autoCapitalize="none"
@@ -332,7 +400,7 @@ export default function HomeScreen() {
             <TextInput
               style={[styles.input, styles.inputLight]}
               onChangeText={setPassword}
-              placeholder="Password"
+              placeholder={t("password")}
               placeholderTextColor="#888"
               secureTextEntry
               value={password}
@@ -343,7 +411,7 @@ export default function HomeScreen() {
                 <TextInput
                   style={[styles.input, styles.inputLight]}
                   onChangeText={setConfirmPassword}
-                  placeholder="Confirm password"
+                  placeholder={t("confirmPassword")}
                   placeholderTextColor="#888"
                   secureTextEntry
                   value={confirmPassword}
@@ -354,9 +422,7 @@ export default function HomeScreen() {
                     checked={kvkkChecked}
                     onPress={() => setKvkkChecked(!kvkkChecked)}
                   />
-                  <Text style={styles.kvkkText}>
-                    I have read and acknowledged KVKK form
-                  </Text>
+                  <Text style={styles.kvkkText}>{t("kvkkAcknowledge")}</Text>
                 </View>
               </>
             )}
@@ -365,46 +431,41 @@ export default function HomeScreen() {
               {isRegistering ? (
                 <>
                   <TouchableOpacity
-                    testID="form-register-button"
                     style={[styles.authButtonFull, styles.registerAreaFull]}
                     onPress={() =>
                       sendRegisterRequest(usernameInput, email, password)
                     }
                   >
-                    <Text style={styles.authText}>Register</Text>
+                    <Text style={styles.authText}>{t("register")}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    testID="form-back-to-login-button"
                     style={[styles.authButtonFull, styles.loginAreaFull]}
                     onPress={() => setIsRegistering(false)}
                   >
-                    <Text style={styles.authText}>Back to Log In</Text>
+                    <Text style={styles.authText}>{t("backToLogIn")}</Text>
                   </TouchableOpacity>
                 </>
               ) : (
                 <>
                   <TouchableOpacity
-                    testID="form-login-button"
                     style={[styles.authButtonFull, styles.loginAreaFull]}
                     onPress={() => sendLoginRequest(usernameInput, password)}
                   >
-                    <Text style={styles.authText}>Log In</Text>
+                    <Text style={styles.authText}>{t("logIn")}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    testID="form-register-switch-button"
                     style={[styles.authButtonFull, styles.registerAreaFull]}
                     onPress={() => setIsRegistering(true)}
                   >
-                    <Text style={styles.authText}>Register</Text>
+                    <Text style={styles.authText}>{t("register")}</Text>
                   </TouchableOpacity>
                 </>
               )}
-
               <TouchableOpacity
                 style={styles.continueButton}
                 onPress={continueAsGuest}
               >
-                <Text style={styles.authText}>Continue as Guest</Text>
+                <Text style={styles.authText}>{t("continueAsGuest")}</Text>
               </TouchableOpacity>
             </View>
           </>
@@ -421,6 +482,22 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  languageToggleContainer: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+    zIndex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 8,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    borderRadius: 20,
+  },
+  languageLabel: {
+    color: "#fff",
+    fontWeight: "bold",
+    marginHorizontal: 8,
+  },
   titleContainer: { flexDirection: "row", alignItems: "center", gap: 8 },
   recycleLogo: {
     width: "115%",
