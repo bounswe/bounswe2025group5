@@ -22,6 +22,7 @@ import { AuthContext } from '../_layout';
 import { apiRequest } from '../services/apiClient';
 import { Picker } from '@react-native-picker/picker';
 import { useTranslation } from 'react-i18next';
+import { Ionicons } from '@expo/vector-icons';
 
 
 type WasteGoal = {
@@ -69,6 +70,18 @@ const convertGramsToDisplay = (grams: number) => {
   };
 };
 
+const formatWasteType = (value: string | undefined | null) => {
+  if (!value) {
+    return '';
+  }
+  return value
+    .replace(/[_-]+/g, ' ')
+    .split(' ')
+    .map((word) => (word ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase() : ''))
+    .join(' ')
+    .trim();
+};
+
 export default function WasteGoalScreen() {
   const navigation = useNavigation<Navigation>();
 
@@ -91,6 +104,7 @@ export default function WasteGoalScreen() {
   const errorTextColor = isDarkMode ? '#FF9494' : '#D32F2F';
   const errorBackgroundColor = isDarkMode ? '#5D1F1A' : '#FFCDD2';
   const emptyTextColor = isDarkMode ? '#A0A0A0' : '#757575';
+  const goalTypeLabelColor = isDarkMode ? '#C8C8C8' : '#6B6B6B';
 
   const [goals, setGoals] = useState<WasteGoal[]>([]);
   const [loading, setLoading] = useState(false);
@@ -409,18 +423,36 @@ export default function WasteGoalScreen() {
     return (
     <View style={[styles.goalItem, { backgroundColor: cardBackgroundColor }]}>
       <View style={styles.goalHeader}>
-        <ThemedText style={styles.goalType}>{item.wasteType}</ThemedText>
+        <View style={styles.goalTypeContainer}>
+          <ThemedText style={[styles.goalTypeLabel, { color: goalTypeLabelColor }]}>{t('wasteTypeLabel')}</ThemedText>
+          <ThemedText style={styles.goalType}>{formatWasteType(item.wasteType)}</ThemedText>
+        </View>
         <View style={styles.goalActions}>
           {progressPercentage < 100 && (
-            <TouchableOpacity style={styles.addLogButton} onPress={() => openAddLogModal(item)}>
-              <Text style={styles.buttonText}>{t('addWasteLog')}</Text>
+            <TouchableOpacity
+              style={styles.addLogButton}
+              onPress={() => openAddLogModal(item)}
+              accessibilityRole="button"
+              accessibilityLabel={t('addLog')}
+            >
+              <Text style={styles.buttonText}>{t('addLog')}</Text>
             </TouchableOpacity>
           )}
-          <TouchableOpacity style={styles.editButton} onPress={() => openEditModal(item)}>
-            <Text style={styles.buttonText}>{t('edit')}</Text>
+          <TouchableOpacity
+            style={[styles.iconButton, styles.editButton]}
+            onPress={() => openEditModal(item)}
+            accessibilityRole="button"
+            accessibilityLabel={t('edit')}
+          >
+            <Ionicons name="create-outline" size={20} color="#FFFFFF" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.deleteButton} onPress={() => openDeleteConfirmationModal(item)}>
-            <Text style={styles.buttonText}>{t('delete')}</Text>
+          <TouchableOpacity
+            style={[styles.iconButton, styles.deleteButton]}
+            onPress={() => openDeleteConfirmationModal(item)}
+            accessibilityRole="button"
+            accessibilityLabel={t('delete')}
+          >
+            <Ionicons name="trash-outline" size={20} color="#FFFFFF" />
           </TouchableOpacity>
         </View>
       </View>
@@ -584,12 +616,15 @@ const styles = StyleSheet.create({
   listContainer: { paddingHorizontal: 16, paddingBottom: 20, },
   goalItem: { borderRadius: 10, padding: 16, marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 5, elevation: 3, },
   goalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, },
-  goalType: { fontSize: 18, fontWeight: '600', color: '#2E7D32', flexShrink: 1, marginRight: 8, },
+  goalTypeContainer: { marginRight: 12, flexShrink: 1 },
+  goalTypeLabel: { fontSize: 12, fontWeight: '500', color: '#6B6B6B', marginBottom: 0, textTransform: 'none' },
+  goalType: { fontSize: 18, fontWeight: '600', color: '#2E7D32', flexShrink: 1, marginRight: 8, textTransform: 'none' },
   goalDetails: { fontSize: 15, marginBottom: 8, },
   goalActions: { flexDirection: 'row', alignItems: 'center', gap: 8, },
   createButton: { backgroundColor: '#4CAF50', paddingVertical: 14, paddingHorizontal: 12, borderRadius: 8, marginHorizontal: 80, marginBottom: 24, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.2, shadowRadius: 2, elevation: 2, },
-  editButton: { backgroundColor: '#1976D2', paddingHorizontal: 10, paddingVertical: 8, borderRadius: 6, },
-  deleteButton: { backgroundColor: '#D32F2F', paddingHorizontal: 10, paddingVertical: 8, borderRadius: 6, },
+  iconButton: { padding: 8, borderRadius: 6, alignItems: 'center', justifyContent: 'center', minWidth: 36, minHeight: 36 },
+  editButton: { backgroundColor: '#1976D2' },
+  deleteButton: { backgroundColor: '#D32F2F' },
   addLogButton: { backgroundColor: '#388E3C', paddingHorizontal: 10, paddingVertical: 8, borderRadius: 6, },
   buttonText: { color: '#ffffff', fontWeight: 'bold', fontSize: 13, },
   errorText: { textAlign: 'center', marginTop: 20, marginHorizontal: 16, padding: 10, borderRadius: 6, },
