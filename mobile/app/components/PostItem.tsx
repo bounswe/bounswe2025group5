@@ -253,14 +253,18 @@ function PostItem({
           ) : (
             <View />
           )}
-          <TouchableOpacity
-            style={styles.reportButton}
-            onPress={() => {}}
-            accessibilityLabel={t('reportPost', { defaultValue: 'Report post' })}
-            accessibilityRole="button"
-          >
-            <Ionicons name="warning-outline" size={16} color={iconColor} />
-          </TouchableOpacity>
+          {loggedInUsername && loggedInUsername !== post.title ? (
+            <TouchableOpacity
+              style={styles.reportButton}
+              onPress={() => {}}
+              accessibilityLabel={t('reportPost', { defaultValue: 'Report post' })}
+              accessibilityRole="button"
+            >
+              <Ionicons name="warning-outline" size={16} color="#515151ff" />
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.reportButtonPlaceholder} />
+          )}
         </View>
 
         <View style={styles.postFooter}>
