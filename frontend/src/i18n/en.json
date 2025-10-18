@@ -1,6 +1,7 @@
 {
     "common": {
-        "create": "Create"
+        "create": "Create",
+        "submit": "Submit"
     },
     "login": {
         "title": "Login to your account",
@@ -78,7 +79,16 @@
         "create": {
             "titleLabel": "Create Challenge",
             "name": "Title",
-            "namePlaceholder": "Enter challenge title"
+            "namePlaceholder": "Enter challenge title",
+            "description": "Description",
+            "descriptionPlaceholder": "Enter challenge description",
+            "type": "Type",
+            "typePlaceholder": "Select challenge type",
+            "amount": "Amount",
+            "amountPlaceholder": "Enter target amount",
+            "startDate": "Start Date",
+            "endDate": "End Date",
+            "dateError": "End date must be after start date"
         }
     }
 }

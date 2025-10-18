@@ -1,6 +1,7 @@
 {
     "common": {
-        "create": "Yarat"
+        "create": "Yarat",
+        "submit": "Onayla"
     },
     "login": {
     "title": "Hesabınıza giriş yapın",
@@ -78,7 +79,16 @@
         "create": {
             "titleLabel": "Etkinlik Oluştur",
             "name": "Başlık",
-            "namePlaceholder": "Etkinlik başlığını girin"
+            "namePlaceholder": "Etkinlik başlığını girin",
+            "description": "Açıklama",
+            "descriptionPlaceholder": "Etkinlik açıklamasını girin",
+            "type": "Tür",
+            "typePlaceholder": "Etkinlik türünü seçin",
+            "amount": "Miktar",
+            "amountPlaceholder": "Hedef miktarı girin",
+            "startDate": "Başlangıç Tarihi",
+            "endDate": "Bitiş Tarihi",
+            "dateError": "Bitiş tarihi, başlangıç tarihinden sonra olmalıdır"
         }
     }
 }

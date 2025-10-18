@@ -60,7 +60,7 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-4 grid-cols-1">
       <Card key={challenge.challengeId} className="flex flex-col">
         <CardHeader>
           <CardTitle className="text-base">{challenge.name}</CardTitle>
