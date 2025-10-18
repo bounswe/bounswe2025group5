@@ -60,6 +60,8 @@ export default function ProfileScreen() {
   const [error, setError] = useState<ErrorState>({ key: null, message: null });
   const [profileUpdateBannerVisible, setProfileUpdateBannerVisible] = useState(false);
   const [isAvatarModalVisible, setAvatarModalVisible] = useState(false);
+  const [hasLoadedProfile, setHasLoadedProfile] = useState(false);
+  const [hasLoadedPosts, setHasLoadedPosts] = useState(false);
   const [posts, setPosts] = useState<Post[]>([]);
   const [postsLoading, setPostsLoading] = useState(false);
   const [postsError, setPostsError] = useState<string | null>(null);
@@ -155,9 +157,13 @@ export default function ProfileScreen() {
     if (!username) {
       setPosts([]);
       setPostsLoading(false);
+      setHasLoadedPosts(false);
       return;
     }
-    setPostsLoading(true);
+    const shouldShowSpinner = !hasLoadedPosts;
+    if (shouldShowSpinner) {
+      setPostsLoading(true);
+    }
     setPostsError(null);
     try {
       const res = await apiRequest(`/api/users/${encodeURIComponent(username)}/posts`);
@@ -171,14 +177,17 @@ export default function ProfileScreen() {
         mappedPosts = await fetchSavedStatusesForPosts(mappedPosts, username);
       }
       setPosts(mappedPosts);
+      setHasLoadedPosts(true);
     } catch (err) {
       console.error('Failed to fetch profile posts:', err);
-      setPostsError(t('profilePostsLoadError'));
+      setPostsError(i18n.t('profilePostsLoadError'));
       setPosts([]);
     } finally {
-      setPostsLoading(false);
+      if (shouldShowSpinner) {
+        setPostsLoading(false);
+      }
     }
-  }, [username, userType, t]);
+  }, [username, userType, hasLoadedPosts, i18n]);
 
   const handleLikeToggle = async (postId: number, currentlyLiked: boolean) => {
     if (userType === 'guest' || !username) {
@@ -483,10 +492,13 @@ export default function ProfileScreen() {
       }
 
       let isMounted = true;
+      const shouldShowInitialSpinner = !hasLoadedProfile;
 
       (async () => {
         try {
-          setLoading(true);
+          if (shouldShowInitialSpinner) {
+            setLoading(true);
+          }
           setError({ key: null, message: null });
           const encodedUsername = encodeURIComponent(username);
           const profileUrl = `/api/users/${encodedUsername}/profile?username=${encodedUsername}`;
@@ -510,6 +522,7 @@ export default function ProfileScreen() {
           if (!isMounted) return;
           setBio(data.biography ?? '');
           setAvatarUri(data.photoUrl ?? '');
+          setHasLoadedProfile(true);
           fetchUserPosts();
         } catch (err) {
           console.error('Failed to fetch or create profile:', err);
@@ -517,7 +530,7 @@ export default function ProfileScreen() {
             setError({ key: 'errorCouldNotFetchProfile', message: null });
           }
         } finally {
-          if (isMounted) {
+          if (isMounted && shouldShowInitialSpinner) {
             setLoading(false);
           }
         }
@@ -526,7 +539,7 @@ export default function ProfileScreen() {
       return () => {
         isMounted = false;
       };
-    }, [userType, username, navigation, fetchUserPosts])
+    }, [userType, username, navigation, fetchUserPosts, hasLoadedProfile])
   );
 
   useEffect(() => {
