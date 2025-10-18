@@ -62,7 +62,7 @@ export default function CreateChallenge() {
     return (
         <Dialog>
           <DialogTrigger>
-            <Button variant="outline">{t("common.create")}</Button>
+            {t("common.create")}
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>

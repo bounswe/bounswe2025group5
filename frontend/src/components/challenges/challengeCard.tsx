@@ -9,10 +9,11 @@ import { Spinner } from '@/components/ui/spinner';
 
 export default function ChallengeCard({ challenge }: { challenge: ChallengeListItem }) {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<Record<number, boolean>>({});
   const [username, setUsername] = useState<string>(localStorage.getItem('username') || '');
+  const [userInChallenge, setUserInChallenge] = useState<boolean>(challenge.userInChallenge);
 
   // a user attends a challange with challengeId, meanwhile the challenge is set to busy
   const attend = async (challengeId: number, username: string) => {
@@ -24,6 +25,7 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
       alert(t('challenges.attendError', 'Could not attend the challenge'));
     } finally {
       setBusy((b) => ({ ...b, [challengeId]: false }));
+      setUserInChallenge(true);
     }
   };
 
@@ -37,6 +39,7 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
       alert(t('challenges.leaveError', 'Could not leave the challenge'));
     } finally {
       setBusy((b) => ({ ...b, [challengeId]: false }));
+      setUserInChallenge(false);
     }
   };
 
@@ -69,8 +72,7 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
           <div className="flex justify-between"><span>{t('challenges.dates', 'Dates')}</span><span>{challenge.startDate} → {challenge.endDate}</span></div>
           {challenge.amount != null && <div className="flex justify-between"><span>{t('challenges.target', 'Target')}</span><span>{challenge.amount}</span></div>}
         </CardContent>
-        // if user is not attending the challenge, show attend button; otherwise leave button
-        {!challenge.userInChallenge ? (
+        {!userInChallenge? (
           <div className="mt-auto p-4">
             <Button size="sm" variant="outline" disabled={!!busy[challenge.challengeId]} onClick={() => attend(challenge.challengeId, username)}>
               {busy[challenge.challengeId] ? t('challenges.attending', 'Attending...') : t('challenges.attend', 'Attend')}
