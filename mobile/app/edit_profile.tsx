@@ -11,16 +11,20 @@ import {
   Alert,
   Platform,
   useColorScheme,
-  ActivityIndicator, // Keep for loading states
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from './_layout';
-import { API_BASE_URL } from './apiConfig';
+import { apiRequest, getAccessToken} from './services/apiClient';
+import { apiUrl } from './apiConfig';
+
+import * as FileSystem from 'expo-file-system';
+
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTranslation } from 'react-i18next';
 
-const API_BASE = API_BASE_URL;
 
 export const unstable_settings = {
   initialRouteName: 'edit_profile',
@@ -32,17 +36,19 @@ export const options = {
   headerTitle: 'Edit Profile',
 };
 
+type ErrorState = { key: string | null; message: string | null; resolved?: string | null };
 
 export default function EditProfileScreen() {
   const navigation = useNavigation<any>();
   const { username } = useContext(AuthContext);
   const colorScheme = useColorScheme();
+  const { t, i18n } = useTranslation();
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: 'Edit Profile',
+      headerTitle: t('editProfileTitle'),
     });
-  }, [navigation]);
+  }, [navigation, i18n.language, t]);
 
   const isDarkMode = colorScheme === 'dark';
   const screenBackgroundColor = isDarkMode ? '#151718' : '#F0F2F5';
@@ -55,15 +61,28 @@ export default function EditProfileScreen() {
   const cancelButtonBgColor = isDarkMode ? '#3A3A3C' : '#ddd';
   const cancelButtonTextColor = isDarkMode ? '#E0E0E0' : '#333333';
   const iconColor = isDarkMode ? inputTextColor : '#555';
-  const uploadButtonBgColor = isDarkMode ? '#0A84FF' : '#2196F3'; // For new upload button
+  const uploadButtonBgColor = isDarkMode ? '#0A84FF' : '#2196F3';
 
   const [bio, setBio] = useState('');
   const [avatarDisplayUrl, setAvatarDisplayUrl] = useState<string | null>(null);
   const [newAvatarAsset, setNewAvatarAsset] = useState<ImagePicker.ImagePickerAsset | null>(null);
-  const [loadingProfile, setLoadingProfile] = useState(true); // For initial profile load
+  const [loadingProfile, setLoadingProfile] = useState(true);
   const [savingBio, setSavingBio] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
+  const [errState, setErrState] = useState<ErrorState>({ key: null, message: null, resolved: null });
+
+  const resolveErrorText = (state: ErrorState) => {
+    if (state.key) return t(state.key);
+    if (state.message) return state.message;
+    return t('errorGeneric');
+  };
+
+  const alertError = (state: ErrorState) => {
+    const base = resolveErrorText(state);
+    const raw = state.message && __DEV__ ? `\n\n${state.message}` : '';
+    Alert.alert(t('error'), `${base}${raw}`);
+  };
 
   useEffect(() => {
     (async () => {
@@ -72,17 +91,27 @@ export default function EditProfileScreen() {
         return;
       }
       setLoadingProfile(true);
+      setErrState({ key: null, message: null, resolved: null });
       try {
-        const response = await fetch(`${API_BASE}/api/profile/info?username=${encodeURIComponent(username)}`);
+        const encodedUsername = encodeURIComponent(username);
+        const response = await apiRequest(
+          `/api/users/${encodedUsername}/profile?username=${encodedUsername}`
+        );
         if (!response.ok) {
-            throw new Error(`Failed to load profile: ${response.status}`);
+          const txt = await response.text().catch(() => '');
+          throw new Error(`Server error: ${response.status} ${txt}`);
         }
         const data = await response.json();
-        setBio(data.biography ?? '');
-        setAvatarDisplayUrl(data.photoUrl ?? null);
+        setBio(data?.biography ?? '');
+        setAvatarDisplayUrl(data?.photoUrl ?? null);
       } catch (e) {
         console.error('Failed to load profile', e);
-        Alert.alert('Error', 'Could not load profile data.');
+        const s: ErrorState =
+          e instanceof Error && /Server error:\s*\d+/.test(e.message)
+            ? { key: 'errorProfileLoadFailed', message: e.message }
+            : { key: 'errorProfileLoadGeneric', message: e instanceof Error ? e.message : null };
+        setErrState({ ...s, resolved: resolveErrorText(s) });
+        alertError(s);
       } finally {
         setLoadingProfile(false);
       }
@@ -92,11 +121,11 @@ export default function EditProfileScreen() {
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.granted === false) {
-      Alert.alert("Permission Required!", "You need to allow access to your photos to change your avatar.");
+      Alert.alert(t('permissionRequired'), t('allowPhotosAccessAvatar'));
       return;
     }
 
-    let result = await ImagePicker.launchImageLibraryAsync({
+    const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
@@ -105,115 +134,156 @@ export default function EditProfileScreen() {
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
       setNewAvatarAsset(result.assets[0]);
-      setAvatarDisplayUrl(result.assets[0].uri); // Preview the newly selected local image
+      setAvatarDisplayUrl(result.assets[0].uri);
     }
   };
+const handleUploadProfilePhoto = async () => {
+  if (!newAvatarAsset) {
+    Alert.alert(t('noNewPhoto'), t('selectPhotoFirst'));
+    return;
+  }
+  if (!username) {
+    const s = { key: 'errorUserNotIdentified', message: null };
+    setErrState({ ...s, resolved: resolveErrorText(s) });
+    alertError(s);
+    return;
+  }
 
-  const handleUploadProfilePhoto = async () => {
-    if (!newAvatarAsset) {
-      Alert.alert("No New Photo", "Please select a new photo to upload.");
-      return;
-    }
-    if (!username) {
-      Alert.alert("Error", "User not identified.");
-      return;
-    }
+  setUploadingPhoto(true);
+  setErrState({ key: null, message: null, resolved: null });
 
-    setUploadingPhoto(true);
-    try {
-      const formData = new FormData();
-      const uriParts = newAvatarAsset.uri.split('.');
-      const fileType = uriParts[uriParts.length - 1];
-      const fileName = newAvatarAsset.fileName || `avatar-${username}.${fileType}`;
+  try {
+    const asset = newAvatarAsset;
 
-      formData.append('file', { // Key is 'file' as per your Postman
-        uri: newAvatarAsset.uri,
-        name: fileName,
-        type: newAvatarAsset.mimeType || `image/${fileType}`,
-      } as any);
-
-      const token = await AsyncStorage.getItem('token');
-      const headers: HeadersInit = {};
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+    // iOS fix: convert ph:// to file:// so RN/fetch can read it
+    const normalizeNativeUri = async (uri: string) => {
+      if (Platform.OS !== 'web' && uri.startsWith('ph://')) {
+        const dest = `${FileSystem.cacheDirectory}upload-${Date.now()}.jpg`;
+        await FileSystem.copyAsync({ from: uri, to: dest });
+        return dest;
       }
+      return uri;
+    };
 
-      const response = await fetch(`${API_BASE}/api/profile/${username}/photo`, {
+    const guessExt = (mime?: string) => (mime?.split('/')[1] || 'jpg');
+    const type = asset.mimeType ?? 'image/jpeg';
+    const defaultName = `avatar-${username}.${guessExt(type)}`;
+
+    const fd = new FormData();
+
+    if (Platform.OS === 'web') {
+      // Web: turn the ImagePicker URI (blob/object URL) into a real File
+      const resp = await fetch(asset.uri);
+      const blob = await resp.blob();
+      const webType = blob.type || type;
+      const webName = asset.fileName ?? defaultName;
+      const file = new File([blob], webName, { type: webType });
+      fd.append('file', file);
+    } else {
+      // iOS/Android: append RN-style file descriptor
+      const uri = await normalizeNativeUri(asset.uri);
+      const name = asset.fileName ?? defaultName;
+      fd.append('file', { uri, name, type } as any);
+    }
+
+    const token = await getAccessToken();
+    const res = await fetch(
+      apiUrl(`/api/users/${encodeURIComponent(username)}/profile/picture`),
+      {
         method: 'POST',
-        headers: headers,
-        body: formData,
-      });
+        headers: {
+          Accept: 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: fd,
+      }
+    );
 
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.error("Upload photo API error:", response.status, errorData);
-        let backendMessage = `Failed to upload photo (Status: ${response.status})`;
-        try {
-            const parsedError = JSON.parse(errorData);
-            backendMessage = parsedError.message || parsedError.error || backendMessage;
-        } catch(e) {
-            if(errorData && errorData.length < 150) backendMessage += `: ${errorData}`;
+    if (!res.ok) {
+      const errorData = await res.text().catch(() => '');
+      let raw = `Server error: ${res.status}`;
+      try {
+        const parsed = JSON.parse(errorData);
+        if (parsed?.message || parsed?.error) {
+          raw = `Server error: ${res.status} ${parsed.message || parsed.error}`;
+        } else if (errorData) {
+          raw = `Server error: ${res.status} ${errorData}`;
         }
-        throw new Error(backendMessage);
+      } catch {
+        if (errorData) raw = `Server error: ${res.status} ${errorData}`;
       }
-
-      const updatedProfileInfo = await response.json(); // Assuming API returns updated profile info or new URL
-      if (updatedProfileInfo && updatedProfileInfo.photoUrl) {
-        setAvatarDisplayUrl(updatedProfileInfo.photoUrl); // Update display with URL from server
-      }
-      setNewAvatarAsset(null); // Clear the selected asset after successful upload
-      Alert.alert('Success', 'Profile photo uploaded successfully!');
-
-    } catch (e) {
-      console.error('Photo upload error:', e);
-      Alert.alert('Error', `Failed to upload photo. ${e instanceof Error ? e.message : ''}`);
-    } finally {
-      setUploadingPhoto(false);
+      throw new Error(raw);
     }
-  };
 
+    const updatedProfileInfo = await res.json().catch(() => ({}));
+    if (updatedProfileInfo && updatedProfileInfo.photoUrl) {
+      setAvatarDisplayUrl(updatedProfileInfo.photoUrl);
+    }
+    setNewAvatarAsset(null);
+    Alert.alert(t('success'), t('successPhotoUploaded'));
+  } catch (e) {
+    console.error('Photo upload error:', e);
+    const s: ErrorState =
+      e instanceof Error && /Server error:\s*\d+/.test(e.message)
+        ? { key: 'errorUploadPhotoFailed', message: e.message }
+        : { key: 'errorUploadPhotoGeneric', message: e instanceof Error ? e.message : null };
+    setErrState({ ...s, resolved: resolveErrorText(s) });
+    alertError(s);
+  } finally {
+    setUploadingPhoto(false);
+  }
+};
 
-  const onSaveBio = async () => { // Renamed from onSave to be specific
-    if (!username) {
-        Alert.alert('Error', 'User not identified.');
-        return;
-    }
-    setSavingBio(true);
-    try {
-      const token = await AsyncStorage.getItem('token');
-      const headers: HeadersInit = { 'Content-Type': 'application/json' };
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-      // Now only sending username and biography to /api/profile/edit
-      // photoUrl is handled by the dedicated upload endpoint.
-      await fetch(`${API_BASE}/api/profile/edit`, {
-        method: 'PUT',
-        headers: headers,
-        body: JSON.stringify({ username, biography: bio }),
-      });
-      Alert.alert('Success', 'Biography updated successfully!');
-      // navigation.goBack(); // Consider if you want to go back after only bio save
-    } catch (e) {
-      console.error('Bio update error:', e);
-      Alert.alert('Error', `Failed to update biography. ${e instanceof Error ? e.message : ''}`);
-    } finally {
-      setSavingBio(false);
-    }
-  };
+const onSaveBio = async () => {
+  if (!username) {
+    const s = { key: 'errorUserNotIdentified', message: null };
+    setErrState({ ...s, resolved: resolveErrorText(s) });
+    alertError(s);
+    return;
+  }
+  setSavingBio(true);
+  setErrState({ key: null, message: null, resolved: null });
+  try {
+    await apiRequest(`/api/users/${encodeURIComponent(username)}/profile`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, biography: bio }),
+    });
+    Alert.alert(t('success'), t('successBioUpdated'));
+    // navigation.goBack(); // if desired, go back after saving bio
+  } catch (e) {
+    console.error('Bio update error:', e);
+    const s: ErrorState =
+      e instanceof Error && /Server error:\s*\d+/.test(e.message)
+        ? { key: 'errorBioUpdateFailed', message: e.message }
+        : { key: 'errorBioUpdateGeneric', message: e instanceof Error ? e.message : null };
+    setErrState({ ...s, resolved: resolveErrorText(s) });
+    alertError(s);
+  } finally {
+    setSavingBio(false);
+  }
+};
 
   const onCancel = () => navigation.goBack();
 
   if (loadingProfile) {
     return (
-        <View style={[styles.container, {justifyContent: 'center', alignItems: 'center', backgroundColor: screenBackgroundColor}]}>
-            <ActivityIndicator size="large" color={isDarkMode ? '#FFF' : '#000'} />
-        </View>
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', backgroundColor: screenBackgroundColor }]}>
+        <ActivityIndicator size="large" color={isDarkMode ? '#FFF' : '#000'} />
+      </View>
     );
   }
 
   return (
     <ScrollView contentContainerStyle={[styles.container, { backgroundColor: screenBackgroundColor }]}>
+      {(errState.key || errState.message) && (
+        <View style={[styles.errorBanner, { backgroundColor: isDarkMode ? '#5D1F1A' : '#FFCDD2' }]}>
+          <Text style={[styles.errorBannerText, { color: isDarkMode ? '#FF9DA3' : '#C62828' }]}>
+            {t('error')}: {resolveErrorText(errState)}
+          </Text>
+        </View>
+      )}
+
       <View style={styles.avatarContainer}>
         {avatarDisplayUrl ? (
           <Image source={{ uri: avatarDisplayUrl }} style={styles.avatar} />
@@ -221,21 +291,21 @@ export default function EditProfileScreen() {
           <Ionicons name="person-circle-outline" size={120} color={avatarPlaceholderColor} />
         )}
         <TouchableOpacity onPress={pickImage} style={styles.imagePickerButton} disabled={uploadingPhoto || savingBio}>
-            <Ionicons name="camera-outline" size={24} color={iconColor} />
-            <Text style={[styles.imagePickerText, {color: inputTextColor}]}>
-                {avatarDisplayUrl ? 'Change Avatar' : 'Select Avatar'}
-            </Text>
+          <Ionicons name="camera-outline" size={24} color={iconColor} />
+          <Text style={[styles.imagePickerText, { color: inputTextColor }]}>
+            {avatarDisplayUrl ? t('changeAvatar') : t('selectAvatar')}
+          </Text>
         </TouchableOpacity>
-        {newAvatarAsset && ( // Show upload button only if a new image is picked
-          <TouchableOpacity 
-            style={[styles.uploadButton, {backgroundColor: uploadButtonBgColor}, uploadingPhoto && styles.disabledButton]} 
-            onPress={handleUploadProfilePhoto} 
+        {newAvatarAsset && (
+          <TouchableOpacity
+            style={[styles.uploadButton, { backgroundColor: uploadButtonBgColor }, uploadingPhoto && styles.disabledButton]}
+            onPress={handleUploadProfilePhoto}
             disabled={uploadingPhoto}
           >
             {uploadingPhoto ? (
               <ActivityIndicator color="#fff" size="small" />
             ) : (
-              <Text style={styles.uploadButtonText}>Upload Photo</Text>
+              <Text style={styles.uploadButtonText}>{t('uploadPhoto')}</Text>
             )}
           </TouchableOpacity>
         )}
@@ -248,11 +318,11 @@ export default function EditProfileScreen() {
             borderColor: inputBorderColor,
             color: inputTextColor,
             backgroundColor: inputBackgroundColor,
-          }
+          },
         ]}
         value={bio}
         onChangeText={setBio}
-        placeholder="Write a short bio…"
+        placeholder={t('writeShortBio')}
         placeholderTextColor={placeholderTextColor}
         multiline
         maxLength={100}
@@ -261,17 +331,23 @@ export default function EditProfileScreen() {
       <Text style={[styles.charCount, { color: charCountColor }]}>{bio.length}/100</Text>
 
       <View style={styles.buttonRow}>
-        <TouchableOpacity 
-            style={[styles.btn, styles.cancel, { backgroundColor: cancelButtonBgColor }]} 
-            onPress={onCancel} 
-            disabled={savingBio || uploadingPhoto}>
-          <Text style={[styles.btnText, { color: cancelButtonTextColor }]}>Cancel</Text>
+        <TouchableOpacity
+          style={[styles.btn, styles.cancel, { backgroundColor: cancelButtonBgColor }]}
+          onPress={onCancel}
+          disabled={savingBio || uploadingPhoto}
+        >
+          <Text style={[styles.btnText, { color: cancelButtonTextColor }]}>{t('cancel')}</Text>
         </TouchableOpacity>
-        <TouchableOpacity 
-            style={[styles.btn, styles.save, savingBio && styles.disabledButton]} 
-            onPress={onSaveBio} 
-            disabled={savingBio || uploadingPhoto}>
-          {savingBio ? <ActivityIndicator color="#fff" size="small"/> : <Text style={styles.btnText}>Save Bio</Text>}
+        <TouchableOpacity
+          style={[styles.btn, styles.save, (savingBio || uploadingPhoto) && styles.disabledButton]}
+          onPress={onSaveBio}
+          disabled={savingBio || uploadingPhoto}
+        >
+          {savingBio ? (
+            <ActivityIndicator color="#fff" size="small" />
+          ) : (
+            <Text style={styles.btnText}>{t('saveBio')}</Text>
+          )}
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -283,6 +359,17 @@ const styles = StyleSheet.create({
     padding: 16,
     flexGrow: 1,
     justifyContent: 'flex-start',
+  },
+  errorBanner: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  errorBannerText: {
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
   },
   avatarContainer: {
     alignItems: 'center',
@@ -336,17 +423,16 @@ const styles = StyleSheet.create({
   },
   buttonRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around', // Changed to space-around
+    justifyContent: 'space-around',
     marginTop: 24,
   },
   btn: {
-    // flex: 1, // Removed flex:1 to allow buttons to size based on content or specific width
     paddingVertical: 12,
-    paddingHorizontal: 20, // Added more horizontal padding
+    paddingHorizontal: 20,
     borderRadius: 6,
     alignItems: 'center',
-    minWidth: 120, // Give buttons a minimum width
-    marginHorizontal: 8, // Add some margin between buttons
+    minWidth: 120,
+    marginHorizontal: 8,
   },
   cancel: {},
   save: {

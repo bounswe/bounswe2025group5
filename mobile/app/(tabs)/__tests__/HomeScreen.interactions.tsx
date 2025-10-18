@@ -78,19 +78,24 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
   // Smarter Fetch API Mock
   global.fetch = jest.fn((url: string | URL | Request) => {
       // console.log(`FETCH MOCK CALLED WITH URL: ${url}`);
-      const urlString = url.toString();
-      if (urlString.includes('/api/users/count')) {
-          // console.log('FETCH MOCK: Returning user count response');
-          return Promise.resolve({
-              ok: true, status: 200, json: () => Promise.resolve({ userCount: 55 }),
-          });
-      }
-      if (urlString.includes('/api/posts/mostLikedPosts')) {
-           // console.log('FETCH MOCK: Returning trending posts response');
-          return Promise.resolve({
-              ok: true, status: 200, json: () => Promise.resolve([]),
-          });
-      }
+  const urlString =
+    typeof url === 'string'
+      ? url
+      : url instanceof URL
+        ? url.toString()
+        : (url as Request).url ?? '';
+  if (urlString.includes('/api/users/count')) {
+      // console.log('FETCH MOCK: Returning user count response');
+      return Promise.resolve({
+          ok: true, status: 200, json: () => Promise.resolve({ userCount: 55 }),
+      });
+  }
+  if (urlString.includes('/api/posts/mostLiked')) {
+       // console.log('FETCH MOCK: Returning trending posts response');
+      return Promise.resolve({
+          ok: true, status: 200, json: () => Promise.resolve([]),
+      });
+  }
       if (urlString.includes('/api/home/getCurrentWeather')) {
             // console.log('FETCH MOCK: Returning trending posts response');
             return Promise.resolve({

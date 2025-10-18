@@ -94,8 +94,13 @@ const mockProfileInfoSuccess = (
     photoUrl = 'http://example.com/avatar.jpg'
 ) => {
     (fetch as jest.Mock).mockImplementation((url: string | URL | Request) => {
-        const urlString = url.toString();
-        if (urlString.includes('/api/profile/info')) {
+        const urlString =
+            typeof url === 'string'
+                ? url
+                : url instanceof URL
+                    ? url.toString()
+                    : (url as Request).url ?? '';
+        if (urlString.includes('/api/users/') && urlString.includes('/profile?username=')) {
             return Promise.resolve({
                 ok: true, status: 200, json: () => Promise.resolve({ biography, photoUrl }),
             });
@@ -108,8 +113,13 @@ const mockProfileInfoSuccess = (
 const mockProfileInfoNotFoundThenCreateSuccess = () => {
      let callCount = 0;
      (fetch as jest.Mock).mockImplementation((url: string | URL | Request) => {
-        const urlString = url.toString();
-        if (urlString.includes('/api/profile/info')) {
+        const urlString =
+            typeof url === 'string'
+                ? url
+                : url instanceof URL
+                    ? url.toString()
+                    : (url as Request).url ?? '';
+        if (urlString.includes('/api/users/') && urlString.includes('/profile?username=')) {
              callCount++;
             if (callCount === 1) { // First call returns 404
                  return Promise.resolve({ ok: false, status: 404 });
@@ -118,7 +128,12 @@ const mockProfileInfoNotFoundThenCreateSuccess = () => {
                      ok: true, status: 200, json: () => Promise.resolve({ biography: '', photoUrl: '' }), // Assume create results in empty profile
                  });
              }
-         } else if (urlString.includes('/api/profile/create') && url instanceof Request && url.method === 'POST') {
+         } else if (
+            urlString.includes('/api/users/') &&
+            urlString.endsWith('/profile') &&
+            url instanceof Request &&
+            url.method === 'PUT'
+        ) {
              // Mock the create endpoint success
              return Promise.resolve({ ok: true, status: 201, json: () => Promise.resolve({ message: 'Created' }) });
          }
@@ -128,8 +143,13 @@ const mockProfileInfoNotFoundThenCreateSuccess = () => {
 
 const mockProfileInfoError = () => {
      (fetch as jest.Mock).mockImplementation((url: string | URL | Request) => {
-         const urlString = url.toString();
-         if (urlString.includes('/api/profile/info')) {
+         const urlString =
+             typeof url === 'string'
+                 ? url
+                 : url instanceof URL
+                     ? url.toString()
+                     : (url as Request).url ?? '';
+         if (urlString.includes('/api/users/') && urlString.includes('/profile?username=')) {
              return Promise.reject(new Error('API Error'));
          }
          return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({}) });
