@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   FlatList,
@@ -9,32 +9,41 @@ import {
   StyleSheet,
   Platform,
   useColorScheme,
+  TextInput,
   Text,
-} from 'react-native';
-import { ThemedText } from '@/components/ThemedText';
-import { AuthContext } from '../_layout';
+} from "react-native";
 
-import { useTranslation } from 'react-i18next';
-import { apiRequest } from '../services/apiClient';
+import { useAppColors } from "@/hooks/useAppColors";
+import { useSwitchColors } from "@/utils/colorUtils";
+import { ThemedText } from "@/components/ThemedText";
+import { AuthContext } from "../_layout";
+import { apiRequest } from "../services/apiClient";
+import { useTranslation } from "react-i18next";
 
-const ADMIN_TYPE_PLACEHOLDER = 'admin';
+const ADMIN_TYPE_PLACEHOLDER = "admin";
 
 type Challenge = {
   challengeId: number;
   name: string;
   description: string;
   amount: number;
+  currentAmount: number;
   startDate: string;
   endDate: string;
   status: string;
-  wasteType: string;
-  attendee: boolean;
+  type: string;
+  userInChallenge: boolean;
 };
 
 type LeaderboardEntry = {
   userId: number;
   username: string;
   remainingAmount: number;
+};
+
+type ChallengeLogInfo = {
+  amount: number;
+  timestamp: string;
 };
 
 type ErrorState = {
@@ -46,27 +55,20 @@ export default function ChallengesScreen() {
   const { t, i18n } = useTranslation();
   const { userType, username } = useContext(AuthContext);
   const isAdmin = String(userType) === ADMIN_TYPE_PLACEHOLDER;
-  const colorScheme = useColorScheme();
 
-
-  const isTurkish = (i18n.resolvedLanguage || i18n.language || '').toLowerCase().startsWith('tr');
-  const toggleLanguage = (value: boolean) => {
-    i18n.changeLanguage(value ? 'tr-TR' : 'en-US');
-  };
-
-  const isDarkMode = colorScheme === 'dark';
-  const screenBackgroundColor = isDarkMode ? '#151718' : '#F0F2F5';
-  const cardBackgroundColor = isDarkMode ? '#1C1C1E' : '#FFFFFF';
-  const subtleTextColor = isDarkMode ? '#A0A0A0' : '#666666';
-  const borderColor = isDarkMode ? '#3A3A3C' : '#EEEEEE';
-  const modalBackgroundColor = isDarkMode ? '#1C1C1E' : '#FFFFFF';
-  const errorColor = isDarkMode ? '#FF9494' : '#D32F2F';
-  const activityIndicatorColor = isDarkMode ? '#FFFFFF' : '#000000';
-  const switchThumbColor = Platform.OS === 'android' ? (isDarkMode ? "#81b0ff" : "#2196F3") : undefined;
-  const switchTrackColor = { false: (isDarkMode ? "#3e3e3e" : "#e0e0e0"), true: (isDarkMode ? "#5c85d6" : "#81b0ff") };
+  // Use new global color system
+  const colors = useAppColors();
+  const switchColors = useSwitchColors();
 
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const isTurkish = (i18n.resolvedLanguage || i18n.language || "")
+    .toLowerCase()
+    .startsWith("tr");
+  const toggleLanguage = (value: boolean) => {
+    i18n.changeLanguage(value ? "tr-TR" : "en-US");
+  };
 
   const [error, setError] = useState<ErrorState>({ key: null, message: null });
   const [showAttendedOnly, setShowAttendedOnly] = useState(false);
@@ -76,62 +78,95 @@ export default function ChallengesScreen() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [lbLoading, setLbLoading] = useState(false);
 
-  const [lbError, setLbError] = useState<ErrorState>({ key: null, message: null });
+  const [lbError, setLbError] = useState<ErrorState>({
+    key: null,
+    message: null,
+  });
   const [leaderboardVisible, setLeaderboardVisible] = useState(false);
+
+  // Create Challenge Modal states
+  const [createModalVisible, setCreateModalVisible] = useState(false);
+  const [challengeName, setChallengeName] = useState("");
+  const [challengeDescription, setChallengeDescription] = useState("");
+  const [challengeAmount, setChallengeAmount] = useState("");
+  const [challengeWasteType, setChallengeWasteType] = useState("Plastic");
+  const [challengeDuration, setChallengeDuration] = useState("30");
+  const [createError, setCreateError] = useState("");
+
+  // Log Waste Modal states
+  const [logModalVisible, setLogModalVisible] = useState(false);
+  const [currentChallengeId, setCurrentChallengeId] = useState<number | null>(
+    null
+  );
+  const [logAmount, setLogAmount] = useState("");
+  const [logError, setLogError] = useState("");
+  const [logLoading, setLogLoading] = useState(false);
+
+  // Show Logs Modal states
+  const [logsModalVisible, setLogsModalVisible] = useState(false);
+  const [challengeLogs, setChallengeLogs] = useState<ChallengeLogInfo[]>([]);
+  const [logsLoading, setLogsLoading] = useState(false);
+  const [logsError, setLogsError] = useState("");
 
   const fetchData = async () => {
     setLoading(true);
     setError({ key: null, message: null });
-    try {
 
-      if (!username) {
-        setChallenges([]);
-        setLoading(false);
-        return;
-      }
-      const res = await apiRequest(`/api/challenges/${encodeURIComponent(username)}`);
+    try {
+      // Use username endpoint to get user-specific challenges
+      const res = await apiRequest(`/api/challenges/${username}`);
       if (!res.ok) {
         const errorText = await res.text();
         throw new Error(errorText || `Server error: ${res.status}`);
       }
       const data: Challenge[] = await res.json();
+      console.log("Fetched challenges:", data);
       setChallenges(data);
     } catch (err) {
       console.error(err);
-      setError({ key: 'errorFailedToLoadChallenges', message: err instanceof Error ? err.message : 'An unknown error occurred' });
+      setError({
+        key: "errorFailedToLoadChallenges",
+        message: err instanceof Error ? err.message : t("unknownError"),
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleAttendLeave = async (challengeId: number, attend: boolean) => {
-    // Optimistic UI update
-    setChallenges(prev =>
-      prev.map(ch =>
-        ch.challengeId === challengeId ? { ...ch, attendee: attend } : ch
+    setChallenges((prev) =>
+      prev.map((ch) =>
+        ch.challengeId === challengeId ? { ...ch, userInChallenge: attend } : ch
       )
     );
     try {
       if (!username) {
-        throw new Error('Username is required to manage challenge attendance');
+        throw new Error(t("usernameRequiredForAttendance"));
       }
       if (attend) {
-        const res = await apiRequest(`/api/challenges/${challengeId}/attendees`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username }),
-        });
+        const res = await apiRequest(
+          `/api/challenges/${challengeId}/attendees`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username }),
+          }
+        );
         if (!res.ok) {
           const errorText = await res.text();
           throw new Error(errorText || `Server error: ${res.status}`);
         }
       } else {
         const res = await apiRequest(
-          `/api/challenges/${challengeId}/attendees/${encodeURIComponent(username)}`,
+          `/api/challenges/${challengeId}/attendees/${encodeURIComponent(
+            username
+          )}`,
           {
-            method: 'DELETE',
+            method: "DELETE",
           }
         );
         if (!res.ok) {
@@ -141,11 +176,15 @@ export default function ChallengesScreen() {
       }
     } catch (err) {
       console.error(err);
-      setError({ key: 'errorActionFailed', message: err instanceof Error ? err.message : 'An unknown error occurred' });
-      // Revert optimistic update on failure
-      setChallenges(prev =>
-        prev.map(ch =>
-          ch.challengeId === challengeId ? { ...ch, attendee: !attend } : ch
+      setError({
+        key: "errorActionFailed",
+        message: err instanceof Error ? err.message : t("unknownError"),
+      });
+      setChallenges((prev) =>
+        prev.map((ch) =>
+          ch.challengeId === challengeId
+            ? { ...ch, userInChallenge: !attend }
+            : ch
         )
       );
     }
@@ -155,7 +194,9 @@ export default function ChallengesScreen() {
     setLbLoading(true);
     setLbError({ key: null, message: null });
     try {
-      const res = await apiRequest(`/api/challenges/${challengeId}/leaderboard`);
+      const res = await apiRequest(
+        `/api/challenges/${challengeId}/leaderboard`
+      );
       if (!res.ok) {
         const errorText = await res.text();
         throw new Error(errorText || `Server error: ${res.status}`);
@@ -166,55 +207,263 @@ export default function ChallengesScreen() {
       setLeaderboardVisible(true);
     } catch (err) {
       console.error(err);
-      setLbError({ key: 'errorFailedToLoadLeaderboard', message: err instanceof Error ? err.message : 'An unknown error occurred' });
+      setLbError({
+        key: "errorFailedToLoadLeaderboard",
+        message: err instanceof Error ? err.message : t("unknownError"),
+      });
     } finally {
       setLbLoading(false);
     }
   };
 
+  const handleCreateChallenge = async () => {
+    // Validate inputs
+    if (!challengeName.trim()) {
+      setCreateError(t("challengeNameRequired"));
+      return;
+    }
+    if (!challengeDescription.trim()) {
+      setCreateError(t("challengeDescRequired"));
+      return;
+    }
+    if (
+      !challengeAmount.trim() ||
+      isNaN(parseFloat(challengeAmount)) ||
+      parseFloat(challengeAmount) <= 0
+    ) {
+      setCreateError(t("validTargetAmountRequired"));
+      return;
+    }
+    if (
+      !challengeDuration.trim() ||
+      isNaN(parseInt(challengeDuration)) ||
+      parseInt(challengeDuration) <= 0
+    ) {
+      setCreateError(t("validDurationRequired"));
+      return;
+    }
+
+    setLoading(true);
+    setCreateError("");
+
+    try {
+      // Calculate start and end dates
+      const startDate = new Date();
+      const endDate = new Date();
+      endDate.setDate(startDate.getDate() + parseInt(challengeDuration));
+
+      const challengeData = {
+        name: challengeName.trim(),
+        description: challengeDescription.trim(),
+        amount: parseFloat(challengeAmount),
+        startDate: startDate.toISOString().split("T")[0], // Format: YYYY-MM-DD
+        endDate: endDate.toISOString().split("T")[0], // Format: YYYY-MM-DD
+        type: challengeWasteType.trim(),
+      };
+
+      const res = await apiRequest("/api/challenges", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(challengeData),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.text();
+        throw new Error(
+          `Failed to create challenge: ${res.status} ${errorData}`
+        );
+      }
+
+      // Success - close modal and refresh challenges
+      setCreateModalVisible(false);
+
+      // Reset form
+      setChallengeName("");
+      setChallengeDescription("");
+      setChallengeAmount("");
+      setChallengeWasteType("Plastic");
+      setChallengeDuration("30");
+
+      // Refresh challenges list
+      await fetchData();
+    } catch (err) {
+      console.error("Error creating challenge:", err);
+      setCreateError(
+        err instanceof Error ? err.message : t("failedToCreateChallenge")
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogWaste = async () => {
+    if (!currentChallengeId || !username) {
+      setLogError(t("challengeOrUserMissing"));
+      return;
+    }
+
+    if (
+      !logAmount.trim() ||
+      isNaN(parseFloat(logAmount)) ||
+      parseFloat(logAmount) <= 0
+    ) {
+      setLogError(t("validAmountRequired"));
+      return;
+    }
+
+    setLogLoading(true);
+    setLogError("");
+
+    try {
+      const logData = {
+        username: username,
+        amount: parseFloat(logAmount),
+      };
+
+      const res = await apiRequest(
+        `/api/challenges/${currentChallengeId}/log`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(logData),
+        }
+      );
+
+      if (!res.ok) {
+        const errorData = await res.text();
+        throw new Error(`Failed to log waste: ${res.status} ${errorData}`);
+      }
+
+      // Success - close modal and refresh challenges
+      setLogModalVisible(false);
+      setLogAmount("");
+      setCurrentChallengeId(null);
+
+      // Refresh challenges list to update progress
+      await fetchData();
+    } catch (err) {
+      console.error("Error logging waste:", err);
+      setLogError(err instanceof Error ? err.message : t("failedToLogWaste"));
+    } finally {
+      setLogLoading(false);
+    }
+  };
+
+  const handleShowLogs = async (challengeId: number) => {
+    if (!username) {
+      setLogsError(t("usernameRequiredForLogs"));
+      return;
+    }
+
+    setLogsLoading(true);
+    setLogsError("");
+
+    try {
+      const res = await apiRequest(
+        `/api/challenges/${challengeId}/logs/${username}`
+      );
+      if (!res.ok) {
+        const errorData = await res.text();
+        throw new Error(`Failed to fetch logs: ${res.status} ${errorData}`);
+      }
+
+      const data = await res.json();
+      // Assuming the response structure contains logs array
+      const logs = data.logs as ChallengeLogInfo[];
+      setChallengeLogs(logs);
+      setLogsModalVisible(true);
+    } catch (err) {
+      console.error("Error fetching logs:", err);
+      setLogsError(err instanceof Error ? err.message : t("failedToFetchLogs"));
+    } finally {
+      setLogsLoading(false);
+    }
+  };
+
+  const openLogModal = (challengeId: number) => {
+    setCurrentChallengeId(challengeId);
+    setLogAmount("");
+    setLogError("");
+    setLogModalVisible(true);
+  };
+
   const toggleExpand = (id: number) => {
-    setExpanded(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    setExpanded((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
   };
 
-  const filtered = challenges.filter(ch => {
-    if (showActiveOnly && ch.status !== 'Active') return false;
-    if (showAttendedOnly && !ch.attendee) return false;
+  const filtered = challenges.filter((ch) => {
+    if (showActiveOnly && ch.status !== "Active") return false;
+    if (showAttendedOnly && !ch.userInChallenge) return false;
     return true;
   });
 
   if (loading && challenges.length === 0) {
     return (
-        <View style={[styles.center, { backgroundColor: screenBackgroundColor }]}>
-            <ActivityIndicator testID="full-screen-loading" size="large" color={activityIndicatorColor} />
-        </View>
+      <View
+        style={[styles.center, { backgroundColor: colors.screenBackground }]}
+      >
+        <ActivityIndicator
+          testID="full-screen-loading"
+          size="large"
+          color={colors.activityIndicator}
+        />
+      </View>
     );
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: screenBackgroundColor }]}>
+    <View
+      style={[styles.container, { backgroundColor: colors.screenBackground }]}
+    >
+      {/* Header to match Explore and WasteGoal */}
       <View style={styles.headerContainer}>
         <View style={styles.titleContainer}>
-          <ThemedText type="title">{t('challengesTitle')}</ThemedText>
+          <ThemedText type="title">{t("challengesTitle")}</ThemedText>
         </View>
         <View style={styles.languageToggleContainer}>
           <Text style={styles.languageLabel}>EN</Text>
           <Switch
-              trackColor={{ false: '#767577', true: '#81b0ff' }}
-              thumbColor={isDarkMode ? (isTurkish ? '#f5dd4b' : '#f4f4f4') : (isTurkish ? '#f5dd4b' : '#f4f4f4')}
-              ios_backgroundColor="#3e3e3e"
-              onValueChange={toggleLanguage}
-              value={isTurkish}
+            trackColor={{ false: "#767577", true: "#81b0ff" }}
+            thumbColor={isTurkish ? "#f5dd4b" : "#f4f4f4"}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={toggleLanguage}
+            value={isTurkish}
           />
           <Text style={styles.languageLabel}>TR</Text>
         </View>
       </View>
 
-      {loading && <ActivityIndicator style={styles.inlineSpinner} size="small" color={activityIndicatorColor} />}
+      {/* Create Challenge Button */}
+      <TouchableOpacity
+        style={styles.createButton}
+        onPress={() => {
+          setCreateModalVisible(true);
+          setCreateError("");
+        }}
+      >
+        <Text style={styles.buttonText}>{t("createChallenge")}</Text>
+      </TouchableOpacity>
+
+      {loading && (
+        <ActivityIndicator
+          style={styles.inlineSpinner}
+          size="small"
+          color={colors.activityIndicator}
+        />
+      )}
+
       {/* Render error using the key */}
       {(error.key || error.message) && !loading && (
-        <ThemedText type="default" style={[styles.error, { color: errorColor }]}>
+        <ThemedText
+          type="default"
+          style={[styles.error, { color: colors.error }]}
+        >
           {error.key ? t(error.key) : error.message}
         </ThemedText>
       )}
@@ -225,67 +474,232 @@ export default function ChallengesScreen() {
             testID="attended-only-switch"
             value={showAttendedOnly}
             onValueChange={setShowAttendedOnly}
-            thumbColor={switchThumbColor}
-            trackColor={switchTrackColor}
+            thumbColor={switchColors.thumbColor}
+            trackColor={switchColors.trackColor}
           />
-          <ThemedText type="default" style={styles.switchLabel}>{t('attendedOnly')}</ThemedText>
+          <ThemedText type="default" style={styles.switchLabel}>
+            {t("attendedOnly")}
+          </ThemedText>
         </View>
         <View style={styles.switchRow}>
           <Switch
             testID="active-only-switch"
             value={showActiveOnly}
             onValueChange={setShowActiveOnly}
-            thumbColor={switchThumbColor}
-            trackColor={switchTrackColor}
+            thumbColor={switchColors.thumbColor}
+            trackColor={switchColors.trackColor}
           />
-          <ThemedText type="default" style={styles.switchLabel}>{t('activeOnly')}</ThemedText>
+          <ThemedText type="default" style={styles.switchLabel}>
+            {t("activeOnly")}
+          </ThemedText>
         </View>
       </View>
 
       <FlatList
         testID="challenges-list"
         data={filtered}
-        keyExtractor={item => String(item.challengeId)}
+        keyExtractor={(item) => String(item.challengeId)}
         contentContainerStyle={styles.listContentContainer}
         renderItem={({ item }) => (
-          <View style={[styles.card, { backgroundColor: cardBackgroundColor }]}>
+          <View
+            style={[styles.card, { backgroundColor: colors.cardBackground }]}
+          >
             <TouchableOpacity onPress={() => toggleExpand(item.challengeId)}>
               <View style={styles.cardHeader}>
-                <ThemedText type="subtitle" style={styles.cardTitle}>{item.name}</ThemedText>
-                <ThemedText type="default" style={[styles.cardDate, {color: subtleTextColor}]}>
+                <ThemedText type="subtitle" style={styles.cardTitle}>
+                  {item.name}
+                </ThemedText>
+                <ThemedText
+                  type="default"
+                  style={[styles.cardDate, { color: colors.textSecondary }]}
+                >
                   {item.startDate} – {item.endDate}
                 </ThemedText>
               </View>
             </TouchableOpacity>
 
             {expanded.includes(item.challengeId) && (
-              <View style={[styles.cardBody, {borderTopColor: borderColor}]}>
-                <ThemedText type="default" style={styles.cardDescription}>{item.description}</ThemedText>
+              <View
+                style={[
+                  styles.cardBody,
+                  { borderTopColor: colors.borderColor },
+                ]}
+              >
+                <ThemedText type="default" style={styles.cardDescription}>
+                  {item.description}
+                </ThemedText>
                 <ThemedText type="default" style={styles.cardInfo}>
-                  {t('challengeAmountAndType', { amount: item.amount, wasteType: item.wasteType })}
+                  {t("challengeAmountAndType", {
+                    amount: item.amount,
+                    wasteType: item.type,
+                  })}
                 </ThemedText>
 
-                {!isAdmin && item.status === 'Active' && (
-                  <TouchableOpacity
-                    testID={`attend-leave-button-${item.challengeId}`}
-                    style={item.attendee ? styles.warningButton : styles.secondaryButton}
-                    onPress={() => handleAttendLeave(item.challengeId, !item.attendee)}
-                  >
-                    <ThemedText type="defaultSemiBold" style={styles.buttonText}>
-                      {item.attendee ? t('leaveChallenge') : t('attendChallenge')}
+                {/* Progress Bar */}
+                <View style={styles.progressContainer}>
+                  <View style={styles.progressHeader}>
+                    <ThemedText
+                      type="default"
+                      style={[
+                        styles.progressText,
+                        { color: colors.textSecondary },
+                      ]}
+                    >
+                      {t("progressText")}: {item.currentAmount?.toFixed(1) || 0}{" "}
+                      / {item.amount} kg
                     </ThemedText>
-                  </TouchableOpacity>
+                    <ThemedText
+                      type="default"
+                      style={[
+                        styles.progressPercentage,
+                        {
+                          color: (() => {
+                            const percentage =
+                              ((item.currentAmount || 0) / item.amount) * 100;
+                            if (percentage >= 100)
+                              return colors.progressExcellent;
+                            if (percentage >= 80) return colors.progressGood;
+                            return colors.textSecondary;
+                          })(),
+                        },
+                      ]}
+                    >
+                      {(
+                        ((item.currentAmount || 0) / item.amount) *
+                        100
+                      ).toFixed(1)}
+                      %{(item.currentAmount || 0) / item.amount >= 1 && " ✅"}
+                    </ThemedText>
+                  </View>
+                  <View
+                    style={[
+                      styles.progressBar,
+                      { backgroundColor: colors.borderColor },
+                    ]}
+                  >
+                    <View
+                      style={[
+                        styles.progressFill,
+                        {
+                          backgroundColor: (() => {
+                            const percentage =
+                              ((item.currentAmount || 0) / item.amount) * 100;
+                            if (percentage >= 80)
+                              return colors.progressExcellent;
+                            if (percentage >= 60) return colors.progressGood;
+                            if (percentage >= 40) return colors.progressFair;
+                            if (percentage >= 20) return colors.progressCaution;
+                            return colors.progressBad;
+                          })(),
+                          width: `${Math.min(
+                            ((item.currentAmount || 0) / item.amount) * 100,
+                            100
+                          )}%`,
+                        },
+                      ]}
+                    />
+                  </View>
+                </View>
+
+                {!isAdmin && item.status === "Active" && (
+                  <View style={styles.buttonContainer}>
+                    {/* Log Waste and Show Logs Buttons - Side by side above if user is attendee */}
+                    {item.userInChallenge && (
+                      <View style={styles.logButtonsRow}>
+                        <TouchableOpacity
+                          style={[
+                            styles.logButton,
+                            { backgroundColor: colors.buttonPrimary },
+                          ]}
+                          onPress={() => openLogModal(item.challengeId)}
+                        >
+                          <ThemedText
+                            type="defaultSemiBold"
+                            style={[styles.buttonText, { color: "#FFFFFF" }]}
+                          >
+                            {t("addLog")}
+                          </ThemedText>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                          style={[
+                            styles.logButton,
+                            { backgroundColor: colors.buttonSecondary },
+                          ]}
+                          onPress={() => handleShowLogs(item.challengeId)}
+                          disabled={logsLoading}
+                        >
+                          <ThemedText
+                            type="defaultSemiBold"
+                            style={[styles.buttonText, { color: "#FFFFFF" }]}
+                          >
+                            {logsLoading ? t("loading") : t("showLogs")}
+                          </ThemedText>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+
+                    {/* Bottom Row - Attend/Leave and Leaderboard side by side */}
+                    <View style={styles.cardActions}>
+                      <TouchableOpacity
+                        testID={`attend-leave-button-${item.challengeId}`}
+                        style={[
+                          styles.sideButton,
+                          item.userInChallenge
+                            ? { backgroundColor: colors.buttonWarning }
+                            : { backgroundColor: colors.buttonSecondary },
+                        ]}
+                        onPress={() =>
+                          handleAttendLeave(
+                            item.challengeId,
+                            !item.userInChallenge
+                          )
+                        }
+                      >
+                        <ThemedText
+                          type="defaultSemiBold"
+                          style={[styles.buttonText, { color: "#FFFFFF" }]}
+                        >
+                          {item.userInChallenge
+                            ? t("leaveChallenge")
+                            : t("attendChallenge")}
+                        </ThemedText>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={[
+                          styles.sideButton,
+                          { backgroundColor: colors.buttonSecondary },
+                        ]}
+                        testID={`view-leaderboard-button-${item.challengeId}`}
+                        onPress={() => handleViewLeaderboard(item.challengeId)}
+                      >
+                        <ThemedText
+                          type="defaultSemiBold"
+                          style={[styles.buttonText, { color: "#FFFFFF" }]}
+                        >
+                          {t("viewLeaderboard")}
+                        </ThemedText>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
                 )}
 
                 {isAdmin && (
-                  <TouchableOpacity style={styles.dangerButton} onPress={() => {/* TODO: end challenge */}}>
-                    <ThemedText type="defaultSemiBold" style={styles.buttonText}>{t('endChallenge')}</ThemedText>
+                  <TouchableOpacity
+                    style={styles.dangerButton}
+                    onPress={() => {
+                      /* TODO: end challenge */
+                    }}
+                  >
+                    <ThemedText
+                      type="defaultSemiBold"
+                      style={styles.buttonText}
+                    >
+                      {t("endChallenge")}
+                    </ThemedText>
                   </TouchableOpacity>
                 )}
-
-                <TouchableOpacity style={styles.secondaryButton} testID={`view-leaderboard-button-${item.challengeId}`} onPress={() => handleViewLeaderboard(item.challengeId)}>
-                  <ThemedText type="defaultSemiBold" style={styles.buttonText}>{t('viewLeaderboard')}</ThemedText>
-                </TouchableOpacity>
               </View>
             )}
           </View>
@@ -293,47 +707,418 @@ export default function ChallengesScreen() {
         ListEmptyComponent={
           !loading && !error.key ? (
             <View style={styles.emptyListContainer}>
-              <ThemedText>{t('noChallengesMatchFilters')}</ThemedText>
+              <ThemedText>{t("noChallengesMatchFilters")}</ThemedText>
             </View>
           ) : null
         }
       />
 
-      <Modal visible={leaderboardVisible} testID="leaderboard-modal" animationType="slide" transparent>
+      <Modal
+        visible={leaderboardVisible}
+        testID="leaderboard-modal"
+        animationType="slide"
+        transparent
+      >
         <View style={styles.lbOverlay}>
-          <View style={[styles.lbContainer, {backgroundColor: modalBackgroundColor}]}>
-            <ThemedText type="title" style={styles.lbTitle}>{t('leaderboardTitle')}</ThemedText>
+          <View
+            style={[
+              styles.lbContainer,
+              { backgroundColor: colors.modalBackground },
+            ]}
+          >
+            <ThemedText type="title" style={styles.lbTitle}>
+              {t("leaderboardTitle")}
+            </ThemedText>
             {lbLoading ? (
               <View style={styles.center}>
-                 <ActivityIndicator testID="inline-loading" size="large" color={activityIndicatorColor}/>
+                <ActivityIndicator
+                  testID="inline-loading"
+                  size="large"
+                  color={colors.activityIndicator}
+                />
               </View>
-            ) : lbError.key ? (
-              <ThemedText type="default" style={[styles.error, {color: errorColor}]}>
-                {t(lbError.key)}
+            ) : lbError.key || lbError.message ? (
+              <ThemedText
+                type="default"
+                style={[styles.error, { color: colors.error }]}
+              >
+                {lbError.key ? t(lbError.key) : lbError.message}
               </ThemedText>
             ) : (
               <>
-                <View style={[styles.lbHeaderRow, {borderBottomColor: borderColor}]}>
-                  <ThemedText type="defaultSemiBold" style={styles.lbHeaderCell}>{t('username')}</ThemedText>
-                  <ThemedText type="defaultSemiBold" style={styles.lbHeaderCell}>{t('remaining')}</ThemedText>
+                <View
+                  style={[
+                    styles.lbHeaderRow,
+                    { borderBottomColor: colors.borderColor },
+                  ]}
+                >
+                  <ThemedText
+                    type="defaultSemiBold"
+                    style={styles.lbHeaderCell}
+                  >
+                    {t("username")}
+                  </ThemedText>
+                  <ThemedText
+                    type="defaultSemiBold"
+                    style={styles.lbHeaderCell}
+                  >
+                    {t("remaining")}
+                  </ThemedText>
                 </View>
                 <FlatList
                   data={leaderboard}
-                  keyExtractor={item => String(item.userId)}
+                  keyExtractor={(item) => String(item.userId)}
                   renderItem={({ item, index }) => (
-                    <View style={[styles.lbRow, {borderBottomColor: borderColor}]}>
-                      <ThemedText type="defaultSemiBold">{index + 1}. {item.username}</ThemedText>
-                      <ThemedText type="default">{item.remainingAmount}</ThemedText>
+                    <View
+                      style={[
+                        styles.lbRow,
+                        { borderBottomColor: colors.borderColor },
+                      ]}
+                    >
+                      <ThemedText type="defaultSemiBold">
+                        {index + 1}. {item.username}
+                      </ThemedText>
+                      <ThemedText type="default">
+                        {item.remainingAmount}
+                      </ThemedText>
                     </View>
                   )}
-                   ListEmptyComponent={
-                     <View style={styles.emptyListContainer}><ThemedText>{t('leaderboardEmpty')}</ThemedText></View>
+                  ListEmptyComponent={
+                    <View style={styles.emptyListContainer}>
+                      <ThemedText>{t("leaderboardEmpty")}</ThemedText>
+                    </View>
                   }
                 />
               </>
             )}
-            <TouchableOpacity style={styles.lbCloseButton} testID="leaderboard-close-button" onPress={() => setLeaderboardVisible(false)}>
-              <ThemedText type="defaultSemiBold">{t('close')}</ThemedText>
+            <TouchableOpacity
+              style={styles.lbCloseButton}
+              testID="leaderboard-close-button"
+              onPress={() => setLeaderboardVisible(false)}
+            >
+              <ThemedText type="defaultSemiBold">{t("close")}</ThemedText>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Create Challenge Modal */}
+      <Modal
+        visible={createModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => {
+          setCreateModalVisible(false);
+          setCreateError("");
+        }}
+      >
+        <View style={styles.lbOverlay}>
+          <View
+            style={[
+              styles.lbContainer,
+              { backgroundColor: colors.modalBackground },
+            ]}
+          >
+            <ThemedText type="title" style={styles.lbTitle}>
+              {t("createNewChallengeModal")}
+            </ThemedText>
+
+            <ThemedText style={styles.inputLabel}>
+              {t("challengeNameLabel")}
+            </ThemedText>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  borderColor: colors.borderColor,
+                  color: colors.text,
+                  backgroundColor: colors.inputBackground,
+                },
+              ]}
+              value={challengeName}
+              onChangeText={setChallengeName}
+              placeholder={t("challengeNamePlaceholder")}
+              placeholderTextColor={colors.textSubtle}
+            />
+
+            <ThemedText style={styles.inputLabel}>
+              {t("descriptionLabel")}
+            </ThemedText>
+            <TextInput
+              style={[
+                styles.input,
+                styles.textArea,
+                {
+                  borderColor: colors.borderColor,
+                  color: colors.text,
+                  backgroundColor: colors.inputBackground,
+                },
+              ]}
+              value={challengeDescription}
+              onChangeText={setChallengeDescription}
+              placeholder={t("challengeDescriptionPlaceholder")}
+              placeholderTextColor={colors.textSubtle}
+              multiline
+              numberOfLines={3}
+            />
+
+            <ThemedText style={styles.inputLabel}>
+              {t("wasteTypeLabel")}
+            </ThemedText>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  borderColor: colors.borderColor,
+                  color: colors.text,
+                  backgroundColor: colors.inputBackground,
+                },
+              ]}
+              value={challengeWasteType}
+              onChangeText={setChallengeWasteType}
+              placeholder={t("wasteTypePlaceholder")}
+              placeholderTextColor={colors.textSubtle}
+            />
+
+            <ThemedText style={styles.inputLabel}>
+              {t("targetAmountLabel")}
+            </ThemedText>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  borderColor: colors.borderColor,
+                  color: colors.text,
+                  backgroundColor: colors.inputBackground,
+                },
+              ]}
+              value={challengeAmount}
+              onChangeText={setChallengeAmount}
+              placeholder={t("targetAmountPlaceholder")}
+              placeholderTextColor={colors.textSubtle}
+              keyboardType="numeric"
+            />
+
+            <ThemedText style={styles.inputLabel}>
+              {t("durationLabel")}
+            </ThemedText>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  borderColor: colors.borderColor,
+                  color: colors.text,
+                  backgroundColor: colors.inputBackground,
+                },
+              ]}
+              value={challengeDuration}
+              onChangeText={setChallengeDuration}
+              placeholder={t("durationDaysPlaceholder")}
+              placeholderTextColor={colors.textSubtle}
+              keyboardType="numeric"
+            />
+
+            {createError ? (
+              <ThemedText style={[styles.error, { color: colors.error }]}>
+                {createError}
+              </ThemedText>
+            ) : null}
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalCancelButton]}
+                onPress={() => {
+                  setCreateModalVisible(false);
+                  setCreateError("");
+                  // Reset form
+                  setChallengeName("");
+                  setChallengeDescription("");
+                  setChallengeAmount("");
+                  setChallengeWasteType("Plastic");
+                  setChallengeDuration("30");
+                }}
+              >
+                <Text style={styles.buttonText}>{t("cancel")}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalCreateButton]}
+                onPress={handleCreateChallenge}
+                disabled={
+                  !challengeName.trim() ||
+                  !challengeDescription.trim() ||
+                  loading
+                }
+              >
+                {loading ? (
+                  <ActivityIndicator size="small" color="#FFF" />
+                ) : (
+                  <Text style={styles.buttonText}>
+                    {t("createChallengeButton")}
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Log Waste Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={logModalVisible}
+        onRequestClose={() => setLogModalVisible(false)}
+      >
+        <View style={styles.lbOverlay}>
+          <View
+            style={[
+              styles.lbContainer,
+              { backgroundColor: colors.modalBackground },
+            ]}
+          >
+            <ThemedText
+              type="title"
+              style={[styles.lbTitle, { color: colors.text }]}
+            >
+              {t("logWaste")}
+            </ThemedText>
+
+            {logError && (
+              <ThemedText style={[styles.error, { color: "#FF6B6B" }]}>
+                {logError}
+              </ThemedText>
+            )}
+
+            <ThemedText style={styles.inputLabel}>
+              {t("amountKgLabel")}
+            </ThemedText>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  borderColor: colors.borderColor,
+                  color: colors.text,
+                  backgroundColor: colors.inputBackground,
+                },
+              ]}
+              value={logAmount}
+              onChangeText={setLogAmount}
+              placeholder={t("enterAmountPlaceholder")}
+              placeholderTextColor={colors.textSubtle}
+              keyboardType="numeric"
+            />
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalCancelButton]}
+                onPress={() => setLogModalVisible(false)}
+                disabled={logLoading}
+              >
+                <Text style={styles.buttonText}>{t("cancel")}</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalCreateButton]}
+                onPress={handleLogWaste}
+                disabled={logLoading}
+              >
+                {logLoading ? (
+                  <ActivityIndicator size="small" color="#FFF" />
+                ) : (
+                  <Text style={styles.buttonText}>{t("logWaste")}</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Show Logs Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={logsModalVisible}
+        onRequestClose={() => setLogsModalVisible(false)}
+      >
+        <View style={styles.lbOverlay}>
+          <View
+            style={[
+              styles.lbContainer,
+              { backgroundColor: colors.modalBackground },
+            ]}
+          >
+            <ThemedText
+              type="title"
+              style={[styles.lbTitle, { color: colors.text }]}
+            >
+              {t("challengeLogs")}
+            </ThemedText>
+
+            {logsError && (
+              <ThemedText style={[styles.error, { color: "#FF6B6B" }]}>
+                {logsError}
+              </ThemedText>
+            )}
+
+            {logsLoading ? (
+              <ActivityIndicator
+                size="large"
+                color={colors.activityIndicator}
+              />
+            ) : (
+              <FlatList
+                data={challengeLogs}
+                keyExtractor={(item, index) => index.toString()}
+                showsVerticalScrollIndicator={true}
+                renderItem={({ item }) => (
+                  <View
+                    style={[
+                      styles.logItem,
+                      { borderBottomColor: colors.borderColor },
+                    ]}
+                  >
+                    <View style={styles.logHeader}>
+                      <ThemedText
+                        style={[styles.logAmount, { color: colors.text }]}
+                      >
+                        {item.amount} kg
+                      </ThemedText>
+                      <ThemedText
+                        style={[
+                          styles.logDate,
+                          { color: colors.textSecondary },
+                        ]}
+                      >
+                        {new Date(item.timestamp).toLocaleDateString(
+                          i18n.language === "tr" ? "tr-TR" : "en-US"
+                        )}{" "}
+                        {new Date(item.timestamp).toLocaleTimeString(
+                          i18n.language === "tr" ? "tr-TR" : "en-US"
+                        )}
+                      </ThemedText>
+                    </View>
+                  </View>
+                )}
+                ListEmptyComponent={
+                  <View style={styles.emptyListContainer}>
+                    <ThemedText style={{ color: colors.textSecondary }}>
+                      {t("noLogsFound")}
+                    </ThemedText>
+                  </View>
+                }
+              />
+            )}
+
+            <TouchableOpacity
+              style={[
+                styles.lbCloseButton,
+                { backgroundColor: colors.buttonSecondary },
+              ]}
+              onPress={() => setLogsModalVisible(false)}
+            >
+              <ThemedText style={[styles.buttonText, { color: "#FFFFFF" }]}>
+                Close
+              </ThemedText>
             </TouchableOpacity>
           </View>
         </View>
@@ -348,51 +1133,235 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginTop: 48,
     marginBottom: 18,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   titleContainer: {
     flex: 1,
   },
   languageToggleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(128,128,128,0.2)',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(128,128,128,0.2)",
     borderRadius: 20,
     paddingHorizontal: 4,
     paddingVertical: 2,
   },
   languageLabel: {
-    color: '#888',
-    fontWeight: 'bold',
+    color: "#888",
+    fontWeight: "bold",
     marginHorizontal: 6,
     fontSize: 12,
   },
   listContentContainer: { paddingHorizontal: 16, paddingBottom: 16 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  inlineSpinner: { alignSelf: 'center', marginVertical: 8 },
-  error: { textAlign: 'center', marginBottom: 12, marginHorizontal: 16 },
-  filterRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12, paddingHorizontal: 16 },
-  switchRow: { flexDirection: 'row', alignItems: 'center' },
+  center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  inlineSpinner: { alignSelf: "center", marginVertical: 8 },
+  error: { textAlign: "center", marginBottom: 12, marginHorizontal: 16 },
+  filterRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 12,
+    paddingHorizontal: 16,
+  },
+  switchRow: { flexDirection: "row", alignItems: "center" },
   switchLabel: { marginLeft: 8, fontSize: 14 },
-  card: { borderRadius: 8, padding: 16, marginVertical: 6, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.2, shadowRadius: 2 },
+  card: {
+    borderRadius: 8,
+    padding: 16,
+    marginVertical: 6,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
   cardHeader: { marginBottom: 8 },
-  cardTitle: { fontSize: 18, fontWeight: '600' },
+  cardTitle: { fontSize: 18, fontWeight: "600" },
   cardDate: { fontSize: 12 },
   cardBody: { borderTopWidth: 1, paddingTop: 12 },
   cardDescription: { fontSize: 14, marginBottom: 8 },
   cardInfo: { fontSize: 14, marginBottom: 12 },
-  dangerButton: { backgroundColor: '#E53935', padding: 10, borderRadius: 6, alignItems: 'center', marginBottom: 8 },
-  secondaryButton: { backgroundColor: '#2196F3', padding: 10, borderRadius: 6, alignItems: 'center', marginBottom: 8 },
-  warningButton: { backgroundColor: '#FF9800', padding: 10, borderRadius: 6, alignItems: 'center', marginBottom: 8 },
-  buttonText: { fontSize: 14, color: '#FFF', fontWeight: '500' },
-  lbOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
-  lbContainer: { padding: 16, borderTopLeftRadius: 12, borderTopRightRadius: 12, maxHeight: '60%' },
-  lbTitle: { fontSize: 20, fontWeight: '600', marginBottom: 12, textAlign: 'center' },
-  lbHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: 1, marginBottom: 4 },
-  lbHeaderCell: { fontSize: 14, flex: 1, textAlign: 'center', fontWeight: '600' },
-  lbRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1 },
-  lbCloseButton: { marginTop: 16, paddingVertical: 10, alignItems: 'center' },
-  emptyListContainer: { alignItems: 'center', marginTop: 20, padding: 16 },
+  dangerButton: {
+    backgroundColor: "#E53935",
+    padding: 10,
+    borderRadius: 6,
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  secondaryButton: {
+    backgroundColor: "#2196F3",
+    padding: 10,
+    borderRadius: 6,
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  warningButton: {
+    backgroundColor: "#FF9800",
+    padding: 10,
+    borderRadius: 6,
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  buttonText: { fontSize: 14, color: "#FFF", fontWeight: "500" },
+  createButton: {
+    backgroundColor: "#4CAF50",
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginHorizontal: 80,
+    marginBottom: 24,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  lbOverlay: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  lbContainer: {
+    padding: 16,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    maxHeight: "60%",
+  },
+  lbTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  lbHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    marginBottom: 4,
+  },
+  lbHeaderCell: {
+    fontSize: 14,
+    flex: 1,
+    textAlign: "center",
+    fontWeight: "600",
+  },
+  lbRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+  },
+  lbCloseButton: { marginTop: 16, paddingVertical: 10, alignItems: "center" },
+  emptyListContainer: { alignItems: "center", marginTop: 20, padding: 16 },
+  // Create Challenge Modal styles
+  inputLabel: {
+    fontSize: 16,
+    marginBottom: 6,
+    fontWeight: "500",
+  },
+  input: {
+    borderWidth: 1,
+    borderRadius: 6,
+    padding: 12,
+    marginBottom: 18,
+    fontSize: 16,
+  },
+  textArea: {
+    height: 120,
+    textAlignVertical: "top",
+  },
+  modalButtons: {
+    flexDirection: "row",
+    marginTop: 10,
+    gap: 12,
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  modalCancelButton: {
+    backgroundColor: "#757575",
+  },
+  modalCreateButton: {
+    backgroundColor: "#4CAF50",
+  },
+  cardActions: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 12,
+  },
+  logButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  progressContainer: {
+    marginTop: 12,
+  },
+  progressHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+  progressText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  progressPercentage: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  progressBar: {
+    height: 8,
+    borderRadius: 4,
+    overflow: "hidden",
+  },
+  progressFill: {
+    height: "100%",
+    borderRadius: 4,
+  },
+  buttonContainer: {
+    marginTop: 12,
+  },
+  sideButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  logButtonsRow: {
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 8,
+  },
+  logItem: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+  },
+  logHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  logAmount: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  logDate: {
+    fontSize: 12,
+    fontStyle: "italic",
+  },
 });
