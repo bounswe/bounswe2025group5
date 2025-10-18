@@ -26,11 +26,12 @@ type Challenge = {
   name: string;
   description: string;
   amount: number;
+  currentAmount: number;
   startDate: string;
   endDate: string;
   status: string;
-  wasteType: string;
-  attendee: boolean;
+  type: string;
+  userInChallenge: boolean;
 };
 
 type LeaderboardEntry = {
@@ -68,20 +69,24 @@ export default function ChallengesScreen() {
   const [challengeDuration, setChallengeDuration] = useState("30");
   const [createError, setCreateError] = useState("");
 
+  // Log Waste Modal states
+  const [logModalVisible, setLogModalVisible] = useState(false);
+  const [currentChallengeId, setCurrentChallengeId] = useState<number | null>(
+    null
+  );
+  const [logAmount, setLogAmount] = useState("");
+  const [logError, setLogError] = useState("");
+  const [logLoading, setLogLoading] = useState(false);
+
   const fetchData = async () => {
     setLoading(true);
     setError("");
     try {
-      if (!username) {
-        setChallenges([]);
-        setLoading(false);
-        return;
-      }
-      const res = await apiRequest(
-        `/api/challenges/${encodeURIComponent(username)}`
-      );
+      // Use username endpoint to get user-specific challenges
+      const res = await apiRequest(`/api/challenges/${username}`);
       if (!res.ok) throw new Error(`Status ${res.status}`);
       const data: Challenge[] = await res.json();
+      console.log("Fetched challenges:", data);
       setChallenges(data);
     } catch (err) {
       console.error(err);
@@ -98,7 +103,9 @@ export default function ChallengesScreen() {
   const handleAttendLeave = async (challengeId: number, attend: boolean) => {
     setChallenges((prev) =>
       prev.map((ch) =>
-        ch.challengeId === challengeId ? { ...ch, attendee: attend } : ch
+        ch.challengeId === challengeId
+          ? { ...ch, isUserInChallenge: attend }
+          : ch
       )
     );
     try {
@@ -239,6 +246,68 @@ export default function ChallengesScreen() {
     }
   };
 
+  const handleLogWaste = async () => {
+    if (!currentChallengeId || !username) {
+      setLogError("Challenge or user information is missing");
+      return;
+    }
+
+    if (
+      !logAmount.trim() ||
+      isNaN(parseFloat(logAmount)) ||
+      parseFloat(logAmount) <= 0
+    ) {
+      setLogError("Valid amount is required");
+      return;
+    }
+
+    setLogLoading(true);
+    setLogError("");
+
+    try {
+      const logData = {
+        username: username,
+        amount: parseFloat(logAmount),
+      };
+
+      const res = await apiRequest(
+        `/api/challenges/${currentChallengeId}/log`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(logData),
+        }
+      );
+
+      if (!res.ok) {
+        const errorData = await res.text();
+        throw new Error(`Failed to log waste: ${res.status} ${errorData}`);
+      }
+
+      // Success - close modal and refresh challenges
+      setLogModalVisible(false);
+      setLogAmount("");
+      setCurrentChallengeId(null);
+
+      // Refresh challenges list to update progress
+      await fetchData();
+    } catch (err) {
+      console.error("Error logging waste:", err);
+      setLogError(err instanceof Error ? err.message : "Failed to log waste");
+    } finally {
+      setLogLoading(false);
+    }
+  };
+
+  const openLogModal = (challengeId: number) => {
+    setCurrentChallengeId(challengeId);
+    setLogAmount("");
+    setLogError("");
+    setLogModalVisible(true);
+  };
+
   const toggleExpand = (id: number) => {
     setExpanded((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
@@ -247,7 +316,7 @@ export default function ChallengesScreen() {
 
   const filtered = challenges.filter((ch) => {
     if (showActiveOnly && ch.status !== "Active") return false;
-    if (showAttendedOnly && !ch.attendee) return false;
+    if (showAttendedOnly && !ch.userInChallenge) return false;
     return true;
   });
 
@@ -363,28 +432,139 @@ export default function ChallengesScreen() {
                   {item.description}
                 </ThemedText>
                 <ThemedText type="default" style={styles.cardInfo}>
-                  Amount: {item.amount} | Type: {item.wasteType}
+                  Amount: {item.amount} kg | Type: {item.type}
                 </ThemedText>
 
-                {!isAdmin && item.status === "Active" && (
-                  <TouchableOpacity
-                    testID={`attend-leave-button-${item.challengeId}`}
-                    style={
-                      item.attendee
-                        ? styles.warningButton
-                        : styles.secondaryButton
-                    }
-                    onPress={() =>
-                      handleAttendLeave(item.challengeId, !item.attendee)
-                    }
-                  >
+                {/* Progress Bar */}
+                <View style={styles.progressContainer}>
+                  <View style={styles.progressHeader}>
                     <ThemedText
-                      type="defaultSemiBold"
-                      style={styles.buttonText}
+                      type="default"
+                      style={[
+                        styles.progressText,
+                        { color: colors.textSecondary },
+                      ]}
                     >
-                      {item.attendee ? "Leave Challenge" : "Attend Challenge"}
+                      Progress: {item.currentAmount?.toFixed(1) || 0} /{" "}
+                      {item.amount} kg
                     </ThemedText>
-                  </TouchableOpacity>
+                    <ThemedText
+                      type="default"
+                      style={[
+                        styles.progressPercentage,
+                        {
+                          color: (() => {
+                            const percentage =
+                              ((item.currentAmount || 0) / item.amount) * 100;
+                            if (percentage >= 100)
+                              return colors.progressExcellent;
+                            if (percentage >= 80) return colors.progressGood;
+                            return colors.textSecondary;
+                          })(),
+                        },
+                      ]}
+                    >
+                      {(
+                        ((item.currentAmount || 0) / item.amount) *
+                        100
+                      ).toFixed(1)}
+                      %{(item.currentAmount || 0) / item.amount >= 1 && " ✅"}
+                    </ThemedText>
+                  </View>
+                  <View
+                    style={[
+                      styles.progressBar,
+                      { backgroundColor: colors.borderColor },
+                    ]}
+                  >
+                    <View
+                      style={[
+                        styles.progressFill,
+                        {
+                          backgroundColor: (() => {
+                            const percentage =
+                              ((item.currentAmount || 0) / item.amount) * 100;
+                            if (percentage >= 80)
+                              return colors.progressExcellent;
+                            if (percentage >= 60) return colors.progressGood;
+                            if (percentage >= 40) return colors.progressFair;
+                            if (percentage >= 20) return colors.progressCaution;
+                            return colors.progressBad;
+                          })(),
+                          width: `${Math.min(
+                            ((item.currentAmount || 0) / item.amount) * 100,
+                            100
+                          )}%`,
+                        },
+                      ]}
+                    />
+                  </View>
+                </View>
+
+                {!isAdmin && item.status === "Active" && (
+                  <View style={styles.buttonContainer}>
+                    {/* Log Waste Button - Full width above if user is attendee */}
+                    {item.userInChallenge && (
+                      <TouchableOpacity
+                        style={[
+                          styles.logButton,
+                          { backgroundColor: colors.buttonPrimary },
+                        ]}
+                        onPress={() => openLogModal(item.challengeId)}
+                      >
+                        <ThemedText
+                          type="defaultSemiBold"
+                          style={[styles.buttonText, { color: "#FFFFFF" }]}
+                        >
+                          Log Waste
+                        </ThemedText>
+                      </TouchableOpacity>
+                    )}
+
+                    {/* Bottom Row - Attend/Leave and Leaderboard side by side */}
+                    <View style={styles.cardActions}>
+                      <TouchableOpacity
+                        testID={`attend-leave-button-${item.challengeId}`}
+                        style={[
+                          styles.sideButton,
+                          item.userInChallenge
+                            ? { backgroundColor: colors.buttonWarning }
+                            : { backgroundColor: colors.buttonSecondary },
+                        ]}
+                        onPress={() =>
+                          handleAttendLeave(
+                            item.challengeId,
+                            !item.userInChallenge
+                          )
+                        }
+                      >
+                        <ThemedText
+                          type="defaultSemiBold"
+                          style={[styles.buttonText, { color: "#FFFFFF" }]}
+                        >
+                          {item.userInChallenge
+                            ? "Leave Challenge"
+                            : "Attend Challenge"}
+                        </ThemedText>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={[
+                          styles.sideButton,
+                          { backgroundColor: colors.buttonSecondary },
+                        ]}
+                        testID={`view-leaderboard-button-${item.challengeId}`}
+                        onPress={() => handleViewLeaderboard(item.challengeId)}
+                      >
+                        <ThemedText
+                          type="defaultSemiBold"
+                          style={[styles.buttonText, { color: "#FFFFFF" }]}
+                        >
+                          View Leaderboard
+                        </ThemedText>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
                 )}
 
                 {isAdmin && (
@@ -402,16 +582,6 @@ export default function ChallengesScreen() {
                     </ThemedText>
                   </TouchableOpacity>
                 )}
-
-                <TouchableOpacity
-                  style={styles.secondaryButton}
-                  testID={`view-leaderboard-button-${item.challengeId}`}
-                  onPress={() => handleViewLeaderboard(item.challengeId)}
-                >
-                  <ThemedText type="defaultSemiBold" style={styles.buttonText}>
-                    View Leaderboard
-                  </ThemedText>
-                </TouchableOpacity>
               </View>
             )}
           </View>
@@ -663,6 +833,75 @@ export default function ChallengesScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Log Waste Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={logModalVisible}
+        onRequestClose={() => setLogModalVisible(false)}
+      >
+        <View style={styles.lbOverlay}>
+          <View
+            style={[
+              styles.lbContainer,
+              { backgroundColor: colors.modalBackground },
+            ]}
+          >
+            <ThemedText
+              type="title"
+              style={[styles.lbTitle, { color: colors.text }]}
+            >
+              Log Waste
+            </ThemedText>
+
+            {logError && (
+              <ThemedText style={[styles.error, { color: "#FF6B6B" }]}>
+                {logError}
+              </ThemedText>
+            )}
+
+            <ThemedText style={styles.inputLabel}>Amount (kg)</ThemedText>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  borderColor: colors.borderColor,
+                  color: colors.text,
+                  backgroundColor: colors.inputBackground,
+                },
+              ]}
+              value={logAmount}
+              onChangeText={setLogAmount}
+              placeholder="Enter waste amount in kg"
+              placeholderTextColor={colors.textSubtle}
+              keyboardType="numeric"
+            />
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalCancelButton]}
+                onPress={() => setLogModalVisible(false)}
+                disabled={logLoading}
+              >
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalCreateButton]}
+                onPress={handleLogWaste}
+                disabled={logLoading}
+              >
+                {logLoading ? (
+                  <ActivityIndicator size="small" color="#FFF" />
+                ) : (
+                  <Text style={styles.buttonText}>Log Waste</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -807,5 +1046,55 @@ const styles = StyleSheet.create({
   },
   modalCreateButton: {
     backgroundColor: "#4CAF50",
+  },
+  cardActions: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 12,
+  },
+  logButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginBottom: 8,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  progressContainer: {
+    marginTop: 12,
+  },
+  progressHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+  progressText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  progressPercentage: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  progressBar: {
+    height: 8,
+    borderRadius: 4,
+    overflow: "hidden",
+  },
+  progressFill: {
+    height: "100%",
+    borderRadius: 4,
+  },
+  buttonContainer: {
+    marginTop: 12,
+  },
+  sideButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
