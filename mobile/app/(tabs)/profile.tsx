@@ -804,13 +804,13 @@ export default function ProfileScreen() {
       </View>
     </ParallaxScrollView>
 
-    <Modal
-      visible={isProgressModalVisible}
-      transparent
-      animationType="fade"
-      onRequestClose={() => setProgressModalVisible(false)}
-    >
-      <View style={styles.progressModalBackdrop}>
+    {isProgressModalVisible ? (
+      <View style={styles.progressModalOverlay}>
+        <TouchableOpacity
+          style={styles.progressModalBackdrop}
+          activeOpacity={1}
+          onPress={() => setProgressModalVisible(false)}
+        />
         <View style={[styles.progressModalCard, { backgroundColor: cardBackgroundColor }]}>
           <View style={styles.progressModalHeader}>
             <ThemedText style={[styles.progressModalTitle, { color: generalTextColor }]}>
@@ -884,7 +884,7 @@ export default function ProfileScreen() {
           </View>
         </View>
       </View>
-    </Modal>
+    ) : null}
     </>
   );
 }
@@ -946,8 +946,9 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '70%',
   },
-  progressModalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', padding: 20 },
-  progressModalCard: { width: '90%', maxWidth: 360, borderRadius: 16, padding: 20, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 8 },
+  progressModalOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', padding: 20, pointerEvents: 'box-none' },
+  progressModalBackdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)' },
+  progressModalCard: { width: '90%', maxWidth: 360, borderRadius: 16, padding: 20, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 8, zIndex: 1 },
   progressModalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
   progressModalTitle: { fontSize: 20, fontWeight: '700' },
   progressModalCloseButton: { padding: 8, marginLeft: 12 },
@@ -967,4 +968,6 @@ const styles = StyleSheet.create({
   wasteTypeChipActive: { backgroundColor: '#2E7D32', borderColor: '#2E7D32' },
   wasteTypeChipText: { fontSize: 12, fontWeight: '600' },
 });
+
+
 
