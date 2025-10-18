@@ -8,7 +8,9 @@ import {
   Modal,
   StyleSheet,
   Platform,
-  useColorScheme, // Import useColorScheme
+  useColorScheme,
+  TextInput,
+  Text,
 } from "react-native";
 
 import { useAppColors } from "@/hooks/useAppColors";
@@ -56,6 +58,15 @@ export default function ChallengesScreen() {
   const [lbLoading, setLbLoading] = useState(false);
   const [lbError, setLbError] = useState("");
   const [leaderboardVisible, setLeaderboardVisible] = useState(false);
+
+  // Create Challenge Modal states
+  const [createModalVisible, setCreateModalVisible] = useState(false);
+  const [challengeName, setChallengeName] = useState("");
+  const [challengeDescription, setChallengeDescription] = useState("");
+  const [challengeAmount, setChallengeAmount] = useState("");
+  const [challengeWasteType, setChallengeWasteType] = useState("Plastic");
+  const [challengeDuration, setChallengeDuration] = useState("30");
+  const [createError, setCreateError] = useState("");
 
   const fetchData = async () => {
     setLoading(true);
@@ -146,6 +157,88 @@ export default function ChallengesScreen() {
     }
   };
 
+  const handleCreateChallenge = async () => {
+    // Validate inputs
+    if (!challengeName.trim()) {
+      setCreateError("Challenge name is required");
+      return;
+    }
+    if (!challengeDescription.trim()) {
+      setCreateError("Challenge description is required");
+      return;
+    }
+    if (
+      !challengeAmount.trim() ||
+      isNaN(parseFloat(challengeAmount)) ||
+      parseFloat(challengeAmount) <= 0
+    ) {
+      setCreateError("Valid target amount is required");
+      return;
+    }
+    if (
+      !challengeDuration.trim() ||
+      isNaN(parseInt(challengeDuration)) ||
+      parseInt(challengeDuration) <= 0
+    ) {
+      setCreateError("Valid duration is required");
+      return;
+    }
+
+    setLoading(true);
+    setCreateError("");
+
+    try {
+      // Calculate start and end dates
+      const startDate = new Date();
+      const endDate = new Date();
+      endDate.setDate(startDate.getDate() + parseInt(challengeDuration));
+
+      const challengeData = {
+        name: challengeName.trim(),
+        description: challengeDescription.trim(),
+        amount: parseFloat(challengeAmount),
+        startDate: startDate.toISOString().split("T")[0], // Format: YYYY-MM-DD
+        endDate: endDate.toISOString().split("T")[0], // Format: YYYY-MM-DD
+        type: challengeWasteType.trim(),
+      };
+
+      const res = await apiRequest("/api/challenges", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(challengeData),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.text();
+        throw new Error(
+          `Failed to create challenge: ${res.status} ${errorData}`
+        );
+      }
+
+      // Success - close modal and refresh challenges
+      setCreateModalVisible(false);
+
+      // Reset form
+      setChallengeName("");
+      setChallengeDescription("");
+      setChallengeAmount("");
+      setChallengeWasteType("Plastic");
+      setChallengeDuration("30");
+
+      // Refresh challenges list
+      await fetchData();
+    } catch (err) {
+      console.error("Error creating challenge:", err);
+      setCreateError(
+        err instanceof Error ? err.message : "Failed to create challenge"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const toggleExpand = (id: number) => {
     setExpanded((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
@@ -181,6 +274,17 @@ export default function ChallengesScreen() {
       <View style={styles.headerContainer}>
         <ThemedText type="title">Challenges</ThemedText>
       </View>
+
+      {/* Create Challenge Button */}
+      <TouchableOpacity
+        style={styles.createButton}
+        onPress={() => {
+          setCreateModalVisible(true);
+          setCreateError("");
+        }}
+      >
+        <Text style={styles.buttonText}>Create New Challenge</Text>
+      </TouchableOpacity>
 
       {loading && (
         <ActivityIndicator
@@ -409,6 +513,156 @@ export default function ChallengesScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Create Challenge Modal */}
+      <Modal
+        visible={createModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => {
+          setCreateModalVisible(false);
+          setCreateError("");
+        }}
+      >
+        <View style={styles.lbOverlay}>
+          <View
+            style={[
+              styles.lbContainer,
+              { backgroundColor: colors.modalBackground },
+            ]}
+          >
+            <ThemedText type="title" style={styles.lbTitle}>
+              Create New Challenge
+            </ThemedText>
+
+            <ThemedText style={styles.inputLabel}>Challenge Name</ThemedText>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  borderColor: colors.borderColor,
+                  color: colors.text,
+                  backgroundColor: colors.inputBackground,
+                },
+              ]}
+              value={challengeName}
+              onChangeText={setChallengeName}
+              placeholder="e.g., Plastic Free Week"
+              placeholderTextColor={colors.textSubtle}
+            />
+
+            <ThemedText style={styles.inputLabel}>Description</ThemedText>
+            <TextInput
+              style={[
+                styles.input,
+                styles.textArea,
+                {
+                  borderColor: colors.borderColor,
+                  color: colors.text,
+                  backgroundColor: colors.inputBackground,
+                },
+              ]}
+              value={challengeDescription}
+              onChangeText={setChallengeDescription}
+              placeholder="Describe the challenge goals and rules"
+              placeholderTextColor={colors.textSubtle}
+              multiline
+              numberOfLines={3}
+            />
+
+            <ThemedText style={styles.inputLabel}>Waste Type</ThemedText>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  borderColor: colors.borderColor,
+                  color: colors.text,
+                  backgroundColor: colors.inputBackground,
+                },
+              ]}
+              value={challengeWasteType}
+              onChangeText={setChallengeWasteType}
+              placeholder="e.g., Plastic, Paper, Glass"
+              placeholderTextColor={colors.textSubtle}
+            />
+
+            <ThemedText style={styles.inputLabel}>
+              Target Amount (kg)
+            </ThemedText>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  borderColor: colors.borderColor,
+                  color: colors.text,
+                  backgroundColor: colors.inputBackground,
+                },
+              ]}
+              value={challengeAmount}
+              onChangeText={setChallengeAmount}
+              placeholder="e.g., 5.0"
+              placeholderTextColor={colors.textSubtle}
+              keyboardType="numeric"
+            />
+
+            <ThemedText style={styles.inputLabel}>Duration (days)</ThemedText>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  borderColor: colors.borderColor,
+                  color: colors.text,
+                  backgroundColor: colors.inputBackground,
+                },
+              ]}
+              value={challengeDuration}
+              onChangeText={setChallengeDuration}
+              placeholder="e.g., 30"
+              placeholderTextColor={colors.textSubtle}
+              keyboardType="numeric"
+            />
+
+            {createError ? (
+              <ThemedText style={[styles.error, { color: colors.error }]}>
+                {createError}
+              </ThemedText>
+            ) : null}
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalCancelButton]}
+                onPress={() => {
+                  setCreateModalVisible(false);
+                  setCreateError("");
+                  // Reset form
+                  setChallengeName("");
+                  setChallengeDescription("");
+                  setChallengeAmount("");
+                  setChallengeWasteType("Plastic");
+                  setChallengeDuration("30");
+                }}
+              >
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalCreateButton]}
+                onPress={handleCreateChallenge}
+                disabled={
+                  !challengeName.trim() ||
+                  !challengeDescription.trim() ||
+                  loading
+                }
+              >
+                {loading ? (
+                  <ActivityIndicator size="small" color="#FFF" />
+                ) : (
+                  <Text style={styles.buttonText}>Create Challenge</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -416,7 +670,7 @@ export default function ChallengesScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   headerContainer: { paddingHorizontal: 16, marginTop: 48, marginBottom: 18 },
-  listContentContainer: { paddingHorizontal: 16, paddingBottom: 16 },
+  listContentContainer: { paddingHorizontal: 16, paddingBottom: 100 },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
   inlineSpinner: { alignSelf: "center", marginVertical: 8 },
   error: { textAlign: "center", marginBottom: 12, marginHorizontal: 16 },
@@ -466,6 +720,20 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   buttonText: { fontSize: 14, color: "#FFF", fontWeight: "500" },
+  createButton: {
+    backgroundColor: "#4CAF50",
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginHorizontal: 80,
+    marginBottom: 24,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
+  },
   lbOverlay: {
     flex: 1,
     justifyContent: "flex-end",
@@ -504,4 +772,40 @@ const styles = StyleSheet.create({
   },
   lbCloseButton: { marginTop: 16, paddingVertical: 10, alignItems: "center" },
   emptyListContainer: { alignItems: "center", marginTop: 20, padding: 16 },
+  // Create Challenge Modal styles
+  inputLabel: {
+    fontSize: 16,
+    marginBottom: 6,
+    fontWeight: "500",
+  },
+  input: {
+    borderWidth: 1,
+    borderRadius: 6,
+    padding: 12,
+    marginBottom: 18,
+    fontSize: 16,
+  },
+  textArea: {
+    height: 120,
+    textAlignVertical: "top",
+  },
+  modalButtons: {
+    flexDirection: "row",
+    marginTop: 10,
+    gap: 12,
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  modalCancelButton: {
+    backgroundColor: "#757575",
+  },
+  modalCreateButton: {
+    backgroundColor: "#4CAF50",
+  },
 });
