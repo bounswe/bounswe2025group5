@@ -109,7 +109,7 @@ function CommentItemDisplay({
     <View style={[styles.commentItemContainer, { borderBottomColor: commentBorderColor }]}>
       <View style={styles.commentHeader}>
         <ThemedText style={[styles.commentUsername, { color: commentUsernameColor }]}>{comment.username}</ThemedText>
-        {isOwner && (
+        {isOwner ? (
           <View style={styles.commentOwnerActions}>
             <TouchableOpacity onPress={() => onTriggerEdit(comment)} style={styles.commentActionButton}>
               <Ionicons name="pencil-outline" size={18} color={editIconColor} />
@@ -118,6 +118,15 @@ function CommentItemDisplay({
               <Ionicons name="trash-outline" size={18} color={deleteIconColor} />
             </TouchableOpacity>
           </View>
+        ) : (
+          <TouchableOpacity
+            onPress={() => {}}
+            style={styles.commentActionButton}
+            accessibilityLabel="Report comment"
+            accessibilityRole="button"
+          >
+            <Ionicons name="warning-outline" size={16} color="#FFC107" />
+          </TouchableOpacity>
         )}
       </View>
       <ThemedText style={[styles.commentContent, { color: commentTextColor }]}>{comment.content}</ThemedText>
