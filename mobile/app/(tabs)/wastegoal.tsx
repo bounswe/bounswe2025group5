@@ -40,6 +40,16 @@ type WasteGoal = {
   completed?: number;
 };
 
+type WasteItemOption = {
+  id: number;
+  displayName: string;
+  weightInGrams: number;
+  type?: {
+    id?: number;
+    name?: string;
+  };
+};
+
 type Navigation = {
   navigate: (screen: string, params?: any) => void;
 };
@@ -121,7 +131,10 @@ export default function WasteGoalScreen() {
 
   const [addLogModalVisible, setAddLogModalVisible] = useState(false);
   const [currentGoalForLog, setCurrentGoalForLog] = useState<WasteGoal | null>(null);
-  const [logEntryAmount, setLogEntryAmount] = useState('');
+  const [logEntryQuantity, setLogEntryQuantity] = useState('');
+  const [selectedWasteItemId, setSelectedWasteItemId] = useState<string | null>(null);
+  const [wasteItemsByGoal, setWasteItemsByGoal] = useState<Record<number, WasteItemOption[]>>({});
+  const [fetchingWasteItems, setFetchingWasteItems] = useState(false);
 
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [goalToDelete, setGoalToDelete] = useState<WasteGoal | null>(null);
@@ -203,12 +216,53 @@ export default function WasteGoalScreen() {
 
   const validateLogInput = (): boolean => {
     setLogFormError(null);
-    const parsedLogAmount = parseFloat(logEntryAmount);
-    if (isNaN(parsedLogAmount) || parsedLogAmount <= 0) {
-      setLogFormError('errorLogAmountPositive');
+    if (!selectedWasteItemId) {
+      setLogFormError('errorSelectWasteItem');
+      return false;
+    }
+    const parsedLogQuantity = parseInt(logEntryQuantity, 10);
+    if (!Number.isInteger(parsedLogQuantity) || parsedLogQuantity <= 0) {
+      setLogFormError('errorLogQuantityPositive');
       return false;
     }
     return true;
+  };
+
+  const wasteItemsForCurrentGoal = currentGoalForLog?.goalId
+    ? wasteItemsByGoal[currentGoalForLog.goalId] ?? []
+    : [];
+
+  const fetchWasteItemsForGoal = async (goalId: number) => {
+    setFetchingWasteItems(true);
+    try {
+      const response = await apiRequest(`/api/users/waste-goals/${goalId}/items`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to fetch waste items: ${response.status} ${errorText}`);
+      }
+      const data = await response.json();
+      const parsedItems: WasteItemOption[] = Array.isArray(data)
+        ? data
+            .map((item: any) => ({
+              id: typeof item?.id === 'number' ? item.id : typeof item?.itemId === 'number' ? item.itemId : null,
+              displayName: item?.displayName ?? item?.name ?? '',
+              weightInGrams: typeof item?.weightInGrams === 'number' ? item.weightInGrams : Number(item?.weightInGrams) || 0,
+              type: item?.type,
+            }))
+            .filter((item) => item.id !== null)
+            .map((item) => item as WasteItemOption)
+        : [];
+
+      setWasteItemsByGoal((prev) => ({ ...prev, [goalId]: parsedItems }));
+      setSelectedWasteItemId(parsedItems.length > 0 ? String(parsedItems[0].id) : null);
+      setLogFormError(null);
+    } catch (err) {
+      console.error('Error fetching waste items for goal:', err);
+      setWasteItemsByGoal((prev) => ({ ...prev, [goalId]: [] }));
+      setLogFormError('errorWasteItemsFetch');
+    } finally {
+      setFetchingWasteItems(false);
+    }
   };
 
 
@@ -224,16 +278,25 @@ export default function WasteGoalScreen() {
       Alert.alert(t('error'), t('errorInvalidGoalId'));
       return;
     }
+    const itemId = selectedWasteItemId ? parseInt(selectedWasteItemId, 10) : NaN;
+    if (!Number.isInteger(itemId)) {
+      setLogFormError('errorSelectWasteItem');
+      return;
+    }
+    const parsedQuantity = parseInt(logEntryQuantity, 10);
+    if (!Number.isInteger(parsedQuantity) || parsedQuantity <= 0) {
+      setLogFormError('errorLogQuantityPositive');
+      return;
+    }
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem('token');
       const requestBody = {
-        username: username,
-        goalId: goalIdToLog,
-        amount: parseFloat(logEntryAmount),
-        unit: currentGoalForLog.unit,
+        username,
+        itemId,
+        quantity: parsedQuantity,
       };
-      const response = await apiRequest('/api/logs/create', {
+      const response = await apiRequest(`/api/waste-goals/${goalIdToLog}/logs`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : '' },
         body: JSON.stringify(requestBody),
@@ -248,7 +311,8 @@ export default function WasteGoalScreen() {
       Alert.alert(t('success'), t('successLogAdded'));
       setAddLogModalVisible(false);
       setCurrentGoalForLog(null);
-      setLogEntryAmount('');
+      setLogEntryQuantity('');
+      setSelectedWasteItemId(null);
       setLogFormError(null);
       getGoals();
     } catch (err) {
@@ -382,9 +446,21 @@ export default function WasteGoalScreen() {
 
   const openAddLogModal = (goal: WasteGoal) => {
     setCurrentGoalForLog(goal);
-    setLogEntryAmount('');
+    setLogEntryQuantity('');
     setLogFormError(null);
     setAddLogModalVisible(true);
+
+    if (goal?.goalId) {
+      const cachedItems = wasteItemsByGoal[goal.goalId];
+      if (cachedItems && cachedItems.length > 0) {
+        setSelectedWasteItemId(String(cachedItems[0].id));
+      } else {
+        setSelectedWasteItemId(null);
+        fetchWasteItemsForGoal(goal.goalId);
+      }
+    } else {
+      setSelectedWasteItemId(null);
+    }
   };
 
   const openDeleteConfirmationModal = (goal: WasteGoal) => {
@@ -569,19 +645,88 @@ export default function WasteGoalScreen() {
             </View>
           </Modal>
 
-          <Modal visible={addLogModalVisible} transparent={true} animationType="slide" onRequestClose={() => { setAddLogModalVisible(false); setCurrentGoalForLog(null); setLogEntryAmount(''); setLogFormError(null); }}>
+          <Modal
+            visible={addLogModalVisible}
+            transparent={true}
+            animationType="slide"
+            onRequestClose={() => {
+              setAddLogModalVisible(false);
+              setCurrentGoalForLog(null);
+              setLogEntryQuantity('');
+              setSelectedWasteItemId(null);
+              setLogFormError(null);
+            }}
+          >
             <View style={styles.modalContainer}>
               <View style={[styles.modalContent, { backgroundColor: modalContentBgColor }]}>
                 <ThemedText style={styles.modalTitle}>{t('addWasteLog')}</ThemedText>
-                {currentGoalForLog && (<ThemedText style={styles.modalSubtitle}>{t('forGoal', { wasteType: currentGoalForLog.wasteType, amount: currentGoalForLog.amount, unit: currentGoalForLog.unit })}</ThemedText>)}
-                <ThemedText style={styles.inputLabel}>{t('logAmountUnit', { unit: currentGoalForLog?.unit || '' })}</ThemedText>
-                <TextInput style={[styles.input, { borderColor: inputBorderColor, color: inputTextColor, backgroundColor: pickerBackgroundColor }]} value={logEntryAmount} onChangeText={setLogEntryAmount} keyboardType="numeric" placeholder={t('logAmountPlaceholder', { unit: currentGoalForLog?.unit || 'units' })} placeholderTextColor={placeholderTextColor} />
+                {currentGoalForLog && (
+                  <ThemedText style={styles.modalSubtitle}>
+                    {t('forGoal', {
+                      wasteType: formatWasteType(currentGoalForLog.wasteType),
+                      amount: currentGoalForLog.amount,
+                      unit: currentGoalForLog.unit,
+                    })}
+                  </ThemedText>
+                )}
+                <ThemedText style={styles.inputLabel}>{t('selectWasteItem')}</ThemedText>
+                {fetchingWasteItems ? (
+                  <ActivityIndicator style={styles.loadingSpinner} color={isDarkMode ? '#FFFFFF' : '#000000'} />
+                ) : wasteItemsForCurrentGoal.length > 0 ? (
+                  <View style={[styles.pickerContainer, { borderColor: inputBorderColor, backgroundColor: pickerBackgroundColor }]}>
+                    <Picker
+                      selectedValue={selectedWasteItemId ?? ''}
+                      onValueChange={(value) => setSelectedWasteItemId(value)}
+                      style={[styles.picker, { color: pickerItemColor }]}
+                      itemStyle={{ color: pickerItemColor, backgroundColor: pickerBackgroundColor }}
+                    >
+                      {wasteItemsForCurrentGoal.map((item) => {
+                        const weightValue = Number(item.weightInGrams);
+                        const formattedWeight = Number.isFinite(weightValue)
+                          ? (Number.isInteger(weightValue) ? weightValue.toFixed(0) : weightValue.toFixed(1))
+                          : null;
+                        const label = formattedWeight ? `${item.displayName} (${formattedWeight} g)` : item.displayName;
+                        return (
+                          <Picker.Item
+                            key={item.id}
+                            label={label}
+                            value={String(item.id)}
+                          />
+                        );
+                      })}
+                    </Picker>
+                  </View>
+                ) : (
+                  <ThemedText style={[styles.modalFormErrorText, { color: errorTextColor }]}>{t('noWasteItemsForGoal')}</ThemedText>
+                )}
+                <ThemedText style={styles.inputLabel}>{t('logQuantity')}</ThemedText>
+                <TextInput
+                  style={[styles.input, { borderColor: inputBorderColor, color: inputTextColor, backgroundColor: pickerBackgroundColor }]}
+                  value={logEntryQuantity}
+                  onChangeText={setLogEntryQuantity}
+                  keyboardType="numeric"
+                  placeholder={t('logQuantityPlaceholder')}
+                  placeholderTextColor={placeholderTextColor}
+                />
                 {logFormError && (<ThemedText style={[styles.modalFormErrorText, { color: errorTextColor }]}>{t(logFormError)}</ThemedText>)}
                 <View style={styles.modalButtons}>
-                  <TouchableOpacity style={styles.cancelButton} onPress={() => { setAddLogModalVisible(false); setCurrentGoalForLog(null); setLogEntryAmount(''); setLogFormError(null); }}>
+                  <TouchableOpacity
+                    style={styles.cancelButton}
+                    onPress={() => {
+                      setAddLogModalVisible(false);
+                      setCurrentGoalForLog(null);
+                      setLogEntryQuantity('');
+                      setSelectedWasteItemId(null);
+                      setLogFormError(null);
+                    }}
+                  >
                     <Text style={styles.buttonText}>{t('cancel')}</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.saveButton} onPress={handleAddWasteLog} disabled={loading}>
+                  <TouchableOpacity
+                    style={styles.saveButton}
+                    onPress={handleAddWasteLog}
+                    disabled={loading || fetchingWasteItems || wasteItemsForCurrentGoal.length === 0}
+                  >
                     <Text style={styles.buttonText}>{loading ? t('saving') : t('confirmLog')}</Text>
                   </TouchableOpacity>
                 </View>
