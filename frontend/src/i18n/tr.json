@@ -1,0 +1,60 @@
+{
+    "login": {
+    "title": "Hesabınıza giriş yapın",
+    "description": "Hesabınıza giriş yapmak için lütfen e-posta adresinizi girin",
+    "signup": "Kayıt Ol",
+    "login": "Giriş Yap",
+    "email": {
+        "label": "E-posta",
+        "placeholder": "m@örnek.com"
+    },
+    "username": "Kullanıcı Adı",
+    "password": {
+        "label": "Şifre",
+        "forgot": "Şifrenizi mi unuttunuz?"
+    },
+    "loginButton": "Giriş Yap"
+    },
+    "profile": {
+        "edit": "Profili Düzenle",
+        "navbar": "Profil",
+        "title": "Profiliniz",
+        "description": "Profil bilgilerinizi yönetin",
+        "username": "Kullanıcı adı",
+        "biography": "Biyografi",
+        "bioPlaceholder": "Kendinizden bahsedin",
+        "save": "Kaydet",
+        "saving": "Kaydediliyor...",
+        "noPhoto": "Fotoğraf yok",
+        "changePhoto": "Fotoğrafı Değiştir",
+        "delete": "Hesabı Sil",
+        "confirmDelete": "Bu işlem hesabınızı kalıcı olarak silecek. Devam edilsin mi?",
+        "deleting": "Siliniyor..."
+    },
+    "main" : {
+        "navbar": "Ana Sayfa"
+    },
+    "feed" : {
+        "navbar": "Gündem"
+    },
+    "goals" : {
+        "navbar": "Hedefler"
+    },
+    "challenge" : {
+        "navbar": "Etkinlikler"
+  },
+  "mainpage": {
+    "navbar": "Ana Sayfa",
+    "challengesTitle": "Katıldığınız Etkinlikler",
+    "challengesDesc": "Şu an katıldığınız etkinlikler",
+    "noChallenges": "Aktif etkinlik yok",
+    "type": "Tür",
+    "status": "Durum",
+    "dates": "Tarih",
+    "feedTitle": "Takip Akışı",
+    "feedDesc": "Takip ettiklerinizden son gönderiler",
+    "noPosts": "Gönderi yok",
+    "likes": "Beğeni",
+    "comments": "Yorum"
+  }
+}
