@@ -383,7 +383,7 @@ export default function ProfileScreen() {
         style: 'destructive',
         onPress: async () => {
           try {
-            const response = await apiRequest(`/api/comments/${commentId}`, { method: 'DELETE' });
+            const response = await apiRequest(`/api/posts/comment/${commentId}`, { method: 'DELETE' });
             if (!response.ok) {
               throw new Error(`Failed to delete comment: ${response.status}`);
             }
@@ -440,10 +440,10 @@ export default function ProfileScreen() {
     setIsSubmittingCommentEdit(true);
     Keyboard.dismiss();
     try {
-      const response = await apiRequest(`/api/comments/${commentIdToSave}`, {
+      const response = await apiRequest(`/api/posts/comment/${commentIdToSave}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: newContent }),
+        body: JSON.stringify({ content: newContent, username }),
       });
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'Failed to update comment.' }));
