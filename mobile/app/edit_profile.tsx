@@ -249,8 +249,14 @@ const onSaveBio = async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, biography: bio }),
     });
-    Alert.alert(t('success'), t('successBioUpdated'));
-    // navigation.goBack(); // if desired, go back after saving bio
+    navigation.navigate({
+      name: 'profile',
+      params: { profileUpdated: true },
+      merge: true,
+    } as never);
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    }
   } catch (e) {
     console.error('Bio update error:', e);
     const s: ErrorState =
