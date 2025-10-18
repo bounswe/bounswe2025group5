@@ -1,4 +1,4 @@
-import React, { useContext, useState, useCallback } from 'react';
+import React, { useContext, useState, useCallback, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   StyleSheet,
@@ -10,10 +10,11 @@ import {
   Platform,
   useColorScheme,
   Switch,
+  Modal,
 } from 'react-native';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
 import { apiRequest, clearSession } from '../services/apiClient';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -21,6 +22,7 @@ import { useTranslation } from 'react-i18next';
 
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
+  const route = useRoute<any>();
   const { t, i18n } = useTranslation();
   
   const { userType, setUserType, username, setUsername} = useContext(AuthContext);
@@ -34,6 +36,8 @@ export default function ProfileScreen() {
   const [avatarUri, setAvatarUri] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<ErrorState>({ key: null, message: null });
+  const [profileUpdateBannerVisible, setProfileUpdateBannerVisible] = useState(false);
+  const [isAvatarModalVisible, setAvatarModalVisible] = useState(false);
   const isTurkish = (i18n.resolvedLanguage || i18n.language || '').toLowerCase().startsWith('tr');
   const toggleLanguage = (value: boolean) => {
     i18n.changeLanguage(value ? 'tr-TR' : 'en-US');
@@ -46,6 +50,8 @@ export default function ProfileScreen() {
   const buttonTextColor = '#FFFFFF';
   const errorTextColor = isDarkMode ? '#FF9494' : '#D32F2F';
   const errorBackgroundColor = isDarkMode ? '#5D1F1A' : '#FFCDD2';
+  const successBannerBgColor = isDarkMode ? 'rgba(46, 125, 50, 0.25)' : '#E8F5E9';
+  const successBannerTextColor = isDarkMode ? '#A5D6A7' : '#2E7D32';
 
   useFocusEffect(
     useCallback(() => {
@@ -103,6 +109,16 @@ export default function ProfileScreen() {
     navigation.reset({ index: 0, routes: [{ name: 'index' }] });
   };
 
+  useEffect(() => {
+    const hasProfileUpdated = route?.params?.profileUpdated;
+    if (hasProfileUpdated) {
+      setProfileUpdateBannerVisible(true);
+      const timeout = setTimeout(() => setProfileUpdateBannerVisible(false), 3000);
+      navigation.setParams?.({ profileUpdated: undefined });
+      return () => clearTimeout(timeout);
+    }
+  }, [route?.params?.profileUpdated, navigation]);
+
   if (userType !== 'user' || loading) {
     return (
       <View style={[styles.loadingContainer, {backgroundColor: contentBackgroundColor}]}>
@@ -140,6 +156,12 @@ export default function ProfileScreen() {
             </View>
         </View>
 
+        {profileUpdateBannerVisible && (
+          <View style={[styles.successBanner, { backgroundColor: successBannerBgColor }]}>
+            <Text style={[styles.successBannerText, { color: successBannerTextColor }]}>{t('successBioUpdated')}</Text>
+          </View>
+        )}
+
         <View style={styles.logoutContainer}>
           <TouchableOpacity testID="logout-button" onPress={handleLogout} style={styles.logoutButton}>
             <Text style={[styles.topButtonText, {color: buttonTextColor}]}>{t('logOut')}</Text>
@@ -168,7 +190,42 @@ export default function ProfileScreen() {
 
         <View style={styles.profileContainer}>
           {avatarUri ? (
-            <Image testID="profile-avatar-image" source={{ uri: avatarUri }} style={styles.profilePic} />
+            <>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => setAvatarModalVisible(true)}
+                accessibilityRole="imagebutton"
+                accessibilityLabel={t('viewImageFullscreen', { defaultValue: 'View profile image fullscreen' })}
+              >
+                <Image
+                  testID="profile-avatar-image"
+                  source={{ uri: avatarUri }}
+                  style={styles.profilePic}
+                />
+              </TouchableOpacity>
+              <Modal
+                visible={isAvatarModalVisible}
+                onRequestClose={() => setAvatarModalVisible(false)}
+                transparent
+                animationType="fade"
+              >
+                <View style={styles.avatarModalBackdrop}>
+                  <TouchableOpacity
+                    style={styles.avatarModalCloseButton}
+                    onPress={() => setAvatarModalVisible(false)}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('closeFullscreenImage', { defaultValue: 'Close image' })}
+                  >
+                    <Ionicons name="close" size={28} color="#FFFFFF" />
+                  </TouchableOpacity>
+                  <Image
+                    source={{ uri: avatarUri }}
+                    style={styles.avatarModalImage}
+                    resizeMode="contain"
+                  />
+                </View>
+              </Modal>
+            </>
           ) : (
             <Ionicons testID="profile-avatar-placeholder" name="person-circle-outline" size={100} color={avatarPlaceholderColor} />
           )}
@@ -242,4 +299,34 @@ const styles = StyleSheet.create({
   actionText: { fontSize: 16 }, 
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center'},
   errorText: { textAlign: 'center', marginBottom: 12, padding: 10, borderRadius: 6 }, // STYLE FOR ERROR
+  successBanner: {
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    marginBottom: 12,
+    alignItems: 'center',
+  },
+  successBannerText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  avatarModalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.95)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  avatarModalCloseButton: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 50 : 30,
+    right: 24,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    borderRadius: 24,
+    padding: 10,
+  },
+  avatarModalImage: {
+    width: '100%',
+    height: '70%',
+  },
 });
