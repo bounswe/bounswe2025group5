@@ -508,7 +508,7 @@ export default function ProfileScreen() {
           if (!isMounted) return;
           setBio(data.biography ?? '');
           setAvatarUri(data.photoUrl ?? '');
-          await fetchUserPosts();
+          fetchUserPosts();
         } catch (err) {
           console.error('Failed to fetch or create profile:', err);
           if (isMounted) {
