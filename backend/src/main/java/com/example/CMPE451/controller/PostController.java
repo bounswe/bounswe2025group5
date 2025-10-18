@@ -54,7 +54,7 @@ public class PostController {
         postService.deletePost(postId);
         return ResponseEntity.ok(new DeletePostResponse(postId));
     }
-    @GetMapping(params = "mostLiked=true")
+    @GetMapping("/mostLiked")
     public ResponseEntity<List<GetPostResponse>> getMostLikedPosts(
             @RequestParam(required = false) String username,
             @RequestParam int size
