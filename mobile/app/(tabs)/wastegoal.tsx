@@ -166,6 +166,7 @@ export default function WasteGoalScreen() {
   const [addLogModalVisible, setAddLogModalVisible] = useState(false);
   const [currentGoalForLog, setCurrentGoalForLog] = useState<WasteGoal | null>(null);
   const [logEntryQuantity, setLogEntryQuantity] = useState('');
+  const [customLogAmount, setCustomLogAmount] = useState('');
   const [selectedWasteItemId, setSelectedWasteItemId] = useState<string | null>(null);
   const [wasteItemsByGoal, setWasteItemsByGoal] = useState<Record<number, WasteItemOption[]>>({});
   const [fetchingWasteItems, setFetchingWasteItems] = useState(false);
@@ -258,11 +259,43 @@ export default function WasteGoalScreen() {
       setLogFormError('errorSelectWasteItem');
       return false;
     }
-    const parsedLogQuantity = parseInt(logEntryQuantity, 10);
-    if (!Number.isInteger(parsedLogQuantity) || parsedLogQuantity <= 0) {
+    const trimmedQuantity = logEntryQuantity.trim();
+    const trimmedCustomAmount = customLogAmount.trim();
+
+    if (!trimmedQuantity && !trimmedCustomAmount) {
       setLogFormError('errorLogQuantityPositive');
       return false;
     }
+
+    const selectedItem = wasteItemsForCurrentGoal.find(
+      (item) => String(item.id) === String(selectedWasteItemId)
+    );
+    if (!selectedItem) {
+      setLogFormError('errorSelectWasteItem');
+      return false;
+    }
+
+    if (trimmedQuantity) {
+      const parsedLogQuantity = parseInt(trimmedQuantity, 10);
+      if (!Number.isInteger(parsedLogQuantity) || parsedLogQuantity <= 0) {
+        setLogFormError('errorLogQuantityPositive');
+        return false;
+      }
+    }
+
+    if (trimmedCustomAmount) {
+      const parsedCustomAmount = parseFloat(trimmedCustomAmount);
+      if (!Number.isFinite(parsedCustomAmount) || parsedCustomAmount <= 0) {
+        setLogFormError('errorLogQuantityPositive');
+        return false;
+      }
+      const itemWeightInGrams = Number(selectedItem.weightInGrams);
+      if (!Number.isFinite(itemWeightInGrams) || itemWeightInGrams <= 0) {
+        setLogFormError('errorCustomAmountConversion');
+        return false;
+      }
+    }
+
     return true;
   };
 
@@ -321,7 +354,32 @@ export default function WasteGoalScreen() {
       setLogFormError('errorSelectWasteItem');
       return;
     }
-    const parsedQuantity = parseInt(logEntryQuantity, 10);
+    const trimmedQuantity = logEntryQuantity.trim();
+    const trimmedCustomAmount = customLogAmount.trim();
+
+    let parsedQuantity: number;
+    if (trimmedCustomAmount) {
+      const parsedCustom = parseFloat(trimmedCustomAmount);
+      if (!Number.isFinite(parsedCustom)) {
+        setLogFormError('errorLogQuantityPositive');
+        return;
+      }
+      const itemsForGoal = currentGoalForLog.goalId
+        ? wasteItemsByGoal[currentGoalForLog.goalId] ?? []
+        : [];
+      const selectedItem = itemsForGoal.find(
+        (item) => String(item.id) === String(selectedWasteItemId)
+      );
+      const itemWeightInGrams = selectedItem ? Number(selectedItem.weightInGrams) : NaN;
+      if (!Number.isFinite(itemWeightInGrams) || itemWeightInGrams <= 0) {
+        setLogFormError('errorCustomAmountConversion');
+        return;
+      }
+      parsedQuantity = Math.max(1, Math.ceil(parsedCustom / itemWeightInGrams));
+    } else {
+      parsedQuantity = parseInt(trimmedQuantity, 10);
+    }
+
     if (!Number.isInteger(parsedQuantity) || parsedQuantity <= 0) {
       setLogFormError('errorLogQuantityPositive');
       return;
@@ -350,6 +408,7 @@ export default function WasteGoalScreen() {
       setAddLogModalVisible(false);
       setCurrentGoalForLog(null);
       setLogEntryQuantity('');
+      setCustomLogAmount('');
       setSelectedWasteItemId(null);
       setLogFormError(null);
       getGoals();
@@ -493,6 +552,7 @@ export default function WasteGoalScreen() {
   const openAddLogModal = (goal: WasteGoal) => {
     setCurrentGoalForLog(goal);
     setLogEntryQuantity('');
+    setCustomLogAmount('');
     setLogFormError(null);
     setAddLogModalVisible(true);
 
@@ -709,6 +769,7 @@ export default function WasteGoalScreen() {
               setAddLogModalVisible(false);
               setCurrentGoalForLog(null);
               setLogEntryQuantity('');
+              setCustomLogAmount('');
               setSelectedWasteItemId(null);
               setLogFormError(null);
             }}
@@ -764,6 +825,15 @@ export default function WasteGoalScreen() {
                   placeholder={t('logQuantityPlaceholder')}
                   placeholderTextColor={placeholderTextColor}
                 />
+                <ThemedText style={styles.inputLabel}>{t('customLogAmountLabel')}</ThemedText>
+                <TextInput
+                  style={[styles.input, { borderColor: inputBorderColor, color: inputTextColor, backgroundColor: pickerBackgroundColor }]}
+                  value={customLogAmount}
+                  onChangeText={setCustomLogAmount}
+                  keyboardType="numeric"
+                  placeholder={t('customLogAmountPlaceholder')}
+                  placeholderTextColor={placeholderTextColor}
+                />
                 {logFormError && (<ThemedText style={[styles.modalFormErrorText, { color: errorTextColor }]}>{t(logFormError)}</ThemedText>)}
                 <View style={styles.modalButtons}>
                   <TouchableOpacity
@@ -772,6 +842,7 @@ export default function WasteGoalScreen() {
                       setAddLogModalVisible(false);
                       setCurrentGoalForLog(null);
                       setLogEntryQuantity('');
+                      setCustomLogAmount('');
                       setSelectedWasteItemId(null);
                       setLogFormError(null);
                     }}
