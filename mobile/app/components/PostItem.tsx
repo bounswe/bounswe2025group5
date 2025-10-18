@@ -242,11 +242,26 @@ function PostItem({
             {post.content}
           </ThemedText>
         ) : null}
-        {formattedPublishedAt ? (
-          <ThemedText style={[styles.postTimestamp, { color: iconColor }]} accessibilityLabel={formattedPublishedAt}>
-            {formattedPublishedAt}
-          </ThemedText>
-        ) : null}
+        <View style={styles.postMetaRow}>
+          {formattedPublishedAt ? (
+            <ThemedText
+              style={[styles.postTimestamp, { color: iconColor }]}
+              accessibilityLabel={formattedPublishedAt}
+            >
+              {formattedPublishedAt}
+            </ThemedText>
+          ) : (
+            <View />
+          )}
+          <TouchableOpacity
+            style={styles.reportButton}
+            onPress={() => {}}
+            accessibilityLabel={t('reportPost', { defaultValue: 'Report post' })}
+            accessibilityRole="button"
+          >
+            <Ionicons name="warning-outline" size={16} color={iconColor} />
+          </TouchableOpacity>
+        </View>
 
         <View style={styles.postFooter}>
           <TouchableOpacity onPress={handleLike} style={styles.footerAction}>
@@ -448,7 +463,9 @@ const styles = StyleSheet.create({
   },
   postTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 8 },
   postContent: { fontSize: 14, lineHeight: 20, marginBottom: 12 },
+  postMetaRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   postTimestamp: { fontSize: 12, opacity: 0.7, marginBottom: 8 },
+  reportButton: { padding: 4, marginLeft: 12 },
   postFooter: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
   footerAction: { flexDirection: 'row', alignItems: 'center', minHeight: 20 },
   footerText: { fontSize: 14, marginRight: 8 },
