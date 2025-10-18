@@ -127,7 +127,7 @@ export default function ChallengesScreen() {
       setError({
         key: "errorFailedToLoadChallenges",
         message:
-          err instanceof Error ? err.message : "An unknown error occurred",
+          err instanceof Error ? err.message : t("unknownError"),
       });
     } finally {
       setLoading(false);
@@ -146,7 +146,7 @@ export default function ChallengesScreen() {
     );
     try {
       if (!username) {
-        throw new Error("Username is required to manage challenge attendance");
+        throw new Error(t("usernameRequiredForAttendance"));
       }
       if (attend) {
         const res = await apiRequest(
@@ -180,7 +180,7 @@ export default function ChallengesScreen() {
       setError({
         key: "errorActionFailed",
         message:
-          err instanceof Error ? err.message : "An unknown error occurred",
+          err instanceof Error ? err.message : t("unknownError"),
       });
       setChallenges((prev) =>
         prev.map((ch) =>
@@ -212,7 +212,7 @@ export default function ChallengesScreen() {
       setLbError({
         key: "errorFailedToLoadLeaderboard",
         message:
-          err instanceof Error ? err.message : "An unknown error occurred",
+          err instanceof Error ? err.message : t("unknownError"),
       });
     } finally {
       setLbLoading(false);
@@ -222,11 +222,11 @@ export default function ChallengesScreen() {
   const handleCreateChallenge = async () => {
     // Validate inputs
     if (!challengeName.trim()) {
-      setCreateError("Challenge name is required");
+      setCreateError(t("challengeNameRequired"));
       return;
     }
     if (!challengeDescription.trim()) {
-      setCreateError("Challenge description is required");
+      setCreateError(t("challengeDescRequired"));
       return;
     }
     if (
@@ -234,7 +234,7 @@ export default function ChallengesScreen() {
       isNaN(parseFloat(challengeAmount)) ||
       parseFloat(challengeAmount) <= 0
     ) {
-      setCreateError("Valid target amount is required");
+      setCreateError(t("validTargetAmountRequired"));
       return;
     }
     if (
@@ -242,7 +242,7 @@ export default function ChallengesScreen() {
       isNaN(parseInt(challengeDuration)) ||
       parseInt(challengeDuration) <= 0
     ) {
-      setCreateError("Valid duration is required");
+      setCreateError(t("validDurationRequired"));
       return;
     }
 
@@ -294,7 +294,7 @@ export default function ChallengesScreen() {
     } catch (err) {
       console.error("Error creating challenge:", err);
       setCreateError(
-        err instanceof Error ? err.message : "Failed to create challenge"
+        err instanceof Error ? err.message : t("failedToCreateChallenge")
       );
     } finally {
       setLoading(false);
@@ -303,7 +303,7 @@ export default function ChallengesScreen() {
 
   const handleLogWaste = async () => {
     if (!currentChallengeId || !username) {
-      setLogError("Challenge or user information is missing");
+      setLogError(t("challengeOrUserMissing"));
       return;
     }
 
@@ -312,7 +312,7 @@ export default function ChallengesScreen() {
       isNaN(parseFloat(logAmount)) ||
       parseFloat(logAmount) <= 0
     ) {
-      setLogError("Valid amount is required");
+      setLogError(t("validAmountRequired"));
       return;
     }
 
@@ -350,7 +350,7 @@ export default function ChallengesScreen() {
       await fetchData();
     } catch (err) {
       console.error("Error logging waste:", err);
-      setLogError(err instanceof Error ? err.message : "Failed to log waste");
+      setLogError(err instanceof Error ? err.message : t("failedToLogWaste"));
     } finally {
       setLogLoading(false);
     }
@@ -358,7 +358,7 @@ export default function ChallengesScreen() {
 
   const handleShowLogs = async (challengeId: number) => {
     if (!username) {
-      setLogsError("Username is required to view logs");
+      setLogsError(t("usernameRequiredForLogs"));
       return;
     }
 
@@ -381,7 +381,7 @@ export default function ChallengesScreen() {
       setLogsModalVisible(true);
     } catch (err) {
       console.error("Error fetching logs:", err);
-      setLogsError(err instanceof Error ? err.message : "Failed to fetch logs");
+      setLogsError(err instanceof Error ? err.message : t("failedToFetchLogs"));
     } finally {
       setLogsLoading(false);
     }
@@ -548,7 +548,7 @@ export default function ChallengesScreen() {
                         { color: colors.textSecondary },
                       ]}
                     >
-                      Progress: {item.currentAmount?.toFixed(1) || 0} /{" "}
+                      {t("progressText")}: {item.currentAmount?.toFixed(1) || 0} /{" "}
                       {item.amount} kg
                     </ThemedText>
                     <ThemedText
@@ -620,7 +620,7 @@ export default function ChallengesScreen() {
                             type="defaultSemiBold"
                             style={[styles.buttonText, { color: "#FFFFFF" }]}
                           >
-                            Add Log
+                            {t("addLog")}
                           </ThemedText>
                         </TouchableOpacity>
 
@@ -636,7 +636,7 @@ export default function ChallengesScreen() {
                             type="defaultSemiBold"
                             style={[styles.buttonText, { color: "#FFFFFF" }]}
                           >
-                            {logsLoading ? "Loading..." : "Show Logs"}
+                            {logsLoading ? t("loading") : t("showLogs")}
                           </ThemedText>
                         </TouchableOpacity>
                       </View>
@@ -664,8 +664,8 @@ export default function ChallengesScreen() {
                           style={[styles.buttonText, { color: "#FFFFFF" }]}
                         >
                           {item.userInChallenge
-                            ? "Leave Challenge"
-                            : "Attend Challenge"}
+                            ? t("leaveChallenge")
+                            : t("attendChallenge")}
                         </ThemedText>
                       </TouchableOpacity>
 
@@ -681,7 +681,7 @@ export default function ChallengesScreen() {
                           type="defaultSemiBold"
                           style={[styles.buttonText, { color: "#FFFFFF" }]}
                         >
-                          View Leaderboard
+                          {t("viewLeaderboard")}
                         </ThemedText>
                       </TouchableOpacity>
                     </View>
@@ -823,10 +823,10 @@ export default function ChallengesScreen() {
             ]}
           >
             <ThemedText type="title" style={styles.lbTitle}>
-              Create New Challenge
+              {t("createNewChallengeModal")}
             </ThemedText>
 
-            <ThemedText style={styles.inputLabel}>Challenge Name</ThemedText>
+            <ThemedText style={styles.inputLabel}>{t("challengeNameLabel")}</ThemedText>
             <TextInput
               style={[
                 styles.input,
@@ -838,11 +838,11 @@ export default function ChallengesScreen() {
               ]}
               value={challengeName}
               onChangeText={setChallengeName}
-              placeholder="e.g., Plastic Free Week"
+              placeholder={t("challengeNamePlaceholder")}
               placeholderTextColor={colors.textSubtle}
             />
 
-            <ThemedText style={styles.inputLabel}>Description</ThemedText>
+            <ThemedText style={styles.inputLabel}>{t("descriptionLabel")}</ThemedText>
             <TextInput
               style={[
                 styles.input,
@@ -855,13 +855,13 @@ export default function ChallengesScreen() {
               ]}
               value={challengeDescription}
               onChangeText={setChallengeDescription}
-              placeholder="Describe the challenge goals and rules"
+              placeholder={t("challengeDescriptionPlaceholder")}
               placeholderTextColor={colors.textSubtle}
               multiline
               numberOfLines={3}
             />
 
-            <ThemedText style={styles.inputLabel}>Waste Type</ThemedText>
+            <ThemedText style={styles.inputLabel}>{t("wasteTypeLabel")}</ThemedText>
             <TextInput
               style={[
                 styles.input,
@@ -873,12 +873,12 @@ export default function ChallengesScreen() {
               ]}
               value={challengeWasteType}
               onChangeText={setChallengeWasteType}
-              placeholder="e.g., Plastic, Paper, Glass"
+              placeholder={t("wasteTypePlaceholder")}
               placeholderTextColor={colors.textSubtle}
             />
 
             <ThemedText style={styles.inputLabel}>
-              Target Amount (kg)
+              {t("targetAmountLabel")}
             </ThemedText>
             <TextInput
               style={[
@@ -891,12 +891,12 @@ export default function ChallengesScreen() {
               ]}
               value={challengeAmount}
               onChangeText={setChallengeAmount}
-              placeholder="e.g., 5.0"
+              placeholder={t("targetAmountPlaceholder")}
               placeholderTextColor={colors.textSubtle}
               keyboardType="numeric"
             />
 
-            <ThemedText style={styles.inputLabel}>Duration (days)</ThemedText>
+            <ThemedText style={styles.inputLabel}>{t("durationLabel")}</ThemedText>
             <TextInput
               style={[
                 styles.input,
@@ -908,7 +908,7 @@ export default function ChallengesScreen() {
               ]}
               value={challengeDuration}
               onChangeText={setChallengeDuration}
-              placeholder="e.g., 30"
+              placeholder={t("durationDaysPlaceholder")}
               placeholderTextColor={colors.textSubtle}
               keyboardType="numeric"
             />
@@ -933,7 +933,7 @@ export default function ChallengesScreen() {
                   setChallengeDuration("30");
                 }}
               >
-                <Text style={styles.buttonText}>Cancel</Text>
+                <Text style={styles.buttonText}>{t("cancel")}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.modalButton, styles.modalCreateButton]}
@@ -947,7 +947,7 @@ export default function ChallengesScreen() {
                 {loading ? (
                   <ActivityIndicator size="small" color="#FFF" />
                 ) : (
-                  <Text style={styles.buttonText}>Create Challenge</Text>
+                  <Text style={styles.buttonText}>{t("createChallengeButton")}</Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -973,7 +973,7 @@ export default function ChallengesScreen() {
               type="title"
               style={[styles.lbTitle, { color: colors.text }]}
             >
-              Log Waste
+              {t("logWaste")}
             </ThemedText>
 
             {logError && (
@@ -982,7 +982,7 @@ export default function ChallengesScreen() {
               </ThemedText>
             )}
 
-            <ThemedText style={styles.inputLabel}>Amount (kg)</ThemedText>
+            <ThemedText style={styles.inputLabel}>{t("amountKgLabel")}</ThemedText>
             <TextInput
               style={[
                 styles.input,
@@ -994,7 +994,7 @@ export default function ChallengesScreen() {
               ]}
               value={logAmount}
               onChangeText={setLogAmount}
-              placeholder="Enter waste amount in kg"
+              placeholder={t("enterAmountPlaceholder")}
               placeholderTextColor={colors.textSubtle}
               keyboardType="numeric"
             />
@@ -1005,7 +1005,7 @@ export default function ChallengesScreen() {
                 onPress={() => setLogModalVisible(false)}
                 disabled={logLoading}
               >
-                <Text style={styles.buttonText}>Cancel</Text>
+                <Text style={styles.buttonText}>{t("cancel")}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -1016,7 +1016,7 @@ export default function ChallengesScreen() {
                 {logLoading ? (
                   <ActivityIndicator size="small" color="#FFF" />
                 ) : (
-                  <Text style={styles.buttonText}>Log Waste</Text>
+                  <Text style={styles.buttonText}>{t("logWaste")}</Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -1042,7 +1042,7 @@ export default function ChallengesScreen() {
               type="title"
               style={[styles.lbTitle, { color: colors.text }]}
             >
-              Challenge Logs
+              {t("challengeLogs")}
             </ThemedText>
 
             {logsError && (
@@ -1080,8 +1080,8 @@ export default function ChallengesScreen() {
                           { color: colors.textSecondary },
                         ]}
                       >
-                        {new Date(item.timestamp).toLocaleDateString()}{" "}
-                        {new Date(item.timestamp).toLocaleTimeString()}
+                        {new Date(item.timestamp).toLocaleDateString(i18n.language === 'tr' ? 'tr-TR' : 'en-US')}{" "}
+                        {new Date(item.timestamp).toLocaleTimeString(i18n.language === 'tr' ? 'tr-TR' : 'en-US')}
                       </ThemedText>
                     </View>
                   </View>
@@ -1089,7 +1089,7 @@ export default function ChallengesScreen() {
                 ListEmptyComponent={
                   <View style={styles.emptyListContainer}>
                     <ThemedText style={{ color: colors.textSecondary }}>
-                      No logs found for this challenge.
+                      {t("noLogsFound")}
                     </ThemedText>
                   </View>
                 }
