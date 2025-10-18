@@ -40,6 +40,11 @@ type LeaderboardEntry = {
   remainingAmount: number;
 };
 
+type ChallengeLogInfo = {
+  amount: number;
+  timestamp: string;
+};
+
 export default function ChallengesScreen() {
   const { userType, username } = useContext(AuthContext);
   const isAdmin = String(userType) === ADMIN_TYPE_PLACEHOLDER;
@@ -78,6 +83,12 @@ export default function ChallengesScreen() {
   const [logError, setLogError] = useState("");
   const [logLoading, setLogLoading] = useState(false);
 
+  // Show Logs Modal states
+  const [logsModalVisible, setLogsModalVisible] = useState(false);
+  const [challengeLogs, setChallengeLogs] = useState<ChallengeLogInfo[]>([]);
+  const [logsLoading, setLogsLoading] = useState(false);
+  const [logsError, setLogsError] = useState("");
+
   const fetchData = async () => {
     setLoading(true);
     setError("");
@@ -103,9 +114,7 @@ export default function ChallengesScreen() {
   const handleAttendLeave = async (challengeId: number, attend: boolean) => {
     setChallenges((prev) =>
       prev.map((ch) =>
-        ch.challengeId === challengeId
-          ? { ...ch, isUserInChallenge: attend }
-          : ch
+        ch.challengeId === challengeId ? { ...ch, userInChallenge: attend } : ch
       )
     );
     try {
@@ -298,6 +307,37 @@ export default function ChallengesScreen() {
       setLogError(err instanceof Error ? err.message : "Failed to log waste");
     } finally {
       setLogLoading(false);
+    }
+  };
+
+  const handleShowLogs = async (challengeId: number) => {
+    if (!username) {
+      setLogsError("Username is required to view logs");
+      return;
+    }
+
+    setLogsLoading(true);
+    setLogsError("");
+
+    try {
+      const res = await apiRequest(
+        `/api/challenges/${challengeId}/logs/${username}`
+      );
+      if (!res.ok) {
+        const errorData = await res.text();
+        throw new Error(`Failed to fetch logs: ${res.status} ${errorData}`);
+      }
+
+      const data = await res.json();
+      // Assuming the response structure contains logs array
+      const logs = data.logs as ChallengeLogInfo[];
+      setChallengeLogs(logs);
+      setLogsModalVisible(true);
+    } catch (err) {
+      console.error("Error fetching logs:", err);
+      setLogsError(err instanceof Error ? err.message : "Failed to fetch logs");
+    } finally {
+      setLogsLoading(false);
     }
   };
 
@@ -503,22 +543,40 @@ export default function ChallengesScreen() {
 
                 {!isAdmin && item.status === "Active" && (
                   <View style={styles.buttonContainer}>
-                    {/* Log Waste Button - Full width above if user is attendee */}
+                    {/* Log Waste and Show Logs Buttons - Side by side above if user is attendee */}
                     {item.userInChallenge && (
-                      <TouchableOpacity
-                        style={[
-                          styles.logButton,
-                          { backgroundColor: colors.buttonPrimary },
-                        ]}
-                        onPress={() => openLogModal(item.challengeId)}
-                      >
-                        <ThemedText
-                          type="defaultSemiBold"
-                          style={[styles.buttonText, { color: "#FFFFFF" }]}
+                      <View style={styles.logButtonsRow}>
+                        <TouchableOpacity
+                          style={[
+                            styles.logButton,
+                            { backgroundColor: colors.buttonPrimary },
+                          ]}
+                          onPress={() => openLogModal(item.challengeId)}
                         >
-                          Log Waste
-                        </ThemedText>
-                      </TouchableOpacity>
+                          <ThemedText
+                            type="defaultSemiBold"
+                            style={[styles.buttonText, { color: "#FFFFFF" }]}
+                          >
+                            Add Log
+                          </ThemedText>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                          style={[
+                            styles.logButton,
+                            { backgroundColor: colors.buttonSecondary },
+                          ]}
+                          onPress={() => handleShowLogs(item.challengeId)}
+                          disabled={logsLoading}
+                        >
+                          <ThemedText
+                            type="defaultSemiBold"
+                            style={[styles.buttonText, { color: "#FFFFFF" }]}
+                          >
+                            {logsLoading ? "Loading..." : "Show Logs"}
+                          </ThemedText>
+                        </TouchableOpacity>
+                      </View>
                     )}
 
                     {/* Bottom Row - Attend/Leave and Leaderboard side by side */}
@@ -902,6 +960,93 @@ export default function ChallengesScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Show Logs Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={logsModalVisible}
+        onRequestClose={() => setLogsModalVisible(false)}
+      >
+        <View style={styles.lbOverlay}>
+          <View
+            style={[
+              styles.lbContainer,
+              { backgroundColor: colors.modalBackground },
+            ]}
+          >
+            <ThemedText
+              type="title"
+              style={[styles.lbTitle, { color: colors.text }]}
+            >
+              Challenge Logs
+            </ThemedText>
+
+            {logsError && (
+              <ThemedText style={[styles.error, { color: "#FF6B6B" }]}>
+                {logsError}
+              </ThemedText>
+            )}
+
+            {logsLoading ? (
+              <ActivityIndicator
+                size="large"
+                color={colors.activityIndicator}
+              />
+            ) : (
+              <FlatList
+                data={challengeLogs}
+                keyExtractor={(item, index) => index.toString()}
+                showsVerticalScrollIndicator={true}
+                renderItem={({ item }) => (
+                  <View
+                    style={[
+                      styles.logItem,
+                      { borderBottomColor: colors.borderColor },
+                    ]}
+                  >
+                    <View style={styles.logHeader}>
+                      <ThemedText
+                        style={[styles.logAmount, { color: colors.text }]}
+                      >
+                        {item.amount} kg
+                      </ThemedText>
+                      <ThemedText
+                        style={[
+                          styles.logDate,
+                          { color: colors.textSecondary },
+                        ]}
+                      >
+                        {new Date(item.timestamp).toLocaleDateString()}{" "}
+                        {new Date(item.timestamp).toLocaleTimeString()}
+                      </ThemedText>
+                    </View>
+                  </View>
+                )}
+                ListEmptyComponent={
+                  <View style={styles.emptyListContainer}>
+                    <ThemedText style={{ color: colors.textSecondary }}>
+                      No logs found for this challenge.
+                    </ThemedText>
+                  </View>
+                }
+              />
+            )}
+
+            <TouchableOpacity
+              style={[
+                styles.lbCloseButton,
+                { backgroundColor: colors.buttonSecondary },
+              ]}
+              onPress={() => setLogsModalVisible(false)}
+            >
+              <ThemedText style={[styles.buttonText, { color: "#FFFFFF" }]}>
+                Close
+              </ThemedText>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -1053,9 +1198,9 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   logButton: {
+    flex: 1,
     paddingVertical: 12,
     paddingHorizontal: 16,
-    marginBottom: 8,
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
@@ -1096,5 +1241,27 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
+  },
+  logButtonsRow: {
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 8,
+  },
+  logItem: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+  },
+  logHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  logAmount: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  logDate: {
+    fontSize: 12,
+    fontStyle: "italic",
   },
 });
