@@ -52,11 +52,6 @@ const MOCK_WASTE_HISTORY: Record<string, number[]> = {
   Organic: [3, 4, 5, 7, 9],
 };
 
-const formatChartValue = (value: number) => {
-  if (!Number.isFinite(value)) return '0';
-  return Number.isInteger(value) ? value.toString() : value.toFixed(1);
-};
-
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
@@ -591,7 +586,6 @@ export default function ProfileScreen() {
   }
 
   return (
-    <>
     <ParallaxScrollView
       headerBackgroundColor={{ light: parallaxHeaderBgColor, dark: parallaxHeaderBgColor }}
       headerImage={
@@ -803,89 +797,6 @@ export default function ProfileScreen() {
 
       </View>
     </ParallaxScrollView>
-
-    <Modal
-      visible={isProgressModalVisible}
-      transparent
-      animationType="fade"
-      onRequestClose={() => setProgressModalVisible(false)}
-    >
-      <View style={styles.progressModalBackdrop}>
-        <View style={[styles.progressModalCard, { backgroundColor: cardBackgroundColor }]}>
-          <View style={styles.progressModalHeader}>
-            <ThemedText style={[styles.progressModalTitle, { color: generalTextColor }]}>
-              Historical data
-            </ThemedText>
-            <TouchableOpacity
-              onPress={() => setProgressModalVisible(false)}
-              style={styles.progressModalCloseButton}
-              accessibilityLabel={t('close', { defaultValue: 'Close' })}
-            >
-              <Ionicons name="close" size={20} color={generalTextColor} />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.chartArea}>
-            <View style={[styles.chartAxes, { borderColor: iconColor }]}>
-              {chartBarHeights.length === 0 ? (
-                <ThemedText style={[styles.chartEmptyText, { color: iconColor }]}>
-                  {t('noData', { defaultValue: 'No data available' })}
-                </ThemedText>
-              ) : (
-                <View style={styles.chartBarsContainer}>
-                  {chartBarHeights.map((height, index) => (
-                    <View key={`chart-bar-${index}`} style={styles.chartBarWrapper}>
-                      <ThemedText style={[styles.chartValueLabel, { color: iconColor }]}>
-                        {formatChartValue(chartValues[index])}
-                      </ThemedText>
-                      <View style={[styles.chartBar, { height }]} />
-                      <ThemedText style={[styles.chartXAxisLabel, { color: iconColor }]}>
-                        {index + 1}
-                      </ThemedText>
-                    </View>
-                  ))}
-                </View>
-              )}
-            </View>
-            <ThemedText style={[styles.chartYAxisLabel, { color: iconColor }]}>
-              {t('timeAxisLabel', { defaultValue: 'Time axis' })}
-            </ThemedText>
-          </View>
-
-          <View style={styles.wasteTypeSelector}>
-            <ThemedText style={[styles.wasteTypeLabel, { color: generalTextColor }]}>
-              {t('wasteTypeLabel', { defaultValue: 'Waste Type:' })}
-            </ThemedText>
-            <View style={styles.wasteTypeChips}>
-              {WASTE_TYPES.map((type) => {
-                const isActive = selectedWasteType === type;
-                return (
-                  <TouchableOpacity
-                    key={type}
-                    onPress={() => setSelectedWasteType(type)}
-                    style={[
-                      styles.wasteTypeChip,
-                      { borderColor: iconColor },
-                      isActive && styles.wasteTypeChipActive,
-                    ]}
-                  >
-                    <ThemedText
-                      style={[
-                        styles.wasteTypeChipText,
-                        { color: isActive ? '#FFFFFF' : generalTextColor },
-                      ]}
-                    >
-                      {t(type.toLowerCase(), { defaultValue: type })}
-                    </ThemedText>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
-        </View>
-      </View>
-    </Modal>
-    </>
   );
 }
 
@@ -904,8 +815,6 @@ const styles = StyleSheet.create({
   topButtonText: { fontSize: 14, color: '#FFFFFF' },
   profileContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
   profilePic: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#ddd' }, 
-  profileGreetingRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
-  progressButton: { marginLeft: 12, width: 36, height: 36, borderRadius: 18, backgroundColor: '#2E7D32', alignItems: 'center', justifyContent: 'center' },
   actionButton: { width: '100%', paddingVertical: 12, borderRadius: 8, marginBottom: 12, alignItems: 'center' },
   actionText: { fontSize: 16 }, 
   sectionDivider: { height: 1, width: '100%', marginVertical: 20, borderRadius: 999 },
@@ -946,25 +855,4 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '70%',
   },
-  progressModalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', padding: 20 },
-  progressModalCard: { width: '90%', maxWidth: 360, borderRadius: 16, padding: 20, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 8 },
-  progressModalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
-  progressModalTitle: { fontSize: 20, fontWeight: '700' },
-  progressModalCloseButton: { padding: 8, marginLeft: 12 },
-  chartArea: { marginTop: 8 },
-  chartAxes: { height: 200, borderLeftWidth: 2, borderBottomWidth: 2, paddingLeft: 16, paddingBottom: 12, justifyContent: 'flex-end' },
-  chartBarsContainer: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-around', height: 160, paddingHorizontal: 8 },
-  chartBarWrapper: { alignItems: 'center', justifyContent: 'flex-end', minWidth: 36 },
-  chartValueLabel: { fontSize: 12, marginBottom: 6 },
-  chartBar: { width: 20, borderRadius: 6, backgroundColor: '#4CAF50' },
-  chartXAxisLabel: { marginTop: 6, fontSize: 12 },
-  chartYAxisLabel: { marginTop: 12, fontSize: 12, textAlign: 'right' },
-  chartEmptyText: { alignSelf: 'center', marginTop: 32, fontSize: 14 },
-  wasteTypeSelector: { marginTop: 20 },
-  wasteTypeLabel: { fontSize: 14, fontWeight: '600', marginBottom: 12 },
-  wasteTypeChips: { flexDirection: 'row', flexWrap: 'wrap' },
-  wasteTypeChip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, borderWidth: 1, marginRight: 8, marginBottom: 8 },
-  wasteTypeChipActive: { backgroundColor: '#2E7D32', borderColor: '#2E7D32' },
-  wasteTypeChipText: { fontSize: 12, fontWeight: '600' },
 });
-

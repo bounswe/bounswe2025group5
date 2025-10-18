@@ -470,6 +470,7 @@ const styles = StyleSheet.create({
   postMetaRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   postTimestamp: { fontSize: 12, opacity: 0.7, marginBottom: 8 },
   reportButton: { padding: 4, marginLeft: 12 },
+  reportButtonPlaceholder: { width: 24, height: 24 },
   postFooter: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
   footerAction: { flexDirection: 'row', alignItems: 'center', minHeight: 20 },
   footerText: { fontSize: 14, marginRight: 8 },

@@ -1,0 +1,201 @@
+    return (
+      <View style={[styles.loadingContainer, {backgroundColor: contentBackgroundColor}]}>
+         <ActivityIndicator testID="profile-loading-indicator" size="large" color={isDarkMode ? '#FFF' : '#000'} />
+      </View>
+    );
+  }
+
+  return (
+    <ParallaxScrollView
+      headerBackgroundColor={{ light: parallaxHeaderBgColor, dark: parallaxHeaderBgColor }}
+      headerImage={
+        <Image
+          source={require('@/assets/images/wallpaper.png')} // FILENAME IS CORRECT
+          style={styles.headerImage}
+          resizeMode="cover"
+        />
+      }
+    >
+      <View style={[styles.contentContainer, {backgroundColor: contentBackgroundColor}]}>
+      {/* ========================================================== */}
+        {/* LANGUAGE TOGGLE SITS ABOVE LOGOUT                         */}
+        {/* ========================================================== */}
+        <View style={styles.languageToggleOuterContainer}>
+            <View style={styles.languageToggleContainer}>
+                <Text style={styles.languageLabel}>EN</Text>
+                <Switch
+                    trackColor={{ false: '#767577', true: '#81b0ff' }}
+                    thumbColor={isDarkMode ? (isTurkish ? '#f5dd4b' : '#f4f4f4') : (isTurkish ? '#f5dd4b' : '#f4f4f4')}
+                    ios_backgroundColor="#3e3e3e"
+                    onValueChange={toggleLanguage}
+                    value={isTurkish}
+                />
+                <Text style={styles.languageLabel}>TR</Text>
+            </View>
+        </View>
+
+        {profileUpdateBannerVisible && (
+          <View style={[styles.successBanner, { backgroundColor: successBannerBgColor }]}>
+            <Text style={[styles.successBannerText, { color: successBannerTextColor }]}>{t('successBioUpdated')}</Text>
+          </View>
+        )}
+
+        <View style={styles.logoutContainer}>
+          <TouchableOpacity testID="logout-button" onPress={handleLogout} style={styles.logoutButton}>
+            <Text style={[styles.topButtonText, {color: buttonTextColor}]}>{t('logOut')}</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.badgesContainer}>
+          <TouchableOpacity
+            testID="my-badges-button"
+            style={styles.badgesButton}
+            onPress={() => navigation.navigate('badges')}
+          >
+            <Text style={[styles.topButtonText, {color: buttonTextColor}]}>{t('myBadges')}</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.editProfileContainer}>
+          <TouchableOpacity
+            testID="edit-profile-button"
+            style={styles.editButton}
+            onPress={() => navigation.navigate('edit_profile')}
+          >
+            <Text style={[styles.topButtonText, {color: buttonTextColor}]}>{t('editProfile')}</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.profileContainer}>
+          {avatarUri ? (
+            <>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => setAvatarModalVisible(true)}
+                accessibilityRole="imagebutton"
+                accessibilityLabel={t('viewImageFullscreen', { defaultValue: 'View profile image fullscreen' })}
+              >
+                <Image
+                  testID="profile-avatar-image"
+                  source={{ uri: avatarUri }}
+                  style={styles.profilePic}
+                />
+              </TouchableOpacity>
+              <Modal
+                visible={isAvatarModalVisible}
+                onRequestClose={() => setAvatarModalVisible(false)}
+                transparent
+                animationType="fade"
+              >
+                <View style={styles.avatarModalBackdrop}>
+                  <TouchableOpacity
+                    style={styles.avatarModalCloseButton}
+                    onPress={() => setAvatarModalVisible(false)}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('closeFullscreenImage', { defaultValue: 'Close image' })}
+                  >
+                    <Ionicons name="close" size={28} color="#FFFFFF" />
+                  </TouchableOpacity>
+                  <Image
+                    source={{ uri: avatarUri }}
+                    style={styles.avatarModalImage}
+                    resizeMode="contain"
+                  />
+                </View>
+              </Modal>
+            </>
+          ) : (
+            <Ionicons testID="profile-avatar-placeholder" name="person-circle-outline" size={100} color={avatarPlaceholderColor} />
+          )}
+          <View style={{ marginLeft: 12, flexShrink: 1 }}>
+            <View style={styles.profileGreetingRow}>
+              <ThemedText testID="profile-username-text" type="default" style={{ fontSize: 20 }}>
+                {t('helloUser', { username })}
+              </ThemedText>
+              <TouchableOpacity
+                style={styles.progressButton}
+                onPress={() => setProgressModalVisible(true)}
+                accessibilityLabel={t('viewProgress', { defaultValue: 'View historical progress' })}
+              >
+                <Ionicons name="stats-chart" size={20} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
+            <ThemedText
+              testID="profile-bio-text"
+              type="default"
+              style={{ marginTop: 4, fontStyle: bio ? 'normal' : 'italic' }}
+              numberOfLines={3}
+            >
+              {bio || t('noBioYet')}
+            </ThemedText>
+          </View>
+        </View>
+        
+        {/* ERROR MESSAGE INSERTED HERE */}
+        {error.key && (
+            <ThemedText style={[styles.errorText, { color: errorTextColor, backgroundColor: errorBackgroundColor }]}>
+                {t(error.key)}
+            </ThemedText>
+        )}
+        
+        <TouchableOpacity
+          testID="create-post-button"
+          style={[styles.actionButton, { backgroundColor: '#2196F3' }]}
+          onPress={() => navigation.navigate('create_post')}
+        >
+          <Text style={[styles.actionText, {color: buttonTextColor}]}>{t('createPost')}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          testID="my-posts-button"
+          style={[styles.actionButton, { backgroundColor: '#00008B' }]} 
+          onPress={() => navigation.navigate('posts')} 
+        >
+          <Text style={[styles.actionText, {color: buttonTextColor}]}>{t('managePosts')}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.actionButton, { backgroundColor: '#D4AF37' }]}
+          onPress={() => navigation.navigate('saved_posts')}
+        >
+          <Text style={[styles.actionText, {color: buttonTextColor}]}>{t('savedPosts')}</Text>
+        </TouchableOpacity>
+
+        <View style={[styles.sectionDivider, { backgroundColor: isDarkMode ? '#2E2E2E' : '#D9D9D9' }]} />
+
+        <ThemedText style={[styles.postsHeader, { color: generalTextColor }]}>{t('profilePostsTitle')}</ThemedText>
+
+        <View style={styles.postListContainer}>
+          {postsLoading ? (
+            <ActivityIndicator style={styles.postsLoadingIndicator} color={iconColor} />
+          ) : postsError ? (
+            <ThemedText style={[styles.postsErrorText, { color: errorTextColor }]}>{postsError}</ThemedText>
+          ) : posts.length === 0 ? (
+            <ThemedText style={[styles.emptyPostsText, { color: iconColor }]}>{t('noPostsYet')}</ThemedText>
+          ) : (
+            posts.map((post) => (
+              <PostItem
+                key={`profile-post-${post.id}`}
+                post={post}
+                cardBackgroundColor={cardBackgroundColor}
+                iconColor={iconColor}
+                textColor={generalTextColor}
+                commentInputBorderColor={commentInputBorderColor}
+                commentInputTextColor={commentInputTextColor}
+                commentInputPlaceholderColor={commentInputPlaceholderColor}
+                commentInputBackgroundColor={commentInputBackgroundColor}
+                onLikePress={handleLikeToggle}
+                onSavePress={handleSaveToggle}
+                userType={userType}
+                loggedInUsername={username}
+                isExpanded={expandedPostId === post.id}
+                commentsList={commentsByPostId[post.id] || []}
+                isLoadingComments={loadingCommentsPostId === post.id}
+                commentInputText={
+                  editingCommentDetails?.postId === post.id ? '' : commentInputs[post.id] || ''
+                }
+                isPostingComment={postingCommentPostId === post.id}
+                onToggleComments={() => handleToggleComments(post.id)}
+                onCommentInputChange={(text) => handleCommentInputChange(post.id, text)}
+                onPostComment={() => handlePostComment(post.id)}
+                onDeleteComment={handleDeleteComment}
