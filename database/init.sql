@@ -22,26 +22,6 @@ CREATE TABLE IF NOT EXISTS `refresh_tokens` (
   PRIMARY KEY (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE IF NOT EXISTS `waste_goal` (
-  `goal_id`               INT NOT NULL AUTO_INCREMENT,
-  `user_id`               INT NOT NULL,
-  `type_id`               INT NOT NULL,
-  `restriction_amount_grams`   DOUBLE NOT NULL,
-  `duration`              INT NOT NULL,
-  `date`                  DATETIME(6) NOT NULL,
-  `percent_of_progress`   DOUBLE NOT NULL DEFAULT 0.0,
-  `completed`             INT  DEFAULT 0,
-  PRIMARY KEY (`goal_id`),
-  INDEX `fk_goal_user_idx` (`user_id` ASC),
-  INDEX `fk_goal_type_idx` (`type_id` ASC),
-  CONSTRAINT `fk_goal_user`
-    FOREIGN KEY (`user_id`)
-    REFERENCES `users` (`user_id`),
-  CONSTRAINT `fk_goal_type`
-    FOREIGN KEY (`type_id`)
-    REFERENCES `waste_type` (`type_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
 CREATE TABLE   IF NOT EXISTS waste_type (
     type_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL UNIQUE
@@ -56,6 +36,27 @@ CREATE TABLE IF NOT EXISTS  waste_item (
     FOREIGN KEY (type_id) REFERENCES waste_type(type_id)
 );
 
+CREATE TABLE IF NOT EXISTS `waste_goal` (
+  `goal_id`               INT NOT NULL AUTO_INCREMENT,
+  `user_id`               INT NOT NULL,
+  `type_id`               INT NOT NULL,
+  `restriction_amount_grams`   DOUBLE NOT NULL,
+  `duration`              INT NOT NULL,
+  `date`                  DATETIME(6) NOT NULL,
+  `percent_of_progress`   DOUBLE NOT NULL DEFAULT 0.0,
+  `completed`             INT  DEFAULT 0,
+  PRIMARY KEY (`goal_id`),
+  INDEX `fk_goal_user_idx` (`user_id` ASC),
+  INDEX `fk_goal_type_idx` (`type_id` ASC),
+  CONSTRAINT `fk_goal_user`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `users` (`user_id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_goal_type`
+    FOREIGN KEY (`type_id`)
+    REFERENCES `waste_type` (`type_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
 CREATE TABLE IF NOT EXISTS `waste_log` (
   `log_id`    INT NOT NULL AUTO_INCREMENT,
   `user_id`   INT NOT NULL,
@@ -69,7 +70,7 @@ CREATE TABLE IF NOT EXISTS `waste_log` (
   INDEX `fk_log_item_idx` (`item_id` ASC),
   CONSTRAINT `fk_log_user`
     FOREIGN KEY (`user_id`)
-    REFERENCES `users` (`user_id`),
+    REFERENCES `users` (`user_id`) ON DELETE CASCADE,
   CONSTRAINT `fk_log_goal`
     FOREIGN KEY (`goal_id`)
     REFERENCES `waste_goal` (`goal_id`),
@@ -78,20 +79,54 @@ CREATE TABLE IF NOT EXISTS `waste_log` (
     REFERENCES `waste_item` (`item_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+
 CREATE TABLE `challenges` (
   `challenge_id`  INT NOT NULL AUTO_INCREMENT,
   `name`          VARCHAR(100) NOT NULL,
   `description`   VARCHAR(200) NOT NULL,
+  `type`          VARCHAR(50) NOT NULL,
   `amount`        DOUBLE NOT NULL,
+  `current_amount` DOUBLE NOT NULL DEFAULT 0,
   `start_date`    DATE NOT NULL,
   `end_date`      DATE NOT NULL,
-  `status`        ENUM('Active','Requested','Ended') DEFAULT 'Active',
-  `type_id`       INT NOT NULL,
-  PRIMARY KEY (`challenge_id`),
-  INDEX `fk_challenge_type_idx` (`type_id` ASC),
-  CONSTRAINT `fk_challenge_type`
-    FOREIGN KEY (`type_id`)
-    REFERENCES `waste_type` (`type_id`)
+  `status`        ENUM('Active','Requested','Ended','Completed') DEFAULT 'Active',
+  PRIMARY KEY (`challenge_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `challenge_log` (
+  `log_id`       INT NOT NULL AUTO_INCREMENT,
+  `challenge_id` INT NOT NULL,
+  `user_id`      INT NOT NULL,
+  `amount`       DOUBLE NOT NULL,
+  `timestamp`    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`log_id`),
+  INDEX `fk_log_challenge_idx` (`challenge_id` ASC),
+  INDEX `fk_log_user_idx` (`user_id` ASC),
+  CONSTRAINT `fk_log_challenge`
+    FOREIGN KEY (`challenge_id`)
+    REFERENCES `challenges` (`challenge_id`)
+    ON DELETE CASCADE,
+  CONSTRAINT `fk_challenge_log_user`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `users` (`user_id`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `challenge_user` (
+  `challenge_id`  INT NOT NULL,
+  `user_id`       INT NOT NULL,
+  `amount`        DOUBLE NOT NULL DEFAULT 0,
+  -- Composite Primary Key: A user can only be associated with a challenge once.
+  PRIMARY KEY (`challenge_id`, `user_id`),
+  INDEX `fk_cu_user_idx` (`user_id` ASC),
+  CONSTRAINT `fk_cu_challenge`
+    FOREIGN KEY (`challenge_id`)
+    REFERENCES `challenges` (`challenge_id`)
+    ON DELETE CASCADE,
+  CONSTRAINT `fk_cu_user`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `users` (`user_id`) -- Assuming you have a 'users' table
+    ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -105,22 +140,10 @@ CREATE TABLE IF NOT EXISTS  `posts` (
   `photo_url` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`post_id`),
   KEY `user_id` (`user_id`),
-  CONSTRAINT `posts_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
+  CONSTRAINT `posts_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE IF NOT EXISTS `user_challenge_progress` (
-  `user_id`             INT NOT NULL,
-  `challenge_id`        INT NOT NULL,
-  `remaining_amount`    DOUBLE DEFAULT NULL,
-  PRIMARY KEY (`user_id`, `challenge_id`),
-  INDEX `fk_progress_challenge_idx` (`challenge_id` ASC),
-  CONSTRAINT `fk_progress_user`
-    FOREIGN KEY (`user_id`)
-    REFERENCES `users` (`user_id`),
-  CONSTRAINT `fk_progress_challenge`
-    FOREIGN KEY (`challenge_id`)
-    REFERENCES `challenges` (`challenge_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 
 CREATE TABLE  IF NOT EXISTS  `profiles` (
   `profile_id` int NOT NULL AUTO_INCREMENT,
@@ -153,7 +176,7 @@ CREATE TABLE IF NOT EXISTS  `user_rewards` (
   `user_id` int NOT NULL,
   PRIMARY KEY (`reward_id`,`user_id`),
   KEY `FK4ear62j8k2olcikuil4rye8la` (`user_id`),
-  CONSTRAINT `FK4ear62j8k2olcikuil4rye8la` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
+  CONSTRAINT `FK4ear62j8k2olcikuil4rye8la` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
   CONSTRAINT `FKj53yk8gtooowu02nlq4isx5dd` FOREIGN KEY (`reward_id`) REFERENCES `rewards` (`reward_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -170,7 +193,7 @@ CREATE TABLE  IF NOT EXISTS  `comments` (
   KEY `post_id` (`post_id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE,
-  CONSTRAINT `comments_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
+  CONSTRAINT `comments_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -183,6 +206,8 @@ CREATE TABLE IF NOT EXISTS `post_likes` (
     FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
     FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
 CREATE TABLE `saved_posts` (
     `post_id` INT NOT NULL,
     `user_id` INT NOT NULL,
@@ -192,7 +217,7 @@ CREATE TABLE `saved_posts` (
     CONSTRAINT `FK9poxgdc1595vxdxkyg202x4ge` 
         FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`),
     CONSTRAINT `FKs9a5ulcshnympbu557ps3qdlv` 
-        FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+        FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB 
   DEFAULT CHARSET=utf8mb4 
   COLLATE=utf8mb4_0900_ai_ci;
@@ -285,101 +310,183 @@ BEGIN
 END$$
 
 DELIMITER ;
--- THESE COULD BE CHANGED SINCE THE LOGIC OF CHALLENGE WILL BE CHANGED, SO THESE TRIGGERS WERE NOT CREATED BUT GIVEN AS REFERENCE FOR FUTURE
-/*
+
+DELIMITER $$
+-- Trigger: Sets the owner of deleted posts and comments to the deleted_user. Which is the user with the id 12 currently
+CREATE TRIGGER before_user_delete
+    BEFORE DELETE ON users
+    FOR EACH ROW
+BEGIN
+    -- Reassign posts to anonymous user
+    UPDATE posts
+    SET user_id = 12
+    WHERE user_id = OLD.user_id;
+
+    -- Reassign comments to anonymous user
+    UPDATE comments
+    SET user_id = 12
+    WHERE user_id = OLD.user_id;
+    END$$
+
+DELIMITER ;
+
+
+
 DELIMITER $$
 
--- After INSERT on waste_log
-CREATE TRIGGER after_waste_log_insert
-AFTER INSERT ON waste_log
+-- ==========================================================================================
+-- TRIGGER  After a new waste log is INSERTED
+-- This trigger recalculates the progress for the goal associated with the newly added log.
+-- ==========================================================================================
+CREATE TRIGGER `log_after_insert`
+AFTER INSERT ON `waste_log`
 FOR EACH ROW
 BEGIN
-    -- Update active user challenge progress
-    UPDATE user_challenge_progress ucp
-    JOIN challenges c ON ucp.challenge_id = c.challenge_id
-    SET ucp.remaining_amount = ucp.remaining_amount - NEW.amount
-    WHERE ucp.user_id = NEW.user_id
-      AND ucp.waste_type = NEW.waste_type
-      AND c.status = 'Active'
-      AND c.start_date <= DATE(NEW.date)
-      AND c.end_date   >= DATE(NEW.date);
+    DECLARE total_waste_grams DOUBLE;
+    SELECT SUM(wi.weight_in_grams * wl.quantity)
+    INTO total_waste_grams
+    FROM `waste_log` wl
+    JOIN `waste_item` wi ON wl.item_id = wi.item_id
+    WHERE wl.goal_id = NEW.goal_id; 
 
-    -- Update waste goal progress
-    UPDATE waste_goal wg
-    SET wg.percent_of_progress = LEAST(100, wg.percent_of_progress + (NEW.amount / wg.amount) * 100)
-    WHERE wg.user_id = NEW.user_id
-      AND wg.waste_type = NEW.waste_type
-      AND wg.amount > 0
-      AND DATE(NEW.date) BETWEEN DATE_SUB(DATE(wg.date), INTERVAL wg.duration DAY) AND DATE(wg.date);
+    -- Update the percent_of_progress in the waste_goal table.
+    -- IFNULL is used to handle the case where a goal has no logs, preventing division by null.
+    UPDATE `waste_goal`
+    SET percent_of_progress = (IFNULL(total_waste_grams, 0) / restriction_amount_grams) * 100
+    WHERE goal_id = NEW.goal_id;
+END$$
+
+-- ==========================================================================================
+-- TRIGGER : After a waste log is UPDATED
+-- This trigger handles changes to a log, such as updating its quantity or moving it
+-- ==========================================================================================
+CREATE TRIGGER `log_after_update`
+AFTER UPDATE ON `waste_log`
+FOR EACH ROW
+BEGIN
+    DECLARE total_waste_grams DOUBLE;
+
+    SELECT SUM(wi.weight_in_grams * wl.quantity)
+    INTO total_waste_grams
+    FROM `waste_log` wl
+    JOIN `waste_item` wi ON wl.item_id = wi.item_id
+    WHERE wl.goal_id = OLD.goal_id; 
+
+    UPDATE `waste_goal`
+    SET percent_of_progress = (IFNULL(total_waste_grams, 0) / restriction_amount_grams) * 100
+    WHERE goal_id = OLD.goal_id;
+    
+END$$
+
+-- ==========================================================================================
+-- TRIGGER: After a waste log is DELETED
+-- This trigger recalculates the progress for the goal from which a log was removed.
+-- ==========================================================================================
+CREATE TRIGGER `log_after_delete`
+AFTER DELETE ON `waste_log`
+FOR EACH ROW
+BEGIN
+    DECLARE total_waste_grams DOUBLE;
+    
+    SELECT SUM(wi.weight_in_grams * wl.quantity)
+    INTO total_waste_grams
+    FROM `waste_log` wl
+    JOIN `waste_item` wi ON wl.item_id = wi.item_id
+    WHERE wl.goal_id = OLD.goal_id; 
+
+    -- Update the progress. If this was the last log for the goal, the total will be 0.
+    UPDATE `waste_goal`
+    SET percent_of_progress = (IFNULL(total_waste_grams, 0) / restriction_amount_grams) * 100
+    WHERE goal_id = OLD.goal_id;
+END$$
+
+DELIMITER ;
+
+
+DELIMITER $$
+--  TRIGGER 
+-- This single trigger handles all logic for the waste_goal table to prevent recursive update errors.
+-- It recalculates progress if the restriction changes AND sets the completed status.
+-- ==========================================================================================
+CREATE TRIGGER `goal_before_update`
+BEFORE UPDATE ON `waste_goal`
+FOR EACH ROW
+BEGIN
+    DECLARE total_waste_grams DOUBLE;
+
+    -- First, check if the restriction amount is being changed.
+    IF NEW.restriction_amount_grams <> OLD.restriction_amount_grams THEN
+        SELECT IFNULL(SUM(wi.weight_in_grams * wl.quantity), 0)
+        INTO total_waste_grams
+        FROM `waste_log` wl
+        JOIN `waste_item` wi ON wl.item_id = wi.item_id
+        WHERE wl.goal_id = NEW.goal_id;
+
+        -- Modify the NEW row directly. 
+        SET NEW.percent_of_progress = (total_waste_grams / NEW.restriction_amount_grams) * 100;
+    END IF;
+
+    -- Second, based on the final 'percent_of_progress' (whether it came from the
+    IF NEW.percent_of_progress >= 100 THEN
+        SET NEW.completed = 1;
+    ELSE
+        SET NEW.completed = 0;
+    END IF;
 END$$
 
 
--- After DELETE on waste_log
-CREATE TRIGGER after_waste_log_delete
-AFTER DELETE ON waste_log
+-- Reset the delimiter back to the default
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+DELIMITER $$
+CREATE TRIGGER `after_challenge_user_insert`
+AFTER INSERT ON `challenge_user`
 FOR EACH ROW
 BEGIN
-    -- Rollback challenge progress
-    UPDATE user_challenge_progress ucp
-    JOIN challenges c ON ucp.challenge_id = c.challenge_id
-    SET ucp.remaining_amount = ucp.remaining_amount + OLD.amount
-    WHERE ucp.user_id = OLD.user_id
-      AND ucp.waste_type = OLD.waste_type
-      AND c.status = 'Active'
-      AND c.start_date <= DATE(OLD.date)
-      AND c.end_date   >= DATE(OLD.date);
-
-    -- Rollback waste goal progress
-    UPDATE waste_goal wg
-    SET wg.percent_of_progress = GREATEST(0, wg.percent_of_progress - (OLD.amount / wg.amount) * 100)
-    WHERE wg.user_id = OLD.user_id
-      AND wg.waste_type = OLD.waste_type
-      AND wg.amount > 0
-      AND DATE(OLD.date) BETWEEN DATE_SUB(DATE(wg.date), INTERVAL wg.duration DAY) AND DATE(wg.date);
+    UPDATE `challenges`
+    SET `current_amount` = (
+        SELECT IFNULL(SUM(`amount`), 0)
+        FROM `challenge_user`
+        WHERE `challenge_id` = NEW.challenge_id
+    )
+    WHERE `challenge_id` = NEW.challenge_id;
 END$$
 
-
--- After UPDATE on waste_log
-CREATE TRIGGER after_waste_log_update
-AFTER UPDATE ON waste_log
+CREATE TRIGGER `after_challenge_user_update`
+AFTER UPDATE ON `challenge_user`
 FOR EACH ROW
 BEGIN
-    -- Rollback old challenge
-    UPDATE user_challenge_progress ucp
-    JOIN challenges c ON ucp.challenge_id = c.challenge_id
-    SET ucp.remaining_amount = ucp.remaining_amount + OLD.amount
-    WHERE ucp.user_id = OLD.user_id
-      AND ucp.waste_type = OLD.waste_type
-      AND c.status = 'Active'
-      AND c.start_date <= DATE(OLD.date)
-      AND c.end_date   >= DATE(OLD.date);
-
-    -- Apply new challenge
-    UPDATE user_challenge_progress ucp
-    JOIN challenges c ON ucp.challenge_id = c.challenge_id
-    SET ucp.remaining_amount = ucp.remaining_amount - NEW.amount
-    WHERE ucp.user_id = NEW.user_id
-      AND ucp.waste_type = NEW.waste_type
-      AND c.status = 'Active'
-      AND c.start_date <= DATE(NEW.date)
-      AND c.end_date   >= DATE(NEW.date);
-
-    -- Rollback old waste goal
-    UPDATE waste_goal wg
-    SET wg.percent_of_progress = GREATEST(0, wg.percent_of_progress - (OLD.amount / wg.amount) * 100)
-    WHERE wg.user_id = OLD.user_id
-      AND wg.waste_type = OLD.waste_type
-      AND wg.amount > 0
-      AND DATE(OLD.date) BETWEEN DATE_SUB(DATE(wg.date), INTERVAL wg.duration DAY) AND DATE(wg.date);
-
-    -- Apply new waste goal
-    UPDATE waste_goal wg
-    SET wg.percent_of_progress = LEAST(100, wg.percent_of_progress + (NEW.amount / wg.amount) * 100)
-    WHERE wg.user_id = NEW.user_id
-      AND wg.waste_type = NEW.waste_type
-      AND wg.amount > 0
-      AND DATE(NEW.date) BETWEEN DATE_SUB(DATE(wg.date), INTERVAL wg.duration DAY) AND DATE(wg.date);
+    UPDATE `challenges`
+    SET `current_amount` = (
+        SELECT IFNULL(SUM(`amount`), 0)
+        FROM `challenge_user`
+        WHERE `challenge_id` = NEW.challenge_id
+    )
+    WHERE `challenge_id` = NEW.challenge_id;
 END$$
 
-*/
+CREATE TRIGGER `after_challenge_user_delete`
+AFTER DELETE ON `challenge_user`
+FOR EACH ROW
+BEGIN
+    UPDATE `challenges`
+    SET `current_amount` = (
+        SELECT IFNULL(SUM(`amount`), 0)
+        FROM `challenge_user`
+        WHERE `challenge_id` = OLD.challenge_id
+    )
+    WHERE `challenge_id` = OLD.challenge_id;
+END$$
+DELIMITER ;
+
+
 

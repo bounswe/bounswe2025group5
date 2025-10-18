@@ -18,5 +18,5 @@ public class CreateChallengeRequest {
     private Double amount;
     private LocalDate startDate;
     private LocalDate endDate;
-    private WasteType wasteType;
+    private String type;
 }

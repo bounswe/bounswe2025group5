@@ -18,10 +18,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
-import { API_BASE_URL } from '../apiConfig';
+import { apiRequest } from '../services/apiClient';
 import PostItem from '../components/PostItem';
-
-const API_BASE = API_BASE_URL;
 
 type CommentData = {
   commentId: number;
@@ -115,7 +113,7 @@ export default function ExploreScreen() {
     if (!currentUsername || currentPostsToUpdate.length === 0) return currentPostsToUpdate;
     const promises = currentPostsToUpdate.map(async (post) => {
       try {
-        const res = await fetch(`${API_BASE}/api/posts/${post.id}/likes`);
+        const res = await apiRequest(`/api/posts/${post.id}/likes`);
         if (!res.ok) return post;
         const likesData = await res.json();
         const likedByCurrent = likesData.likedByUsers?.some((liker: any) => liker.username === currentUsername) || false;
@@ -128,7 +126,7 @@ export default function ExploreScreen() {
   const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentUsername: string): Promise<Post[]> => {
     if (!currentUsername || currentPostsToUpdate.length === 0) return currentPostsToUpdate;
       try {
-        const res = await fetch(`${API_BASE}/api/posts/getSavedPosts?username=${currentUsername}`); 
+        const res = await apiRequest(`/api/users/${encodeURIComponent(currentUsername)}/saved-posts`);
         if (!res.ok) return currentPostsToUpdate;
         const savedPostsData = await res.json();
         const savedPostIds = new Set(savedPostsData.map((post: any) => post.postId));
@@ -145,16 +143,25 @@ export default function ExploreScreen() {
 
 
   const fetchPosts = async (loadMore = false) => {
+    const isGuestUser = userType === 'guest';
     const currentOperation = loadMore ? 'loading more' : 'fetching initial/refresh';
     try {
+      if (isGuestUser && loadMore) {
+        setLoadingMore(false);
+        setNoMorePosts(true);
+        return;
+      }
+
       if (loadMore) setLoadingMore(true);
       else setLoading(true);
 
-      const url = loadMore
-        ? `${API_BASE}/api/posts/info?size=5&lastPostId=${lastPostId}`
-        : `${API_BASE}/api/posts/info?size=5`;
+      const query = isGuestUser
+        ? '/api/posts/mostLiked?size=10'
+        : loadMore && lastPostId !== null
+          ? `/api/posts?size=5&lastPostId=${lastPostId}`
+          : '/api/posts?size=5';
       
-      const res = await fetch(url);
+      const res = await apiRequest(query);
       if (!res.ok) throw new Error(`Fetch failed with status ${res.status}`);
       const data = await res.json();
 
@@ -188,9 +195,14 @@ export default function ExploreScreen() {
         }
       }
       
-      if (data.length > 0) setLastPostId(processedNewItems[processedNewItems.length - 1].id);
-      if (data.length < 5) setNoMorePosts(true);
-      else setNoMorePosts(false);
+      if (isGuestUser) {
+        setLastPostId(null);
+        setNoMorePosts(true);
+      } else {
+        if (data.length > 0) setLastPostId(processedNewItems[processedNewItems.length - 1].id);
+        if (data.length < 5) setNoMorePosts(true);
+        else setNoMorePosts(false);
+      }
       
       setError(false);
     } catch (err) {
@@ -236,8 +248,8 @@ export default function ExploreScreen() {
       setIsSearching(true);
       setSearchResults([]);
       setEditingCommentDetails(null); 
-      const res = await fetch(
-        `${API_BASE}/api/search/posts/semantic?query=${encodeURIComponent(q)}&size=5`
+      const res = await apiRequest(
+        `/api/forum/search/semantic?query=${encodeURIComponent(q)}&size=5`
       );
       if (!res.ok) throw new Error('Search failed');
       const data = await res.json();
@@ -283,10 +295,14 @@ export default function ExploreScreen() {
       )
     );
     try {
-      const url = `${API_BASE}/api/posts/like`;
+      const url = '/api/posts/like';
       const method = currentlyLiked ? 'DELETE' : 'POST';
       const body = JSON.stringify({ username, postId });
-      const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body });
+      const response = await apiRequest(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body,
+      });
       const responseBodyText = await response.text();
       if (!response.ok) {
         let errorMsg = `Failed to ${currentlyLiked ? 'unlike' : 'like'}. Status: ${response.status}`;
@@ -330,12 +346,16 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
     // api call for save POST {{base_url}}/api/posts/save with body { "username": "{{username} }", "postId": {{post_id}} } and header Content-Type: application/json
     // api call for unsave DELETE {{base_url}}/api/posts/unsave{{username}}/{{post_id}} no body
     try {
-      const url = currentlySaved
-        ? `${API_BASE}/api/posts/unsave${username}/${postId}`
-        : `${API_BASE}/api/posts/save`;
-      const method = currentlySaved ? 'DELETE' : 'POST';
-      const body = currentlySaved ? null : JSON.stringify({ username, postId });
-      const response = currentlySaved ? await fetch(url, { method }) : await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body });
+      const encodedUsername = encodeURIComponent(username);
+      const response = currentlySaved
+        ? await apiRequest(`/api/posts/${postId}/saves/${encodedUsername}`, {
+            method: 'DELETE',
+          })
+        : await apiRequest(`/api/posts/${postId}/save`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username }),
+          });
       const responseBodyText = await response.text();
       if (!response.ok) {
         let errorMsg = `Failed to ${currentlySaved ? 'unsave' : 'save'}. Status: ${response.status}`;
@@ -372,7 +392,7 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
     }
     setLoadingCommentsPostId(postId);
     try {
-      const response = await fetch(`${API_BASE}/api/comments/post/${postId}`);
+      const response = await apiRequest(`/api/posts/${postId}/comments`);
       if (!response.ok) { /* ... error handling ... */ throw new Error(`Failed to fetch comments: ${response.status}`); }
       const apiResponse = await response.json();
       const fetchedComments: CommentData[] = (apiResponse.comments || []).map((apiComment: any) => ({
@@ -418,7 +438,11 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
     setPostingCommentPostId(postId);
     Keyboard.dismiss();
     try {
-        const response = await fetch(`${API_BASE}/api/comments`, { /* ... POST new comment ... */ method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, content, postId })});
+        const response = await apiRequest(`/api/posts/${postId}/comments`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, content }),
+        });
         const apiResponseData = await response.json();
         if (!response.ok) throw new Error(apiResponseData.message || `Failed to post comment`);
         const newComment: CommentData = { /* ... map response ... */ commentId: apiResponseData.commentId, content: apiResponseData.content, createdAt: apiResponseData.createdAt, username: apiResponseData.creatorUsername || username };
@@ -438,7 +462,7 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
     if (!username) { Alert.alert("Error", "You must be logged in..."); return; }
     Alert.alert("Delete Comment", "Are you sure?", [ { text: "Cancel", style: "cancel" }, { text: "Delete", style: "destructive", onPress: async () => {
         try {
-            const response = await fetch(`${API_BASE}/api/comments/${commentId}`, { method: 'DELETE' });
+            const response = await apiRequest(`/api/comments/${commentId}`, { method: 'DELETE' });
             if (!response.ok) { /* ... error handling ... */ throw new Error(`Failed to delete comment.`); }
             setCommentsByPostId(prev => ({ ...prev, [postId]: (prev[postId] || []).filter(c => c.commentId !== commentId) }));
             const listUpdater = (list: Post[]) => list.map(p => p.id === postId ? { ...p, comments: Math.max(0, p.comments - 1) } : p);
@@ -486,7 +510,7 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
     Keyboard.dismiss();
 
     try {
-      const response = await fetch(`${API_BASE}/api/comments/${commentIdToSave}`, {
+      const response = await apiRequest(`/api/comments/${commentIdToSave}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: newContent }),

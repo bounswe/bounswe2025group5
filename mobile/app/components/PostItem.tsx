@@ -17,9 +17,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
 import CommentItemDisplay from './CommentItemDisplay';
-import { API_BASE_URL } from '../apiConfig';
-
-const API_BASE = API_BASE_URL;
+import { apiUrl } from '../apiConfig';
 
 interface CommentData {
     commentId: number;
@@ -143,11 +141,11 @@ function PostItem({
         </ThemedText>
         {post.photoUrl && (
           <Image
-            source={{
-              uri: post.photoUrl.startsWith('http')
-                ? post.photoUrl
-                : `${API_BASE}${post.photoUrl}`,
-            }}
+                    source={{
+            uri: post.photoUrl.startsWith('http')
+              ? post.photoUrl
+              : apiUrl(post.photoUrl),
+          }}
             style={styles.postImage}
             onError={(e) => console.warn('Explore: Image failed to load:', e.nativeEvent.error, post.photoUrl)}
           />

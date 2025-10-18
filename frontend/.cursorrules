@@ -1,0 +1,201 @@
+# Cursor Rules for Wasteless (Vite 7 + React Router + vite-plugin-pages + Tailwind + shadcn/ui)
+
+These rules guide code generation and edits. Prefer clarity, accessibility, and consistency.
+
+---
+
+## 0) Tech Stack & Baseline
+- **Build**: Vite 7, TypeScript (strict), React 19.
+- **Routing**: `vite-plugin-pages` for file-based routes; custom **`LayoutResolver`** at `src/services/LayoutResolver.tsx` to auto-apply nearest `layout.tsx`.
+- **Styling**: Tailwind CSS; **shadcn/ui** components in `src/components/ui`.
+- **API**: `src/api` with a small `fetch` wrapper; **Zod** for request/response validation.
+- **State**: Local by default; lift to feature contexts only when shared across distant nodes.
+
+---
+
+## 1) Folder Structure & Pathing
+
+```
+src/
+  lib/
+    api/
+      client.ts          
+      auth.ts            
+      users.ts           
+      posts.ts           
+      schemas/           
+      types/             
+  assets/
+    images/
+  components/
+    ui/                
+    common/            
+    layout/            
+  hooks/
+  lib/
+    utils.ts
+  routes/              
+    _index.tsx
+    auth/
+      layout.tsx
+      login.tsx
+      register.tsx
+  layouts/
+    default.tsx        
+  styles/
+    globals.css
+    tailwind.css
+  services/
+    LayoutResolver.tsx 
+  entry.client.tsx
+  main.tsx             
+```
+
+**Path alias:** `@` → `src`
+
+**Import rules**
+- App internals from `@/...` only (no relative traversals like `../../..`).
+- shadcn components from `@/components/ui/...`.
+- API usage only via modules in `@/lib/api/*`.
+
+---
+
+## 2) Routing & Layouts
+
+- Pages live in `src/routes` (powered by `vite-plugin-pages`).
+- **Colocated layouts:** put `layout.tsx` inside any `routes` subfolder to apply a layout to that subtree.
+- Layouts accept `{ children }` (no `<Outlet/>` needed) because `LayoutResolver` wraps the route element.
+- If no colocated layout is found, `LayoutResolver` uses `src/layouts/default.tsx` (if present).
+
+**Standards**
+- Page files use **kebab-case** filenames; default export is **PascalCase** component.
+- Pages never import layouts directly—wrapping is automatic.
+- Data fetching is done through `src/api/endpoints/*` (never `fetch` in components).
+
+---
+
+## 3) LayoutResolver Contract
+
+- File: `src/LayoutResolver.tsx`.
+- Uses `import.meta.glob` to eagerly detect `./routes/**/layout.tsx`.
+- Chooses the **longest matching URL prefix** for the current `pathname`.
+- API: wraps children (`<LayoutResolver>{element}</LayoutResolver>`).
+- Must be the sole wrapper around `useRoutes(routes)` in `entry.client.tsx`.
+
+---
+
+## 4) Styling, Tailwind & shadcn/ui
+
+**Tailwind**
+- Prefer utilities; respect WCAG 2.1 AA contrast.
+- Always use `cn()` from `@/lib/utils` when combining Tailwind classes.
+- Avoid manual string concatenation for conditional styling.
+- `cn()` merges Tailwind classes using `clsx` + `tailwind-merge` to prevent conflicting utilities.
+- Example:
+    <Button className={cn("w-full", isActive && "border-green-500 text-green-500")} />
+- Mobile-first; hit targets ≥ 44×44px.
+- Avoid global background images—put backgrounds in active layouts.
+- For full-viewport backgrounds (e.g., auth):
+  - wrapper: `min-h-screen w-screen grid place-items-center relative`
+  - background: `fixed inset-0 -z-10 bg-[url('/images/wallpaper.png')] bg-cover bg-center bg-no-repeat`
+  - overlay: `fixed inset-0 -z-10 bg-black/55`
+    - Never mix `background` and `overlay` on the same element — keep separate layers for clarity.
+  - content: `relative z-10`
+
+**shadcn/ui**
+- Do **not** edit generated primitives in `components/ui/*`.
+- Compose or wrap in `components/common/*` for app-specific variants.
+- Extend via `className`, slots, or composition—avoid forking components.
+
+
+**Theming**
+- Wallpaper/overlay lives in layout components (not global CSS).
+- Keep hard-coded colors minimal; prefer semantic tokens/classes.
+
+---
+
+## 5) API Standards
+
+**Client (`src/lib/api/client.ts`)**
+- Export `apiFetch<T>(path, init?): Promise<T>`.
+- Handles base URL (VITE_API_URL), auth headers, JSON encoding, refresh-on-401 (single retry), timeouts, and standardized errors.
+- Token keys: `ACCESS_TOKEN_KEY`, `REFRESH_TOKEN_KEY`; never log tokens.
+
+**Validation with Zod**
+- Define **schemas** in `src/lib/api/schemas/*` (requests & responses).
+- Parse/validate **requests** (before sending) and **responses** (after fetch).
+- Export `z.infer<typeof Schema>` types for type safety in UI code.
+
+**Endpoints (`src/lib/api/*`)**
+- One module per domain (e.g., `auth.ts`, `users.ts`, `posts.ts`).
+- Functions are verbs: `login`, `getProfile`, etc.
+- Never build URLs in components; centralize in endpoints.
+
+---
+
+## 6) Components & Features
+
+- Keep components small and focused.
+- Split container/presentational when logic grows.
+- Co-locate trivial tests; otherwise use `/tests`.
+
+---
+
+## 7) Accessibility & UX
+
+- Semantic HTML; keyboard-first navigation; visible focus rings.
+- Provide alt text; never use background images for meaningful content.
+- Ensure color contrast (AA) and safe motion (respect `prefers-reduced-motion`).
+- Form controls: label+id linkage; accessible error text; focus first invalid field.
+- Buttons/links: focus-visible rings; min hit target 44×44; disabled state conveys state.
+- Auth overlays must achieve ≥ 4.5:1 contrast over the image.
+
+---
+
+## 8) Naming & Conventions
+
+- **Files**: kebab-case; **Components**: PascalCase.
+- **Exports**: default per component/page; named for helpers.
+- **Env**: runtime envs start with `VITE_` and are documented in `README`.
+
+---
+
+## 9) Testing
+
+- Use **Vitest**; mock network with **MSW** for endpoint tests.
+- Validate both success and error paths (including Zod failures).
+
+---
+
+## 10) Tooling & DX
+
+- **ESLint**: react, ts, hooks, import plugin (enforce `@` alias).
+- **Prettier**: 2 spaces, single quotes, 100 char width.
+- **TSConfig**: `"strict": true`, `"noUncheckedIndexedAccess": true`.
+
+---
+
+## 11) Commits & PRs
+
+- **Conventional Commits** (`feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `build:`, `chore:`).
+- Small PRs; include screenshots for UI changes.
+- PR checklist: types ok, lint ok, a11y ok, responsive ok, tested.
+
+---
+
+## 12) Performance
+
+- Lazy-load routes (default in vite-plugin-pages).
+- Memoize heavy computations; defer non-critical work.
+- Compress images; prefer CSS effects for backgrounds.
+
+---
+
+## 13) Don’ts
+
+- Don’t call `fetch` in components; use endpoints.
+- Don’t import layouts in pages; let `LayoutResolver` handle it.
+- Don’t fork shadcn primitives; compose/wrap them.
+- Don’t use magic strings for API urls in components.
+
+---

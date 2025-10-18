@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
-import { HelloWave } from "@/components/HelloWave";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import {
@@ -20,10 +19,13 @@ import {
 } from "@react-navigation/native";
 import { AuthContext } from "../_layout";
 import { API_BASE_URL } from "../apiConfig";
+import {
+  apiRequest,
+  login as loginRequest,
+  register as registerRequest,
+} from "../services/apiClient";
 import { ScrollView } from "react-native";
 import CheckBox from "../components/CheckBox";
-
-const API_BASE = `${API_BASE_URL}/api`;
 
 const KG_SAVED = 57492;
 
@@ -64,24 +66,18 @@ export default function HomeScreen() {
   useEffect(() => {
     const fetchUserCount = async () => {
       try {
-        const token = await AsyncStorage.getItem("token");
-        const res = await fetch(`${API_BASE_URL}/api/users/count`, {
+        const res = await apiRequest("/api/users/count", {
           method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
+          auth: false,
         });
 
         const body = await res.json().catch(() => ({}));
-        console.log("users/count response ➜", body);
 
         if (!res.ok) {
           return console.warn(body.message || "Could not fetch user count");
         }
 
         const userCount = body.userCount ?? 0;
-        console.log("setting usersCount ➜", userCount);
         setUsersCount(userCount);
       } catch (err) {
         console.warn("Network error while fetching user count", err);
@@ -93,9 +89,9 @@ export default function HomeScreen() {
   useEffect(() => {
     const fetchTrending = async () => {
       try {
-        const res = await fetch(
-          `${API_BASE_URL}/api/posts/mostLikedPosts?size=4`
-        );
+        const res = await apiRequest("/api/posts/mostLiked?size=4", {
+          auth: false,
+        });
         if (!res.ok) throw new Error("Failed to fetch trending posts");
         const data = (await res.json()) as TrendingPost[];
         setTrendingPosts(data);
@@ -155,44 +151,19 @@ export default function HomeScreen() {
     }
 
     try {
-      const res = await fetch(`${API_BASE}/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ emailOrUsername, password: pwd }),
-      });
-
-      if (!res.ok) {
-        const errBody = await res.json().catch(() => null);
-
-        console.error("Login response error:", errBody);
-
-        const fullMsg = errBody
-          ? JSON.stringify(errBody, null, 2)
-          : "Login failed";
-        return showError("Invalid username or password!");
-      }
-
-      // success path
-      const { token, username } = (await res.json()) as {
-        token: string;
-
-        username: string;
-      };
-      await AsyncStorage.multiSet([
-        ["token", token],
-        ["username", username],
-      ]);
+      const result = await loginRequest(emailOrUsername, pwd);
       setUserType("user");
-      setUsername(username);
+      setUsername(result.username);
       setLoggedIn(true);
+      navigation.navigate("explore");
     } catch (error: any) {
       console.error("Network/login exception:", error);
 
-      const msg =
-        error instanceof Error
-          ? `${error.message}\n${error.stack}`
-          : JSON.stringify(error, null, 2);
-      showError(msg);
+      const message =
+        error instanceof Error && error.message
+          ? error.message
+          : "Invalid username or password!";
+      showError(message);
     }
   };
 
@@ -211,34 +182,14 @@ export default function HomeScreen() {
       return showError("You must acknowledge the KVKK form");
     }
     try {
-      const res = await fetch(`${API_BASE}/users`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: regUsername,
-          email: regEmail,
-          password: regPass,
-        }),
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        return showError(err.message || "Registration failed");
-      }
-      const { username: u, email: e } = (await res.json()) as {
-        message: string;
-        username: string;
-        email: string;
-      };
-      await AsyncStorage.multiSet([
-        ["username", u],
-        ["email", e],
-      ]);
+      await registerRequest(regUsername, regEmail, regPass);
       setIsRegistering(false);
-      setUsernameInput(u);
+      setUsernameInput(regUsername);
       setKvkkChecked(false);
       showError("Registered! Please log in.");
-    } catch {
-      showError("Network error, please try again");
+    } catch (err) {
+      console.error("Registration exception:", err);
+      showError(err instanceof Error ? err.message : "Registration failed");
     }
   };
 

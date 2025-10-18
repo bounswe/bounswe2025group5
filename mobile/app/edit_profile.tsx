@@ -15,12 +15,13 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from './_layout';
-import { API_BASE_URL } from './apiConfig';
+import { apiRequest, getAccessToken} from './services/apiClient';
+import { apiUrl } from './apiConfig';
+
+import * as FileSystem from 'expo-file-system';
+
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const API_BASE = API_BASE_URL;
 
 export const unstable_settings = {
   initialRouteName: 'edit_profile',
@@ -73,7 +74,10 @@ export default function EditProfileScreen() {
       }
       setLoadingProfile(true);
       try {
-        const response = await fetch(`${API_BASE}/api/profile/info?username=${encodeURIComponent(username)}`);
+        const encodedUsername = encodeURIComponent(username);
+        const response = await apiRequest(
+          `/api/users/${encodedUsername}/profile?username=${encodedUsername}`
+        );
         if (!response.ok) {
             throw new Error(`Failed to load profile: ${response.status}`);
         }
@@ -110,90 +114,95 @@ export default function EditProfileScreen() {
   };
 
   const handleUploadProfilePhoto = async () => {
-    if (!newAvatarAsset) {
-      Alert.alert("No New Photo", "Please select a new photo to upload.");
-      return;
-    }
-    if (!username) {
-      Alert.alert("Error", "User not identified.");
-      return;
-    }
+  if (!newAvatarAsset) {
+    Alert.alert('No New Photo', 'Please select a new photo to upload.');
+    return;
+  }
+  if (!username) {
+    Alert.alert('Error', 'User not identified.');
+    return;
+  }
 
-    setUploadingPhoto(true);
-    try {
-      const formData = new FormData();
-      const uriParts = newAvatarAsset.uri.split('.');
-      const fileType = uriParts[uriParts.length - 1];
-      const fileName = newAvatarAsset.fileName || `avatar-${username}.${fileType}`;
+  setUploadingPhoto(true);
+  try {
+    const asset = newAvatarAsset;
 
-      formData.append('file', { // Key is 'file' as per your Postman
-        uri: newAvatarAsset.uri,
-        name: fileName,
-        type: newAvatarAsset.mimeType || `image/${fileType}`,
-      } as any);
-
-      const token = await AsyncStorage.getItem('token');
-      const headers: HeadersInit = {};
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+    // iOS fix: convert ph:// to file:// so RN/fetch can read it
+    const normalizeNativeUri = async (uri: string) => {
+      if (Platform.OS !== 'web' && uri.startsWith('ph://')) {
+        const dest = `${FileSystem.cacheDirectory}upload-${Date.now()}.jpg`;
+        await FileSystem.copyAsync({ from: uri, to: dest });
+        return dest;
       }
+      return uri;
+    };
 
-      const response = await fetch(`${API_BASE}/api/profile/${username}/photo`, {
+    const guessExt = (mime?: string) => (mime?.split('/')[1] || 'jpg');
+    const type = asset.mimeType ?? 'image/jpeg';
+    const defaultName = `avatar-${username}.${guessExt(type)}`;
+
+    const fd = new FormData();
+
+    if (Platform.OS === 'web') {
+      // Web: turn the ImagePicker URI (blob/object URL) into a real File
+      const resp = await fetch(asset.uri);
+      const blob = await resp.blob();
+      const webType = blob.type || type;
+      const webName = asset.fileName ?? defaultName;
+      const file = new File([blob], webName, { type: webType });
+      fd.append('file', file); 
+    } else {
+      // iOS/Android: append RN-style file descriptor
+      const uri = await normalizeNativeUri(asset.uri);
+      const name = asset.fileName ?? defaultName;
+      fd.append('file', { uri, name, type } as any);
+    }
+
+    const token = await getAccessToken();
+    const res = await fetch(
+      apiUrl(`/api/users/${encodeURIComponent(username)}/profile/picture`),
+      {
         method: 'POST',
-        headers: headers,
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.error("Upload photo API error:", response.status, errorData);
-        let backendMessage = `Failed to upload photo (Status: ${response.status})`;
-        try {
-            const parsedError = JSON.parse(errorData);
-            backendMessage = parsedError.message || parsedError.error || backendMessage;
-        } catch(e) {
-            if(errorData && errorData.length < 150) backendMessage += `: ${errorData}`;
-        }
-        throw new Error(backendMessage);
+        headers: {
+          Accept: 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: fd,
       }
+    );
 
-      const updatedProfileInfo = await response.json(); // Assuming API returns updated profile info or new URL
-      if (updatedProfileInfo && updatedProfileInfo.photoUrl) {
-        setAvatarDisplayUrl(updatedProfileInfo.photoUrl); // Update display with URL from server
-      }
-      setNewAvatarAsset(null); // Clear the selected asset after successful upload
-      Alert.alert('Success', 'Profile photo uploaded successfully!');
-
-    } catch (e) {
-      console.error('Photo upload error:', e);
-      Alert.alert('Error', `Failed to upload photo. ${e instanceof Error ? e.message : ''}`);
-    } finally {
-      setUploadingPhoto(false);
+    if (!res.ok) {
+      const t = await res.text();
+      throw new Error(`Upload failed (${res.status}): ${t.slice(0, 200)}`);
     }
-  };
+
+    const updated = await res.json();
+    if (updated?.photoUrl) setAvatarDisplayUrl(updated.photoUrl);
+    setNewAvatarAsset(null);
+    Alert.alert('Success', 'Profile photo uploaded successfully!');
+  } catch (e) {
+    console.error('Photo upload error:', e);
+    Alert.alert('Error', e instanceof Error ? e.message : 'Upload failed');
+  } finally {
+    setUploadingPhoto(false);
+  }
+};
 
 
-  const onSaveBio = async () => { // Renamed from onSave to be specific
+  const onSaveBio = async () => {
     if (!username) {
         Alert.alert('Error', 'User not identified.');
         return;
     }
     setSavingBio(true);
     try {
-      const token = await AsyncStorage.getItem('token');
-      const headers: HeadersInit = { 'Content-Type': 'application/json' };
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-      // Now only sending username and biography to /api/profile/edit
-      // photoUrl is handled by the dedicated upload endpoint.
-      await fetch(`${API_BASE}/api/profile/edit`, {
+      await apiRequest(`/api/users/${encodeURIComponent(username)}/profile`, {
         method: 'PUT',
-        headers: headers,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, biography: bio }),
       });
       Alert.alert('Success', 'Biography updated successfully!');
-      // navigation.goBack(); // Consider if you want to go back after only bio save
+      // navigation.goBack(); // if on, go back after only bio save
     } catch (e) {
       console.error('Bio update error:', e);
       Alert.alert('Error', `Failed to update biography. ${e instanceof Error ? e.message : ''}`);
