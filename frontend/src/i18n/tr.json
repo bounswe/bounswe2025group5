@@ -16,6 +16,7 @@
     "loginButton": "Giriş Yap"
     },
     "profile": {
+        "edit": "Profili Düzenle",
         "navbar": "Profil",
         "title": "Profiliniz",
         "description": "Profil bilgilerinizi yönetin",
@@ -27,7 +28,8 @@
         "noPhoto": "Fotoğraf yok",
         "changePhoto": "Fotoğrafı Değiştir",
         "delete": "Hesabı Sil",
-        "confirmDelete": "Bu işlem hesabınızı kalıcı olarak silecek. Devam edilsin mi?"
+        "confirmDelete": "Bu işlem hesabınızı kalıcı olarak silecek. Devam edilsin mi?",
+        "deleting": "Siliniyor..."
     },
     "main" : {
         "navbar": "Ana Sayfa"
