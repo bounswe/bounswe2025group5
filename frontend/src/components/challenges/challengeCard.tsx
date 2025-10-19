@@ -74,13 +74,13 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
         </CardContent>
         {!userInChallenge? (
           <div className="mt-auto p-4">
-            <Button size="sm" variant="outline" disabled={!!busy[challenge.challengeId]} onClick={() => attend(challenge.challengeId, username)}>
+            <Button size="sm" variant="outline" className="border-green-500 text-green-600 hover:bg-green-50 hover:text-green-700 dark:border-green-400 dark:text-green-400 dark:hover:bg-green-900/20" disabled={!!busy[challenge.challengeId]} onClick={() => attend(challenge.challengeId, username)}>
               {busy[challenge.challengeId] ? t('challenges.attending', 'Attending...') : t('challenges.attend', 'Attend')}
             </Button>
           </div>
         ) : (
           <div className="mt-auto p-4">
-            <Button size="sm" variant="outline" disabled={!!busy[challenge.challengeId]} onClick={() => leave(challenge.challengeId, username)}>
+            <Button size="sm" variant="destructive" disabled={!!busy[challenge.challengeId]} onClick={() => leave(challenge.challengeId, username)}>
               {busy[challenge.challengeId] ? t('challenges.leaving', 'Leaving...') : t('challenges.leave', 'Leave')}
             </Button>
           </div>

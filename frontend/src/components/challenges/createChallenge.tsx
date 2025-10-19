@@ -27,6 +27,17 @@ export default function CreateChallenge() {
         setError(null);
         setSuccess(null);
         try {
+            if (!title || !description || !type || !startDate || !endDate || !amount) {
+                setError(t('challenges.create.missingFields', 'Please fill in all required fields'));
+                setLoading(false);
+                return;
+            }
+            // check also that if the amount is a number and greater than 0
+            if (typeof amount !== 'number' || amount <= 0) {
+                setError(t('challenges.create.amountError', 'Amount must be a number greater than 0'));
+                setLoading(false);
+                return;
+            }
             if (new Date(startDate) >= new Date(endDate)) {
                 setError(t('challenges.create.dateError', 'End date must be after start date'));
                 setLoading(false);
@@ -35,20 +46,20 @@ export default function CreateChallenge() {
             await ChallengesApi.create({
                 name: title,
                 description: description,
-                amount: amount === '' ? null : amount,
+                amount: amount,
                 startDate: startDate,
                 endDate: endDate,
                 type: type
             });
-            setSuccess(t('challenges.createSuccess', 'Challenge created successfully'));
+            setSuccess(t('challenges.create.createSuccess', 'Challenge created successfully'));
             setTitle('');
             setDescription('');
-            setType('steps');
+            setType('');
             setAmount('');
             setStartDate('');
             setEndDate('');
         } catch (e) {
-            setError(e instanceof Error ? e.message : t('challenges.createError', 'Failed to create challenge'));
+            setError(e instanceof Error ? e.message : t('challenges.create.createError', 'Failed to create challenge'));
         } finally {
             setLoading(false);
         }
@@ -58,7 +69,7 @@ export default function CreateChallenge() {
         <div className="flex justify-center">
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="outline" className="w-fit px-16">{t("common.create")}</Button>
+              <Button variant="default" className="w-fit px-16 bg-blue-600 hover:bg-blue-700 text-white border-blue-600">{t("challenges.create.createChallenge")}</Button>
             </DialogTrigger>
             <DialogContent>
             <DialogHeader>

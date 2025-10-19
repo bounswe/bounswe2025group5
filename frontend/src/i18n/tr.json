@@ -77,6 +77,7 @@
         "loading": "Yükleniyor...",
         "noChallenges": "Etkinlik bulunamadı",
         "create": {
+            "createChallenge": "Etkinlik Yarat",
             "titleLabel": "Etkinlik Oluştur",
             "name": "Başlık",
             "namePlaceholder": "Etkinlik başlığını girin",
@@ -88,7 +89,11 @@
             "amountPlaceholder": "Hedef miktarı girin",
             "startDate": "Başlangıç Tarihi",
             "endDate": "Bitiş Tarihi",
-            "dateError": "Bitiş tarihi, başlangıç tarihinden sonra olmalıdır"
+            "missingFields": "Lütfen tüm gerekli alanları doldurun",
+            "amountError": "Miktar 0'dan büyük bir sayı olmalıdır",
+            "dateError": "Bitiş tarihi, başlangıç tarihinden sonra olmalıdır",
+            "createSuccess": "Etkinlik başarıyla oluşturuldu",
+            "createError": "Etkinlik oluşturulamadı"
         }
     }
 }
