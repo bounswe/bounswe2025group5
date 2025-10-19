@@ -130,7 +130,7 @@
     "viewLeaderboard": "Lider Tablosunu Görüntüle",
     "noChallengesMatchFilters": "Filtrelerinizle eşleşen etkinlik bulunamadı.",
     "leaderboardTitle": "Lider Tablosu",
-    "remaining": "Kayıt Miktarı",
+    "remaining": "Kaydedilen Miktar",
     "leaderboardEmpty": "Lider tablosu boş.",
     "close": "Kapat",
     "errorFailedToLoadChallenges": "Etkinlikler yüklenemedi",
