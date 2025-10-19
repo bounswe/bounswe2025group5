@@ -70,10 +70,13 @@
         "status": "Durum",
         "dates": "Tarih",
         "target": "Hedef",
+        "amount": "Miktar",
         "leave": "Ayrıl",
         "leaving": "Ayrılıyor...",
         "attend": "Katıl",
         "attending": "Katılıyor...",
+        "log": "Gir",
+        "logging": "Giriliyor...",
         "loading": "Yükleniyor...",
         "noChallenges": "Etkinlik bulunamadı",
         "create": {

@@ -70,10 +70,13 @@
         "status": "Status",
         "dates": "Dates",
         "target": "Target",
+        "amount": "Amount",
         "leave": "Leave",
         "leaving": "Leaving...",
         "attend": "Attend",
         "attending": "Attending...",
+        "log": "Log",
+        "logging": "Logging...",
         "loading": "Loading...",
         "noChallenges": "No challenges found",
         "create": {
