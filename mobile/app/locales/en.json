@@ -256,6 +256,10 @@
     "serverResponse": "Server response",
     "challengeDescRequired": "Challenge description is required",
     "failedToCreateChallenge": "Failed to create challenge",
-    "usernameRequiredForAttendance": "Username is required to manage challenge attendance"
+    "usernameRequiredForAttendance": "Username is required to manage challenge attendance",
+    "deleteAccount": "Delete Account",
+    "deleteAccountModalTitle": "Enter your password to delete your account:",
+    "deleteAccountIncorrectPassword": "Incorrect password.",
+    "deleteAccountGenericError": "Could not delete account."
   }
 }

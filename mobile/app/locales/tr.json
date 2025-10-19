@@ -256,6 +256,10 @@
     "serverResponse": "Sunucu yanıtı",
     "challengeDescRequired": "Etkinlik açıklaması gerekli",
     "failedToCreateChallenge": "Etkinlik oluşturulamadı",
-    "usernameRequiredForAttendance": "Etkinlik katılımını yönetmek için kullanıcı adı gerekli"
+    "usernameRequiredForAttendance": "Etkinlik katılımını yönetmek için kullanıcı adı gerekli",
+    "deleteAccount": "Hesabımı Sil",
+    "deleteAccountModalTitle": "Hesabınızı silmek için şifrenizi girin",
+    "deleteAccountIncorrectPassword": "Yanlış şifre",
+    "deleteAccountGenericError": "Hesap silinemedi."
   }
 }

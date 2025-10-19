@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from './_layout';
-import { apiRequest, getAccessToken} from './services/apiClient';
+import { apiRequest, clearSession, getAccessToken} from './services/apiClient';
 import { apiUrl } from './apiConfig';
 
 import * as FileSystem from 'expo-file-system';
@@ -24,6 +24,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
+import { Modal } from 'react-native';
 
 
 export const unstable_settings = {
@@ -69,6 +70,10 @@ export default function EditProfileScreen() {
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [savingBio, setSavingBio] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const [errState, setErrState] = useState<ErrorState>({ key: null, message: null, resolved: null });
 
@@ -118,7 +123,7 @@ export default function EditProfileScreen() {
     })();
   }, [username]);
 
-  const pickImage = async () => {
+const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.granted === false) {
       Alert.alert(t('permissionRequired'), t('allowPhotosAccessAvatar'));
@@ -249,14 +254,8 @@ const onSaveBio = async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, biography: bio }),
     });
-    navigation.navigate({
-      name: 'profile',
-      params: { profileUpdated: true },
-      merge: true,
-    } as never);
-    if (navigation.canGoBack()) {
-      navigation.goBack();
-    }
+    Alert.alert(t('success'), t('successBioUpdated'));
+    // navigation.goBack(); // if desired, go back after saving bio
   } catch (e) {
     console.error('Bio update error:', e);
     const s: ErrorState =
@@ -270,7 +269,45 @@ const onSaveBio = async () => {
   }
 };
 
-  const onCancel = () => navigation.goBack();
+const handleDeleteAccountButton = () => {
+  setDeletePassword("");
+  setDeleteModalVisible(true);
+  setErrState({ key: null, message: null, resolved: null });
+};
+
+const handleCancelDelete = () => {
+  setDeleteModalVisible(false);
+  setDeletePassword("");
+  setErrState({ key: null, message: null, resolved: null });
+};
+
+const handleConfirmDelete = async () => {
+  setDeleteError(null);
+  try {
+    const encodedUsername = encodeURIComponent(username);
+    const response = await apiRequest(
+      `/api/users/${encodedUsername}`,
+      {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: deletePassword }),
+      }
+    );
+    if (response.ok) {
+      setDeleteModalVisible(false);
+      await clearSession();
+      navigation.reset({ index: 0, routes: [{ name: '(tabs)' }] });
+    } else if (response.status === 401) {
+      setDeleteError(t('deleteAccountIncorrectPassword'));
+    } else {
+      setDeleteError(t('deleteAccountGenericError'));
+    }
+  } catch (error) {
+    setDeleteError(t('deleteAccountGenericError'));
+  }
+};
+
+const onCancel = () => navigation.goBack();
 
   if (loadingProfile) {
     return (
@@ -281,83 +318,229 @@ const onSaveBio = async () => {
   }
 
   return (
-    <ScrollView contentContainerStyle={[styles.container, { backgroundColor: screenBackgroundColor }]}>
-      {(errState.key || errState.message) && (
-        <View style={[styles.errorBanner, { backgroundColor: isDarkMode ? '#5D1F1A' : '#FFCDD2' }]}>
-          <Text style={[styles.errorBannerText, { color: isDarkMode ? '#FF9DA3' : '#C62828' }]}>
-            {t('error')}: {resolveErrorText(errState)}
-          </Text>
-        </View>
-      )}
-
-      <View style={styles.avatarContainer}>
-        {avatarDisplayUrl ? (
-          <Image source={{ uri: avatarDisplayUrl }} style={styles.avatar} />
-        ) : (
-          <Ionicons name="person-circle-outline" size={120} color={avatarPlaceholderColor} />
-        )}
-        <TouchableOpacity onPress={pickImage} style={styles.imagePickerButton} disabled={uploadingPhoto || savingBio}>
-          <Ionicons name="camera-outline" size={24} color={iconColor} />
-          <Text style={[styles.imagePickerText, { color: inputTextColor }]}>
-            {avatarDisplayUrl ? t('changeAvatar') : t('selectAvatar')}
-          </Text>
-        </TouchableOpacity>
-        {newAvatarAsset && (
-          <TouchableOpacity
-            style={[styles.uploadButton, { backgroundColor: uploadButtonBgColor }, uploadingPhoto && styles.disabledButton]}
-            onPress={handleUploadProfilePhoto}
-            disabled={uploadingPhoto}
+    <View style={{ flex: 1 }}>
+      {/* Scrollable content */}
+      <ScrollView
+        contentContainerStyle={[
+          styles.container,
+          { backgroundColor: screenBackgroundColor, paddingBottom: 100 },
+        ]}
+      >
+        {(errState.key || errState.message) && (
+          <View
+            style={[
+              styles.errorBanner,
+              { backgroundColor: isDarkMode ? '#5D1F1A' : '#FFCDD2' },
+            ]}
           >
-            {uploadingPhoto ? (
+            <Text
+              style={[
+                styles.errorBannerText,
+                { color: isDarkMode ? '#FF9DA3' : '#C62828' },
+              ]}
+            >
+              {t('error')}: {resolveErrorText(errState)}
+            </Text>
+          </View>
+        )}
+  
+        <View style={styles.avatarContainer}>
+          {avatarDisplayUrl ? (
+            <Image source={{ uri: avatarDisplayUrl }} style={styles.avatar} />
+          ) : (
+            <Ionicons
+              name="person-circle-outline"
+              size={120}
+              color={avatarPlaceholderColor}
+            />
+          )}
+          <TouchableOpacity
+            onPress={pickImage}
+            style={styles.imagePickerButton}
+            disabled={uploadingPhoto || savingBio}
+          >
+            <Ionicons name="camera-outline" size={24} color={iconColor} />
+            <Text style={[styles.imagePickerText, { color: inputTextColor }]}>
+              {avatarDisplayUrl ? t('changeAvatar') : t('selectAvatar')}
+            </Text>
+          </TouchableOpacity>
+  
+          {newAvatarAsset && (
+            <TouchableOpacity
+              style={[
+                styles.uploadButton,
+                { backgroundColor: uploadButtonBgColor },
+                uploadingPhoto && styles.disabledButton,
+              ]}
+              onPress={handleUploadProfilePhoto}
+              disabled={uploadingPhoto}
+            >
+              {uploadingPhoto ? (
+                <ActivityIndicator color="#fff" size="small" />
+              ) : (
+                <Text style={styles.uploadButtonText}>{t('uploadPhoto')}</Text>
+              )}
+            </TouchableOpacity>
+          )}
+        </View>
+  
+        <TextInput
+          style={[
+            styles.bioInput,
+            {
+              borderColor: inputBorderColor,
+              color: inputTextColor,
+              backgroundColor: inputBackgroundColor,
+            },
+          ]}
+          value={bio}
+          onChangeText={setBio}
+          placeholder={t('writeShortBio')}
+          placeholderTextColor={placeholderTextColor}
+          multiline
+          maxLength={100}
+          editable={!savingBio && !uploadingPhoto}
+        />
+        <Text style={[styles.charCount, { color: charCountColor }]}>
+          {bio.length}/100
+        </Text>
+  
+        {/* Save / Cancel Buttons */}
+        <View style={styles.buttonRow}>
+          <TouchableOpacity
+            style={[
+              styles.btn,
+              styles.cancel,
+              { backgroundColor: cancelButtonBgColor },
+            ]}
+            onPress={onCancel}
+            disabled={savingBio || uploadingPhoto}
+          >
+            <Text style={[styles.btnText, { color: cancelButtonTextColor }]}>
+              {t('cancel')}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.btn,
+              styles.save,
+              (savingBio || uploadingPhoto) && styles.disabledButton,
+            ]}
+            onPress={onSaveBio}
+            disabled={savingBio || uploadingPhoto}
+          >
+            {savingBio ? (
               <ActivityIndicator color="#fff" size="small" />
             ) : (
-              <Text style={styles.uploadButtonText}>{t('uploadPhoto')}</Text>
+              <Text style={styles.btnText}>{t('saveBio')}</Text>
             )}
           </TouchableOpacity>
-        )}
+        </View>
+      </ScrollView>
+  
+      {/* ✅ Pinned Delete Button, aligned with Save/Cancel row */}
+      <View
+        style={{
+          position: 'absolute',
+          bottom: 20,
+          left: 0,
+          right: 0,
+          flexDirection: 'row',
+          justifyContent: 'center',
+        }}
+      >
+        <View style={{ width: '80%', flexDirection: 'row', justifyContent: 'space-between' }}>
+          <TouchableOpacity
+            style={[
+              styles.btn,
+              styles.delete,
+              {
+                backgroundColor: isDarkMode ? '#C72C1C' : '#FF3B30',
+                flex: 1,
+              },
+            ]}
+            onPress={handleDeleteAccountButton}
+            disabled={savingBio || uploadingPhoto}
+          >
+            <Text
+              style={[
+                styles.btnText,
+                { color: isDarkMode ? '#FFF5F5' : '#FFFFFF' },
+              ]}
+            >
+              {t('deleteAccount')}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
-
-      <TextInput
-        style={[
-          styles.bioInput,
-          {
-            borderColor: inputBorderColor,
-            color: inputTextColor,
-            backgroundColor: inputBackgroundColor,
-          },
-        ]}
-        value={bio}
-        onChangeText={setBio}
-        placeholder={t('writeShortBio')}
-        placeholderTextColor={placeholderTextColor}
-        multiline
-        maxLength={100}
-        editable={!savingBio && !uploadingPhoto}
-      />
-      <Text style={[styles.charCount, { color: charCountColor }]}>{bio.length}/100</Text>
-
-      <View style={styles.buttonRow}>
-        <TouchableOpacity
-          style={[styles.btn, styles.cancel, { backgroundColor: cancelButtonBgColor }]}
-          onPress={onCancel}
-          disabled={savingBio || uploadingPhoto}
+  
+      {/* Delete confirmation modal */}
+      <Modal
+        visible={deleteModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={handleCancelDelete}
+      >
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+          }}
         >
-          <Text style={[styles.btnText, { color: cancelButtonTextColor }]}>{t('cancel')}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.btn, styles.save, (savingBio || uploadingPhoto) && styles.disabledButton]}
-          onPress={onSaveBio}
-          disabled={savingBio || uploadingPhoto}
-        >
-          {savingBio ? (
-            <ActivityIndicator color="#fff" size="small" />
-          ) : (
-            <Text style={styles.btnText}>{t('saveBio')}</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+          <View
+            style={{
+              backgroundColor: isDarkMode ? '#1E1E1E' : '#fff',
+              padding: 24,
+              borderRadius: 12,
+              width: '80%',
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: 'bold',
+                marginBottom: 12,
+                color: isDarkMode ? '#FFF' : '#000',
+              }}
+            >
+              {t('deleteAccountModalTitle')}
+            </Text>
+            <TextInput
+              style={{
+                borderWidth: 1,
+                borderColor: isDarkMode ? '#444' : '#CCC',
+                backgroundColor: isDarkMode ? '#2A2A2A' : '#FFF',
+                color: isDarkMode ? '#FFF' : '#000',
+                borderRadius: 6,
+                padding: 12,
+                marginBottom: 16,
+              }}
+              value={deletePassword}
+              onChangeText={setDeletePassword}
+              placeholder={t('password')}
+              placeholderTextColor={isDarkMode ? '#AAA' : '#888'}
+              secureTextEntry
+            />
+            {deleteError && (
+              <Text style={{ color: '#FF3B30', marginBottom: 8 }}>{t('error')}</Text>
+            )}
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+              <TouchableOpacity onPress={handleCancelDelete} style={{ marginRight: 12 }}>
+                <Text style={{ color: '#2196F3', fontWeight: 'bold' }}>{t('cancel')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleConfirmDelete}>
+                <Text style={{ color: '#FF3B30', fontWeight: 'bold' }}>{t('delete')}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </View>
   );
+  
+  
 }
 
 const styles = StyleSheet.create({
@@ -450,5 +633,13 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     opacity: 0.6,
+  },
+  delete: {
+    // You can add custom styles here if needed
+  },
+  deleteButtonContainer: {
+    marginTop: 40,
+    marginBottom: 24,
+    alignItems: 'center',
   },
 });
