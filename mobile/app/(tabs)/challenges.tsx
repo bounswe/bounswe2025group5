@@ -1117,7 +1117,7 @@ export default function ChallengesScreen() {
               onPress={() => setLogsModalVisible(false)}
             >
               <ThemedText style={[styles.buttonText, { color: "#FFFFFF" }]}>
-                Close
+                {t("close")}
               </ThemedText>
             </TouchableOpacity>
           </View>
