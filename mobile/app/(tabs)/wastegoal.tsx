@@ -831,6 +831,7 @@ export default function WasteGoalScreen() {
                   value={customLogAmount}
                   onChangeText={setCustomLogAmount}
                   keyboardType="numeric"
+                  editable={false}
                   placeholder={t('customLogAmountPlaceholder')}
                   placeholderTextColor={placeholderTextColor}
                 />
