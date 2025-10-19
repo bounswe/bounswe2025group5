@@ -258,6 +258,10 @@
     "serverResponse": "Sunucu yanıtı",
     "challengeDescRequired": "Meydan okuma açıklaması gerekli",
     "failedToCreateChallenge": "Meydan okuma oluşturulamadı",
-    "usernameRequiredForAttendance": "Meydan okuma katılımını yönetmek için kullanıcı adı gerekli"
+    "usernameRequiredForAttendance": "Meydan okuma katılımını yönetmek için kullanıcı adı gerekli",
+    "deleteAccount": "Hesabımı Sil",
+    "deleteAccountModalTitle": "Hesabınızı silmek için şifrenizi girin",
+    "deleteAccountIncorrectPassword": "Yanlış şifre",
+    "deleteAccountGenericError": "Hesap silinemedi."
   }
 }

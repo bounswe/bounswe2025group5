@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from './_layout';
-import { apiRequest, getAccessToken} from './services/apiClient';
+import { apiRequest, clearSession, getAccessToken} from './services/apiClient';
 import { apiUrl } from './apiConfig';
 
 import * as FileSystem from 'expo-file-system';
@@ -295,15 +295,15 @@ const handleConfirmDelete = async () => {
     );
     if (response.ok) {
       setDeleteModalVisible(false);
-      navigation.reset({ index: 0, routes: [{ name: 'index' }] });
-      // Optionally show a success message
+      await clearSession();
+      navigation.reset({ index: 0, routes: [{ name: '(tabs)' }] });
     } else if (response.status === 401) {
-      setDeleteError('Password is incorrect.');
+      setDeleteError(t('deleteAccountIncorrectPassword'));
     } else {
-      setDeleteError('An error occurred. Please try again.');
+      setDeleteError(t('deleteAccountGenericError'));
     }
   } catch (error) {
-    setDeleteError('An error occurred. Please try again.');
+    setDeleteError(t('deleteAccountGenericError'));
   }
 };
 
@@ -505,7 +505,7 @@ const onCancel = () => navigation.goBack();
                 color: isDarkMode ? '#FFF' : '#000',
               }}
             >
-              Enter your password to delete your account:
+              {t('deleteAccountModalTitle')}
             </Text>
             <TextInput
               style={{
@@ -519,19 +519,19 @@ const onCancel = () => navigation.goBack();
               }}
               value={deletePassword}
               onChangeText={setDeletePassword}
-              placeholder="Password"
+              placeholder={t('password')}
               placeholderTextColor={isDarkMode ? '#AAA' : '#888'}
               secureTextEntry
             />
             {deleteError && (
-              <Text style={{ color: '#FF3B30', marginBottom: 8 }}>{deleteError}</Text>
+              <Text style={{ color: '#FF3B30', marginBottom: 8 }}>{t('error')}</Text>
             )}
             <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
               <TouchableOpacity onPress={handleCancelDelete} style={{ marginRight: 12 }}>
-                <Text style={{ color: '#2196F3', fontWeight: 'bold' }}>Cancel</Text>
+                <Text style={{ color: '#2196F3', fontWeight: 'bold' }}>{t('cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleConfirmDelete}>
-                <Text style={{ color: '#FF3B30', fontWeight: 'bold' }}>Delete</Text>
+                <Text style={{ color: '#FF3B30', fontWeight: 'bold' }}>{t('delete')}</Text>
               </TouchableOpacity>
             </View>
           </View>
