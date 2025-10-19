@@ -1,5 +1,5 @@
 
-import wallpaper from '@/assets/background.png';
+import wallpaper from '@/assets/background2.png';
 import Navbar from '@/components/common/navbar';
 
 export default function mainLayout({ children }: { children: React.ReactNode }) {

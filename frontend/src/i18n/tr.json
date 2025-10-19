@@ -1,6 +1,8 @@
 {
     "common": {
-        "create": "Yarat"
+        "create": "Yarat",
+        "cancel": "İptal",
+        "posting": "Paylaşılıyor..."
     },
     "login": {
     "title": "Hesabınıza giriş yapın",
@@ -38,7 +40,38 @@
         "navbar": "Ana Sayfa"
     },
     "feed" : {
-        "navbar": "Gündem"
+        "navbar": "Gündem",
+        "title": "Gündem", 
+        "loading": "Gönderiler yükleniyor...",
+        "loadingMore": "Daha fazla yükleniyor...",
+        "loadMore": "Daha Fazla Yükle",
+        "refresh": "Yenile",
+        "latest": "En Son",
+        "popular": "Popüler",
+        "endOfFeed": "Sona ulaştınız!",
+        "createPost": {
+            "title": "Bir Şeyler Paylaş",
+            "subtitle": "Aklından neler geçiyor?",
+            "placeholder": "Gönderi Oluştur",
+            "content": {
+                "label": "İçerik",
+                "placeholder": "Düşüncelerini paylaş..."
+            },
+            "image": {
+                "label": "Fotoğraf (İsteğe Bağlı)",
+                "selected": "Resim seçildi"
+            },
+            "submit": "Paylaş"
+        },
+        "empty": {
+            "title": "Henüz gönderi yok",
+            "description": "İlk paylaşımı yapan siz olun!"
+        },
+        "tryAgain": "Tekrar Dene",
+        "error": {
+            "loadFailed": "Gönderiler yüklenemedi",
+            "loadMoreFailed": "Daha fazla gönderi yüklenemedi"
+        }
     },
     "goals" : {
         "navbar": "Hedefler"
@@ -79,6 +112,38 @@
             "titleLabel": "Etkinlik Oluştur",
             "name": "Başlık",
             "namePlaceholder": "Etkinlik başlığını girin"
+        }
+    },
+    "post": {
+        "imageAlt": "Gönderi resmi",
+        "likes": "{{count}} beğeni",
+        "viewComments": "{{count}} yorumu görüntüle",
+        "hideComments": "Yorumları gizle",
+        "edit": {
+            "title": "Gönderiyi Düzenle",
+            "currentImage": "Mevcut resim yeni bir resim yüklemediğiniz sürece korunacak",
+            "newImage": "Yeni Resim Yükle (İsteğe Bağlı)",
+            "save": "Değişiklikleri Kaydet",
+            "saving": "Kaydediliyor..."
+        },
+        "timeAgo": {
+            "seconds": "{{count}}sn",
+            "minutes": "{{count}}dk",
+            "hours": "{{count}}sa",
+            "days": "{{count}}g"
+        }
+    },
+    "comment": {
+        "placeholder": "Yorum ekle...",
+        "save": "Kaydet",
+        "cancel": "İptal",
+        "edit": "Düzenle",
+        "delete": "Sil",
+        "timeAgo": {
+            "seconds": "{{count}}sn",
+            "minutes": "{{count}}dk",
+            "hours": "{{count}}sa",
+            "days": "{{count}}g"
         }
     }
 }

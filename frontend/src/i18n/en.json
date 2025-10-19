@@ -1,6 +1,8 @@
 {
     "common": {
-        "create": "Create"
+        "create": "Create",
+        "cancel": "Cancel",
+        "posting": "Posting..."
     },
     "login": {
         "title": "Login to your account",
@@ -38,7 +40,38 @@
         "navbar": "Main"
     },
     "feed": {
-        "navbar": "Feed"
+        "navbar": "Feed",
+        "title": "Feed",
+        "loading": "Loading posts...",
+        "loadingMore": "Loading more...",
+        "loadMore": "Load More",
+        "refresh": "Refresh",
+        "latest": "Latest",
+        "popular": "Popular",
+        "endOfFeed": "You've reached the end!",
+        "createPost": {
+            "title": "Share Something",
+            "subtitle": "What's on your mind?",
+            "placeholder": "Create Post",
+            "content": {
+                "label": "Content",
+                "placeholder": "Share your thoughts..."
+            },
+            "image": {
+                "label": "Photo (Optional)",
+                "selected": "Image selected"
+            },
+            "submit": "Post"
+        },
+        "empty": {
+            "title": "No posts yet",
+            "description": "Be the first to share something!"
+        },
+        "tryAgain": "Try Again",
+        "error": {
+            "loadFailed": "Failed to load posts",
+            "loadMoreFailed": "Failed to load more posts"
+        }
     },
     "goals": {
         "navbar": "Goals"
@@ -79,6 +112,40 @@
             "titleLabel": "Create Challenge",
             "name": "Title",
             "namePlaceholder": "Enter challenge title"
+        }
+    },
+    "post": {
+        "imageAlt": "Post image",
+        "likes": "{{count}} like",
+        "likes_plural": "{{count}} likes",
+        "viewComments": "View {{count}} comment",
+        "viewComments_plural": "View {{count}} comments",
+        "hideComments": "Hide comments",
+        "edit": {
+            "title": "Edit Post",
+            "currentImage": "Current image will be kept unless you upload a new one",
+            "newImage": "Upload New Image (Optional)",
+            "save": "Save Changes",
+            "saving": "Saving..."
+        },
+        "timeAgo": {
+            "seconds": "{{count}}s",
+            "minutes": "{{count}}m",
+            "hours": "{{count}}h",
+            "days": "{{count}}d"
+        }
+    },
+    "comment": {
+        "placeholder": "Add a comment...",
+        "save": "Save",
+        "cancel": "Cancel",
+        "edit": "Edit",
+        "delete": "Delete",
+        "timeAgo": {
+            "seconds": "{{count}}s",
+            "minutes": "{{count}}m", 
+            "hours": "{{count}}h",
+            "days": "{{count}}d"
         }
     }
 }
