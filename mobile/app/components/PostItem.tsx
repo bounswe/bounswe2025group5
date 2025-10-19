@@ -1,5 +1,5 @@
 // components/PostItem.tsx
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -11,6 +11,7 @@ import {
   useColorScheme,
   Image,
   Alert,
+  Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
@@ -35,6 +36,7 @@ type Post = {
   photoUrl: string | null;
   likedByUser: boolean;
   savedByUser: boolean;
+  createdAt?: string | Date | null;
 };
 
 interface PostItemProps {
@@ -99,14 +101,35 @@ function PostItem({
   onCancelCommentEdit,
   isSubmittingCommentEditForPost,
 }: PostItemProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const colorScheme = useColorScheme();
+  const [isImageViewerVisible, setImageViewerVisible] = useState(false);
+  const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
 
   const commentItemBorderColor = colorScheme === 'dark' ? '#3A3A3C' : '#EAEAEA';
   const commentUsernameActualColor = colorScheme === 'dark' ? '#E0E0E0' : '#333333';
   const commentContentActualColor = textColor;
   const deleteIconActualColor = colorScheme === 'dark' ? '#FF8A80' : '#D9534F';
   const editIconActualColor = colorScheme === 'dark' ? '#82B1FF' : '#007AFF';
+  const imageUri = post.photoUrl
+    ? post.photoUrl.startsWith('http')
+      ? post.photoUrl
+      : apiUrl(post.photoUrl)
+    : null;
+  const resolvedLanguage = (i18n.resolvedLanguage || i18n.language || 'en').toString();
+  const formattedPublishedAt = useMemo(() => {
+    if (!post.createdAt) return null;
+    const dateInstance = post.createdAt instanceof Date ? post.createdAt : new Date(post.createdAt);
+    if (Number.isNaN(dateInstance.getTime())) return null;
+    try {
+      return dateInstance.toLocaleString(resolvedLanguage, {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      });
+    } catch {
+      return dateInstance.toISOString();
+    }
+  }, [post.createdAt, resolvedLanguage]);
 
   const handleLike = () => {
     if (userType === 'guest') {
@@ -134,14 +157,84 @@ function PostItem({
         <ThemedText type="title" style={styles.postTitle}>
           {post.title}
         </ThemedText>
-        {post.photoUrl && (
-          <Image
-            source={{
-              uri: post.photoUrl.startsWith('http') ? post.photoUrl : apiUrl(post.photoUrl),
-            }}
-            style={styles.postImage}
-            onError={(e) => console.warn('Explore: Image failed to load:', e.nativeEvent.error, post.photoUrl)}
-          />
+        {imageUri && (
+          <>
+            <View style={styles.imageWrapper}>
+              <Image
+                source={{ uri: imageUri }}
+                style={styles.postImage}
+                onError={(e) => console.warn('Explore: Image failed to load:', e.nativeEvent.error, imageUri)}
+              />
+              <TouchableOpacity
+                style={styles.fullscreenButton}
+                onPress={() => {
+                  if (!imageUri) {
+                    return;
+                  }
+                  Image.getSize(
+                    imageUri,
+                    (width, height) => {
+                      setImageDimensions({ width, height });
+                      setImageViewerVisible(true);
+                    },
+                    () => {
+                      setImageDimensions(null);
+                      setImageViewerVisible(true);
+                    }
+                  );
+                }}
+                accessibilityRole="button"
+                accessibilityLabel={t('viewImageFullscreen', { defaultValue: 'View image fullscreen' })}
+              >
+                <Ionicons name="expand-outline" size={18} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
+            <Modal
+              visible={isImageViewerVisible}
+              onRequestClose={() => {
+                setImageViewerVisible(false);
+                setImageDimensions(null);
+              }}
+              transparent
+              animationType="fade"
+            >
+              <View style={styles.fullscreenModalBackdrop}>
+                <View style={styles.fullscreenHeader}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setImageViewerVisible(false);
+                      setImageDimensions(null);
+                    }}
+                    style={styles.fullscreenExitButton}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('closeFullscreenImage', { defaultValue: 'Close fullscreen image' })}
+                  >
+                    <Ionicons name="close" size={24} color="#FFFFFF" />
+                  </TouchableOpacity>
+                </View>
+                <ScrollView
+                  style={styles.fullscreenImageScroll}
+                  contentContainerStyle={styles.fullscreenImageContainer}
+                  minimumZoomScale={1}
+                  maximumZoomScale={4}
+                  showsHorizontalScrollIndicator={false}
+                  showsVerticalScrollIndicator={false}
+                  centerContent
+                >
+                  <Image
+                    source={{ uri: imageUri }}
+                    style={[
+                      styles.fullscreenImage,
+                      imageDimensions && imageDimensions.height
+                        ? { aspectRatio: imageDimensions.width / imageDimensions.height }
+                        : null,
+                    ]}
+                    resizeMode="contain"
+                  />
+                </ScrollView>
+              </View>
+            </Modal>
+          </>
         )}
 
         {post.content ? (
@@ -149,6 +242,30 @@ function PostItem({
             {post.content}
           </ThemedText>
         ) : null}
+        <View style={styles.postMetaRow}>
+          {formattedPublishedAt ? (
+            <ThemedText
+              style={[styles.postTimestamp, { color: iconColor }]}
+              accessibilityLabel={formattedPublishedAt}
+            >
+              {formattedPublishedAt}
+            </ThemedText>
+          ) : (
+            <View />
+          )}
+          {loggedInUsername && loggedInUsername !== post.title ? (
+            <TouchableOpacity
+              style={styles.reportButton}
+              onPress={() => {}}
+              accessibilityLabel={t('reportPost', { defaultValue: 'Report post' })}
+              accessibilityRole="button"
+            >
+              <Ionicons name="warning-outline" size={16} color="#515151ff" />
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.reportButtonPlaceholder} />
+          )}
+        </View>
 
         <View style={styles.postFooter}>
           <TouchableOpacity onPress={handleLike} style={styles.footerAction}>
@@ -327,17 +444,33 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  imageWrapper: {
+    position: 'relative',
+    marginBottom: 10,
+  },
   postImage: {
     width: '100%',
     aspectRatio: 16 / 9,
-    maxHeight: 180,
     borderRadius: 6,
-    marginBottom: 10,
+    marginBottom: 0,
     backgroundColor: '#eee',
     resizeMode: 'cover',
   },
+  fullscreenButton: {
+    position: 'absolute',
+    right: 12,
+    bottom: 12,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    borderRadius: 16,
+    padding: 8,
+    zIndex: 1,
+  },
   postTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 8 },
   postContent: { fontSize: 14, lineHeight: 20, marginBottom: 12 },
+  postMetaRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  postTimestamp: { fontSize: 12, opacity: 0.7, marginBottom: 8 },
+  reportButton: { padding: 4, marginLeft: 12 },
+  reportButtonPlaceholder: { width: 24, height: 24 },
   postFooter: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
   footerAction: { flexDirection: 'row', alignItems: 'center', minHeight: 20 },
   footerText: { fontSize: 14, marginRight: 8 },
@@ -439,4 +572,34 @@ const styles = StyleSheet.create({
   },
   postCommentButtonDisabled: { backgroundColor: '#B0C4DE' },
   postCommentButtonText: { color: '#FFFFFF', fontWeight: '600', fontSize: 14 },
+  fullscreenModalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.95)',
+  },
+  fullscreenHeader: {
+    paddingTop: Platform.OS === 'ios' ? 50 : 30,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    alignItems: 'flex-start',
+  },
+  fullscreenExitButton: {
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    borderRadius: 22,
+    padding: 10,
+    alignSelf: 'flex-start',
+  },
+  fullscreenImageScroll: {
+    flex: 1,
+  },
+  fullscreenImageContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+  },
+  fullscreenImage: {
+    width: '100%',
+   height: undefined,
+    aspectRatio: 16 / 9,
+  },
 });
