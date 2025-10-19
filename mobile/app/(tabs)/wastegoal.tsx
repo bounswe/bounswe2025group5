@@ -174,6 +174,7 @@ export default function WasteGoalScreen() {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [goalToDelete, setGoalToDelete] = useState<WasteGoal | null>(null);
 
+  const unitLabel = (u: GoalUnit) => (u === 'Kilograms' ? t('Kilograms') : t('Grams'));
 
   useFocusEffect(
     React.useCallback(() => {
@@ -639,7 +640,7 @@ export default function WasteGoalScreen() {
         </View>
       </View>
       <ThemedText style={styles.goalDetails}>
-        {t('targetDetails', { amount: item.amount, unit: item.unit, duration: item.duration })}
+        {t('targetDetails', { amount: item.amount, unit: unitLabel(item.unit), duration: item.duration })}
       </ThemedText>
 
       <View style={styles.progressBarContainer}>
@@ -647,7 +648,7 @@ export default function WasteGoalScreen() {
       </View>
       <View style={styles.progressTextsContainer}>
         <ThemedText style={[styles.goalProgressText, styles.remainingQuotaText, { color: progressBarColor }]}>
-          {t('remainingQuota')} {remainingQuota.toFixed(1)} {item.unit}
+          {t('remainingQuota')} {remainingQuota.toFixed(1)} {unitLabel(item.unit)}
         </ThemedText>
         <ThemedText style={[styles.goalProgressText, { color: progressBarColor, textAlign: 'right' }]}>
           {t('wasteLoad', { progress: progressPercentage.toFixed(1) })}
@@ -738,7 +739,7 @@ export default function WasteGoalScreen() {
                     {GOAL_UNITS.map((goalUnit) => (
                       <Picker.Item
                         key={goalUnit}
-                        label={goalUnit === 'Kilograms' ? t('kilograms') : t('grams')}
+                        label={goalUnit === 'Kilograms' ? t('Kilograms') : t('Grams')}
                         value={goalUnit}
                       />
                     ))}
