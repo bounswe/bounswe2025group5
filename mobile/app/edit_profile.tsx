@@ -24,6 +24,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
+import { Modal } from 'react-native';
 
 
 export const unstable_settings = {
@@ -69,6 +70,10 @@ export default function EditProfileScreen() {
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [savingBio, setSavingBio] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const [errState, setErrState] = useState<ErrorState>({ key: null, message: null, resolved: null });
 
@@ -118,7 +123,7 @@ export default function EditProfileScreen() {
     })();
   }, [username]);
 
-  const pickImage = async () => {
+const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.granted === false) {
       Alert.alert(t('permissionRequired'), t('allowPhotosAccessAvatar'));
@@ -249,14 +254,8 @@ const onSaveBio = async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, biography: bio }),
     });
-    navigation.navigate({
-      name: 'profile',
-      params: { profileUpdated: true },
-      merge: true,
-    } as never);
-    if (navigation.canGoBack()) {
-      navigation.goBack();
-    }
+    Alert.alert(t('success'), t('successBioUpdated'));
+    // navigation.goBack(); // if desired, go back after saving bio
   } catch (e) {
     console.error('Bio update error:', e);
     const s: ErrorState =
@@ -270,7 +269,43 @@ const onSaveBio = async () => {
   }
 };
 
-  const onCancel = () => navigation.goBack();
+const handleDeleteAccountButton = () => {
+  setDeletePassword("");
+  setDeleteModalVisible(true);
+  setErrState({ key: null, message: null, resolved: null });
+};
+
+const handleCancelDelete = () => {
+  setDeleteModalVisible(false);
+  setDeletePassword("");
+  setErrState({ key: null, message: null, resolved: null });
+};
+
+const handleConfirmDelete = async () => {
+  setDeleteError(null);
+  try {
+    const encodedUsername = encodeURIComponent(username);
+    const response = await apiRequest(
+      `/api/users/${encodedUsername}?password=${encodeURIComponent(deletePassword)}`,
+      {
+        method: 'DELETE',
+      }
+    );
+    if (response.ok) {
+      setDeleteModalVisible(false);
+      navigation.reset({ index: 0, routes: [{ name: 'index' }] });
+      // Optionally show a success message
+    } else if (response.status === 401) {
+      setDeleteError('Password is incorrect.');
+    } else {
+      setDeleteError('An error occurred. Please try again.');
+    }
+  } catch (error) {
+    setDeleteError('An error occurred. Please try again.');
+  }
+};
+
+const onCancel = () => navigation.goBack();
 
   if (loadingProfile) {
     return (
@@ -281,7 +316,7 @@ const onSaveBio = async () => {
   }
 
   return (
-    <ScrollView contentContainerStyle={[styles.container, { backgroundColor: screenBackgroundColor }]}>
+    <ScrollView contentContainerStyle={[styles.container, { backgroundColor: screenBackgroundColor }]}> 
       {(errState.key || errState.message) && (
         <View style={[styles.errorBanner, { backgroundColor: isDarkMode ? '#5D1F1A' : '#FFCDD2' }]}>
           <Text style={[styles.errorBannerText, { color: isDarkMode ? '#FF9DA3' : '#C62828' }]}>
@@ -356,6 +391,43 @@ const onSaveBio = async () => {
           )}
         </TouchableOpacity>
       </View>
+      <TouchableOpacity
+        style={[styles.btn, { backgroundColor: '#FF3B30' }]}
+        onPress={handleDeleteAccountButton}
+        disabled={savingBio || uploadingPhoto}
+      >
+        <Text style={[styles.btnText, { color: '#FFFFFF' }]}>Delete Account</Text>
+      </TouchableOpacity>
+      <Modal
+        visible={deleteModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={handleCancelDelete}
+      >
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <View style={{ backgroundColor: '#fff', padding: 24, borderRadius: 12, width: '80%' }}>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 12 }}>Enter your password to delete your account:</Text>
+            <TextInput
+              style={{ borderWidth: 1, borderRadius: 6, padding: 12, marginBottom: 16 }}
+              value={deletePassword}
+              onChangeText={setDeletePassword}
+              placeholder="Password"
+              secureTextEntry
+            />
+            {deleteError && (
+              <Text style={{ color: '#FF3B30', marginBottom: 8 }}>{deleteError}</Text>
+            )}
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+              <TouchableOpacity onPress={handleCancelDelete} style={{ marginRight: 12 }}>
+                <Text style={{ color: '#2196F3', fontWeight: 'bold' }}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleConfirmDelete}>
+                <Text style={{ color: '#FF3B30', fontWeight: 'bold' }}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
