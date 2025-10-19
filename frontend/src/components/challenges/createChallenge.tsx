@@ -34,11 +34,11 @@ export default function CreateChallenge() {
             }
             await ChallengesApi.create({
                 name: title,
-                description,
-                type: type,
+                description: description,
                 amount: amount === '' ? null : amount,
-                startDate,
-                endDate,
+                startDate: startDate,
+                endDate: endDate,
+                type: type
             });
             setSuccess(t('challenges.createSuccess', 'Challenge created successfully'));
             setTitle('');
@@ -82,7 +82,7 @@ export default function CreateChallenge() {
                 </div>
                 <div>
                   <Label htmlFor="startDate" className="mb-1 block">{t("challenges.create.startDate")}</Label>
-                  <Input id="startDate" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                  <Input id="startDate" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
                 </div>
                 <div>
                   <Label htmlFor="endDate" className="mb-1 block">{t("challenges.create.endDate")}</Label>
