@@ -58,85 +58,12 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
   };
   if (attachAuth) headers['Authorization'] = `Bearer ${token}`;
 
-  // Comprehensive request logging for debugging
-  console.group(`🌐 API Request: ${options.method || 'GET'} ${endpoint}`);
-  console.log('📍 Full URL:', `${API_BASE_URL}${endpoint}`);
-  console.log('📋 Headers:', headers);
-  console.log('📦 Body:', options.body);
-  if (options.body && !isFormData) {
-    try {
-      console.log('📄 Body (parsed):', JSON.parse(options.body as string));
-    } catch (e) {
-      console.log('📄 Body (raw string):', options.body);
-    }
-  }
-  console.log('⚙️ Options:', options);
-  
-  // 🔥 POSTMAN COMPARISON HELPER 🔥
-  console.log('🔗 COPY FOR POSTMAN:');
-  console.log(`   URL: ${API_BASE_URL}${endpoint}`);
-  console.log(`   Method: ${options.method || 'GET'}`);
-  console.log('   Headers:');
-  Object.entries(headers).forEach(([key, value]) => {
-    console.log(`     ${key}: ${value}`);
-  });
-  if (options.body && !isFormData) {
-    console.log('   Body (JSON):');
-    console.log(options.body);
-  }
-  console.groupEnd();
-
   const doFetch = (hdrs: Record<string, string>) =>
     fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers: hdrs });
 
   let response = await doFetch(headers);
 
-  // Log initial response
-  console.group(`📨 API Response: ${response.status} ${response.statusText}`);
-  console.log('🔍 Status:', response.status);
-  console.log('📋 Response Headers:', Object.fromEntries(response.headers.entries()));
-  console.groupEnd();
-
-  if (response.status === 401) {
-    console.log('🔄 Attempting token refresh...');
-    const refreshed = await tryRefreshAccessToken();
-    if (refreshed) {
-      console.log('✅ Token refreshed, retrying request...');
-      const retryHeaders = {
-        ...headers,
-        Authorization: `Bearer ${getAccessToken()}`,
-      } as Record<string, string>;
-      response = await doFetch(retryHeaders);
-      
-      // Log retry response
-      console.group(`📨 Retry Response: ${response.status} ${response.statusText}`);
-      console.log('🔍 Status:', response.status);
-      console.log('📋 Response Headers:', Object.fromEntries(response.headers.entries()));
-      console.groupEnd();
-    } else {
-      console.log('❌ Token refresh failed');
-    }
-  }
-
-  if (!response.ok) {
-    console.error(`❌ API Error: ${response.status} ${response.statusText}`);
-    if (response.status === 401) {
-      const method = (options.method || 'GET').toString().toUpperCase();
-      const isDeleteAccount = method === 'DELETE' && endpoint.startsWith('/api/users/');
-      if (isDeleteAccount) {
-        throw new Error('Incorrect password');
-      }
-      console.log('🚪 Redirecting to login due to 401...');
-      clearTokens();
-      localStorage.removeItem('username');
-      window.location.href = '/auth/login';
-    }
-    throw new Error(`API Error: ${response.status} ${response.statusText}`);
-  }
-
   const responseData = await response.json();
-  console.log('✅ Success Response Data:', responseData);
-  
   return responseData;
 }
 
