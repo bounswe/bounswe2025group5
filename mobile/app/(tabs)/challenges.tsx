@@ -38,7 +38,7 @@ type Challenge = {
 type LeaderboardEntry = {
   userId: number;
   username: string;
-  remainingAmount: number;
+  logAmount: number;
 };
 
 type ChallengeLogInfo = {
@@ -202,7 +202,7 @@ export default function ChallengesScreen() {
         throw new Error(errorText || `Server error: ${res.status}`);
       }
       const data: LeaderboardEntry[] = await res.json();
-      data.sort((a, b) => b.remainingAmount - a.remainingAmount);
+      data.sort((a, b) => b.logAmount - a.logAmount);
       setLeaderboard(data);
       setLeaderboardVisible(true);
     } catch (err) {
@@ -775,11 +775,11 @@ export default function ChallengesScreen() {
                         { borderBottomColor: colors.borderColor },
                       ]}
                     >
-                      <ThemedText type="defaultSemiBold">
+                      <ThemedText type="defaultSemiBold" style={styles.lbCell}>
                         {index + 1}. {item.username}
                       </ThemedText>
-                      <ThemedText type="default">
-                        {item.remainingAmount}
+                      <ThemedText type="default" style={styles.lbCell}>
+                        {item.logAmount} kg
                       </ThemedText>
                     </View>
                   )}
@@ -1117,7 +1117,7 @@ export default function ChallengesScreen() {
               onPress={() => setLogsModalVisible(false)}
             >
               <ThemedText style={[styles.buttonText, { color: "#FFFFFF" }]}>
-                Close
+                {t("close")}
               </ThemedText>
             </TouchableOpacity>
           </View>
@@ -1220,14 +1220,16 @@ const styles = StyleSheet.create({
   },
   lbOverlay: {
     flex: 1,
-    justifyContent: "flex-end",
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "rgba(0,0,0,0.5)",
   },
   lbContainer: {
     padding: 16,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
+    borderRadius: 12,
     maxHeight: "60%",
+    width: "90%",
+    maxWidth: 400,
   },
   lbTitle: {
     fontSize: 20,
@@ -1247,6 +1249,11 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: "center",
     fontWeight: "600",
+  },
+  lbCell: {
+    fontSize: 14,
+    flex: 1,
+    textAlign: "center",
   },
   lbRow: {
     flexDirection: "row",
