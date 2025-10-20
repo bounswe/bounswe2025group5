@@ -9,6 +9,11 @@ export const ChallengeSchema = z.object({
 export const AttendChallengeResponseSchema = z.object({ success: z.boolean().optional() }).passthrough();
 export const LeaveChallengeResponseSchema = z.object({ success: z.boolean().optional() }).passthrough();
 export const EndChallengeResponseSchema = z.object({ success: z.boolean().optional() }).passthrough();
+export const LogChallengeResponseSchema = z.object({
+    username: z.string().min(1),
+    challengeId: z.number().int(),
+    newTotalAmount: z.number().nullable().optional()
+}).passthrough();
 
 export const ChallengesApi = {
   create: async (payload: Record<string, unknown>) => {
@@ -27,6 +32,10 @@ export const ChallengesApi = {
     const res = await ApiClient.delete<unknown>(`/api/challenges/${challengeId}/attendees/${encodeURIComponent(username)}`);
     return LeaveChallengeResponseSchema.parse(res);
   },
+  logChallengeProgress: async (id: number, payload: Record<string, unknown>) => {
+    const res = await ApiClient.post<unknown>(`/api/challenges/${id}/log`, payload);
+    return LogChallengeResponseSchema.parse(res);
+  }
 };
 
 

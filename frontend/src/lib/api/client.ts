@@ -45,7 +45,6 @@ async function tryRefreshAccessToken(): Promise<boolean> {
 }
 
 export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  console.log(`API_BASE_URL: ${API_BASE_URL}`);
   const token = getAccessToken();
   const authBypass = [
     '/api/sessions',
@@ -83,6 +82,7 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
         throw new Error('Incorrect password');
       }
       clearTokens();
+      localStorage.removeItem('username');
       window.location.href = '/auth/login';
     }
     throw new Error(`API Error: ${response.status} ${response.statusText}`);

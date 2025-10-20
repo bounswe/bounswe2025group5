@@ -4,9 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import GlassCard from "@/components/ui/glass-card";
+import { useTranslation } from "react-i18next";
+
 
 export default function Register() {
+  const { t } = useTranslation();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -40,32 +44,33 @@ export default function Register() {
   };
 
   return (
-    <div className="max-w-md w-full mx-auto py-16 px-4 min-h-screen grid place-items-center">
+    <GlassCard className="mx-auto">
+      <div className="max-w-md min-w-80 mx-auto animate-fade-in">
         <Card>
           <CardHeader>
-            <CardTitle className="text-center">Create an account</CardTitle>
+            <CardTitle className="text-center">{t("register.title")}</CardTitle>
           </CardHeader>
           <CardContent>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="username" className="mb-1 block">Username</Label>
-            <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} required placeholder="Your username" />
+            <Label htmlFor="username" className="mb-1 block">{t("register.username.label")}</Label>
+            <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} required placeholder={t("register.username.placeholder")} />
           </div>
 
           <div>
-            <Label htmlFor="email" className="mb-1 block">Email</Label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@example.com" />
+            <Label htmlFor="email" className="mb-1 block">{t("register.email.label")}</Label>
+            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder={t("register.email.placeholder")} />
           </div>
 
           <div>
-            <Label htmlFor="password" className="mb-1 block">Password</Label>
-            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="Choose a strong password" />
+            <Label htmlFor="password" className="mb-1 block">{t("register.password.label")}</Label>
+            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder={t("register.password.placeholder")} />
           </div>
 
           <div>
-            <Label htmlFor="confirmPassword" className="mb-1 block">Confirm Password</Label>
-            <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="Re-enter your password" />
+            <Label htmlFor="confirmPassword" className="mb-1 block">{t("register.confirmPassword.label")}</Label>
+            <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder={t("register.confirmPassword.placeholder")} />
           </div>
 
           {error && (
@@ -76,21 +81,27 @@ export default function Register() {
             <div className="text-green-700 bg-green-50 p-3 rounded text-sm">{success}</div>
           )}
 
-          <button
+          <Button
             type="submit"
             disabled={loading}
-            className={cn("w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors", loading && "opacity-60 cursor-not-allowed")}
+            className="w-full"
           >
-            {loading ? "Creating account..." : "Register"}
-          </button>
+            {loading ? t("register.loading") : t("register.registerButton")}
+          </Button>
         </form>
         <p className="mt-4 text-center text-sm text-gray-700">
-          Already have an account?{" "}
-          <a href="/auth/login" className="text-blue-600 hover:underline">Log in</a>
+          {t("register.haveAccount")}{" "}
+          <button 
+            onClick={() => navigate('/auth/login')} 
+            className="text-blue-600 hover:underline bg-transparent border-none cursor-pointer"
+          >
+            {t("register.login")}
+          </button>
         </p>
           </CardContent>
         </Card>
-    </div>
+      </div>
+    </GlassCard>
   );
 }
 

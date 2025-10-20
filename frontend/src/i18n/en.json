@@ -1,4 +1,14 @@
 {
+    "common": {
+        "create": "Create",
+        "submit": "Submit",
+        "cancel": "Cancel",
+        "posting": "Posting..."
+    },
+    "welcome": {
+        "welcomeMessage": "Welcome to Our Website!",
+        "description": "We are glad to have you here. Explore our features and enjoy your stay!"
+    },
     "login": {
         "title": "Login to your account",
         "description": "Enter your email below to login to your account",
@@ -14,6 +24,29 @@
             "forgot": "Forgot your password?"
         },
         "loginButton": "Login"
+    },
+    "register": {
+        "title": "Create a new account",
+        "username": {
+            "label": "Username",
+            "placeholder": "Your username"
+        },
+        "email": {
+            "label": "Email",
+            "placeholder": "you@example.com"
+        },
+        "password": {
+            "label": "Password",
+            "placeholder": "Choose a strong password"
+        },
+        "confirmPassword": {
+            "label": "Confirm Password",
+            "placeholder": "Re-enter your password"
+        },
+        "registerButton": "Register",
+        "loading": "Creating account...",
+        "haveAccount": "Already have an account? ",
+        "login": "Login"
     },
     "profile": {
         "edit": "Edit Profile", 
@@ -35,26 +68,130 @@
         "navbar": "Main"
     },
     "feed": {
-        "navbar": "Feed"
+        "navbar": "Feed",
+        "title": "Feed",
+        "loading": "Loading posts...",
+        "loadingMore": "Loading more...",
+        "loadMore": "Load More",
+        "refresh": "Refresh",
+        "latest": "Latest",
+        "popular": "Popular",
+        "endOfFeed": "You've reached the end!",
+        "createPost": {
+            "title": "Share Something",
+            "subtitle": "What's on your mind?",
+            "placeholder": "Create Post",
+            "content": {
+                "label": "Content",
+                "placeholder": "Share your thoughts..."
+            },
+            "image": {
+                "label": "Photo (Optional)",
+                "selected": "Image selected"
+            },
+            "submit": "Post"
+        },
+        "empty": {
+            "title": "No posts yet",
+            "description": "Be the first to share something!"
+        },
+        "tryAgain": "Try Again",
+        "error": {
+            "loadFailed": "Failed to load posts",
+            "loadMoreFailed": "Failed to load more posts"
+        }
     },
     "goals": {
         "navbar": "Goals"
     },
     "challenge": {
         "navbar": "Challenge"
-  },
-  "mainpage": {
-    "navbar": "Mainpage",
-    "challengesTitle": "Your Challenges",
-    "challengesDesc": "Challenges you are currently attending",
-    "noChallenges": "No active challenges",
-    "type": "Type",
-    "status": "Status",
-    "dates": "Dates",
-    "feedTitle": "Following Feed",
-    "feedDesc": "Recent posts from accounts you follow",
-    "noPosts": "No posts yet",
-    "likes": "Likes",
-    "comments": "Comments"
-  }
+    },
+    "logout": "Logout",
+    "mainpage": {
+        "navbar": "Mainpage",
+        "challengesTitle": "Your Challenges",
+        "challengesDesc": "Challenges you are currently attending",
+        "noChallenges": "No active challenges",
+        "type": "Type",
+        "status": "Status",
+        "dates": "Dates",
+        "feedTitle": "Following Feed",
+        "feedDesc": "Recent posts from accounts you follow",
+        "noPosts": "No posts yet",
+        "likes": "Likes",
+        "comments": "Comments"
+    },
+    "challenges": {
+        "title": "Challenges",
+        "attendError": "Could not attend the challenge",
+        "leaveError": "Could not leave the challenge",
+        "logError": "Could not log challenge progress",
+        "type": "Type",
+        "status": "Status",
+        "dates": "Dates",
+        "target": "Target",
+        "amount": "Amount",
+        "leave": "Leave",
+        "leaving": "Leaving...",
+        "attend": "Attend",
+        "attending": "Attending...",
+        "log": "Add Log",
+        "logging": "Logging...",
+        "loading": "Loading...",
+        "noChallenges": "No challenges found",
+        "create": {
+            "createChallenge": "Create Challenge",
+            "titleLabel": "Create Challenge",
+            "name": "Title",
+            "namePlaceholder": "Enter challenge title",
+            "description": "Description",
+            "descriptionPlaceholder": "Enter challenge description",
+            "type": "Type",
+            "typePlaceholder": "Select challenge type",
+            "amount": "Amount",
+            "amountPlaceholder": "Enter target amount",
+            "startDate": "Start Date",
+            "endDate": "End Date",
+            "missingFields": "Please fill in all required fields",
+            "amountError": "Amount must be a number greater than 0",
+            "dateError": "End date must be after start date",
+            "createSuccess": "Challenge created successfully",
+            "createError": "Failed to create challenge"
+        }
+    },
+    "post": {
+        "imageAlt": "Post image",
+        "likes": "{{count}} like",
+        "likes_plural": "{{count}} likes",
+        "viewComments": "View {{count}} comment",
+        "viewComments_plural": "View {{count}} comments",
+        "hideComments": "Hide comments",
+        "edit": {
+            "title": "Edit Post",
+            "currentImage": "Current image will be kept unless you upload a new one",
+            "newImage": "Upload New Image (Optional)",
+            "save": "Save Changes",
+            "saving": "Saving..."
+        },
+        "timeAgo": {
+            "seconds": "{{count}}s",
+            "minutes": "{{count}}m",
+            "hours": "{{count}}h",
+            "days": "{{count}}d"
+        }
+    },
+    "comment": {
+        "placeholder": "Add a comment...",
+        "save": "Save",
+        "cancel": "Cancel",
+        "edit": "Edit",
+        "delete": "Delete",
+        "timeAgo": {
+            "seconds": "{{count}}s",
+            "minutes": "{{count}}m", 
+            "hours": "{{count}}h",
+            "days": "{{count}}d"
+        }
+    }
 }
