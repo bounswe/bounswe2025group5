@@ -154,7 +154,7 @@ export default function ProfileIndex() {
             title={saveToggle ? t('profile.savedPostsTitle', 'Saved Posts') : t('profile.postsTitle', 'Your Posts')}
             description={saveToggle ? t('profile.savedPostsDesc', 'Posts you have saved') : t('profile.postsDesc', 'Posts you have created')}
         >
-         {saveToggle ? (posts.length === 0 ? (
+         {saveToggle ? (_postsLoading ? <Spinner /> : (posts.length === 0 ? (
             <div className="text-muted-foreground">{t('profile.noPosts', 'No posts yet')}</div>
           ) : (
             <div className="space-y-4 grid gap-4 sm:grid-cols-2">
@@ -162,7 +162,7 @@ export default function ProfileIndex() {
                 <PostCard key={p.postId} post={p as PostItem} onPostUpdate={(updatedPost: PostItem) => handlePostUpdate(updatedPost as SavedPostItem)} />
               ))}
             </div>
-          )) : (myPosts.length === 0 ? (  
+          ))) : (_postsLoading ? <Spinner /> : (myPosts.length === 0 ? (  
             <div className="text-muted-foreground">{t('profile.noPosts', 'No posts yet')}</div>
           ) : (
             <div className="space-y-4 grid gap-4 sm:grid-cols-2">
@@ -170,7 +170,7 @@ export default function ProfileIndex() {
                 <PostCard key={p.postId} post={p as PostItem} onPostUpdate={(updatedPost: PostItem) => handlePostUpdate(updatedPost as PostItem)} />
               ))}
             </div>
-          ))}
+          )))}
         </ScrollPanel>
       </div>
     </div>

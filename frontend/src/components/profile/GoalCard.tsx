@@ -1,7 +1,9 @@
 import { type WasteGoalItem } from '@/lib/api/schemas/goals';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useTranslation } from 'react-i18next';
+import { Button } from '@/components/ui/button';
+import { Pencil, PlusCircle, Trash2 } from 'lucide-react';
 
 export default function GoalCard({ goal }: { goal: WasteGoalItem }) {
   const { t } = useTranslation();
@@ -26,6 +28,17 @@ export default function GoalCard({ goal }: { goal: WasteGoalItem }) {
           <Progress value={progressPercent} />
         </div>
       </CardContent>
+      <CardFooter className="flex gap-2 justify-end">
+        <Button variant="outline" size="sm" data-action="log-waste" aria-label={t('goals.log', 'Log')}>
+          <PlusCircle /> {t('goals.log', 'Log')}
+        </Button>
+        <Button variant="ghost" size="sm" data-action="edit-goal" aria-label={t('goals.edit', 'Edit')}>
+          <Pencil /> {t('goals.edit', 'Edit')}
+        </Button>
+        <Button variant="destructive" size="sm" data-action="delete-goal" aria-label={t('goals.delete', 'Delete')}>
+          <Trash2 /> {t('goals.delete', 'Delete')}
+        </Button>
+      </CardFooter>
     </Card>
   );
 }

@@ -3,7 +3,16 @@ import { UserCountResponseSchema, type UserCountResponse, SavedPostItemSchema, t
 import { PostItemSchema, type PostItem } from './schemas/posts';
 import { ChallengeListItemSchema, type ChallengeListItem } from './schemas/challenges';
 import { ProfileResponseSchema, type ProfileResponse } from './schemas/profile';
-import { WasteGoalItemSchema, type WasteGoalItem } from './schemas/goals';
+import {
+  WasteGoalItemSchema,
+  type WasteGoalItem,
+  CreateWasteGoalResponseSchema,
+  type CreateWasteGoalResponse,
+  DeleteWasteGoalResponseSchema,
+  type DeleteWasteGoalResponse,
+  WasteItemSchema,
+  type WasteItem,
+} from './schemas/goals';
 
 export const UsersApi = {
   getUserCount: async (): Promise<UserCountResponse> => {
@@ -56,6 +65,23 @@ export const UsersApi = {
     if (lastGoalId != null) qs.set('lastGoalId', String(lastGoalId));
     const data = await ApiClient.get<WasteGoalItem[]>(`/api/users/${encodeURIComponent(username)}/waste-goals?${qs.toString()}`);
     data.forEach(item => WasteGoalItemSchema.parse(item));
+    return data;
+  },
+  createWasteGoal: async (username: string, payload: { duration: number; restrictionAmountGrams: number; type: string }): Promise<CreateWasteGoalResponse> => {
+    const res = await ApiClient.post<CreateWasteGoalResponse>(`/api/users/${encodeURIComponent(username)}/waste-goals`, payload);
+    return CreateWasteGoalResponseSchema.parse(res);
+  },
+  editWasteGoal: async (goalId: number, payload: { duration: number; restrictionAmountGrams: number; type: string }): Promise<CreateWasteGoalResponse> => {
+    const res = await ApiClient.put<CreateWasteGoalResponse>(`/api/users/waste-goals/${goalId}`, payload);
+    return CreateWasteGoalResponseSchema.parse(res);
+  },
+  deleteWasteGoal: async (goalId: number): Promise<DeleteWasteGoalResponse> => {
+    const res = await ApiClient.delete<DeleteWasteGoalResponse>(`/api/users/waste-goals/${goalId}`);
+    return DeleteWasteGoalResponseSchema.parse(res);
+  },
+  listWasteItemsForGoal: async (goalId: number): Promise<WasteItem[]> => {
+    const data = await ApiClient.get<WasteItem[]>(`/api/users/waste-goals/${goalId}/items`);
+    data.forEach(item => WasteItemSchema.parse(item));
     return data;
   },
 };
