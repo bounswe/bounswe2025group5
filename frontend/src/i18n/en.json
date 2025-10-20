@@ -1,7 +1,7 @@
 {
     "common": {
         "create": "Create",
-        "submit": "Submit"
+        "submit": "Submit",
         "cancel": "Cancel",
         "posting": "Posting..."
     },
