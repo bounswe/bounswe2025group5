@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS `waste_log` (
 CREATE TABLE `challenges` (
   `challenge_id`  INT NOT NULL AUTO_INCREMENT,
   `name`          VARCHAR(100) NOT NULL,
-  `description`   VARCHAR(200) NOT NULL,
+  `description`   VARCHAR(400) NOT NULL,
   `type`          VARCHAR(50) NOT NULL,
   `amount`        DOUBLE NOT NULL,
   `current_amount` DOUBLE NOT NULL DEFAULT 0,
@@ -487,6 +487,7 @@ BEGIN
     WHERE `challenge_id` = OLD.challenge_id;
 END$$
 DELIMITER ;
+
 
 
 
