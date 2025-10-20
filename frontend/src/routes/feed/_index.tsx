@@ -4,7 +4,9 @@ import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from 'react-i18next';
 import PostCard from '@/components/feedpage/post-card';
 import CreatePostCard from '@/components/feedpage/create-post-card';
+import SearchCard from '@/components/feedpage/search-card';
 import { PostsApi } from '@/lib/api/posts';
+import { SearchApi } from '@/lib/api/search';
 import type { PostItem } from '@/lib/api/schemas/posts';
 import { RefreshCw, TrendingUp } from 'lucide-react';
 import GlassCard from '@/components/ui/glass-card';
@@ -12,7 +14,7 @@ import GlassCard from '@/components/ui/glass-card';
 const POSTS_PER_PAGE = 10;
 
 export default function FeedPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [posts, setPosts] = useState<PostItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -20,6 +22,12 @@ export default function FeedPage() {
   const [lastPostId, setLastPostId] = useState<number | undefined>();
   const [feedType, setFeedType] = useState<'latest' | 'popular'>('latest');
   const [error, setError] = useState<string | null>(null);
+  
+  // Search state
+  const [searchResults, setSearchResults] = useState<PostItem[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isSearchActive, setIsSearchActive] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
   
   // Get current username from localStorage
   const currentUsername = typeof window !== 'undefined' ? localStorage.getItem('username') : null;
@@ -84,6 +92,34 @@ export default function FeedPage() {
         post.postId === updatedPost.postId ? updatedPost : post
       )
     );
+  };
+
+  // Search handlers
+  const handleSearch = async (query: string) => {
+    setIsSearching(true);
+    setSearchError(null);
+    
+    try {
+      const results = await SearchApi.searchPostsSemantic({
+        query,
+        username: currentUsername || undefined,
+        lang: i18n.language || 'en'
+      });
+      
+      setSearchResults(results);
+      setIsSearchActive(true);
+    } catch (error) {
+      console.error('Error searching posts:', error);
+      setSearchError(t('search.error'));
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchResults([]);
+    setIsSearchActive(false);
+    setSearchError(null);
   };
 
   if (isLoading) {
@@ -160,71 +196,123 @@ export default function FeedPage() {
             />
           </div>
 
-          {/* Posts Feed */}
-          {posts.length > 0 ? (
-            <div className="space-y-8">
-              {/* Posts Masonry Layout */}
-              <div className="columns-1 lg:columns-2 gap-6 space-y-6">
-                {posts.map((post) => (
-                  <div key={post.postId} className="break-inside-avoid mb-6">
-                    <PostCard
-                      post={post}
-                      onPostUpdate={handlePostUpdate}
-                    />
-                  </div>
-                ))}
-              </div>
+          {/* Search Card */}
+          <div className="mb-6">
+            <SearchCard
+              onSearch={handleSearch}
+              onClear={handleClearSearch}
+              isLoading={isSearching}
+              isActive={isSearchActive}
+            />
+          </div>
 
-              {/* Load More Button */}
-              {hasMorePosts && (
-                <div className="flex justify-center pt-6">
+          {/* Search Error */}
+          {searchError && (
+            <div className="mb-6 p-4 bg-red-100 border border-red-300 rounded-lg">
+              <p className="text-red-700 text-sm">{searchError}</p>
+            </div>
+          )}
+
+          {/* Posts Feed */}
+          {isSearchActive ? (
+            /* Search Results */
+            searchResults.length > 0 ? (
+              <div className="space-y-8">
+                {/* Search Results Masonry Layout */}
+                <div className="columns-1 lg:columns-2 gap-6 space-y-6">
+                  {searchResults.map((post) => (
+                    <div key={post.postId} className="break-inside-avoid mb-6">
+                      <PostCard
+                        post={post}
+                        onPostUpdate={handlePostUpdate}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              /* No Search Results */
+              <div className="text-center py-12">
+                <div className="bg-white/60 backdrop-blur-sm rounded-lg p-8 max-w-md mx-auto border border-white/20">
+                  <h3 className="text-lg font-semibold text-emerald-900 mb-2">
+                    {t('search.noResults')}
+                  </h3>
                   <Button
-                    onClick={loadMorePosts}
-                    disabled={isLoadingMore}
+                    onClick={handleClearSearch}
                     variant="outline"
-                    size="lg"
-                    className="min-w-[200px]"
                   >
-                    {isLoadingMore ? (
-                      <>
-                        <Spinner className="h-4 w-4 mr-2" />
-                        {t('feed.loadingMore')}
-                      </>
-                    ) : (
-                      t('feed.loadMore')
-                    )}
+                    {t('search.clear')}
                   </Button>
                 </div>
-              )}
-
-              {/* End of Feed Message */}
-              {!hasMorePosts && posts.length > 0 && (
-                <div className="text-center py-8">
-                  <p className="text-gray-600">
-                    {t('feed.endOfFeed')}
-                  </p>
-                </div>
-              )}
-            </div>
-          ) : (
-            /* Empty State */
-            <div className="text-center py-12">
-              <div className="bg-white/60 backdrop-blur-sm rounded-lg p-8 max-w-md mx-auto border border-white/20">
-                <h3 className="text-lg font-semibold text-emerald-900 mb-2">
-                  {t('feed.empty.title')}
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  {t('feed.empty.description')}
-                </p>
-                <Button
-                  onClick={handleRefresh}
-                  variant="outline"
-                >
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  {t('feed.tryAgain')}
-                </Button>
               </div>
-            </div>
+            )
+          ) : (
+            /* Regular Posts Feed */
+            posts.length > 0 ? (
+              <div className="space-y-8">
+                {/* Posts Masonry Layout */}
+                <div className="columns-1 lg:columns-2 gap-6 space-y-6">
+                  {posts.map((post) => (
+                    <div key={post.postId} className="break-inside-avoid mb-6">
+                      <PostCard
+                        post={post}
+                        onPostUpdate={handlePostUpdate}
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Load More Button */}
+                {hasMorePosts && (
+                  <div className="flex justify-center pt-6">
+                    <Button
+                      onClick={loadMorePosts}
+                      disabled={isLoadingMore}
+                      variant="outline"
+                      size="lg"
+                      className="min-w-[200px]"
+                    >
+                      {isLoadingMore ? (
+                        <>
+                          <Spinner className="h-4 w-4 mr-2" />
+                          {t('feed.loadingMore')}
+                        </>
+                      ) : (
+                        t('feed.loadMore')
+                      )}
+                    </Button>
+                  </div>
+                )}
+
+                {/* End of Feed Message */}
+                {!hasMorePosts && posts.length > 0 && (
+                  <div className="text-center py-8">
+                    <p className="text-gray-600">
+                      {t('feed.endOfFeed')}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* Empty State */
+              <div className="text-center py-12">
+                <div className="bg-white/60 backdrop-blur-sm rounded-lg p-8 max-w-md mx-auto border border-white/20">
+                  <h3 className="text-lg font-semibold text-emerald-900 mb-2">
+                    {t('feed.empty.title')}
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    {t('feed.empty.description')}
+                  </p>
+                  <Button
+                    onClick={handleRefresh}
+                    variant="outline"
+                  >
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    {t('feed.tryAgain')}
+                  </Button>
+                </div>
+              </div>
+            )
           )}
         </GlassCard>
       </div>

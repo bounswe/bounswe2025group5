@@ -17,16 +17,16 @@ export default function GlassCard({
   ...props 
 }: GlassCardProps) {
   const variants = {
-    default: 'p-8 max-w-4xl min-h-[400px] min-w-[50rem]',
-    sm: 'p-6 max-w-md min-h-[200px]',
-    lg: 'p-12 max-w-6xl min-h-[600px]'
+    default: 'py-8 px-12 max-w-4xl min-h-[400px] min-w-[50rem]',
+    sm: 'py-6 px-10 max-w-md min-h-[200px]',
+    lg: 'py-12 px-16 max-w-6xl min-h-[600px]'
   }
 
   return (
     <Card
       className={cn(
         // Base glass effect with custom shadow
-        'bg-[#2a1a0540] backdrop-blur-md border border-white/20 rounded-lg w-full',
+        'bg-[#5e544632] backdrop-blur-md border border-white/20 rounded-lg w-full',
         // Smooth size transition animations with overflow handling
         'transition-[width,height,min-height,max-height,padding] duration-700 ease-out overflow-hidden',
         // Custom shadow

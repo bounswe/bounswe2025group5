@@ -21,6 +21,8 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-foreground: var(--tertiary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
@@ -67,6 +69,9 @@
   --secondary: oklch(0.68 0.12 226);  /* #0E9DCF calm blue */
   --secondary-foreground: oklch(0.985 0 0);
 
+  --tertiary: oklch(63.147% 0.17226 282.58);   /* #8B7FCF soft purple */
+  --tertiary-foreground: oklch(0.985 0 0);
+
   --accent: oklch(0.83 0.18 80);      /* #F8B82A golden yellow */
   --accent-foreground: oklch(0.22 0 0);
 
@@ -107,6 +112,9 @@
 
   --secondary: oklch(0.72 0.12 226);
   --secondary-foreground: oklch(0.18 0.02 150);
+
+  --tertiary: oklch(0.78 0.12 285);   /* lighter purple for dark mode */
+  --tertiary-foreground: oklch(0.18 0.02 150);
 
   --accent: oklch(0.83 0.18 80);
   --accent-foreground: oklch(0.18 0.02 150);
@@ -187,17 +195,41 @@
     @apply hover:scale-102 active:scale-95 cursor-pointer transition-transform duration-300 ease-out;
   }
 
-  /* Input Animations */
+  /* Input Animations - Cloud-like glow effect */
   .animate-input {
-    @apply focus-visible:ring-2 focus-visible:ring-blue-500/50 focus-visible:ring-offset-2 transition-all duration-200 ease-out;
+    @apply transition-all duration-200 ease-out;
+  }
+  
+  .animate-input:focus-visible {
+    box-shadow: 
+      0 0 0 1px rgb(59 130 246 / 0.3),
+      0 0 8px rgb(59 130 246 / 0.2),
+      0 0 16px rgb(59 130 246 / 0.1),
+      0 0 24px rgb(59 130 246 / 0.05);
   }
   
   .animate-input-error {
-    @apply focus-visible:ring-2 focus-visible:ring-red-500/50 focus-visible:ring-offset-2 transition-all duration-200 ease-out;
+    @apply transition-all duration-200 ease-out;
+  }
+  
+  .animate-input-error:focus-visible {
+    box-shadow: 
+      0 0 0 1px rgb(239 68 68 / 0.3),
+      0 0 8px rgb(239 68 68 / 0.2),
+      0 0 16px rgb(239 68 68 / 0.1),
+      0 0 24px rgb(239 68 68 / 0.05);
   }
   
   .animate-input-success {
-    @apply focus-visible:ring-2 focus-visible:ring-green-500/50 focus-visible:ring-offset-2 transition-all duration-200 ease-out;
+    @apply transition-all duration-200 ease-out;
+  }
+  
+  .animate-input-success:focus-visible {
+    box-shadow: 
+      0 0 0 1px rgb(34 197 94 / 0.3),
+      0 0 8px rgb(34 197 94 / 0.2),
+      0 0 16px rgb(34 197 94 / 0.1),
+      0 0 24px rgb(34 197 94 / 0.05);
   }
 
   /* List Item Animations */
@@ -255,5 +287,22 @@
   
   .animate-modal-content {
     @apply animate-in zoom-in-95 duration-300 ease-out;
+  }
+
+  /* Challenge Card Button Variants */
+  .btn-attend {
+    @apply bg-primary hover:bg-primary/90 text-primary-foreground;
+  }
+
+  .btn-log {
+    @apply bg-tertiary hover:bg-tertiary/90 text-tertiary-foreground border-tertiary;
+  }
+
+  .btn-log-outline {
+    @apply border-tertiary text-tertiary hover:bg-tertiary hover:text-tertiary-foreground;
+  }
+
+  .btn-log-submit {
+    @apply bg-tertiary hover:bg-tertiary/90 text-tertiary-foreground;
   }
 }

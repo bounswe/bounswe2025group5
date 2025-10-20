@@ -1,5 +1,6 @@
 import { ApiClient } from './client';
 import { z } from 'zod';
+import { LeaderboardEntrySchema, type LeaderboardItem } from './schemas/leaderboard';
 
 export const ChallengeSchema = z.object({
   id: z.number().int().optional(),
@@ -35,6 +36,11 @@ export const ChallengesApi = {
   logChallengeProgress: async (id: number, payload: Record<string, unknown>) => {
     const res = await ApiClient.post<unknown>(`/api/challenges/${id}/log`, payload);
     return LogChallengeResponseSchema.parse(res);
+  },
+  getLeaderboard: async (id: number): Promise<LeaderboardItem[]> => {
+    const data = await ApiClient.get<LeaderboardItem[]>(`/api/challenges/${id}/leaderboard`);
+    data.forEach(item => LeaderboardEntrySchema.parse(item));
+    return data;
   }
 };
 
