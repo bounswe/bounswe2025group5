@@ -102,7 +102,7 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
                 const next = Number(e.target.value);
                 setLogAmount(isNaN(next) || next <= 0 ? 1 : next);
               }} />
-              <Button size="sm" variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-900/20" disabled={!!logging[challenge.challengeId] || !!busy[challenge.challengeId]} onClick={() => logChallengeProgress(challenge.challengeId, username, Math.max(1, logAmount))}>
+              <Button size="sm" variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-900/20 mt-5" disabled={!!logging[challenge.challengeId] || !!busy[challenge.challengeId]} onClick={() => logChallengeProgress(challenge.challengeId, username, Math.max(1, logAmount))}>
                 {logging[challenge.challengeId] ? t('challenges.logging', 'Logging...') : t('challenges.log', 'Log')}
               </Button>
             </PopoverContent>
