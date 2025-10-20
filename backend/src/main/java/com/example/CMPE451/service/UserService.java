@@ -44,19 +44,37 @@ public class UserService {
     public List<GetSavedPostResponse> getSavedPosts(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException("User not found: " + username));
+
         List<SavedPost> savedPosts =
                 savedPostRepository.findAllByUserIdOrderBySavedAtDesc(user.getId());
+
+        List<Integer> postIds = savedPosts.stream()
+                .map(sp -> sp.getPost().getPostId())
+                .toList();
+
+        Set<Integer> likedPostIds = postLikeRepository.findLikedPostIdsByUserIdAndPostIdIn(
+                user.getId(), postIds
+        );
+
         return savedPosts.stream()
-                .map(sp -> new GetSavedPostResponse(
-                        sp.getPost().getPostId(),
-                        sp.getPost().getContent(),
-                        sp.getPost().getLikes(),
-                        sp.getPost().getComments(),
-                        sp.getPost().getUser().getUsername(),
-                        sp.getSavedAt(),
-                        sp.getPost().getPhotoUrl()) )
+                .map(sp -> {
+                    Post post = sp.getPost();
+                    boolean isLiked = likedPostIds.contains(post.getPostId());
+                    return new GetSavedPostResponse(
+                            post.getPostId(),
+                            post.getContent(),
+                            post.getLikes(),
+                            post.getComments(),
+                            post.getUser().getUsername(),
+                            sp.getSavedAt(),
+                            post.getPhotoUrl(),
+                            isLiked,
+                            true
+                    );
+                })
                 .collect(Collectors.toList());
     }
+
 
     public List<GetPostResponse> getPostsForUser(String username) {
         User user = userRepository.findByUsername(username)
