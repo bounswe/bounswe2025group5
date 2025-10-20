@@ -193,5 +193,14 @@
             "hours": "{{count}}h",
             "days": "{{count}}d"
         }
+    },
+    "search": {
+        "placeholder": "Search posts...",
+        "button": "Search",
+        "clear": "Clear",
+        "results": "Search Results",
+        "noResults": "No posts found matching your search.",
+        "loading": "Searching...",
+        "error": "Failed to search posts. Please try again."
     }
 }

@@ -26,7 +26,7 @@ export default function GlassCard({
     <Card
       className={cn(
         // Base glass effect with custom shadow
-        'bg-[#2a1a0540] backdrop-blur-md border border-white/20 rounded-lg w-full',
+        'bg-[#5e544632] backdrop-blur-md border border-white/20 rounded-lg w-full',
         // Smooth size transition animations with overflow handling
         'transition-[width,height,min-height,max-height,padding] duration-700 ease-out overflow-hidden',
         // Custom shadow
