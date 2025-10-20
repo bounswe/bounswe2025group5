@@ -4,21 +4,48 @@
         "cancel": "İptal",
         "posting": "Paylaşılıyor..."
     },
+    "welcome": {
+        "welcomeMessage": "Web Sitemize Hoş Geldiniz!",
+        "description": "Burada olduğunuz için mutluyuz. Özelliklerimizi keşfedin ve keyfini çıkarın!"
+    },
     "login": {
-    "title": "Hesabınıza giriş yapın",
-    "description": "Hesabınıza giriş yapmak için lütfen e-posta adresinizi girin",
-    "signup": "Kayıt Ol",
-    "login": "Giriş Yap",
-    "email": {
-        "label": "E-posta",
-        "placeholder": "m@örnek.com"
+        "title": "Hesabınıza giriş yapın",
+        "description": "Hesabınıza giriş yapmak için lütfen e-posta adresinizi girin",
+        "signup": "Kayıt Ol",
+        "login": "Giriş Yap",
+        "email": {
+            "label": "E-posta",
+            "placeholder": "m@örnek.com"
+        },
+        "username": "Kullanıcı Adı",
+        "password": {
+            "label": "Şifre",
+            "forgot": "Şifrenizi mi unuttunuz?"
+        },
+        "loginButton": "Giriş Yap"
     },
-    "username": "Kullanıcı Adı",
-    "password": {
-        "label": "Şifre",
-        "forgot": "Şifrenizi mi unuttunuz?"
-    },
-    "loginButton": "Giriş Yap"
+    "register": {
+        "title": "Yeni bir hesap oluşturun",
+        "username": {
+            "label": "Kullanıcı Adı",
+            "placeholder": "Kullanıcı adınız"
+        },
+        "email": {
+            "label": "E-posta",
+            "placeholder": "siz@örnek.com"
+        },
+        "password": {
+            "label": "Şifre",
+            "placeholder": "Güçlü bir şifre seçin"
+        },
+        "confirmPassword": {
+            "label": "Şifreyi Onayla",
+            "placeholder": "Şifrenizi tekrar girin"
+        },
+        "registerButton": "Kayıt Ol",
+        "loading": "Hesap oluşturuluyor...",
+        "haveAccount": "Zaten bir hesabınız var mı? ",
+        "login": "Giriş Yap"
     },
     "profile": {
         "edit": "Profili Düzenle",

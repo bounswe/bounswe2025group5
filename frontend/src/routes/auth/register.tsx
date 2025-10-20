@@ -7,8 +7,11 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import GlassCard from "@/components/ui/glass-card";
+import { useTranslation } from "react-i18next";
+
 
 export default function Register() {
+  const { t } = useTranslation();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -46,29 +49,29 @@ export default function Register() {
       <div className="max-w-md min-w-80 mx-auto animate-fade-in">
         <Card>
           <CardHeader>
-            <CardTitle className="text-center">Create an account</CardTitle>
+            <CardTitle className="text-center">{t("register.title")}</CardTitle>
           </CardHeader>
           <CardContent>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="username" className="mb-1 block">Username</Label>
-            <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} required placeholder="Your username" />
+            <Label htmlFor="username" className="mb-1 block">{t("register.username.label")}</Label>
+            <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} required placeholder={t("register.username.placeholder")} />
           </div>
 
           <div>
-            <Label htmlFor="email" className="mb-1 block">Email</Label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@example.com" />
+            <Label htmlFor="email" className="mb-1 block">{t("register.email.label")}</Label>
+            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder={t("register.email.placeholder")} />
           </div>
 
           <div>
-            <Label htmlFor="password" className="mb-1 block">Password</Label>
-            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder="Choose a strong password" />
+            <Label htmlFor="password" className="mb-1 block">{t("register.password.label")}</Label>
+            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder={t("register.password.placeholder")} />
           </div>
 
           <div>
-            <Label htmlFor="confirmPassword" className="mb-1 block">Confirm Password</Label>
-            <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="Re-enter your password" />
+            <Label htmlFor="confirmPassword" className="mb-1 block">{t("register.confirmPassword.label")}</Label>
+            <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder={t("register.confirmPassword.placeholder")} />
           </div>
 
           {error && (
@@ -84,16 +87,16 @@ export default function Register() {
             disabled={loading}
             className="w-full"
           >
-            {loading ? "Creating account..." : "Register"}
+            {loading ? t("register.loading") : t("register.registerButton")}
           </Button>
         </form>
         <p className="mt-4 text-center text-sm text-gray-700">
-          Already have an account?{" "}
+          {t("register.haveAccount")}{" "}
           <button 
             onClick={() => navigate('/auth/login')} 
             className="text-blue-600 hover:underline bg-transparent border-none cursor-pointer"
           >
-            Log in
+            {t("register.login")}
           </button>
         </p>
           </CardContent>

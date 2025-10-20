@@ -4,6 +4,10 @@
         "cancel": "Cancel",
         "posting": "Posting..."
     },
+    "welcome": {
+        "welcomeMessage": "Welcome to Our Website!",
+        "description": "We are glad to have you here. Explore our features and enjoy your stay!"
+    },
     "login": {
         "title": "Login to your account",
         "description": "Enter your email below to login to your account",
@@ -19,6 +23,29 @@
             "forgot": "Forgot your password?"
         },
         "loginButton": "Login"
+    },
+    "register": {
+        "title": "Create a new account",
+        "username": {
+            "label": "Username",
+            "placeholder": "Your username"
+        },
+        "email": {
+            "label": "Email",
+            "placeholder": "you@example.com"
+        },
+        "password": {
+            "label": "Password",
+            "placeholder": "Choose a strong password"
+        },
+        "confirmPassword": {
+            "label": "Confirm Password",
+            "placeholder": "Re-enter your password"
+        },
+        "registerButton": "Register",
+        "loading": "Creating account...",
+        "haveAccount": "Already have an account? ",
+        "login": "Login"
     },
     "profile": {
         "edit": "Edit Profile", 
