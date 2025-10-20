@@ -1,5 +1,6 @@
 import { ApiClient } from './client';
-import { UserCountResponseSchema, type UserCountResponse } from './schemas/users';
+import { UserCountResponseSchema, type UserCountResponse, SavedPostItemSchema, type SavedPostItem } from './schemas/users';
+import { PostItemSchema, type PostItem } from './schemas/posts';
 import { ChallengeListItemSchema, type ChallengeListItem } from './schemas/challenges';
 import { ProfileResponseSchema, type ProfileResponse } from './schemas/profile';
 
@@ -37,6 +38,16 @@ export const UsersApi = {
   listChallenges: async (username: string): Promise<ChallengeListItem[]> => {
     const data = await ApiClient.get<ChallengeListItem[]>(`/api/challenges/${encodeURIComponent(username)}`);
     data.forEach(item => ChallengeListItemSchema.parse(item));
+    return data;
+  },
+  getSavedPosts: async (username: string): Promise<SavedPostItem[]> => {
+    const data = await ApiClient.get<SavedPostItem[]>(`/api/users/${encodeURIComponent(username)}/saved-posts`);
+    data.forEach(item => SavedPostItemSchema.parse(item));
+    return data;
+  },
+  getPosts: async (username: string): Promise<PostItem[]> => {
+    const data = await ApiClient.get<PostItem[]>(`/api/users/${encodeURIComponent(username)}/posts`);
+    data.forEach(item => PostItemSchema.parse(item));
     return data;
   },
 };

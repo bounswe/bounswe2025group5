@@ -1,10 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { UsersApi } from "@/lib/api/users";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import DeleteAccount from "@/components/profile/delete_account";
 import EditProfile from "@/components/profile/edit_profile";
+import PostCard from "@/components/feedpage/post-card";
+import ScrollPanel from "@/components/mainpage/ScrollPanel";
+import type { SavedPostItem } from "@/lib/api/schemas/users";
+import type { PostItem } from "@/lib/api/schemas/posts";
 
 export default function ProfileIndex() {
   const { t } = useTranslation();
@@ -13,7 +17,7 @@ export default function ProfileIndex() {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const [posts, setPosts] = useState<SavedPostItem[]>([]);
   // Pull username from token payload stored in localStorage via API client refresh
   const storedUsername = useMemo(() => {
     try {
@@ -51,8 +55,26 @@ export default function ProfileIndex() {
     })();
   }, [storedUsername]);
 
-  
+  useEffect(() => {
+    (async () => {
+      try {
+        const p = await UsersApi.getSavedPosts(storedUsername);
+        setPosts(p as SavedPostItem[]);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Failed to load posts");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [storedUsername]);
 
+  const handlePostUpdate = (updatedPost: SavedPostItem) => {
+    setPosts(prev =>
+      prev.map(post =>
+        post.postId === updatedPost.postId ? updatedPost : post
+      )
+    );
+  };
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-foreground">
@@ -102,15 +124,20 @@ export default function ProfileIndex() {
         </Card>
 
         {/* Posts Placeholder Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('profile.posts', 'Posts')}</CardTitle>
-            <CardDescription>{t('profile.postsDesc', 'User posts will appear here')}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-muted-foreground">{t('profile.postsPlaceholder', 'Post list not implemented yet')}</div>
-          </CardContent>
-        </Card>
+        <ScrollPanel
+          title={t('profile.postsTitle', 'Your Posts')}
+          description={t('profile.postsDesc', 'Posts you have created')}
+        >
+          {posts.length === 0 ? (
+            <div className="text-muted-foreground">{t('profile.noPosts', 'No posts yet')}</div>
+          ) : (
+            <div className="space-y-4 grid gap-4 sm:grid-cols-2">
+              {posts.map((p) => (
+                <PostCard key={p.postId} post={p as PostItem} onPostUpdate={(updatedPost: PostItem) => handlePostUpdate(updatedPost as SavedPostItem)} />
+              ))}
+            </div>
+          )}
+        </ScrollPanel>
       </div>
     </div>
   );

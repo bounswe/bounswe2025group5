@@ -126,7 +126,7 @@ export default function PostCard({ post, onPostUpdate, className }: PostCardProp
     setCommentCount(prev => prev + 1);
   };
 
-  const { date, time } = formatDate(post.createdAt);
+  const { date, time } = formatDate(post.createdAt || post.savedAt || '');
 
   return (
     <Card className={cn(
