@@ -470,8 +470,8 @@ export default function EditProfileScreen() {
               styles.btn,
               styles.delete,
               {
-                backgroundColor: isDarkMode ? '#C72C1C' : '#FF3B30',
-                width: '100%',
+                backgroundColor: isDarkMode ? "#C72C1C" : "#FF3B30",
+                width: "100%",
                 maxWidth: 200,
               },
             ]}
@@ -481,10 +481,10 @@ export default function EditProfileScreen() {
             <Text
               style={[
                 styles.btnText,
-                { color: isDarkMode ? '#FFF5F5' : '#FFFFFF' },
+                { color: isDarkMode ? "#FFF5F5" : "#FFFFFF" },
               ]}
             >
-              {t('deleteAccount')}
+              {t("deleteAccount")}
             </Text>
           </TouchableOpacity>
         </View>
