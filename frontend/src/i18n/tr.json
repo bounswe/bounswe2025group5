@@ -66,6 +66,7 @@
         "title": "Etkinlikler",
         "attendError": "Etkinliğe katılınamadı",
         "leaveError": "Etkinlikten ayrılınamadı",
+        "logError": "Etkinlik ilerlemesi kaydedilemedi",
         "type": "Tür",
         "status": "Durum",
         "dates": "Tarih",

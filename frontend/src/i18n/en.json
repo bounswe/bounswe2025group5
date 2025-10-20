@@ -66,6 +66,7 @@
         "title": "Challenges",
         "attendError": "Could not attend the challenge",
         "leaveError": "Could not leave the challenge",
+        "logError": "Could not log challenge progress",
         "type": "Type",
         "status": "Status",
         "dates": "Dates",

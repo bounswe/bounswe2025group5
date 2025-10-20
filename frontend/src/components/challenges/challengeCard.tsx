@@ -1,20 +1,16 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { UsersApi } from '@/lib/api/users';
 import { ChallengesApi } from '@/lib/api/challenges';
 import { type ChallengeListItem } from '@/lib/api/schemas/challenges';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Spinner } from '@/components/ui/spinner';
 import { Progress } from '@/components/ui/progress';
 
 export default function ChallengeCard({ challenge }: { challenge: ChallengeListItem }) {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<Record<number, boolean>>({});
   const [logging, setLogging] = useState<Record<number, boolean>>({});
-  const [username, setUsername] = useState<string>(localStorage.getItem('username') || '');
+  const [username] = useState<string>(localStorage.getItem('username') || '');
   const [userInChallenge, setUserInChallenge] = useState<boolean>(challenge.userInChallenge);
   const [currentAmount, setCurrentAmount] = useState<number>(challenge.currentAmount ?? 0);
 
@@ -60,22 +56,6 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
       setLogging((b) => ({ ...b, [challengeId]: false }));
     }
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-foreground">
-        <Spinner />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-destructive">
-        {error}
-      </div>
-    );
-  }
 
   return (
     <div className="grid gap-4 grid-cols-1">

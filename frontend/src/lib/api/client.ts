@@ -63,8 +63,32 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
 
   let response = await doFetch(headers);
 
-  const responseData = await response.json();
-  return responseData;
+  if (response.status === 401) {
+    const refreshed = await tryRefreshAccessToken();
+    if (refreshed) {
+      const retryHeaders = {
+        ...headers,
+        Authorization: `Bearer ${getAccessToken()}`,
+      } as Record<string, string>;
+      response = await doFetch(retryHeaders);
+    }
+  }
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      const method = (options.method || 'GET').toString().toUpperCase();
+      const isDeleteAccount = method === 'DELETE' && endpoint.startsWith('/api/users/');
+      if (isDeleteAccount) {
+        throw new Error('Incorrect password');
+      }
+      clearTokens();
+      localStorage.removeItem('username');
+      window.location.href = '/auth/login';
+    }
+    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+  }
+
+  return response.json();
 }
 
 export const ApiClient = {
