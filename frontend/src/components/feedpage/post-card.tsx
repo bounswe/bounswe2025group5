@@ -62,7 +62,7 @@ export default function PostCard({ post, onPostUpdate, className }: PostCardProp
         // Currently not liked, so like it
         await LikesApi.add({ username: currentUser, postId: post.postId });
       }
-      onPostUpdate?.({ ...post, likes: newCount, liked: willBeLiked });
+      onPostUpdate?.({ ...post, likes: newCount, liked: willBeLiked, comments: commentCount });
     } catch (error) {
       // Revert on failure
       console.error('Error toggling like:', error);
@@ -93,7 +93,7 @@ export default function PostCard({ post, onPostUpdate, className }: PostCardProp
         // Currently not saved, so save it
         await PostsApi.save(post.postId, { username: currentUser });
       }
-      onPostUpdate?.({ ...post, saved: willBeSaved });
+      onPostUpdate?.({ ...post, saved: willBeSaved, comments: commentCount });
     } catch (error) {
       // Revert on failure
       console.error('Error toggling save:', error);

@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Send, MoreHorizontal, Edit3, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { CommentsApi, type Comment } from '@/lib/api/comments';
+import userAvatar from '@/assets/user.png';
 import {
   Popover,
   PopoverContent,
@@ -85,7 +86,7 @@ function CommentItem({ comment, onUpdate, onDelete }: CommentItemProps) {
   return (
     <div className="flex gap-3 py-2 group">
       <Avatar className="w-8 h-8 shrink-0">
-        <AvatarImage src="" alt={comment.username || 'User'} />
+        <AvatarImage src={userAvatar} alt={comment.username || 'User'} />
         <AvatarFallback className="bg-primary text-primary-foreground text-xs">
           {(comment.username || 'U').charAt(0).toUpperCase()}
         </AvatarFallback>
@@ -266,7 +267,7 @@ export default function CommentSection({ postId, onCommentAdded }: CommentSectio
         <form onSubmit={handleSubmitComment} className="p-4 border-t">
           <div className="flex items-center gap-3">
             <Avatar className="w-8 h-8 shrink-0">
-              <AvatarImage src="" alt={currentUser} />
+              <AvatarImage src={userAvatar} alt={currentUser} />
               <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                 {currentUser.charAt(0).toUpperCase()}
               </AvatarFallback>

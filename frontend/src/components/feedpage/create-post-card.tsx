@@ -63,7 +63,7 @@ export default function CreatePostCard({ onPostCreated, className }: CreatePostC
   };
 
   return (
-    <Card className={cn("animate-card-interactive", className)}>
+    <Card className={cn("", className)}>
       <CardHeader className="pb-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center">
