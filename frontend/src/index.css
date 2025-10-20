@@ -21,6 +21,8 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-foreground: var(--tertiary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
@@ -67,6 +69,9 @@
   --secondary: oklch(0.68 0.12 226);  /* #0E9DCF calm blue */
   --secondary-foreground: oklch(0.985 0 0);
 
+  --tertiary: oklch(63.147% 0.17226 282.58);   /* #8B7FCF soft purple */
+  --tertiary-foreground: oklch(0.985 0 0);
+
   --accent: oklch(0.83 0.18 80);      /* #F8B82A golden yellow */
   --accent-foreground: oklch(0.22 0 0);
 
@@ -107,6 +112,9 @@
 
   --secondary: oklch(0.72 0.12 226);
   --secondary-foreground: oklch(0.18 0.02 150);
+
+  --tertiary: oklch(0.78 0.12 285);   /* lighter purple for dark mode */
+  --tertiary-foreground: oklch(0.18 0.02 150);
 
   --accent: oklch(0.83 0.18 80);
   --accent-foreground: oklch(0.18 0.02 150);
@@ -279,5 +287,22 @@
   
   .animate-modal-content {
     @apply animate-in zoom-in-95 duration-300 ease-out;
+  }
+
+  /* Challenge Card Button Variants */
+  .btn-attend {
+    @apply bg-primary hover:bg-primary/90 text-primary-foreground;
+  }
+
+  .btn-log {
+    @apply bg-tertiary hover:bg-tertiary/90 text-tertiary-foreground border-tertiary;
+  }
+
+  .btn-log-outline {
+    @apply border-tertiary text-tertiary hover:bg-tertiary hover:text-tertiary-foreground;
+  }
+
+  .btn-log-submit {
+    @apply bg-tertiary hover:bg-tertiary/90 text-tertiary-foreground;
   }
 }

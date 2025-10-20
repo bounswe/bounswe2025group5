@@ -82,36 +82,72 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
             </div>
           )}
         </CardContent>
-        <div className="mt-auto p-4 flex justify-between">
-          {!userInChallenge? (
-            <Button size="sm" variant="default" disabled={!!busy[challenge.challengeId] || !!logging[challenge.challengeId]} onClick={() => attend(challenge.challengeId, username)}>
-              {busy[challenge.challengeId] ? t('challenges.attending', 'Attending...') : t('challenges.attend', 'Attend')}
-            </Button>
-          ) : (
-            <Button size="sm" variant="destructive" disabled={!!busy[challenge.challengeId] || !!logging[challenge.challengeId]} onClick={() => leave(challenge.challengeId, username)}>
-              {busy[challenge.challengeId] ? t('challenges.leaving', 'Leaving...') : t('challenges.leave', 'Leave')}
-            </Button>
-          )}
-            <Popover> 
-            <PopoverTrigger asChild>
-              <Button size="sm" variant="outline" disabled={!!logging[challenge.challengeId] || !!busy[challenge.challengeId]}>
-                {logging[challenge.challengeId] ? t('challenges.logging', 'Logging...') : t('challenges.log', 'Log')}
+        <div className="mt-auto p-4 pt-2 space-y-4">
+          {/* Action buttons row */}
+          <div className="flex gap-2 w-full">
+            {!userInChallenge ? (
+              <Button 
+                size="sm" 
+                variant="default" 
+                className="flex-1 h-9 btn-attend"
+                disabled={!!busy[challenge.challengeId] || !!logging[challenge.challengeId]} 
+                onClick={() => attend(challenge.challengeId, username)}
+              >
+                {busy[challenge.challengeId] ? t('challenges.attending', 'Attending...') : t('challenges.attend', 'Attend')}
               </Button>
-            </PopoverTrigger>
-            <PopoverContent>
-              <div className="space-y-3">
-                <Input type="number" min={1} value={logAmount} onChange={e => {
-                  const next = Number(e.target.value);
-                  setLogAmount(isNaN(next) || next <= 0 ? 1 : next);
-                }} />
-                <Button size="sm" variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-900/20 mt-5" disabled={!!logging[challenge.challengeId] || !!busy[challenge.challengeId]} onClick={() => logChallengeProgress(challenge.challengeId, username, Math.max(1, logAmount))}>
+            ) : (
+              <Button 
+                size="sm" 
+                variant="destructive" 
+                className="flex-1 h-9"
+                disabled={!!busy[challenge.challengeId] || !!logging[challenge.challengeId]} 
+                onClick={() => leave(challenge.challengeId, username)}
+              >
+                {busy[challenge.challengeId] ? t('challenges.leaving', 'Leaving...') : t('challenges.leave', 'Leave')}
+              </Button>
+            )}
+            
+            <Popover> 
+              <PopoverTrigger asChild>
+                <Button 
+                  size="sm" 
+                  variant="secondary" 
+                  className="flex-1 h-9"
+                  disabled={!!logging[challenge.challengeId] || !!busy[challenge.challengeId]}
+                >
                   {logging[challenge.challengeId] ? t('challenges.logging', 'Logging...') : t('challenges.log', 'Log')}
                 </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-56">
+                <div className="space-y-3">
+                  <Input 
+                    type="number" 
+                    min={1} 
+                    value={logAmount} 
+                    onChange={e => {
+                      const next = Number(e.target.value);
+                      setLogAmount(isNaN(next) || next <= 0 ? 1 : next);
+                    }} 
+                    className="h-9"
+                  />
+                  <Button 
+                    size="sm" 
+                    variant="default" 
+                    className="w-full h-9 btn-log-submit" 
+                    disabled={!!logging[challenge.challengeId] || !!busy[challenge.challengeId]} 
+                    onClick={() => logChallengeProgress(challenge.challengeId, username, Math.max(1, logAmount))}
+                  >
+                    {logging[challenge.challengeId] ? t('challenges.logging', 'Logging...') : t('challenges.log', 'Log')}
+                  </Button>
+                </div>
               </PopoverContent>
             </Popover>
           </div>
           
-          <Leaderboard challengeId={challenge.challengeId} />
+          {/* Leaderboard section - centered */}
+          <div className="w-full flex justify-center">
+            <Leaderboard challengeId={challenge.challengeId} />
+          </div>
         </div>
       </Card>
     </div>

@@ -68,7 +68,7 @@ export default function CreateChallenge() {
         <div className="flex justify-center">
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="default" className="px-6">{t("challenges.create.createChallenge")}</Button>
+              <Button variant="tertiary" className="px-6">{t("challenges.create.createChallenge")}</Button>
             </DialogTrigger>
             <DialogContent>
             <DialogHeader>

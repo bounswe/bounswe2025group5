@@ -17,9 +17,9 @@ export default function GlassCard({
   ...props 
 }: GlassCardProps) {
   const variants = {
-    default: 'p-8 max-w-4xl min-h-[400px] min-w-[50rem]',
-    sm: 'p-6 max-w-md min-h-[200px]',
-    lg: 'p-12 max-w-6xl min-h-[600px]'
+    default: 'py-8 px-12 max-w-4xl min-h-[400px] min-w-[50rem]',
+    sm: 'py-6 px-10 max-w-md min-h-[200px]',
+    lg: 'py-12 px-16 max-w-6xl min-h-[600px]'
   }
 
   return (

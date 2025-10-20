@@ -49,7 +49,7 @@ export default function ChallengesIndex() {
         <div className="max-w-6xl mx-auto flex justify-center">
           <GlassCard className="w-full">
             {/* Create Challenge Button - Centered below navbar */}
-            <div className="flex justify-center mb-8">
+            <div className="flex justify-center mb-4">
               <CreateChallenge />
             </div>
             
