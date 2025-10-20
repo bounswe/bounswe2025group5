@@ -52,3 +52,31 @@ The URL at frontend is "https://waste-less.alibartukonca.org" . If you wish to r
 To view the logs for a specific running container:
 ```bash
 docker-compose logs <container_name_or_id>
+```
+## Application Properties
+
+The fields you need to put is :
+```bash
+
+- spring.application.name=CMPE451
+- spring.datasource.url=<your_local_db_url>
+- spring.datasource.username=
+- spring.datasource.password=
+- spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+- spring.servlet.multipart.max-file-size=10MB
+- spring.servlet.multipart.max-request-size=10MB
+- spring.web.resources.static-locations=
+- digitalocean.spaces.access-key=
+- digitalocean.spaces.secret-key=
+- digitalocean.spaces.endpoint=
+- digitalocean.spaces.bucket-name=
+- digitalocean.spaces.region=
+- digitalocean.spaces.photo-folder=
+- digitalocean.spaces.post-photo-folder=
+# Hibernate properties
+- spring.jpa.hibernate.ddl-auto=validate
+- spring.jpa.show-sql=true
+- spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+
+```
+
