@@ -33,5 +33,8 @@ export default defineConfig({
   },
   preview: {
     port: 3000,
+    host: true,
+    allowedHosts: ['waste-less.alibartukonca.org'],
   },
 });
+

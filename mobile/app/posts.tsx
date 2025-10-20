@@ -159,43 +159,46 @@ export default function MyPostsScreen() {
     });
   };
 
-  const handleDeletePost = (postId: number) => {
-    Alert.alert(
-      t('deletePostTitle'),
-      t('deletePostConfirm'),
-      [
-        { text: t('cancel'), style: 'cancel' },
-        {
-          text: t('delete'),
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              const response = await apiRequest(`/api/posts/${postId}`, {
-                method: 'DELETE',
-              });
-              if (!response.ok) {
-                const errorBody = await response.text();
-                console.error('Delete failed response:', errorBody);
-                throw new Error(
-                  t('failedToDeletePostWithStatus', {
-                    status: response.status,
-                    errorBody: errorBody || t('noDetails'),
-                  })
-                );
-              }
-              Alert.alert(t('success'), t('postDeletedSuccessfully'));
-              fetchAllPostsAndFilter();
-            } catch (err) {
-              console.error('Error deleting post:', err);
-              Alert.alert(
-                t('error'),
-                `${t('couldNotDeletePost')} ${err instanceof Error ? err.message : ''}`
-              );
-            }
-          },
-        },
-      ]
-    );
+  const showMessage = (title: string, message: string) => {
+    if (Platform.OS === 'web') {
+      const composed = title ? `${title}\n${message}` : message;
+      if (typeof window !== 'undefined') {
+        window.alert(composed);
+      } else {
+        console.log(composed);
+      }
+    } else {
+      Alert.alert(title, message);
+    }
+  };
+
+  const handleDeletePost = async (postId: number) => {
+    try {
+      const response = await apiRequest(`/api/posts/${postId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        const errorBody = await response.text();
+        console.error('Delete failed response:', errorBody);
+        throw new Error(
+          t('failedToDeletePostWithStatus', {
+            status: response.status,
+            errorBody: errorBody || t('noDetails'),
+          })
+        );
+      }
+
+      setAllPosts((prev) => prev.filter((post) => post.postId !== postId));
+      setUserPosts((prev) => prev.filter((post) => post.postId !== postId));
+
+      showMessage(t('success'), t('postDeletedSuccessfully'));
+    } catch (err) {
+      console.error('Error deleting post:', err);
+      showMessage(
+        t('error'),
+        `${t('couldNotDeletePost')} ${err instanceof Error ? err.message : ''}`
+      );
+    }
   };
 
   if (loading && userPosts.length === 0) {

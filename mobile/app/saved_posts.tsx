@@ -226,8 +226,9 @@ export default function SavedPostsScreen() {
     setLocallyUnsavedIds((prev) => new Set(prev).add(postId));
 
     try {
-      const url = `${apiUrl}/api/posts/unsave/${encodeURIComponent(username)}/${postId}`;
-      const response = await fetch(url, { method: 'DELETE' });
+      const response = await apiRequest(`/api/posts/${postId}/saves/${encodeURIComponent(username)}`, {
+        method: 'DELETE',
+      });
       const responseBodyText = await response.text();
 
       if (!response.ok) {
@@ -242,6 +243,13 @@ export default function SavedPostsScreen() {
       } catch (e: any) {
         throw new Error(`format-mismatch ${e?.message || ''}`.trim());
       }
+
+      setSavedPosts((prev) => prev.filter((post) => post.postId !== postId));
+      setLocallyUnsavedIds((prev) => {
+        const copy = new Set(prev);
+        copy.delete(postId);
+        return copy;
+      });
     } catch (err) {
       console.error('Error during unsave:', err);
       Alert.alert(t('error'), t('errorUnsavePost'));
@@ -267,11 +275,10 @@ export default function SavedPostsScreen() {
     });
 
     try {
-      const url = `${apiUrl}/api/posts/save`;
-      const response = await fetch(url, {
+      const response = await apiRequest(`/api/posts/${postId}/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, postId }),
+        body: JSON.stringify({ username }),
       });
       const responseBodyText = await response.text();
 

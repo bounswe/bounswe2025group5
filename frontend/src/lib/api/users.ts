@@ -3,6 +3,7 @@ import { UserCountResponseSchema, type UserCountResponse, SavedPostItemSchema, t
 import { PostItemSchema, type PostItem } from './schemas/posts';
 import { ChallengeListItemSchema, type ChallengeListItem } from './schemas/challenges';
 import { ProfileResponseSchema, type ProfileResponse } from './schemas/profile';
+import { WasteGoalItemSchema, type WasteGoalItem } from './schemas/goals';
 
 export const UsersApi = {
   getUserCount: async (): Promise<UserCountResponse> => {
@@ -48,6 +49,13 @@ export const UsersApi = {
   getPosts: async (username: string): Promise<PostItem[]> => {
     const data = await ApiClient.get<PostItem[]>(`/api/users/${encodeURIComponent(username)}/posts`);
     data.forEach(item => PostItemSchema.parse(item));
+    return data;
+  },
+  listGoals: async (username: string, size = 20, lastGoalId?: number): Promise<WasteGoalItem[]> => {
+    const qs = new URLSearchParams({ size: String(size) });
+    if (lastGoalId != null) qs.set('lastGoalId', String(lastGoalId));
+    const data = await ApiClient.get<WasteGoalItem[]>(`/api/users/${encodeURIComponent(username)}/waste-goals?${qs.toString()}`);
+    data.forEach(item => WasteGoalItemSchema.parse(item));
     return data;
   },
 };

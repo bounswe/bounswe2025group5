@@ -20,7 +20,7 @@ export default function ProfileIndex() {
   const [error, setError] = useState<string | null>(null);
   const [posts, setPosts] = useState<SavedPostItem[]>([]);
   const [myPosts, setMyPosts] = useState<PostItem[]>([]);
-  const [postsLoading, setPostsLoading] = useState(true);
+  const [_postsLoading, setPostsLoading] = useState(true);
   const [saveToggle, setSaveToggle] = useState(false);
   // Pull username from token payload stored in localStorage via API client refresh
   const storedUsername = useMemo(() => {

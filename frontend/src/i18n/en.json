@@ -102,7 +102,15 @@
         }
     },
     "goals": {
-        "navbar": "Goals"
+        "navbar": "Goals",
+        "title": "Goals",
+        "loading": "Loading...",
+        "empty": "No goals found",
+        "type": "Type",
+        "restriction": "Restriction (g)",
+        "duration": "Duration (days)",
+        "progress": "Progress",
+        "cardTitle": "{type} goal"
     },
     "challenge": {
         "navbar": "Challenge"
