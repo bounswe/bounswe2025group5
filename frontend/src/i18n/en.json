@@ -102,7 +102,27 @@
         }
     },
     "goals": {
-        "navbar": "Goals"
+        "navbar": "Goals",
+        "title": "Goals",
+        "loading": "Loading...",
+        "empty": "No goals found",
+        "create": "Create Goal",
+        "createTitle": "Create waste goal",
+        "createDesc": "Define a new waste reduction goal",
+        "created": "Goal created",
+        "createError": "Failed to create goal",
+        "editTitle": "Edit waste goal",
+        "editDesc": "Update your waste reduction goal",
+        "updated": "Goal updated",
+        "updateError": "Failed to update goal",
+        "deleted": "Goal deleted",
+        "deleteError": "Failed to delete goal",
+        "logged": "Waste logged",
+        "type": "Type",
+        "restriction": "Restriction (g)",
+        "duration": "Duration (days)",
+        "progress": "Progress",
+        "cardTitle": "{type} goal"
     },
     "challenge": {
         "navbar": "Challenge"
@@ -193,5 +213,14 @@
             "hours": "{{count}}h",
             "days": "{{count}}d"
         }
+    },
+    "search": {
+        "placeholder": "Search posts...",
+        "button": "Search",
+        "clear": "Clear",
+        "results": "Search Results",
+        "noResults": "No posts found matching your search.",
+        "loading": "Searching...",
+        "error": "Failed to search posts. Please try again."
     }
 }
