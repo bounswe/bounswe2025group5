@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useLayoutEffect} from 'react';
 import {
   StyleSheet,
   View,
@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   useColorScheme,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from './_layout';
 import { ThemedText } from '@/components/ThemedText';
 
@@ -26,6 +27,14 @@ export default function BadgesScreen() {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
   const { t } = useTranslation();
+
+  const navigation = useNavigation<any>(); 
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: t('myBadges'),
+    });
+  }, [navigation, t]);
 
   const [badges, setBadges] = useState<Badge[]>([]);
   const [loading, setLoading] = useState(true);
