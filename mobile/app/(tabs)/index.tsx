@@ -212,9 +212,7 @@ export default function HomeScreen() {
 
   useEffect(() => {
     if (route.params?.error) {
-      setErrorMessage(route.params.error);
-      setErrorVisible(true);
-      setTimeout(() => setErrorVisible(false), 5000);
+      showError("errorGeneric");
       navigation.setParams?.({ error: undefined });
     }
   }, [route.params?.error]);
@@ -225,14 +223,10 @@ export default function HomeScreen() {
     }, [loggedIn])
   );
 
-  // Accepts either an i18n key or a literal message; preserves translations.
-  const showError = (msgKeyOrText: string) => {
-    const maybeTranslated = t(msgKeyOrText);
-    const safeText =
-      typeof maybeTranslated === "string" && maybeTranslated !== msgKeyOrText
-        ? maybeTranslated
-        : msgKeyOrText;
-    setErrorMessage(safeText);
+  // Only accepts translation keys to show user-friendly translated messages
+  const showError = (translationKey: string) => {
+    const translatedMessage = t(translationKey);
+    setErrorMessage(translatedMessage);
     setErrorVisible(true);
     setTimeout(() => setErrorVisible(false), 5000);
   };
@@ -266,12 +260,7 @@ export default function HomeScreen() {
       setLoggedIn(true);
       navigation.navigate("explore");
     } catch (error: any) {
-      console.error("Network/login exception:", error);
-      const message =
-        error instanceof Error && error.message
-          ? error.message
-          : t("errorInvalidCredentials");
-      showError(message);
+      showError("errorInvalidCredentials");
     }
   };
 
@@ -303,14 +292,9 @@ export default function HomeScreen() {
       setIsRegistering(false);
       setUsernameInput(regUsername);
       setKvkkChecked(false);
-      showError("registrationSuccessPromptLogin"); // e.g., "Registered! Please log in."
+      showError("registrationSuccess");
     } catch (err: any) {
-      console.error("Registration exception:", err);
-      showError(
-        err instanceof Error && err.message
-          ? err.message
-          : t("errorRegistrationFailed")
-      );
+      showError("errorRegistrationFailed");
     }
   };
 
