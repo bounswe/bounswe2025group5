@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardAction, 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import GlassCard from "@/components/ui/glass-card";
 
 export default function Login() {
   const { t } = useTranslation();
@@ -34,19 +35,20 @@ export default function Login() {
   };
 
   return (
-    <div className="max-w-md w-full mx-auto py-16 px-4 min-h-screen grid place-items-center">
-        <Card className="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle>{t("login.title")}</CardTitle>
-        <CardDescription>
-          {t("login.description")}
-        </CardDescription>
-        <CardAction>
-          <a href="/auth/register">
-            <Button variant="link">{t("login.signup")}</Button>
-          </a>
-        </CardAction>
-      </CardHeader>
+    <GlassCard variant="default" className="mx-auto">
+      <div className="max-w-md min-w-80 mx-auto animate-fade-in">
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("login.title")}</CardTitle>
+            <CardDescription>
+              {t("login.description")}
+            </CardDescription>
+            <CardAction>
+              <Button variant="secondary" onClick={() => navigate('/auth/register')}>
+                {t("login.signup")}
+              </Button>
+            </CardAction>
+          </CardHeader>
        <CardContent>
          <form id="login-form" onSubmit={handleSubmit} className="space-y-4">
           <div className="flex flex-col gap-6">
@@ -80,8 +82,9 @@ export default function Login() {
           {t("login.loginButton")}
         </Button>
       </CardFooter>
-    </Card>
-    </div>
+        </Card>
+      </div>
+    </GlassCard>
   );
 }
 

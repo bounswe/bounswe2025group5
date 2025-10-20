@@ -2,22 +2,51 @@
     "common": {
         "create": "Yarat",
         "submit": "Onayla"
+        "cancel": "İptal",
+        "posting": "Paylaşılıyor..."
+    },
+    "welcome": {
+        "welcomeMessage": "Web Sitemize Hoş Geldiniz!",
+        "description": "Burada olduğunuz için mutluyuz. Özelliklerimizi keşfedin ve keyfini çıkarın!"
     },
     "login": {
-    "title": "Hesabınıza giriş yapın",
-    "description": "Hesabınıza giriş yapmak için lütfen e-posta adresinizi girin",
-    "signup": "Kayıt Ol",
-    "login": "Giriş Yap",
-    "email": {
-        "label": "E-posta",
-        "placeholder": "m@örnek.com"
+        "title": "Hesabınıza giriş yapın",
+        "description": "Hesabınıza giriş yapmak için lütfen e-posta adresinizi girin",
+        "signup": "Kayıt Ol",
+        "login": "Giriş Yap",
+        "email": {
+            "label": "E-posta",
+            "placeholder": "m@örnek.com"
+        },
+        "username": "Kullanıcı Adı",
+        "password": {
+            "label": "Şifre",
+            "forgot": "Şifrenizi mi unuttunuz?"
+        },
+        "loginButton": "Giriş Yap"
     },
-    "username": "Kullanıcı Adı",
-    "password": {
-        "label": "Şifre",
-        "forgot": "Şifrenizi mi unuttunuz?"
-    },
-    "loginButton": "Giriş Yap"
+    "register": {
+        "title": "Yeni bir hesap oluşturun",
+        "username": {
+            "label": "Kullanıcı Adı",
+            "placeholder": "Kullanıcı adınız"
+        },
+        "email": {
+            "label": "E-posta",
+            "placeholder": "siz@örnek.com"
+        },
+        "password": {
+            "label": "Şifre",
+            "placeholder": "Güçlü bir şifre seçin"
+        },
+        "confirmPassword": {
+            "label": "Şifreyi Onayla",
+            "placeholder": "Şifrenizi tekrar girin"
+        },
+        "registerButton": "Kayıt Ol",
+        "loading": "Hesap oluşturuluyor...",
+        "haveAccount": "Zaten bir hesabınız var mı? ",
+        "login": "Giriş Yap"
     },
     "profile": {
         "edit": "Profili Düzenle",
@@ -39,7 +68,38 @@
         "navbar": "Ana Sayfa"
     },
     "feed" : {
-        "navbar": "Gündem"
+        "navbar": "Gündem",
+        "title": "Gündem", 
+        "loading": "Gönderiler yükleniyor...",
+        "loadingMore": "Daha fazla yükleniyor...",
+        "loadMore": "Daha Fazla Yükle",
+        "refresh": "Yenile",
+        "latest": "En Son",
+        "popular": "Popüler",
+        "endOfFeed": "Sona ulaştınız!",
+        "createPost": {
+            "title": "Bir Şeyler Paylaş",
+            "subtitle": "Aklından neler geçiyor?",
+            "placeholder": "Gönderi Oluştur",
+            "content": {
+                "label": "İçerik",
+                "placeholder": "Düşüncelerini paylaş..."
+            },
+            "image": {
+                "label": "Fotoğraf (İsteğe Bağlı)",
+                "selected": "Resim seçildi"
+            },
+            "submit": "Paylaş"
+        },
+        "empty": {
+            "title": "Henüz gönderi yok",
+            "description": "İlk paylaşımı yapan siz olun!"
+        },
+        "tryAgain": "Tekrar Dene",
+        "error": {
+            "loadFailed": "Gönderiler yüklenemedi",
+            "loadMoreFailed": "Daha fazla gönderi yüklenemedi"
+        }
     },
     "goals" : {
         "navbar": "Hedefler"
@@ -98,6 +158,38 @@
             "dateError": "Bitiş tarihi, başlangıç tarihinden sonra olmalıdır",
             "createSuccess": "Etkinlik başarıyla oluşturuldu",
             "createError": "Etkinlik oluşturulamadı"
+        }
+    },
+    "post": {
+        "imageAlt": "Gönderi resmi",
+        "likes": "{{count}} beğeni",
+        "viewComments": "{{count}} yorumu görüntüle",
+        "hideComments": "Yorumları gizle",
+        "edit": {
+            "title": "Gönderiyi Düzenle",
+            "currentImage": "Mevcut resim yeni bir resim yüklemediğiniz sürece korunacak",
+            "newImage": "Yeni Resim Yükle (İsteğe Bağlı)",
+            "save": "Değişiklikleri Kaydet",
+            "saving": "Kaydediliyor..."
+        },
+        "timeAgo": {
+            "seconds": "{{count}}sn",
+            "minutes": "{{count}}dk",
+            "hours": "{{count}}sa",
+            "days": "{{count}}g"
+        }
+    },
+    "comment": {
+        "placeholder": "Yorum ekle...",
+        "save": "Kaydet",
+        "cancel": "İptal",
+        "edit": "Düzenle",
+        "delete": "Sil",
+        "timeAgo": {
+            "seconds": "{{count}}sn",
+            "minutes": "{{count}}dk",
+            "hours": "{{count}}sa",
+            "days": "{{count}}g"
         }
     }
 }
