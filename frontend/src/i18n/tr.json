@@ -1,6 +1,7 @@
 {
     "common": {
         "create": "Yarat",
+        "submit": "Onayla",
         "cancel": "İptal",
         "posting": "Paylaşılıyor..."
     },
@@ -125,20 +126,38 @@
         "title": "Etkinlikler",
         "attendError": "Etkinliğe katılınamadı",
         "leaveError": "Etkinlikten ayrılınamadı",
+        "logError": "Etkinlik ilerlemesi kaydedilemedi",
         "type": "Tür",
         "status": "Durum",
         "dates": "Tarih",
         "target": "Hedef",
+        "amount": "Miktar",
         "leave": "Ayrıl",
         "leaving": "Ayrılıyor...",
         "attend": "Katıl",
         "attending": "Katılıyor...",
+        "log": "Kayıt Ekle",
+        "logging": "Ekleniyor...",
         "loading": "Yükleniyor...",
         "noChallenges": "Etkinlik bulunamadı",
         "create": {
+            "createChallenge": "Etkinlik Yarat",
             "titleLabel": "Etkinlik Oluştur",
             "name": "Başlık",
-            "namePlaceholder": "Etkinlik başlığını girin"
+            "namePlaceholder": "Etkinlik başlığını girin",
+            "description": "Açıklama",
+            "descriptionPlaceholder": "Etkinlik açıklamasını girin",
+            "type": "Tür",
+            "typePlaceholder": "Etkinlik türünü seçin",
+            "amount": "Miktar",
+            "amountPlaceholder": "Hedef miktarı girin",
+            "startDate": "Başlangıç Tarihi",
+            "endDate": "Bitiş Tarihi",
+            "missingFields": "Lütfen tüm gerekli alanları doldurun",
+            "amountError": "Miktar 0'dan büyük bir sayı olmalıdır",
+            "dateError": "Bitiş tarihi, başlangıç tarihinden sonra olmalıdır",
+            "createSuccess": "Etkinlik başarıyla oluşturuldu",
+            "createError": "Etkinlik oluşturulamadı"
         }
     },
     "post": {

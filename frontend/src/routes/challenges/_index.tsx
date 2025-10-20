@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import ChallengeCard from '@/components/challenges/challengeCard';
 import { type ChallengeListItem } from '@/lib/api/schemas/challenges';
-import { ChallengesApi } from '@/lib/api/challenges';
 import { UsersApi } from '@/lib/api/users';
+import ChallengeCard from '@/components/challenges/challengeCard';
 import CreateChallenge from '@/components/challenges/createChallenge';
+import { Spinner } from '@/components/ui/spinner';
 
 
 
@@ -44,16 +44,13 @@ export default function ChallengesIndex() {
   }, [username]);
 
   return (
-      <div className="min-h-screen flex flex-col text-foreground p-4">
-        <div className="text-center mb-4 mt-30">
-          <h1 className="text-3xl font-bold"> {t('challenges.title', 'Challenges')} </h1>
+      <div className="min-h-screen flex flex-col text-foreground">
+        <div className="flex justify-end mb-6 mr-26 pt-10">
+          <CreateChallenge />
         </div>
-        
-        <div className="flex-1 flex items-center justify-center">
+        <div className="flex-1 flex items-center justify-center pt-10 pb-10">
           {loading ? (
-            <div className="text-foreground">
-              {t('challenges.loading', 'Loading...')}
-            </div>
+            <Spinner />
           ) : error ? (
             <div className="text-destructive">
               {error}
@@ -72,7 +69,6 @@ export default function ChallengesIndex() {
             </div>
           )}
         </div>
-        < CreateChallenge />
       </div>
     );
 }

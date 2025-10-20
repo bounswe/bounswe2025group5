@@ -9,6 +9,7 @@ export const ChallengeListItemSchema = z.object({
   endDate: z.string(),
   status: z.string(),
   type: z.string(),
+  currentAmount: z.number().nullable().optional(),
   userInChallenge: z.boolean(),
 });
 export type ChallengeListItem = z.infer<typeof ChallengeListItemSchema>;

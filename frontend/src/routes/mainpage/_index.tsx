@@ -5,6 +5,9 @@ import { PostsApi } from '@/lib/api/posts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import ScrollPanel from '@/components/mainpage/ScrollPanel';
+import ChallengeCard from '@/components/challenges/challengeCard';
+import type { PostItem } from '@/lib/api/schemas/posts';
+import PostCard from '@/components/feedpage/post-card';
 
 export default function MainpageIndex() {
   const { t } = useTranslation();
@@ -63,6 +66,13 @@ export default function MainpageIndex() {
       </div>
     );
   }
+  const handlePostUpdate = (updatedPost: PostItem) => {
+    setPosts(prev =>
+      prev.map(post =>
+        post.postId === updatedPost.postId ? updatedPost : post
+      )
+    );
+  };
 
   return (
     <div className="container mx-auto px-4 pb-10">
@@ -74,19 +84,9 @@ export default function MainpageIndex() {
           {challenges.length === 0 ? (
             <div className="text-muted-foreground">{t('mainpage.noChallenges', 'No active challenges')}</div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2 px-4">
               {challenges.map((ch) => (
-                <Card key={ch.challengeId}>
-                  <CardHeader>
-                    <CardTitle className="text-base">{ch.name}</CardTitle>
-                    <CardDescription>{ch.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="text-sm text-muted-foreground">
-                    <div className="flex justify-between"><span>{t('mainpage.type', 'Type')}</span><span>{ch.type}</span></div>
-                    <div className="flex justify-between"><span>{t('mainpage.status', 'Status')}</span><span>{ch.status}</span></div>
-                    <div className="flex justify-between"><span>{t('mainpage.dates', 'Dates')}</span><span>{ch.startDate} → {ch.endDate}</span></div>
-                  </CardContent>
-                </Card>
+                <ChallengeCard key={ch.challengeId} challenge={ch} />
               ))}
             </div>
           )}
@@ -99,21 +99,9 @@ export default function MainpageIndex() {
           {posts.length === 0 ? (
             <div className="text-muted-foreground">{t('mainpage.noPosts', 'No posts yet')}</div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-4 grid gap-4 sm:grid-cols-2">
               {posts.map((p) => (
-                <Card key={p.postId}>
-                  <CardHeader>
-                    <CardTitle className="text-base">@{p.creatorUsername}</CardTitle>
-                    <CardDescription>{new Date(p.createdAt).toLocaleString()}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    {p.photoUrl && (
-                      <img src={p.photoUrl} alt="post" className="w-full rounded-lg border" />
-                    )}
-                    <p className="text-foreground text-sm">{p.content}</p>
-                    <div className="text-sm text-muted-foreground">{t('mainpage.likes', 'Likes')}: {p.likes ?? 0} · {t('mainpage.comments', 'Comments')}: {p.comments ?? 0}</div>
-                  </CardContent>
-                </Card>
+                <PostCard key={p.postId} post={p} onPostUpdate={handlePostUpdate} />
               ))}
             </div>
           )}

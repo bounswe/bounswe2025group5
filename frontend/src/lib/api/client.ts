@@ -45,7 +45,6 @@ async function tryRefreshAccessToken(): Promise<boolean> {
 }
 
 export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  console.log(`API_BASE_URL: ${API_BASE_URL}`);
   const token = getAccessToken();
   const authBypass = [
     '/api/sessions',

@@ -1,6 +1,7 @@
 {
     "common": {
         "create": "Create",
+        "submit": "Submit",
         "cancel": "Cancel",
         "posting": "Posting..."
     },
@@ -125,20 +126,38 @@
         "title": "Challenges",
         "attendError": "Could not attend the challenge",
         "leaveError": "Could not leave the challenge",
+        "logError": "Could not log challenge progress",
         "type": "Type",
         "status": "Status",
         "dates": "Dates",
         "target": "Target",
+        "amount": "Amount",
         "leave": "Leave",
         "leaving": "Leaving...",
         "attend": "Attend",
         "attending": "Attending...",
+        "log": "Add Log",
+        "logging": "Logging...",
         "loading": "Loading...",
         "noChallenges": "No challenges found",
         "create": {
+            "createChallenge": "Create Challenge",
             "titleLabel": "Create Challenge",
             "name": "Title",
-            "namePlaceholder": "Enter challenge title"
+            "namePlaceholder": "Enter challenge title",
+            "description": "Description",
+            "descriptionPlaceholder": "Enter challenge description",
+            "type": "Type",
+            "typePlaceholder": "Select challenge type",
+            "amount": "Amount",
+            "amountPlaceholder": "Enter target amount",
+            "startDate": "Start Date",
+            "endDate": "End Date",
+            "missingFields": "Please fill in all required fields",
+            "amountError": "Amount must be a number greater than 0",
+            "dateError": "End date must be after start date",
+            "createSuccess": "Challenge created successfully",
+            "createError": "Failed to create challenge"
         }
     },
     "post": {
