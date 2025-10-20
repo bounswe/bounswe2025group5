@@ -18,6 +18,7 @@
     "errorPasswordsDontMatch": "Şifreler eşleşmiyor",
     "errorAcknowledgeKvkk": "KVKK formunu onaylamalısınız",
     "errorInvalidCredentials": "Geçersiz kullanıcı adı veya şifre!",
+    "errorRegistrationFailed": "Kayıt başarısız oldu. Lütfen tekrar deneyin.",
     "registrationSuccess": "Kayıt başarılı! Lütfen giriş yapın.",
     "explore": "Keşfet",
     "goToLogin": "Giriş Yap",

@@ -18,6 +18,7 @@
     "errorPasswordsDontMatch": "Passwords don't match",
     "errorAcknowledgeKvkk": "You must acknowledge the KVKK form",
     "errorInvalidCredentials": "Invalid username or password!",
+    "errorRegistrationFailed": "Registration failed. Please try again.",
     "registrationSuccess": "Registered! Please log in.",
     "explore": "Explore",
     "goToLogin": "Go to Login",
