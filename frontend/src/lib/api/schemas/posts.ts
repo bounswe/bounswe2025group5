@@ -8,6 +8,8 @@ export const PostItemSchema = z.object({
   photoUrl: z.string().nullable().optional(),
   likes: z.number().int().optional(),
   comments: z.number().int().optional(),
+  liked: z.boolean().optional(),
+  saved: z.boolean().optional(),
 }).passthrough();
 
 export type PostItem = z.infer<typeof PostItemSchema>;

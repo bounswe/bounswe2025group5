@@ -4,7 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import GlassCard from "@/components/ui/glass-card";
 import { useTranslation } from "react-i18next";
 
 
@@ -43,7 +45,8 @@ export default function Register() {
   };
 
   return (
-    <div className="max-w-md w-full mx-auto py-16 px-4 min-h-screen grid place-items-center">
+    <GlassCard className="mx-auto">
+      <div className="max-w-md min-w-80 mx-auto animate-fade-in">
         <Card>
           <CardHeader>
             <CardTitle className="text-center">{t("register.title")}</CardTitle>
@@ -79,21 +82,27 @@ export default function Register() {
             <div className="text-green-700 bg-green-50 p-3 rounded text-sm">{success}</div>
           )}
 
-          <button
+          <Button
             type="submit"
             disabled={loading}
-            className={cn("w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors", loading && "opacity-60 cursor-not-allowed")}
+            className="w-full"
           >
             {loading ? t("register.loading") : t("register.registerButton")}
-          </button>
+          </Button>
         </form>
         <p className="mt-4 text-center text-sm text-gray-700">
           {t("register.haveAccount")}{" "}
-          <a href="/auth/login" className="text-blue-600 hover:underline">{t("register.login")}</a>
+          <button 
+            onClick={() => navigate('/auth/login')} 
+            className="text-blue-600 hover:underline bg-transparent border-none cursor-pointer"
+          >
+            {t("register.login")}
+          </button>
         </p>
           </CardContent>
         </Card>
-    </div>
+      </div>
+    </GlassCard>
   );
 }
 
