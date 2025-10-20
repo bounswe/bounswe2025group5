@@ -17,9 +17,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
         <main
           className="min-h-screen flex items-center justify-center p-4"
-          style={{ backgroundImage: `url(${wallpaper})` }}
         >
-
           {children}
         </main>
       </div>
