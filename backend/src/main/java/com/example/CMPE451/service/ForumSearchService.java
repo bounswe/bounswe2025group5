@@ -28,7 +28,7 @@ import static org.hibernate.internal.util.collections.CollectionHelper.listOf;
 @RequiredArgsConstructor
 public class ForumSearchService {
 
-    private final WikidataLookUpService wikidataLookUpService;
+    //private final WikidataLookUpService wikidataLookUpService;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final PostLikeRepository postLikeRepository;
@@ -37,7 +37,7 @@ public class ForumSearchService {
 
 
 
-    private static final String SPARQL_QUERY_TEMPLATE = """
+    /* private static final String SPARQL_QUERY_TEMPLATE = """
             SELECT DISTINCT ?relatedEntity ?relatedLabel WHERE {
               VALUES ?appContextEntity {
                   wd:Q45701
@@ -69,7 +69,7 @@ public class ForumSearchService {
               }
             }
             LIMIT 150
-            """;
+            """; */
 
     public List<GetPostResponse> searchPostsSemantic(String query, String language, String username) {
         Integer requestingUserId = null;
