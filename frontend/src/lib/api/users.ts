@@ -2,6 +2,7 @@ import { ApiClient } from './client';
 import { UserCountResponseSchema, type UserCountResponse } from './schemas/users';
 import { ChallengeListItemSchema, type ChallengeListItem } from './schemas/challenges';
 import { ProfileResponseSchema, type ProfileResponse } from './schemas/profile';
+import { WasteGoalItemSchema, type WasteGoalItem } from './schemas/goals';
 
 export const UsersApi = {
   getUserCount: async (): Promise<UserCountResponse> => {
@@ -37,6 +38,13 @@ export const UsersApi = {
   listChallenges: async (username: string): Promise<ChallengeListItem[]> => {
     const data = await ApiClient.get<ChallengeListItem[]>(`/api/challenges/${encodeURIComponent(username)}`);
     data.forEach(item => ChallengeListItemSchema.parse(item));
+    return data;
+  },
+  listGoals: async (username: string, size = 20, lastGoalId?: number): Promise<WasteGoalItem[]> => {
+    const qs = new URLSearchParams({ size: String(size) });
+    if (lastGoalId != null) qs.set('lastGoalId', String(lastGoalId));
+    const data = await ApiClient.get<WasteGoalItem[]>(`/api/users/${encodeURIComponent(username)}/waste-goals?${qs.toString()}`);
+    data.forEach(item => WasteGoalItemSchema.parse(item));
     return data;
   },
 };
