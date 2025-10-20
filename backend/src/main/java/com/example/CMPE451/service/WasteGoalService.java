@@ -4,6 +4,7 @@ import com.example.CMPE451.model.request.CreateOrEditWasteGoalRequest;
 import com.example.CMPE451.model.response.CreateWasteGoalResponse;
 import com.example.CMPE451.model.response.GetWasteGoalResponse;
 import com.example.CMPE451.repository.UserRepository;
+import com.example.CMPE451.repository.WasteItemRepository;
 import com.example.CMPE451.repository.WasteTypeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,6 +25,8 @@ public class WasteGoalService {
     private final WasteTypeRepository wasteTypeRepository;
 
     private final UserRepository userRepository;
+    private final WasteItemRepository wasteItemRepository;
+
 
 
     public List<GetWasteGoalResponse> getWasteGoals(String username,int size, Long lastGoalId) {
@@ -94,5 +97,14 @@ public class WasteGoalService {
                 .orElseThrow(() -> new NotFoundException("Goal not found: " + goalId));
 
         wasteGoalRepository.delete(goal);
+    }
+
+    public List<WasteItem> getWasteItemsForGoalType(Integer goalId) {
+        WasteGoal goal = wasteGoalRepository.findById(goalId)
+                .orElseThrow(() -> new NotFoundException("WasteGoal not found with ID: " + goalId));
+
+        WasteType type = goal.getType();
+
+        return wasteItemRepository.findByType(type);
     }
 }

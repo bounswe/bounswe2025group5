@@ -6,6 +6,7 @@ import com.example.CMPE451.model.Badge;
 import com.example.CMPE451.model.Post;
 import com.example.CMPE451.model.SavedPost;
 import com.example.CMPE451.model.User;
+import com.example.CMPE451.model.request.DeletePostRequest;
 import com.example.CMPE451.model.response.*;
 import com.example.CMPE451.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -78,11 +79,11 @@ public class UserService {
                 .toList();
     }
 
-    public UserDeleteResponse deleteUser(String username, String password) {
+    public UserDeleteResponse deleteUser(String username, DeletePostRequest request) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException("User not found: " + username));
 
-        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
             throw new InvalidCredentialsException("Invalid password");
         }
 

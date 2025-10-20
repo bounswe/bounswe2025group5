@@ -102,7 +102,15 @@
         }
     },
     "goals" : {
-        "navbar": "Hedefler"
+        "navbar": "Hedefler",
+        "title": "Hedefler",
+        "loading": "Yükleniyor...",
+        "empty": "Hedef bulunamadı",
+        "type": "Tür",
+        "restriction": "Kısıt (g)",
+        "duration": "Süre (gün)",
+        "progress": "İlerleme",
+        "cardTitle": "{type} hedefi"
     },
     "challenge" : {
         "navbar": "Etkinlikler"
