@@ -5,6 +5,8 @@ import { type ChallengeListItem } from '@/lib/api/schemas/challenges';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Input } from '../ui/input';
 
 export default function ChallengeCard({ challenge }: { challenge: ChallengeListItem }) {
   const { t } = useTranslation();
@@ -13,6 +15,7 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
   const [username] = useState<string>(localStorage.getItem('username') || '');
   const [userInChallenge, setUserInChallenge] = useState<boolean>(challenge.userInChallenge);
   const [currentAmount, setCurrentAmount] = useState<number>(challenge.currentAmount ?? 0);
+  const [logAmount, setLogAmount] = useState<number>(1);
 
   // a user attends a challange with challengeId, meanwhile the challenge is set to busy
   const attend = async (challengeId: number, username: string) => {
@@ -88,9 +91,22 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
               {busy[challenge.challengeId] ? t('challenges.leaving', 'Leaving...') : t('challenges.leave', 'Leave')}
             </Button>
           )}
-          <Button size="sm" variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-900/20" disabled={!!logging[challenge.challengeId] || !!busy[challenge.challengeId]} onClick={() => logChallengeProgress(challenge.challengeId, username, 1)}>
-            {logging[challenge.challengeId] ? t('challenges.logging', 'Logging...') : t('challenges.log', 'Log')}
-          </Button>
+            <Popover> 
+            <PopoverTrigger asChild>
+              <Button size="sm" variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-900/20" disabled={!!logging[challenge.challengeId] || !!busy[challenge.challengeId]}>
+                {logging[challenge.challengeId] ? t('challenges.logging', 'Logging...') : t('challenges.log', 'Log')}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent>
+              <Input type="number" min={1} value={logAmount} onChange={e => {
+                const next = Number(e.target.value);
+                setLogAmount(isNaN(next) || next <= 0 ? 1 : next);
+              }} />
+              <Button size="sm" variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-900/20" disabled={!!logging[challenge.challengeId] || !!busy[challenge.challengeId]} onClick={() => logChallengeProgress(challenge.challengeId, username, Math.max(1, logAmount))}>
+                {logging[challenge.challengeId] ? t('challenges.logging', 'Logging...') : t('challenges.log', 'Log')}
+              </Button>
+            </PopoverContent>
+          </Popover>
         </div>
       </Card>
     </div>
