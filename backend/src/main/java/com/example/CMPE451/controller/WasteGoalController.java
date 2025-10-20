@@ -1,6 +1,6 @@
 package com.example.CMPE451.controller;
 
-import com.example.CMPE451.model.request.CreateOrEditWasteGoalRequest;
+import com.example.CMPE451.model.WasteItem;
 import com.example.CMPE451.model.request.CreateOrEditWasteGoalRequest;
 import com.example.CMPE451.model.response.CreateWasteGoalResponse;
 import com.example.CMPE451.model.response.DeleteWasteGoalResponse;
@@ -54,5 +54,11 @@ public class WasteGoalController {
     public ResponseEntity<DeleteWasteGoalResponse> deleteWasteGoal(@PathVariable Integer goalId) {
         wasteGoalService.deleteWasteGoal(goalId);
         return ResponseEntity.ok(new DeleteWasteGoalResponse(goalId));
+    }
+
+    @GetMapping("/waste-goals/{goalId}/items")
+    public ResponseEntity<List<WasteItem>> getWasteItemsForGoal(@PathVariable Integer goalId) {
+        List<WasteItem> items = wasteGoalService.getWasteItemsForGoalType(goalId);
+        return ResponseEntity.ok(items);
     }
 }

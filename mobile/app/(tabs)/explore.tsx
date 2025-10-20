@@ -40,6 +40,7 @@ type Post = {
   photoUrl: string | null;
   likedByUser: boolean;
   savedByUser: boolean;
+  createdAt?: string | null;
 };
 
 export default function ExploreScreen() {
@@ -114,6 +115,7 @@ export default function ExploreScreen() {
     photoUrl: item.photoUrl,
     likedByUser: false,
     savedByUser: false,
+    createdAt: item.createdAt ?? null,
   });
 
   const fetchLikeStatusesForPosts = async (currentPostsToUpdate: Post[], currentUsername: string): Promise<Post[]> => {
@@ -465,20 +467,31 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
 
   const handleDeleteComment = async (postId: number, commentId: number) => {
     if (editingCommentDetails && editingCommentDetails.commentId === commentId) {
-        setEditingCommentDetails(null);
+      setEditingCommentDetails(null);
     }
-    if (!username) { Alert.alert(t('error'), t('mustBeLoggedIn')); return; }
-    Alert.alert(t('deleteCommentTitle'), t('deleteCommentMessage'), [ { text: t('cancel'), style: "cancel" }, { text: t('delete'), style: "destructive", onPress: async () => {
-        try {
-            const response = await apiRequest(`/api/comments/${commentId}`, { method: 'DELETE' });
-            if (!response.ok) { /* ... error handling ... */ throw new Error(`Failed to delete comment.`); }
-            setCommentsByPostId(prev => ({ ...prev, [postId]: (prev[postId] || []).filter(c => c.commentId !== commentId) }));
-            const listUpdater = (list: Post[]) => list.map(p => p.id === postId ? { ...p, comments: Math.max(0, p.comments - 1) } : p);
-            setPosts(listUpdater);
-            if (inSearchMode) setSearchResults(listUpdater);
-            Alert.alert(t('success'), t('commentDeleted'));
-        } catch (e: any) { Alert.alert(t('error'), t('couldNotDeleteComment', { message: e.message })); }
-    }}]);
+    if (!username) {
+      return;
+    }
+
+    try {
+      const response = await apiRequest(`/api/posts/comment/${commentId}`, { method: 'DELETE' });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Failed to delete comment.');
+      }
+      setCommentsByPostId((prev) => ({
+        ...prev,
+        [postId]: (prev[postId] || []).filter((c) => c.commentId !== commentId),
+      }));
+      const listUpdater = (list: Post[]) =>
+        list.map((p) =>
+          p.id === postId ? { ...p, comments: Math.max(0, p.comments - 1) } : p
+        );
+      setPosts(listUpdater);
+      if (inSearchMode) setSearchResults(listUpdater);
+    } catch (e: any) {
+      console.error('Failed to delete comment:', e);
+    }
   };
 
   const handleStartEditComment = (postId: number, commentToEdit: CommentData) => {
@@ -518,10 +531,10 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
     Keyboard.dismiss();
 
     try {
-      const response = await apiRequest(`/api/comments/${commentIdToSave}`, {
+      const response = await apiRequest(`/api/posts/comment/${commentIdToSave}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: newContent }),
+        body: JSON.stringify({ content: newContent, username }),
       });
 
       if (!response.ok) {

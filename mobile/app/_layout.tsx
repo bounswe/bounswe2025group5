@@ -65,7 +65,6 @@ export default function RootLayout() {
           <Stack.Screen
             name="badges"
             options={{
-              title: 'Badges',
             }}
             />
           

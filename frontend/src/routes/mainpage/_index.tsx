@@ -40,7 +40,7 @@ export default function MainpageIndex() {
           UsersApi.listChallenges(storedUsername),
           PostsApi.list({ size: 10, username: storedUsername }),
         ]);
-        setChallenges(chs);
+        setChallenges(chs.filter((c: any) => c.userInChallenge));
         setPosts(feed);
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Failed to load');
