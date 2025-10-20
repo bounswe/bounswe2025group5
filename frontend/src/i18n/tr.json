@@ -191,5 +191,14 @@
             "hours": "{{count}}sa",
             "days": "{{count}}g"
         }
+    },
+    "search": {
+        "placeholder": "Gönderi ara...",
+        "button": "Ara",
+        "clear": "Temizle",
+        "results": "Arama Sonuçları",
+        "noResults": "Aramanıza uygun gönderi bulunamadı.",
+        "loading": "Aranıyor...",
+        "error": "Gönderi arama başarısız. Lütfen tekrar deneyin."
     }
 }
