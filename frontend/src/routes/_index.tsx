@@ -12,7 +12,7 @@ import Motivation from "@/components/homepage/motivation";
 import GlassCard from "@/components/ui/glass-card";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 
 export default function Index() {
   const navigate = useNavigate();

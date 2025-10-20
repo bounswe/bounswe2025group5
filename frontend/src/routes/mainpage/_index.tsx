@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UsersApi } from '@/lib/api/users';
 import { PostsApi } from '@/lib/api/posts';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import ScrollPanel from '@/components/mainpage/ScrollPanel';
 import ChallengeCard from '@/components/challenges/challengeCard';
