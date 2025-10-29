@@ -4,10 +4,7 @@ import com.example.CMPE451.exception.NotFoundException;
 import com.example.CMPE451.model.*;
 import com.example.CMPE451.model.request.CreateWasteLogRequest;
 import com.example.CMPE451.model.request.UpdateWasteLogRequest;
-import com.example.CMPE451.model.response.CreateOrEditWasteLogResponse;
-import com.example.CMPE451.model.response.DeleteWasteLogResponse;
-import com.example.CMPE451.model.response.GetWasteLogResponse;
-import com.example.CMPE451.model.response.TotalLogResponse;
+import com.example.CMPE451.model.response.*;
 import com.example.CMPE451.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +42,7 @@ public class WasteLogService {
                 })
                 .collect(Collectors.toList());
     }
+
     @Transactional
     public CreateOrEditWasteLogResponse createWasteLog(CreateWasteLogRequest request, Integer goalId) {
         User user = userRepository.findByUsername(request.getUsername())
@@ -68,6 +66,7 @@ public class WasteLogService {
                 wasteLog.getDate()
         );
     }
+
     @Transactional
     public CreateOrEditWasteLogResponse updateWasteLog(Integer logId, UpdateWasteLogRequest request) {
         WasteLog existingLog = wasteLogRepository.findById(logId)
@@ -77,7 +76,8 @@ public class WasteLogService {
 
         return new CreateOrEditWasteLogResponse(existingLog.getLogId(), existingLog.getItem().getDisplayName(), existingLog.getQuantity(), existingLog.getDate());
     }
-   @Transactional
+
+    @Transactional
     public DeleteWasteLogResponse deleteWasteLog(Integer logId) {
         WasteLog wasteLog = wasteLogRepository.findById(logId)
                 .orElseThrow(() -> new NotFoundException("WasteLog not found: " + logId));
@@ -90,5 +90,46 @@ public class WasteLogService {
                 .orElseThrow(() -> new NotFoundException("WasteType not found: " + wasteTypeName));
         Double totalAmount = wasteLogRepository.findTotalAmountByDateRange(wasteTypeName, startDate, endDate);
         return new TotalLogResponse(wasteType, totalAmount);
+    }
+
+    public WasteLogMonthlyResponse getLogsForUserPerMonth(String username, String wasteTypeName) {
+        userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User not found: " + username));
+        wasteTypeRepository.findByName(wasteTypeName)
+                .orElseThrow(() -> new NotFoundException("WasteType not found: " + wasteTypeName));
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startDate = now.minusMonths(11)
+                .withDayOfMonth(1)
+                .withHour(0)
+                .withMinute(0)
+                .withSecond(0)
+                .withNano(0);
+
+        List<MonthlyWasteData> queryResults = wasteLogRepository.findMonthlyWasteSumForUser(
+                username,
+                wasteTypeName,
+                startDate
+        );
+
+        Map<String, Double> resultsMap = queryResults.stream()
+                .collect(Collectors.toMap(
+                        data -> String.format("%d-%02d", data.getYear(), data.getMonth()),
+                        MonthlyWasteData::getTotalWeight
+                ));
+
+        List<MonthlyWasteData> completeMonthlyData = new java.util.ArrayList<>();
+        LocalDateTime monthIterator = startDate;
+
+        for (int i = 0; i < 12; i++) {
+            int year = monthIterator.getYear();
+            int month = monthIterator.getMonthValue();
+            String key = String.format("%d-%02d", year, month);
+            double totalWeight = resultsMap.getOrDefault(key, 0.0);
+            completeMonthlyData.add(new MonthlyWasteData(year, month, totalWeight));
+            monthIterator = monthIterator.plusMonths(1);
+        }
+        return new WasteLogMonthlyResponse(username, wasteTypeName, completeMonthlyData);
+
     }
 }

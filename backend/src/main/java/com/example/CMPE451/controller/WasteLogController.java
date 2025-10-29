@@ -4,10 +4,7 @@ import com.example.CMPE451.model.WasteGoal;
 import com.example.CMPE451.model.WasteType;
 import com.example.CMPE451.model.request.CreateWasteLogRequest;
 import com.example.CMPE451.model.request.UpdateWasteLogRequest;
-import com.example.CMPE451.model.response.CreateOrEditWasteLogResponse;
-import com.example.CMPE451.model.response.DeleteWasteLogResponse;
-import com.example.CMPE451.model.response.GetWasteLogResponse;
-import com.example.CMPE451.model.response.TotalLogResponse;
+import com.example.CMPE451.model.response.*;
 import com.example.CMPE451.service.WasteLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -60,4 +57,14 @@ public class WasteLogController {
     ) {
         return ResponseEntity.ok(wasteLogService.getTotalWasteAmountByTypeAndInterval(wasteType, startDate, endDate));
     }
+
+    @GetMapping("/logs/{username}/monthly")
+    public ResponseEntity<WasteLogMonthlyResponse> logsForUserPerMonth(
+            @PathVariable String username,
+            @RequestParam String wasteType
+    ) {
+        return ResponseEntity.ok(wasteLogService.getLogsForUserPerMonth(username,wasteType));
+    }
+
+
 }
