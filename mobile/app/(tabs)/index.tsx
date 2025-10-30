@@ -1,5 +1,5 @@
 // app/(tabs)/index.tsx
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext, useRef } from "react";
 import {
   Image,
   StyleSheet,
@@ -9,11 +9,13 @@ import {
   Text,
   Switch,
   ScrollView,
+  useColorScheme,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
+import { Colors } from "@/constants/Colors";
 import {
   useNavigation,
   useFocusEffect,
@@ -52,6 +54,7 @@ export default function HomeScreen() {
   const navigation = useNavigation<Navigation>();
   const route = useRoute<any>();
   const { setUserType, setUsername } = useContext(AuthContext);
+  const colorScheme = useColorScheme();
 
   const { t, i18n } = useTranslation();
   const isTurkish = (i18n.resolvedLanguage || i18n.language || "")
@@ -59,6 +62,9 @@ export default function HomeScreen() {
     .startsWith("tr");
   const toggleLanguage = (value: boolean) =>
     i18n.changeLanguage(value ? "tr-TR" : "en-US");
+
+  // Get theme colors
+  const themeColors = Colors[colorScheme ?? "light"];
 
   const [showAuthFields, setShowAuthFields] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
@@ -104,7 +110,7 @@ export default function HomeScreen() {
 
   useEffect(() => {
     const target = usersCount;
-    if (typeof jest !== 'undefined') {
+    if (typeof jest !== "undefined") {
       setDisplayedUsersCount(target);
       displayedCountRef.current = target;
       if (userCountAnimationRef.current) {
@@ -206,9 +212,7 @@ export default function HomeScreen() {
 
   useEffect(() => {
     if (route.params?.error) {
-      setErrorMessage(route.params.error);
-      setErrorVisible(true);
-      setTimeout(() => setErrorVisible(false), 5000);
+      showError("errorGeneric");
       navigation.setParams?.({ error: undefined });
     }
   }, [route.params?.error]);
@@ -219,14 +223,10 @@ export default function HomeScreen() {
     }, [loggedIn])
   );
 
-  // Accepts either an i18n key or a literal message; preserves translations.
-  const showError = (msgKeyOrText: string) => {
-    const maybeTranslated = t(msgKeyOrText);
-    const safeText =
-      typeof maybeTranslated === "string" && maybeTranslated !== msgKeyOrText
-        ? maybeTranslated
-        : msgKeyOrText;
-    setErrorMessage(safeText);
+  // Only accepts translation keys to show user-friendly translated messages
+  const showError = (translationKey: string) => {
+    const translatedMessage = t(translationKey);
+    setErrorMessage(translatedMessage);
     setErrorVisible(true);
     setTimeout(() => setErrorVisible(false), 5000);
   };
@@ -260,12 +260,7 @@ export default function HomeScreen() {
       setLoggedIn(true);
       navigation.navigate("explore");
     } catch (error: any) {
-      console.error("Network/login exception:", error);
-      const message =
-        error instanceof Error && error.message
-          ? error.message
-          : t("errorInvalidCredentials");
-      showError(message);
+      showError("errorInvalidCredentials");
     }
   };
 
@@ -297,14 +292,9 @@ export default function HomeScreen() {
       setIsRegistering(false);
       setUsernameInput(regUsername);
       setKvkkChecked(false);
-      showError("registrationSuccessPromptLogin"); // e.g., "Registered! Please log in."
+      showError("registrationSuccess");
     } catch (err: any) {
-      console.error("Registration exception:", err);
-      showError(
-        err instanceof Error && err.message
-          ? err.message
-          : t("errorRegistrationFailed")
-      );
+      showError("errorRegistrationFailed");
     }
   };
 
@@ -344,8 +334,8 @@ export default function HomeScreen() {
           <>
             <View style={styles.statsContainer}>
               <ThemedText style={styles.statLine}>
-                <Text style={styles.statNumber}>{displayedUsersCount}</Text>{' '}
-                {t('usersAreReducingWastes', { count: displayedUsersCount })}
+                <Text style={styles.statNumber}>{displayedUsersCount}</Text>{" "}
+                {t("usersAreReducingWastes", { count: displayedUsersCount })}
               </ThemedText>
 
               <ThemedText style={styles.sectionTitle}>
@@ -481,7 +471,9 @@ export default function HomeScreen() {
                     checked={kvkkChecked}
                     onPress={() => setKvkkChecked(!kvkkChecked)}
                   />
-                  <Text style={styles.kvkkText}>{t("kvkkAcknowledge")}</Text>
+                  <Text style={[styles.kvkkText, { color: themeColors.text }]}>
+                    {t("kvkkAcknowledge")}
+                  </Text>
                 </View>
               </>
             )}
@@ -542,14 +534,14 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   languageToggleContainer: {
-    position: 'absolute',
+    position: "absolute",
     top: 8,
     right: 48,
     zIndex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 0,
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: "rgba(0,0,0,0.3)",
     borderRadius: 20,
   },
   languageLabel: {
@@ -643,7 +635,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginTop: 4,
   },
-  kvkkText: { marginLeft: 8, color: "#fff" },
+  kvkkText: {
+    marginLeft: 8,
+    fontSize: 14,
+    lineHeight: 20,
+  },
   errorBox: {
     position: "absolute",
     bottom: 20,

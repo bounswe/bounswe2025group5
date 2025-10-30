@@ -203,4 +203,19 @@ public class ChallengeService {
                 ))
                 .collect(Collectors.toList());
     }
+
+    @Transactional(readOnly = true)
+    public List<MyChallengeResponse> getAttendedChallenges(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User with the name " + username + " not found"));
+
+        List<ChallengeUser> participations = challengeUserRepository.findByIdUserId(user.getId());
+
+        return participations.stream()
+                .map(participation -> new MyChallengeResponse(
+                        participation.getChallenge(),
+                        participation.getAmount()
+                ))
+                .collect(Collectors.toList());
+    }
 }

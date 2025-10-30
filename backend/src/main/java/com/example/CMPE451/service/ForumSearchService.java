@@ -28,7 +28,7 @@ import static org.hibernate.internal.util.collections.CollectionHelper.listOf;
 @RequiredArgsConstructor
 public class ForumSearchService {
 
-    private final WikidataLookUpService wikidataLookUpService;
+    //private final WikidataLookUpService wikidataLookUpService;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final PostLikeRepository postLikeRepository;
@@ -37,7 +37,7 @@ public class ForumSearchService {
 
 
 
-    private static final String SPARQL_QUERY_TEMPLATE = """
+    /* private static final String SPARQL_QUERY_TEMPLATE = """
             SELECT DISTINCT ?relatedEntity ?relatedLabel WHERE {
               VALUES ?appContextEntity {
                   wd:Q45701
@@ -69,7 +69,7 @@ public class ForumSearchService {
               }
             }
             LIMIT 150
-            """;
+            """; */
 
     public List<GetPostResponse> searchPostsSemantic(String query, String language, String username) {
         Integer requestingUserId = null;
@@ -84,37 +84,37 @@ public class ForumSearchService {
         }
         Set<String> keywords = new HashSet<>();
         keywords.add(trimmedQuery.toLowerCase());
-        Optional<WikidataSearchResult> coreEntityOpt = Optional.empty();
-        try {
-            coreEntityOpt = wikidataLookUpService
-                    .findTopEntity(trimmedQuery, language)
-                    .blockOptional(Duration.ofSeconds(20));
-        } catch (Exception e) {
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-        if (coreEntityOpt.isPresent()) {
-            WikidataSearchResult coreEntity = coreEntityOpt.get();
-            String coreEntityQid = coreEntity.getId();
-            String coreEntityLabel = coreEntity.getLabel();
+        //Optional<WikidataSearchResult> coreEntityOpt = Optional.empty();
+        //try {
+        //    coreEntityOpt = wikidataLookUpService
+        //            .findTopEntity(trimmedQuery, language)
+        //            .blockOptional(Duration.ofSeconds(20));
+        //} catch (Exception e) {
+        //    ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        //}
+        //if (coreEntityOpt.isPresent()) {
+        //    WikidataSearchResult coreEntity = coreEntityOpt.get();
+        //    String coreEntityQid = coreEntity.getId();
+        //    String coreEntityLabel = coreEntity.getLabel();
 
-            if (coreEntityLabel != null && !coreEntityLabel.isBlank()) {
-                keywords.add(coreEntityLabel.toLowerCase());
-            }
+        //    if (coreEntityLabel != null && !coreEntityLabel.isBlank()) {
+        //        keywords.add(coreEntityLabel.toLowerCase());
+        //    }
 
-            String sparqlQuery = String.format(SPARQL_QUERY_TEMPLATE, coreEntityQid, language);
-            Optional<SparqlResponse> sparqlResponseOpt = Optional.empty();
+        //    String sparqlQuery = String.format(SPARQL_QUERY_TEMPLATE, coreEntityQid, language);
+        //   Optional<SparqlResponse> sparqlResponseOpt = Optional.empty();
 
-            try {
-                sparqlResponseOpt = wikidataLookUpService.executeSparqlQuery(sparqlQuery)
-                        .blockOptional(Duration.ofSeconds(50));
-            } catch (Exception e) {
-                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-            }
-            if (sparqlResponseOpt.isPresent()) {
-                Set<String> relatedLabels = extractLabelsFromSparqlResponse(sparqlResponseOpt.get());
-                keywords.addAll(relatedLabels);
-            }
-        }
+        //    try {
+        //        sparqlResponseOpt = wikidataLookUpService.executeSparqlQuery(sparqlQuery)
+        //                .blockOptional(Duration.ofSeconds(50));
+        //    } catch (Exception e) {
+        //        ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        //    }
+        //    if (sparqlResponseOpt.isPresent()) {
+        //        Set<String> relatedLabels = extractLabelsFromSparqlResponse(sparqlResponseOpt.get());
+        //        keywords.addAll(relatedLabels);
+        //    }
+        //}
         return searchPostsByKeywordSet(keywords,requestingUserId);
     }
 
@@ -190,4 +190,5 @@ public class ForumSearchService {
                 isSaved
         );
     }
+
 }

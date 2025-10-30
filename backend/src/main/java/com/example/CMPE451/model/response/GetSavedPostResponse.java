@@ -10,9 +10,11 @@ import java.sql.Timestamp;
 public class GetSavedPostResponse {
     private Integer  postId;
     private String   content;
-    private Integer  likeCount;
-    private Integer  commentCount;
+    private Integer  likes;
+    private Integer  comments;
     private String creatorUsername;
     private Timestamp savedAt;
     private String photoUrl;
+    boolean liked;
+    boolean saved;
 }
