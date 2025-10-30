@@ -7,17 +7,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmbeddingService {
 
-    private final Predictor<String, float[][]> predictor;
+    private final Predictor<String, float[]> predictor;
 
-    public EmbeddingService(Predictor<String, float[][]> predictor) {
+    public EmbeddingService(Predictor<String, float[]> predictor) {
         this.predictor = predictor;
     }
 
 
     public float[] createEmbedding(String text) {
         try {
-            float[][] result = predictor.predict(text);
-            return result[0];
+            return predictor.predict(text);
         } catch (TranslateException e) {
             throw new RuntimeException("Failed to create embedding", e);
         }
