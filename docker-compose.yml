@@ -24,12 +24,15 @@ services:
       - appnet
     volumes:
       - qdrant_storage:/qdrant/storage
-
+    ports:
+      - "6333:6333"
 networks:
   appnet:
     driver: bridge
 
 volumes:
   qdrant_storage:
+
+
 
 

@@ -7,7 +7,20 @@ COPY src ./src
 RUN mvn package -DskipTests
 
 # Stage 2: Run
-FROM openjdk:21-jdk
+FROM maven:3.9.9-eclipse-temurin-21
+
+
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
+
+
+
+
+
+
+
+
+
+
