@@ -8,6 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '../ui/input';
 import Leaderboard from './Leaderboard';
+import RecyclingProgressVisualization from './RecyclingProgressVisualization';
 
 export default function ChallengeCard({ challenge }: { challenge: ChallengeListItem }) {
   const { t } = useTranslation();
@@ -68,20 +69,35 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
           <CardTitle className="text-base">{challenge.name}</CardTitle>
           {challenge.description && <CardDescription>{challenge.description}</CardDescription>}
         </CardHeader>
-        <CardContent className="text-sm text-muted-foreground space-y-1">
+        <CardContent className="text-sm text-muted-foreground space-y-1 flex-grow">
           <div className="flex justify-between"><span>{t('challenges.type', 'Type')}</span><span>{challenge.type}</span></div>
           <div className="flex justify-between"><span>{t('challenges.status', 'Status')}</span><span>{challenge.status}</span></div>
           <div className="flex justify-between"><span>{t('challenges.dates', 'Dates')}</span><span>{challenge.startDate} → {challenge.endDate}</span></div>
           {challenge.amount != null && (
-            <div className="flex flex-col">
-              <div className="flex justify-between">
-                <span>{t('challenges.amount', 'Amount')}</span>
-                <span>{currentAmount} / {challenge.amount}</span>
-              </div>
-              <Progress value={challenge.amount > 0 ? (currentAmount / challenge.amount) * 100 : 0} className="mt-1" />
+            <div className="flex justify-between">
+              <span>{t('challenges.amount', 'Amount')}</span>
+              <span>{currentAmount} / {challenge.amount}</span>
             </div>
           )}
         </CardContent>
+        
+        {/* Fixed position visualization section */}
+        {challenge.amount != null && (
+          <div className="p-4 pt-0 space-y-3">
+            {/* Recycling Progress Visualization */}
+            <div className="flex justify-center">
+              <RecyclingProgressVisualization 
+                progress={challenge.amount > 0 ? (currentAmount / challenge.amount) * 100 : 0}
+                width={320}
+                height={180}
+                className="rounded-lg shadow-sm"
+              />
+            </div>
+            
+            <Progress value={challenge.amount > 0 ? (currentAmount / challenge.amount) * 100 : 0} className="mt-1" />
+          </div>
+        )}
+        
         <div className="mt-auto p-4 pt-2 space-y-4">
           {/* Action buttons row */}
           <div className="flex gap-2 w-full">
