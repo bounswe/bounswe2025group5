@@ -139,7 +139,22 @@ public class PostService {
             existingPost.setPhotoUrl(photoUrl);
         }
         Post updatedPost = postRepository.saveAndFlush(existingPost);
-
+        boolean contentChanged = false;
+        if (content != null && !content.equals(existingPost.getContent())) {
+            existingPost.setContent(content);
+            contentChanged = true;
+        }
+        if (contentChanged) {
+            System.out.println("Content changed for post " + postId + ". Updating vector in Qdrant...");
+            try {
+                float[] newVector = embeddingService.createEmbedding(updatedPost.getContent());
+                vectorDBService.upsertVector(updatedPost.getPostId(), newVector);
+                System.out.println("Vector updated successfully for post " + postId);
+            } catch (Exception e) {
+                System.err.println("CRITICAL: Failed to update Qdrant vector for post "
+                        + updatedPost.getPostId() + ". Search index is now stale.");
+            }
+        }
         return new CreateOrEditPostResponse(
                 updatedPost.getPostId(),
                 updatedPost.getContent(),
