@@ -277,7 +277,7 @@ public class PostService {
         }
     }
 
-    public List<Post> semanticSearch(String query) {
+    public List<GetPostResponse> semanticSearch(String query,Integer requestingUserId) {
         float[] queryVector = embeddingService.createEmbedding(query);
 
         List<Integer> postIds = vectorDBService.search(queryVector, 5);
@@ -285,8 +285,8 @@ public class PostService {
         if (postIds.isEmpty()) {
             return List.of();
         }
-
-        return postRepository.findAllById(postIds);
+        List<Post> posts = postRepository.findAllById(postIds);
+        return convertToGetPostsResponse(posts, requestingUserId);
     }
 
 
