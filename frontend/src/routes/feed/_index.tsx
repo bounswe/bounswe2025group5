@@ -94,6 +94,11 @@ export default function FeedPage() {
     );
   };
 
+  const handlePostDelete = (postId: number) => {
+    setPosts(prev => prev.filter(post => post.postId !== postId));
+    setSearchResults(prev => prev.filter(post => post.postId !== postId));
+  };
+
   // Search handlers
   const handleSearch = async (query: string) => {
     setIsSearching(true);
@@ -225,6 +230,7 @@ export default function FeedPage() {
                       <PostCard
                         post={post}
                         onPostUpdate={handlePostUpdate}
+                        onPostDelete={handlePostDelete}
                       />
                     </div>
                   ))}
@@ -257,6 +263,7 @@ export default function FeedPage() {
                       <PostCard
                         post={post}
                         onPostUpdate={handlePostUpdate}
+                        onPostDelete={handlePostDelete}
                       />
                     </div>
                   ))}

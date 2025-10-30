@@ -151,8 +151,11 @@
   
   body {
     @apply bg-background text-foreground;
-    /* Alternative: Use scrollbar-gutter if supported */
+    /* Use scrollbar-gutter to reserve space for scrollbar */
     scrollbar-gutter: stable;
+    /* Prevent width changes when modals open */
+    width: 100vw;
+    overflow-x: hidden;
   }
 }
 
