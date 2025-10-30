@@ -1,6 +1,7 @@
 package com.example.CMPE451.controller;
 
 
+
 import com.example.CMPE451.model.request.SavePostRequest;
 import com.example.CMPE451.model.response.*;
 import com.example.CMPE451.service.PostService;
@@ -79,4 +80,8 @@ public class PostController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/search")
+    public List<GetPostResponse> searchPosts(@RequestParam("q") String query ,@RequestParam("username") String username) {
+        return postService.semanticSearch(query, username);
+    }
 }
