@@ -5,6 +5,7 @@ import com.example.CMPE451.exception.InvalidCredentialsException;
 
 import com.example.CMPE451.model.response.GetPostResponse;
 import com.example.CMPE451.service.ForumSearchService;
+import com.example.CMPE451.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,22 +22,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SearchController {
     private final ForumSearchService forumSearchService;
+    private final PostService postService;
 
     @GetMapping("/semantic")
     public ResponseEntity<List<GetPostResponse>> searchPostsSemantic(
             @RequestParam(name = "query") String query,
             @RequestParam(required = false) String username,
             @RequestParam(name = "lang", defaultValue = "en") String language) {
-
-        try {
-            List<GetPostResponse> results = forumSearchService.searchPostsSemantic(query, language,username);
-            return ResponseEntity.ok(results);
-
-        } catch (InvalidCredentialsException e) {
-            return ResponseEntity.badRequest().body(Collections.emptyList());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Collections.emptyList());
-        }
+        return ResponseEntity.ok(postService.semanticSearch(query, username));
     }
 }

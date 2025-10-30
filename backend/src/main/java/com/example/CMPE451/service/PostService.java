@@ -45,6 +45,9 @@ public class PostService {
     private final UserRepository userRepository;
     private final SavedPostRepository savedPostRepository;
 
+    private final EmbeddingService embeddingService;
+    private final VectorDBService vectorDBService;
+
     private final S3Client s3Client;
 
     @Value("${digitalocean.spaces.bucket-name}")
@@ -99,8 +102,16 @@ public class PostService {
                 0
         );
         post.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-        postRepository.save(post);
+        Post savedPost= postRepository.saveAndFlush(post);
 
+        try {
+            float[] vector = embeddingService.createEmbedding(savedPost.getContent());
+
+            vectorDBService.upsertVector(savedPost.getPostId(), vector);
+
+        } catch (Exception e) {
+            System.err.println("Failed to create embedding for post " + savedPost.getPostId() + ": " + e.getMessage());
+        }
         return new CreateOrEditPostResponse(
                 post.getPostId(),
                 post.getContent(),
@@ -128,7 +139,22 @@ public class PostService {
             existingPost.setPhotoUrl(photoUrl);
         }
         Post updatedPost = postRepository.saveAndFlush(existingPost);
-
+        boolean contentChanged = false;
+        if (content != null && !content.equals(existingPost.getContent())) {
+            existingPost.setContent(content);
+            contentChanged = true;
+        }
+        if (contentChanged) {
+            System.out.println("Content changed for post " + postId + ". Updating vector in Qdrant...");
+            try {
+                float[] newVector = embeddingService.createEmbedding(updatedPost.getContent());
+                vectorDBService.upsertVector(updatedPost.getPostId(), newVector);
+                System.out.println("Vector updated successfully for post " + postId);
+            } catch (Exception e) {
+                System.err.println("CRITICAL: Failed to update Qdrant vector for post "
+                        + updatedPost.getPostId() + ". Search index is now stale.");
+            }
+        }
         return new CreateOrEditPostResponse(
                 updatedPost.getPostId(),
                 updatedPost.getContent(),
@@ -266,6 +292,20 @@ public class PostService {
         }
     }
 
+    public List<GetPostResponse> semanticSearch(String query,String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User not found: " + username));
+
+        float[] queryVector = embeddingService.createEmbedding(query);
+
+        List<Integer> postIds = vectorDBService.search(queryVector, 5);
+
+        if (postIds.isEmpty()) {
+            return List.of();
+        }
+        List<Post> posts = postRepository.findAllById(postIds);
+        return convertToGetPostsResponse(posts, user.getId());
+    }
 
 
 

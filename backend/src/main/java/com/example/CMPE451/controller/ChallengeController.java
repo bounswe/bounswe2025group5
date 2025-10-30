@@ -81,6 +81,11 @@ public class ChallengeController {
     public ResponseEntity<List<ChallengesResponse>> getAllChallengesForHome() {
         return ResponseEntity.ok(challengeService.getAllChallengesForHomePage());
     }
-
+    @GetMapping("/{username}/attended")
+    public ResponseEntity<List<MyChallengeResponse>> getAttendedChallenges(
+            @PathVariable String username) {
+        List<MyChallengeResponse> challenges = challengeService.getAttendedChallenges(username);
+        return ResponseEntity.ok(challenges);
+    }
 
 }

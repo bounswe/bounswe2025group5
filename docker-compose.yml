@@ -16,10 +16,22 @@ services:
       - appnet
     ports:
       - "127.0.0.1:3000:3000"
-
+  qdrant-db:
+    image: qdrant/qdrant:v1.15.0
+    container_name: qdrant-db
+    restart: always
+    networks:
+      - appnet
+    volumes:
+      - qdrant_storage:/qdrant/storage
+    ports:
+      - "6333:6333"
 networks:
   appnet:
     driver: bridge
+
+volumes:
+  qdrant_storage:
 
 
 
