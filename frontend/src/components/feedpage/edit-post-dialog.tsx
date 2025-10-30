@@ -80,7 +80,7 @@ export default function EditPostDialog({ post, onPostUpdated, currentUsername }:
         <Button
           variant="ghost"
           size="icon"
-          className="hover:bg-gray-50 hover:text-gray-700 transition-colors h-8 w-8"
+          className="hover:bg-blue-50 hover:text-blue-600 transition-colors h-8 w-8"
         >
           <Edit className="h-4 w-4" />
         </Button>

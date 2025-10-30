@@ -5,6 +5,7 @@ export const CommentSchema = z.object({
   commentId: z.number().int().optional(),
   content: z.string(),
   username: z.string().optional(),
+  creatorUsername: z.string().optional(),
   createdAt: z.string().optional(),
 }).passthrough();
 
@@ -26,11 +27,11 @@ export const CommentsApi = {
     return GetCommentsResponseSchema.parse(res);
   },
   update: async (commentId: number, payload: { content: string; username: string }) => {
-    const res = await ApiClient.put<Comment>(`/api/posts/${commentId}`, payload);
+    const res = await ApiClient.put<Comment>(`/api/posts/comment/${commentId}`, payload);
     return CommentSchema.parse(res);
   },
   remove: async (commentId: number) => {
-    return ApiClient.delete<{ success?: boolean }>(`/api/posts/${commentId}`);
+    return ApiClient.delete<{ success?: boolean }>(`/api/posts/comment/${commentId}`);
   },
 };
 

@@ -73,6 +73,10 @@ export default function MainpageIndex() {
     );
   };
 
+  const handlePostDelete = (postId: number) => {
+    setPosts(prev => prev.filter(post => post.postId !== postId));
+  };
+
   return (
     <div className="container mx-auto px-4 pb-10">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -100,7 +104,7 @@ export default function MainpageIndex() {
           ) : (
             <div className="space-y-4 grid gap-4 sm:grid-cols-2">
               {posts.map((p) => (
-                <PostCard key={p.postId} post={p} onPostUpdate={handlePostUpdate} />
+                <PostCard key={p.postId} post={p} onPostUpdate={handlePostUpdate} onPostDelete={handlePostDelete} />
               ))}
             </div>
           )}

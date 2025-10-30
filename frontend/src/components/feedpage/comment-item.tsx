@@ -2,16 +2,20 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MoreHorizontal, Edit3, Trash2 } from 'lucide-react';
+import { Edit3, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import type { Comment } from '@/lib/api/comments';
 import { CommentsApi } from '@/lib/api/comments';
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import userAvatar from '@/assets/user.png';
 
 interface CommentItemProps {
   comment: Comment;
@@ -25,9 +29,11 @@ export default function CommentItem({ comment, onUpdate, onDelete, className }: 
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(comment.content);
   const [isLoading, setIsLoading] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
   const currentUser = typeof window !== 'undefined' ? localStorage.getItem('username') : null;
-  const isOwner = currentUser === comment.username;
+  const commentUsername = comment.creatorUsername || comment.username;
+  const isOwner = currentUser === commentUsername;
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '';
@@ -84,13 +90,14 @@ export default function CommentItem({ comment, onUpdate, onDelete, className }: 
     }
   };
 
-  const handleDelete = async () => {
+  const handleDeleteComment = async () => {
     if (!comment.commentId || isLoading) return;
 
     setIsLoading(true);
     try {
       await CommentsApi.remove(comment.commentId);
       onDelete?.(comment.commentId);
+      setShowDeleteDialog(false);
     } catch (error) {
       console.error('Error deleting comment:', error);
     } finally {
@@ -99,102 +106,113 @@ export default function CommentItem({ comment, onUpdate, onDelete, className }: 
   };
 
   return (
-    <div className={cn("flex gap-3 py-2", className)}>
+    <div className={cn("flex gap-3 py-2 group", className)}>
       <Avatar className="w-8 h-8 shrink-0">
-        <AvatarImage src="" alt={comment.username || 'User'} />
-        <AvatarFallback className="bg-[#b07f5a] text-white text-xs">
-          {(comment.username || 'U').charAt(0).toUpperCase()}
+        <AvatarImage src={userAvatar} alt={commentUsername || 'User'} />
+        <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+          {(commentUsername || 'U').charAt(0).toUpperCase()}
         </AvatarFallback>
       </Avatar>
 
       <div className="flex-1 min-w-0">
-        <div className="flex items-start justify-between">
-          <div className="flex-1 min-w-0">
-            {isEditing ? (
-              <div className="space-y-2">
-                <Input
-                  value={editContent}
-                  onChange={(e) => setEditContent(e.target.value)}
-                  className="text-sm"
-                  maxLength={500}
-                />
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    onClick={handleSaveEdit}
-                    disabled={!editContent.trim() || editContent.trim() === comment.content || isLoading}
-                    className="h-7 px-2 text-xs"
-                  >
-                    {t('comment.save')}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleCancelEdit}
-                    disabled={isLoading}
-                    className="h-7 px-2 text-xs"
-                  >
-                    {t('comment.cancel')}
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <>
-                <div className="bg-gray-100 rounded-lg px-3 py-2">
-                  <p className="text-sm font-medium text-gray-900 mb-1">
-                    {comment.username}
-                  </p>
-                  <p className="text-sm text-gray-700 break-words">
-                    {comment.content}
-                  </p>
-                </div>
-                {comment.createdAt && (
-                  <p className="text-xs text-muted-foreground mt-1 ml-3">
-                    {formatDate(comment.createdAt)}
-                  </p>
-                )}
-              </>
-            )}
+        {isEditing ? (
+          <div className="space-y-2">
+            <Input
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+              className="text-sm"
+              maxLength={500}
+            />
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                onClick={handleSaveEdit}
+                disabled={!editContent.trim() || editContent.trim() === comment.content || isLoading}
+                className="h-7 px-2 text-xs"
+              >
+                {t('comment.save')}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCancelEdit}
+                disabled={isLoading}
+                className="h-7 px-2 text-xs"
+              >
+                {t('comment.cancel')}
+              </Button>
+            </div>
           </div>
-
-          {/* Actions Menu for Owner */}
-          {isOwner && !isEditing && (
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0 ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <MoreHorizontal className="h-3 w-3" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent align="end" className="w-32 p-1">
-                <div className="space-y-1">
+        ) : (
+          <>
+            <div className="bg-gray-100 rounded-lg px-3 py-2">
+              <p className="text-sm font-medium text-gray-900 mb-1">
+                {commentUsername}
+              </p>
+              <p className="text-sm text-gray-700 break-words">
+                {comment.content}
+              </p>
+            </div>
+            <div className="flex items-center justify-between mt-1 ml-3">
+              {comment.createdAt && (
+                <p className="text-xs text-muted-foreground">
+                  {formatDate(comment.createdAt)}
+                </p>
+              )}
+              
+              {/* Actions Buttons for Owner */}
+              {isOwner && (
+                <div className="flex gap-0.5">
                   <Button
                     variant="ghost"
-                    size="sm"
+                    size="icon"
                     onClick={handleEdit}
-                    className="w-full justify-start h-8 px-2 text-xs"
+                    className="h-5 w-5 hover:bg-blue-50 hover:text-blue-600"
                   >
-                    <Edit3 className="h-3 w-3 mr-2" />
-                    {t('comment.edit')}
+                    <Edit3 className="h-2.5 w-2.5" />
                   </Button>
                   <Button
                     variant="ghost"
-                    size="sm"
-                    onClick={handleDelete}
-                    className="w-full justify-start h-8 px-2 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+                    size="icon"
+                    onClick={() => setShowDeleteDialog(true)}
+                    className="h-5 w-5 hover:bg-red-50 hover:text-red-600"
                   >
-                    <Trash2 className="h-3 w-3 mr-2" />
-                    {t('comment.delete')}
+                    <Trash2 className="h-2.5 w-2.5" />
                   </Button>
                 </div>
-              </PopoverContent>
-            </Popover>
-          )}
-        </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t('comment.delete.title')}</DialogTitle>
+            <DialogDescription>
+              {t('comment.delete.description')}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2 sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+              disabled={isLoading}
+            >
+              {t('comment.delete.cancel')}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteComment}
+              disabled={isLoading}
+            >
+              {isLoading ? t('comment.delete.deleting') : t('comment.delete.confirm')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

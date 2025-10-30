@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, MessageCircle, Bookmark, BookmarkCheck } from 'lucide-react';
+import { Heart, MessageCircle, Bookmark, BookmarkCheck, Trash2, Edit3 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import type { PostItem } from '@/lib/api/schemas/posts';
@@ -10,15 +10,24 @@ import { LikesApi } from '@/lib/api/likes';
 import { PostsApi } from '@/lib/api/posts';
 import CommentSection from './comment-section';
 import EditPostDialog from './edit-post-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import userAvatar from '@/assets/user.png';
 
 interface PostCardProps {
   post: PostItem;
   onPostUpdate?: (post: PostItem) => void;
+  onPostDelete?: (postId: number) => void;
   className?: string;
 }
 
-export default function PostCard({ post, onPostUpdate, className }: PostCardProps) {
+export default function PostCard({ post, onPostUpdate, onPostDelete, className }: PostCardProps) {
   const { t } = useTranslation();
   const [commentCount, setCommentCount] = useState(post.comments || 0);
   const [showComments, setShowComments] = useState(false);
@@ -28,6 +37,10 @@ export default function PostCard({ post, onPostUpdate, className }: PostCardProp
   const [isSaved, setIsSaved] = useState(post.saved || false);
   const [likeCount, setLikeCount] = useState(post.likes || 0);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Delete dialog state
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const currentUser = typeof window !== 'undefined' ? localStorage.getItem('username') : null;
 
@@ -126,6 +139,21 @@ export default function PostCard({ post, onPostUpdate, className }: PostCardProp
     setCommentCount(prev => prev + 1);
   };
 
+  const handleDeletePost = async () => {
+    if (!currentUser || isDeleting) return;
+
+    setIsDeleting(true);
+    try {
+      await PostsApi.remove(post.postId);
+      onPostDelete?.(post.postId);
+      setShowDeleteDialog(false);
+    } catch (error) {
+      console.error('Error deleting post:', error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const { date, time } = formatDate(post.createdAt || post.savedAt || '');
 
   return (
@@ -157,18 +185,9 @@ export default function PostCard({ post, onPostUpdate, className }: PostCardProp
             </Avatar>
             <p className="font-semibold text-sm">{post.creatorUsername}</p>
           </div>
-          <div className="flex items-center gap-2">
-            {currentUser === post.creatorUsername && (
-              <EditPostDialog
-                post={post}
-                currentUsername={currentUser}
-                onPostUpdated={(updatedPost) => onPostUpdate?.(updatedPost)}
-              />
-            )}
-            <div className="text-right">
-              <p className="text-xs text-muted-foreground">{date}</p>
-              <p className="text-[10px] text-muted-foreground/70">{time}</p>
-            </div>
+          <div className="text-right">
+            <p className="text-xs text-muted-foreground">{date}</p>
+            <p className="text-[10px] text-muted-foreground/70">{time}</p>
           </div>
         </div>
         {post.content && (
@@ -200,22 +219,41 @@ export default function PostCard({ post, onPostUpdate, className }: PostCardProp
             <MessageCircle className="h-4 w-4" />
           </Button>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleSave}
-          disabled={isLoading}
-          className={cn(
-            "hover:bg-amber-50 hover:text-amber-600 transition-colors h-8 w-8",
-            isSaved && "text-amber-600"
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleSave}
+            disabled={isLoading}
+            className={cn(
+              "hover:bg-amber-50 hover:text-amber-600 transition-colors h-8 w-8",
+              isSaved && "text-amber-600"
+            )}
+          >
+            {isSaved ? (
+              <BookmarkCheck className="h-4 w-4 fill-current" />
+            ) : (
+              <Bookmark className="h-4 w-4" />
+            )}
+          </Button>
+          {currentUser === post.creatorUsername && (
+            <>
+              <EditPostDialog
+                post={post}
+                currentUsername={currentUser}
+                onPostUpdated={(updatedPost) => onPostUpdate?.(updatedPost)}
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowDeleteDialog(true)}
+                className="hover:bg-red-50 hover:text-red-600 transition-colors h-8 w-8"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </>
           )}
-        >
-          {isSaved ? (
-            <BookmarkCheck className="h-4 w-4 fill-current" />
-          ) : (
-            <Bookmark className="h-4 w-4" />
-          )}
-        </Button>
+        </div>
       </div>
 
       {/* Like Count */}
@@ -254,6 +292,34 @@ export default function PostCard({ post, onPostUpdate, className }: PostCardProp
 
       {/* Bottom Padding */}
       <div className="pb-3"></div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t('post.delete.title')}</DialogTitle>
+            <DialogDescription>
+              {t('post.delete.description')}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2 sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+              disabled={isDeleting}
+            >
+              {t('post.delete.cancel')}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeletePost}
+              disabled={isDeleting}
+            >
+              {isDeleting ? t('post.delete.deleting') : t('post.delete.confirm')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

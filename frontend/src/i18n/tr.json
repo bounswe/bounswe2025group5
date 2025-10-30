@@ -180,6 +180,13 @@
             "save": "Değişiklikleri Kaydet",
             "saving": "Kaydediliyor..."
         },
+        "delete": {
+            "title": "Gönderiyi Sil",
+            "description": "Bu gönderiyi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+            "confirm": "Sil",
+            "cancel": "İptal",
+            "deleting": "Siliniyor..."
+        },
         "timeAgo": {
             "seconds": "{{count}}sn",
             "minutes": "{{count}}dk",
@@ -192,7 +199,13 @@
         "save": "Kaydet",
         "cancel": "İptal",
         "edit": "Düzenle",
-        "delete": "Sil",
+        "delete": {
+            "title": "Yorumu Sil",
+            "description": "Bu yorumu silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+            "confirm": "Sil",
+            "cancel": "İptal",
+            "deleting": "Siliniyor..."
+        },
         "timeAgo": {
             "seconds": "{{count}}sn",
             "minutes": "{{count}}dk",
