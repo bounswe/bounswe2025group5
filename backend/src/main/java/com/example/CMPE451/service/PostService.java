@@ -292,7 +292,10 @@ public class PostService {
         }
     }
 
-    public List<GetPostResponse> semanticSearch(String query,Integer requestingUserId) {
+    public List<GetPostResponse> semanticSearch(String query,String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User not found: " + username));
+
         float[] queryVector = embeddingService.createEmbedding(query);
 
         List<Integer> postIds = vectorDBService.search(queryVector, 5);
@@ -301,7 +304,7 @@ public class PostService {
             return List.of();
         }
         List<Post> posts = postRepository.findAllById(postIds);
-        return convertToGetPostsResponse(posts, requestingUserId);
+        return convertToGetPostsResponse(posts, user.getId());
     }
 
 

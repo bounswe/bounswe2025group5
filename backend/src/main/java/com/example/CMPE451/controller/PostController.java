@@ -81,7 +81,7 @@ public class PostController {
     }
 
     @GetMapping("/search")
-    public List<GetPostResponse> searchPosts(@RequestParam("q") String query ,@RequestParam("userId") Integer userId) {
-        return postService.semanticSearch(query, userId);
+    public List<GetPostResponse> searchPosts(@RequestParam("q") String query ,@RequestParam("username") String username) {
+        return postService.semanticSearch(query, username);
     }
 }
