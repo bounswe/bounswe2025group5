@@ -6,3 +6,4 @@ node_modules
 .idea
 backend/src/main/resources/application.properties
 copilot-instructions.md
+mobile.apk
