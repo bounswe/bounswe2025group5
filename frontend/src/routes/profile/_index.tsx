@@ -100,6 +100,14 @@ export default function ProfileIndex() {
       )
     );}
   };
+
+  const handlePostDelete = (postId: number) => {
+    if (saveToggle) {
+      setPosts(prev => prev.filter(post => post.postId !== postId));
+    } else {
+      setMyPosts(prev => prev.filter(post => post.postId !== postId));
+    }
+  };
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-foreground">
@@ -159,7 +167,7 @@ export default function ProfileIndex() {
           ) : (
             <div className="space-y-4 grid gap-4 sm:grid-cols-2">
               {posts.map((p) => (
-                <PostCard key={p.postId} post={p as PostItem} onPostUpdate={(updatedPost: PostItem) => handlePostUpdate(updatedPost as SavedPostItem)} />
+                <PostCard key={p.postId} post={p as PostItem} onPostUpdate={(updatedPost: PostItem) => handlePostUpdate(updatedPost as SavedPostItem)} onPostDelete={handlePostDelete} />
               ))}
             </div>
           ))) : (_postsLoading ? <Spinner /> : (myPosts.length === 0 ? (  
@@ -167,7 +175,7 @@ export default function ProfileIndex() {
           ) : (
             <div className="space-y-4 grid gap-4 sm:grid-cols-2">
               {myPosts.map((p) => (
-                <PostCard key={p.postId} post={p as PostItem} onPostUpdate={(updatedPost: PostItem) => handlePostUpdate(updatedPost as PostItem)} />
+                <PostCard key={p.postId} post={p as PostItem} onPostUpdate={(updatedPost: PostItem) => handlePostUpdate(updatedPost as PostItem)} onPostDelete={handlePostDelete} />
               ))}
             </div>
           )))}
