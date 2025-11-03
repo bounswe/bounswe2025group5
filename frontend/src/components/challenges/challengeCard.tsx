@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChallengesApi } from '@/lib/api/challenges';
 import { type ChallengeListItem } from '@/lib/api/schemas/challenges';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '../ui/input';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Leaderboard from './Leaderboard';
 import RecyclingProgressVisualization from './RecyclingProgressVisualization';
 
@@ -63,109 +64,145 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
   };
 
   return (
-    <div className="grid gap-4 grid-cols-1">
-      <Card key={challenge.challengeId} className="flex flex-col">
-        <CardHeader>
-          <CardTitle className="text-base">{challenge.name}</CardTitle>
-          {challenge.description && <CardDescription>{challenge.description}</CardDescription>}
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground space-y-1 flex-grow">
-          <div className="flex justify-between"><span>{t('challenges.type', 'Type')}</span><span>{challenge.type}</span></div>
-          <div className="flex justify-between"><span>{t('challenges.status', 'Status')}</span><span>{challenge.status}</span></div>
-          <div className="flex justify-between"><span>{t('challenges.dates', 'Dates')}</span><span>{challenge.startDate} → {challenge.endDate}</span></div>
-          {challenge.amount != null && (
-            <div className="flex justify-between">
-              <span>{t('challenges.amount', 'Amount')}</span>
-              <span>{currentAmount} / {challenge.amount}</span>
-            </div>
-          )}
-        </CardContent>
-        
-        {/* Fixed position visualization section */}
-        {challenge.amount != null && (
-          <div className="p-4 pt-0 space-y-3">
-            {/* Recycling Progress Visualization */}
-            <div className="flex justify-center">
-              <RecyclingProgressVisualization 
-                progress={challenge.amount > 0 ? (currentAmount / challenge.amount) * 100 : 0}
-                width={320}
-                height={180}
-                className="rounded-lg shadow-sm"
-              />
+    <Card className="w-full py-3">
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="challenge-details" className="border-none">
+          <div className="px-3 py-1.5 flex flex-col h-full">
+            {/* Top section - Title and visualization */}
+            <div className="flex items-start gap-4 mb-1">
+              {/* Left side - Title */}
+              <div className="flex-1 min-w-0">
+                <CardTitle className="text-base">{challenge.name}</CardTitle>
+                {challenge.description && (
+                  <CardDescription className="text-xs mt-1 line-clamp-2">
+                    {challenge.description}
+                  </CardDescription>
+                )}
+              </div>
+              
+              {/* Right side - Larger Visualization */}
+              <div className="flex items-center shrink-0">
+                {challenge.amount != null && (
+                  <RecyclingProgressVisualization 
+                    progress={challenge.amount > 0 ? (currentAmount / challenge.amount) * 100 : 0}
+                    width={160}
+                    height={120}
+                    className="rounded-lg"
+                  />
+                )}
+              </div>
             </div>
             
-            <Progress value={challenge.amount > 0 ? (currentAmount / challenge.amount) * 100 : 0} className="mt-1" />
-          </div>
-        )}
-        
-        <div className="mt-auto p-4 pt-2 space-y-4">
-          {/* Action buttons row */}
-          <div className="flex gap-2 w-full">
-            {!userInChallenge ? (
-              <Button 
-                size="sm" 
-                variant="default" 
-                className="flex-1 h-9 btn-attend"
-                disabled={!!busy[challenge.challengeId] || !!logging[challenge.challengeId]} 
-                onClick={() => attend(challenge.challengeId, username)}
-              >
-                {busy[challenge.challengeId] ? t('challenges.attending', 'Attending...') : t('challenges.attend', 'Attend')}
-              </Button>
-            ) : (
-              <Button 
-                size="sm" 
-                variant="destructive" 
-                className="flex-1 h-9"
-                disabled={!!busy[challenge.challengeId] || !!logging[challenge.challengeId]} 
-                onClick={() => leave(challenge.challengeId, username)}
-              >
-                {busy[challenge.challengeId] ? t('challenges.leaving', 'Leaving...') : t('challenges.leave', 'Leave')}
-              </Button>
-            )}
+            {/* Spacer to push buttons to bottom */}
+            <div className="flex-grow" />
             
-            <Popover> 
-              <PopoverTrigger asChild>
+            {/* Bottom section - Action buttons */}
+            <div className="relative flex gap-1.5 justify-center pt-1">
+              {!userInChallenge ? (
                 <Button 
                   size="sm" 
-                  variant="secondary" 
-                  className="flex-1 h-9"
-                  disabled={!!logging[challenge.challengeId] || !!busy[challenge.challengeId]}
+                  variant="default" 
+                  className="h-8 btn-attend px-4 text-xs"
+                  disabled={!!busy[challenge.challengeId] || !!logging[challenge.challengeId]} 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    attend(challenge.challengeId, username);
+                  }}
                 >
-                  {logging[challenge.challengeId] ? t('challenges.logging', 'Logging...') : t('challenges.log', 'Log')}
+                  {busy[challenge.challengeId] ? t('challenges.attending', 'Attending...') : t('challenges.attend', 'Attend')}
                 </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-56">
-                <div className="space-y-3">
-                  <Input 
-                    type="number" 
-                    min={1} 
-                    value={logAmount} 
-                    onChange={e => {
-                      const next = Number(e.target.value);
-                      setLogAmount(isNaN(next) || next <= 0 ? 1 : next);
-                    }} 
-                    className="h-9"
-                  />
+              ) : (
+                <Button 
+                  size="sm" 
+                  variant="destructive" 
+                  className="h-8 px-4 text-xs"
+                  disabled={!!busy[challenge.challengeId] || !!logging[challenge.challengeId]} 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    leave(challenge.challengeId, username);
+                  }}
+                >
+                  {busy[challenge.challengeId] ? t('challenges.leaving', 'Leaving...') : t('challenges.leave', 'Leave')}
+                </Button>
+              )}
+              
+              <Popover> 
+                <PopoverTrigger asChild>
                   <Button 
                     size="sm" 
-                    variant="default" 
-                    className="w-full h-9 btn-log-submit" 
-                    disabled={!!logging[challenge.challengeId] || !!busy[challenge.challengeId]} 
-                    onClick={() => logChallengeProgress(challenge.challengeId, username, Math.max(1, logAmount))}
+                    variant="secondary" 
+                    className="h-8 px-4 text-xs"
+                    disabled={!!logging[challenge.challengeId] || !!busy[challenge.challengeId]}
+                    onClick={(e) => e.stopPropagation()}
                   >
                     {logging[challenge.challengeId] ? t('challenges.logging', 'Logging...') : t('challenges.log', 'Log')}
                   </Button>
-                </div>
-              </PopoverContent>
-            </Popover>
+                </PopoverTrigger>
+                <PopoverContent className="w-56">
+                  <div className="space-y-3">
+                    <Input 
+                      type="number" 
+                      min={1} 
+                      value={logAmount} 
+                      onChange={e => {
+                        const next = Number(e.target.value);
+                        setLogAmount(isNaN(next) || next <= 0 ? 1 : next);
+                      }} 
+                      className="h-9"
+                    />
+                    <Button 
+                      size="sm" 
+                      variant="default" 
+                      className="w-full h-9 btn-log-submit" 
+                      disabled={!!logging[challenge.challengeId] || !!busy[challenge.challengeId]} 
+                      onClick={() => logChallengeProgress(challenge.challengeId, username, Math.max(1, logAmount))}
+                    >
+                      {logging[challenge.challengeId] ? t('challenges.logging', 'Logging...') : t('challenges.submit', 'Submit')}
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+              
+              <Leaderboard challengeId={challenge.challengeId} />
+              
+              {/* Accordion trigger - bottom right corner */}
+              <AccordionTrigger className="absolute -bottom-1 -right-2 hover:no-underline p-2 rounded-full hover:bg-accent transition-colors" />
+            </div>
           </div>
           
-          {/* Leaderboard section - centered */}
-          <div className="w-full flex justify-center">
-            <Leaderboard challengeId={challenge.challengeId} />
-          </div>
-        </div>
-      </Card>
-    </div>
+          <AccordionContent>
+            <CardContent className="text-sm text-muted-foreground space-y-2 pt-0">
+              {/* Description - Full text when expanded */}
+              {challenge.description && (
+                <div className="pb-2 border-b">
+                  <p className="text-sm">{challenge.description}</p>
+                </div>
+              )}
+              
+              {/* Challenge Details */}
+              <div className="flex justify-between">
+                <span>{t('challenges.type', 'Type')}</span>
+                <span className="font-medium">{challenge.type}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>{t('challenges.status', 'Status')}</span>
+                <span className="font-medium">{challenge.status}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>{t('challenges.dates', 'Dates')}</span>
+                <span className="font-medium text-xs">{challenge.startDate} → {challenge.endDate}</span>
+              </div>
+              
+              {/* Progress Bar */}
+              {challenge.amount != null && (
+                <div className="pt-2">
+                  <Progress value={challenge.amount > 0 ? (currentAmount / challenge.amount) * 100 : 0} />
+                </div>
+              )}
+            </CardContent>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </Card>
   );
 }

@@ -28,7 +28,9 @@ export default function Leaderboard({ challengeId }: { challengeId: number }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">{t('challenges.leaderboard', 'Leaderboard')}</Button>
+        <Button variant="outline" size="sm" className="h-8 px-4 text-xs" onClick={(e) => e.stopPropagation()}>
+          {t('challenges.leaderboard', 'Leaderboard')}
+        </Button>
       </DialogTrigger>
       <DialogOverlay />
       <DialogContent>
