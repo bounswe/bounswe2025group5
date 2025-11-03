@@ -10,6 +10,7 @@ import { SearchApi } from '@/lib/api/search';
 import type { PostItem } from '@/lib/api/schemas/posts';
 import { RefreshCw, TrendingUp } from 'lucide-react';
 import GlassCard from '@/components/ui/glass-card';
+import Masonry from 'react-masonry-css';
 
 const POSTS_PER_PAGE = 10;
 
@@ -222,20 +223,21 @@ export default function FeedPage() {
           {isSearchActive ? (
             /* Search Results */
             searchResults.length > 0 ? (
-              <div className="space-y-8">
-                {/* Search Results Masonry Layout */}
-                <div className="columns-1 lg:columns-2 gap-6 space-y-6">
-                  {searchResults.map((post) => (
-                    <div key={post.postId} className="break-inside-avoid mb-6">
-                      <PostCard
-                        post={post}
-                        onPostUpdate={handlePostUpdate}
-                        onPostDelete={handlePostDelete}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <Masonry
+                breakpointCols={{ default: 2, 1024: 1 }}
+                className="flex -ml-6 w-auto"
+                columnClassName="pl-6 bg-clip-padding"
+              >
+                {searchResults.map((post) => (
+                  <div key={post.postId} className="mb-6">
+                    <PostCard
+                      post={post}
+                      onPostUpdate={handlePostUpdate}
+                      onPostDelete={handlePostDelete}
+                    />
+                  </div>
+                ))}
+              </Masonry>
             ) : (
               /* No Search Results */
               <div className="text-center py-12">
@@ -256,10 +258,14 @@ export default function FeedPage() {
             /* Regular Posts Feed */
             posts.length > 0 ? (
               <div className="space-y-8">
-                {/* Posts Masonry Layout */}
-                <div className="columns-1 lg:columns-2 gap-6 space-y-6">
+                {/* Posts Masonry */}
+                <Masonry
+                  breakpointCols={{ default: 2, 1024: 1 }}
+                  className="flex -ml-6 w-auto"
+                  columnClassName="pl-6 bg-clip-padding"
+                >
                   {posts.map((post) => (
-                    <div key={post.postId} className="break-inside-avoid mb-6">
+                    <div key={post.postId} className="mb-6">
                       <PostCard
                         post={post}
                         onPostUpdate={handlePostUpdate}
@@ -267,7 +273,7 @@ export default function FeedPage() {
                       />
                     </div>
                   ))}
-                </div>
+                </Masonry>
 
                 {/* Load More Button */}
                 {hasMorePosts && (
