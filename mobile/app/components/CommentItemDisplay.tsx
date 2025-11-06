@@ -115,9 +115,11 @@ function CommentItemDisplay({
           <View style={styles.commentOwnerActions}>
             <TouchableOpacity onPress={() => onTriggerEdit(comment)} style={styles.commentActionButton}>
               <Ionicons name="pencil-outline" size={18} color={editIconColor} />
+              <ThemedText style={[styles.commentActionText, { color: editIconColor }]}>Edit</ThemedText>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => onDeleteComment(comment.commentId)} style={styles.commentActionButton}>
               <Ionicons name="trash-outline" size={18} color={deleteIconColor} />
+              <ThemedText style={[styles.commentActionText, { color: deleteIconColor }]}>Delete</ThemedText>
             </TouchableOpacity>
           </View>
         ) : (
@@ -127,7 +129,8 @@ function CommentItemDisplay({
             accessibilityLabel="Report comment"
             accessibilityRole="button"
           >
-            <Ionicons name="warning-outline" size={16} color="#FFC107" />
+            <Ionicons name="warning-outline" size={16} color="#515151" />
+            <ThemedText style={[styles.commentActionText, { color: "#515151" }]}>Report</ThemedText>
           </TouchableOpacity>
         )}
       </View>
@@ -154,6 +157,13 @@ const styles = StyleSheet.create({
     commentActionButton: {
       paddingHorizontal: 6, // Space out icons
       paddingVertical: 4,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    commentActionText: {
+      marginLeft: 4,
+      fontSize: 13,
+      fontWeight: '500',
     },
     deleteCommentButton: { // This was old, now using commentActionButton
       padding: 4,
