@@ -42,6 +42,7 @@ function UserPostCard({
   onEdit: (post: PostData) => void;
   onDelete: (postId: number) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.postContainer, { backgroundColor: cardBackgroundColor }]}>
       {post.photoUrl && (
@@ -71,9 +72,11 @@ function UserPostCard({
         <View style={styles.postActions}>
           <TouchableOpacity onPress={() => onEdit(post)} style={styles.actionIcon}>
             <Ionicons name="pencil" size={20} color={iconColor} />
+            <ThemedText style={[styles.actionText, { color: iconColor }]}>{' '}{t('edit')}</ThemedText>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => onDelete(post.postId)} style={styles.actionIcon}>
             <Ionicons name="trash" size={20} color={iconColor} />
+            <ThemedText style={[styles.actionText, { color: iconColor }]}>{' '}{t('delete')}</ThemedText>
           </TouchableOpacity>
         </View>
       </View>
@@ -313,6 +316,13 @@ const styles = StyleSheet.create({
   actionIcon: {
     padding: 6,
     marginLeft: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionText: {
+    marginLeft: 4,
+    fontSize: 14,
+    fontWeight: '500',
   },
   centeredMessageContainer: {
     justifyContent: 'center',

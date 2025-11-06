@@ -90,6 +90,9 @@ function SavedPostCard({
         <View style={styles.postActions}>
           <TouchableOpacity onPress={handleBookmarkPress} style={styles.actionIcon}>
             <Ionicons name={isSavedLocally ? 'bookmark' : 'bookmark-outline'} size={20} color={actionIconColor} />
+            <ThemedText style={{ color: actionIconColor, marginLeft: 5, fontWeight: '500' }}>
+              {isSavedLocally ? t('saved') : t('save')}
+            </ThemedText>
           </TouchableOpacity>
         </View>
       </View>
@@ -445,7 +448,7 @@ const styles = StyleSheet.create({
   postStats: { flexDirection: 'row', alignItems: 'center' },
   footerText: { fontSize: 14, marginHorizontal: 8 },
   postActions: { flexDirection: 'row', alignItems: 'center' },
-  actionIcon: { padding: 8, marginLeft: 8, borderRadius: 15 },
+  actionIcon: { padding: 8, marginLeft: 8, borderRadius: 15, flexDirection: 'row', alignItems: 'center' },
   actionButton: { marginTop: 20, paddingVertical: 12, paddingHorizontal: 30, borderRadius: 25, alignItems: 'center', justifyContent: 'center', minWidth: 150 },
   buttonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '600' },
   retryButton: { marginTop: 15, borderColor: '#007AFF', borderWidth: 1, paddingVertical: 10, paddingHorizontal: 25, borderRadius: 25, alignItems: 'center', justifyContent: 'center', minWidth: 150 },
