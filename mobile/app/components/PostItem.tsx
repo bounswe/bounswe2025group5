@@ -153,6 +153,31 @@ function PostItem({
   
   return (
       <View testID={`post-${post.id}`} style={[styles.postContainer, { backgroundColor: cardBackgroundColor }]}>
+
+        {/* Report Button (Moved to top-right) */}
+        {loggedInUsername && loggedInUsername !== post.title && (
+          <TouchableOpacity
+            style={styles.reportButtonAbsolute}
+            onPress={() => {}}
+            accessible
+            accessibilityRole="button"
+            accessibilityLabel={t('reportPost', { defaultValue: 'Report post' })}
+            accessibilityHint={t('reportThisPostHint', { defaultValue: 'Report this post to the moderators.' })}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Ionicons
+              name="warning-outline"
+              size={16}
+              color="#515151ff"
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
+            />
+            <ThemedText style={styles.reportText}>
+              {t('report', { defaultValue: 'Report' })}
+            </ThemedText>
+          </TouchableOpacity>
+        )}
+        
         {/* ... Post title, image, content, footer (likes/comment count) ... no changes here */}
         <ThemedText type="title" style={styles.postTitle}>
           {post.title}
@@ -252,18 +277,6 @@ function PostItem({
             </ThemedText>
           ) : (
             <View />
-          )}
-          {loggedInUsername && loggedInUsername !== post.title ? (
-            <TouchableOpacity
-              style={styles.reportButton}
-              onPress={() => {}}
-              accessibilityLabel={t('reportPost', { defaultValue: 'Report post' })}
-              accessibilityRole="button"
-            >
-              <Ionicons name="warning-outline" size={16} color="#515151ff" />
-            </TouchableOpacity>
-          ) : (
-            <View style={styles.reportButtonPlaceholder} />
           )}
         </View>
 
@@ -601,5 +614,23 @@ const styles = StyleSheet.create({
     width: '100%',
    height: undefined,
     aspectRatio: 16 / 9,
+  },
+  reportButtonAbsolute: {
+  position: 'absolute',
+  top: 8,
+  right: 8,
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: 'rgba(255,255,255,0.8)', // improves visibility over images
+  borderRadius: 14,
+  paddingVertical: 4,
+  paddingHorizontal: 8,
+  zIndex: 10,
+  },
+  reportText: {
+    marginLeft: 4,
+    fontSize: 13,
+    color: '#515151',
+    fontWeight: '500',
   },
 });
