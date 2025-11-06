@@ -15,6 +15,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
+import { useTranslation } from 'react-i18next';
+
 
 // Define the CommentData interface
 interface CommentData {
