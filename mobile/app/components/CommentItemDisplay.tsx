@@ -66,6 +66,7 @@ function CommentItemDisplay({
   isSavingEdit,
   // --- END NEW PROPS for edit ---
 }: CommentItemDisplayProps) {
+  const { t } = useTranslation();
   const isOwner = loggedInUsername && comment.username === loggedInUsername;
   const colorScheme = useColorScheme(); // For save/cancel button text color
 
@@ -89,7 +90,7 @@ function CommentItemDisplay({
             onPress={onCancelEdit}
             disabled={isSavingEdit}
           >
-            <ThemedText style={styles.editActionButtonText}>Cancel</ThemedText>
+            <ThemedText style={styles.editActionButtonText}>{t('cancel')}</ThemedText>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.editActionButton, { backgroundColor: editIconColor }]}
@@ -99,7 +100,7 @@ function CommentItemDisplay({
             {isSavingEdit ? (
               <ActivityIndicator size="small" color="#FFFFFF" />
             ) : (
-              <ThemedText style={styles.editActionButtonText}>Save</ThemedText>
+              <ThemedText style={styles.editActionButtonText}>{t('save')}</ThemedText>
             )}
           </TouchableOpacity>
         </View>
@@ -115,11 +116,11 @@ function CommentItemDisplay({
           <View style={styles.commentOwnerActions}>
             <TouchableOpacity onPress={() => onTriggerEdit(comment)} style={styles.commentActionButton}>
               <Ionicons name="pencil-outline" size={18} color={editIconColor} />
-              <ThemedText style={[styles.commentActionText, { color: editIconColor }]}>Edit</ThemedText>
+              <ThemedText style={[styles.commentActionText, { color: editIconColor }]}>{t('edit')}</ThemedText>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => onDeleteComment(comment.commentId)} style={styles.commentActionButton}>
               <Ionicons name="trash-outline" size={18} color={deleteIconColor} />
-              <ThemedText style={[styles.commentActionText, { color: deleteIconColor }]}>Delete</ThemedText>
+              <ThemedText style={[styles.commentActionText, { color: deleteIconColor }]}>{t('delete')}</ThemedText>
             </TouchableOpacity>
           </View>
         ) : (
@@ -130,7 +131,7 @@ function CommentItemDisplay({
             accessibilityRole="button"
           >
             <Ionicons name="warning-outline" size={16} color="#515151" />
-            <ThemedText style={[styles.commentActionText, { color: "#515151" }]}>Report</ThemedText>
+            <ThemedText style={[styles.commentActionText, { color: "#515151" }]}>{t('report')}</ThemedText>
           </TouchableOpacity>
         )}
       </View>
