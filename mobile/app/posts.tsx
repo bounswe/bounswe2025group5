@@ -33,12 +33,16 @@ function UserPostCard({
   post,
   cardBackgroundColor,
   iconColor,
+  editIconColor,
+  deleteIconColor,
   onEdit,
   onDelete,
 }: {
   post: PostData;
   cardBackgroundColor: string;
   iconColor: string;
+  editIconColor: string;
+  deleteIconColor: string;
   onEdit: (post: PostData) => void;
   onDelete: (postId: number) => void;
 }) {
@@ -71,12 +75,12 @@ function UserPostCard({
         </View>
         <View style={styles.postActions}>
           <TouchableOpacity onPress={() => onEdit(post)} style={styles.actionIcon}>
-            <Ionicons name="pencil" size={20} color={iconColor} />
-            <ThemedText style={[styles.actionText, { color: iconColor }]}>{' '}{t('edit')}</ThemedText>
+            <Ionicons name="pencil" size={20} color={editIconColor} />
+            <ThemedText style={[styles.actionText, { color: editIconColor }]}>{' '}{t('edit')}</ThemedText>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => onDelete(post.postId)} style={styles.actionIcon}>
-            <Ionicons name="trash" size={20} color={iconColor} />
-            <ThemedText style={[styles.actionText, { color: iconColor }]}>{' '}{t('delete')}</ThemedText>
+            <Ionicons name="trash" size={20} color={deleteIconColor} />
+            <ThemedText style={[styles.actionText, { color: deleteIconColor }]}>{' '}{t('delete')}</ThemedText>
           </TouchableOpacity>
         </View>
       </View>
@@ -106,6 +110,8 @@ export default function MyPostsScreen() {
   const screenBackgroundColor = isDarkMode ? '#151718' : '#F0F2F5';
   const cardBackgroundColor = isDarkMode ? '#1C1C1E' : '#FFFFFF';
   const iconColor = isDarkMode ? '#8E8E93' : '#6C6C70';
+  const editIconActualColor = isDarkMode ? '#82B1FF' : '#007AFF';
+  const deleteIconActualColor = isDarkMode ? '#FF8A80' : '#D9534F';
   const activityIndicatorColor = isDarkMode ? '#FFFFFF' : '#000000';
   const refreshControlColors = isDarkMode
     ? { tintColor: '#FFFFFF', titleColor: '#FFFFFF' }
@@ -249,6 +255,8 @@ export default function MyPostsScreen() {
             post={post}
             cardBackgroundColor={cardBackgroundColor}
             iconColor={iconColor}
+            editIconColor={editIconActualColor}
+            deleteIconColor={deleteIconActualColor}
             onEdit={handleEditPost}
             onDelete={handleDeletePost}
           />
