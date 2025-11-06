@@ -628,6 +628,7 @@ export default function WasteGoalScreen() {
             accessibilityLabel={t('edit')}
           >
             <Ionicons name="create-outline" size={20} color="#FFFFFF" />
+            <Text style={styles.buttonText}>{t('edit')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.iconButton, styles.deleteButton]}
@@ -636,6 +637,7 @@ export default function WasteGoalScreen() {
             accessibilityLabel={t('delete')}
           >
             <Ionicons name="trash-outline" size={20} color="#FFFFFF" />
+            <Text style={styles.buttonText}>{t('delete')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -904,7 +906,7 @@ const styles = StyleSheet.create({
   goalDetails: { fontSize: 15, marginBottom: 8, },
   goalActions: { flexDirection: 'row', alignItems: 'center', gap: 8, },
   createButton: { backgroundColor: '#4CAF50', paddingVertical: 14, paddingHorizontal: 12, borderRadius: 8, marginHorizontal: 80, marginBottom: 24, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.2, shadowRadius: 2, elevation: 2, },
-  iconButton: { padding: 8, borderRadius: 6, alignItems: 'center', justifyContent: 'center', minWidth: 36, minHeight: 36 },
+  iconButton: { padding: 8, borderRadius: 6, alignItems: 'center', justifyContent: 'center', minWidth: 36, minHeight: 36, flexDirection: 'row', gap: 4 },
   editButton: { backgroundColor: '#1976D2' },
   deleteButton: { backgroundColor: '#D32F2F' },
   addLogButton: { backgroundColor: '#388E3C', paddingHorizontal: 10, paddingVertical: 8, borderRadius: 6, },

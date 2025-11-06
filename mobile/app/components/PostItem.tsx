@@ -12,6 +12,7 @@ import {
   Image,
   Alert,
   Modal,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
@@ -153,6 +154,31 @@ function PostItem({
   
   return (
       <View testID={`post-${post.id}`} style={[styles.postContainer, { backgroundColor: cardBackgroundColor }]}>
+
+        {/* Report Button (Moved to top-right) */}
+        {loggedInUsername && loggedInUsername !== post.title && (
+          <TouchableOpacity
+            style={styles.reportButtonAbsolute}
+            onPress={() => {}}
+            accessible
+            accessibilityRole="button"
+            accessibilityLabel={t('reportPost', { defaultValue: 'Report post' })}
+            accessibilityHint={t('reportThisPostHint', { defaultValue: 'Report this post to the moderators.' })}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Ionicons
+              name="warning-outline"
+              size={16}
+              color="#515151ff"
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
+            />
+            <ThemedText style={styles.reportText}>
+              {t('report', { defaultValue: 'Report' })}
+            </ThemedText>
+          </TouchableOpacity>
+        )}
+        
         {/* ... Post title, image, content, footer (likes/comment count) ... no changes here */}
         <ThemedText type="title" style={styles.postTitle}>
           {post.title}
@@ -253,18 +279,6 @@ function PostItem({
           ) : (
             <View />
           )}
-          {loggedInUsername && loggedInUsername !== post.title ? (
-            <TouchableOpacity
-              style={styles.reportButton}
-              onPress={() => {}}
-              accessibilityLabel={t('reportPost', { defaultValue: 'Report post' })}
-              accessibilityRole="button"
-            >
-              <Ionicons name="warning-outline" size={16} color="#515151ff" />
-            </TouchableOpacity>
-          ) : (
-            <View style={styles.reportButtonPlaceholder} />
-          )}
         </View>
 
         <View style={styles.postFooter}>
@@ -306,100 +320,106 @@ function PostItem({
 
       {/* Comments */}
       {isExpanded && (
-        <View style={styles.commentsSection}>
-          {isLoadingComments ? (
-            <ActivityIndicator style={{ marginVertical: 15 }} color={iconColor} />
-          ) : commentsList.length === 0 && !editingCommentDetailsForPost ? (
-            <ThemedText style={[styles.noCommentsText, { color: textColor }]}>
-              {t('noCommentsYetBeFirst')}
-            </ThemedText>
-          ) : (
-            <ScrollView
-              style={styles.commentsListContainer}
-              nestedScrollEnabled
-              showsVerticalScrollIndicator={false}
-            >
-              {commentsList.map((comment) => {
-                const isEditingThisComment =
-                  editingCommentDetailsForPost?.commentId === comment.commentId;
-                return (
-                  <CommentItemDisplay
-                    key={comment.commentId}
-                    comment={comment}
-                    commentTextColor={commentContentActualColor}
-                    commentUsernameColor={commentUsernameActualColor}
-                    commentBorderColor={commentItemBorderColor}
-                    loggedInUsername={loggedInUsername}
-                    onDeleteComment={(commentIdToDelete) =>
-                      onDeleteComment(post.id, commentIdToDelete)
-                    }
-                    deleteIconColor={deleteIconActualColor}
-                    editIconColor={editIconActualColor}
-                    onTriggerEdit={(commentToEdit) =>
-                      onTriggerEditComment(post.id, {
-                        ...commentToEdit,
-                        createdAt: commentToEdit.createdAt.toString(),
-                      })
-                    }
-                    isEditingThisComment={isEditingThisComment}
-                    editedContent={
-                      isEditingThisComment ? editingCommentDetailsForPost?.currentText || '' : ''
-                    }
-                    onEditContentChange={onEditCommentContentChange}
-                    onSaveEditedComment={() =>
-                      onSaveEditedCommentForPost(post.id, comment.commentId)
-                    }
-                    onCancelEdit={onCancelCommentEdit}
-                    isSavingEdit={isEditingThisComment && isSubmittingCommentEditForPost}
-                    // If CommentItemDisplay has internal strings, remember to i18n that component too.
-                  />
-                );
-              })}
-            </ScrollView>
-          )}
-
-          {/* Add Comment (disabled for guest or while editing) */}
-          {canPostComment && (
-            <View style={[styles.addCommentContainer, { borderTopColor: commentItemBorderColor }]}>
-              <TextInput
-                style={[
-                  styles.commentInput,
-                  {
-                    borderColor: commentInputBorderColor,
-                    color: commentInputTextColor,
-                    backgroundColor: commentInputBackgroundColor,
-                  },
-                ]}
-                placeholder={t('addACommentPlaceholder')}
-                placeholderTextColor={commentInputPlaceholderColor}
-                value={commentInputText}
-                onChangeText={onCommentInputChange}
-                multiline
-                editable={!isPostingComment}
-              />
-              <TouchableOpacity
-                testID="post-comment-button"
-                style={[
-                  styles.postCommentButton,
-                  isPostingComment || !commentInputText.trim()
-                    ? styles.postCommentButtonDisabled
-                    : {},
-                ]}
-                onPress={onPostComment}
-                disabled={isPostingComment || !commentInputText.trim()}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+          keyboardVerticalOffset={100}
+        >
+          <View style={styles.commentsSection}>
+            {isLoadingComments ? (
+              <ActivityIndicator style={{ marginVertical: 15 }} color={iconColor} />
+            ) : commentsList.length === 0 && !editingCommentDetailsForPost ? (
+              <ThemedText style={[styles.noCommentsText, { color: textColor }]}>
+                {t('noCommentsYetBeFirst')}
+              </ThemedText>
+            ) : (
+              <ScrollView
+                style={styles.commentsListContainer}
+                nestedScrollEnabled
+                showsVerticalScrollIndicator={false}
               >
-                {isPostingComment ? (
-                  <ActivityIndicator
-                    size="small"
-                    color={colorScheme === 'dark' ? '#FFFFFF' : '#007AFF'}
-                  />
-                ) : (
-                  <ThemedText style={styles.postCommentButtonText}>{t('post')}</ThemedText>
-                )}
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
+                {commentsList.map((comment) => {
+                  const isEditingThisComment =
+                    editingCommentDetailsForPost?.commentId === comment.commentId;
+                  return (
+                    <CommentItemDisplay
+                      key={comment.commentId}
+                      comment={comment}
+                      commentTextColor={commentContentActualColor}
+                      commentUsernameColor={commentUsernameActualColor}
+                      commentBorderColor={commentItemBorderColor}
+                      loggedInUsername={loggedInUsername}
+                      onDeleteComment={(commentIdToDelete) =>
+                        onDeleteComment(post.id, commentIdToDelete)
+                      }
+                      deleteIconColor={deleteIconActualColor}
+                      editIconColor={editIconActualColor}
+                      onTriggerEdit={(commentToEdit) =>
+                        onTriggerEditComment(post.id, {
+                          ...commentToEdit,
+                          createdAt: commentToEdit.createdAt.toString(),
+                        })
+                      }
+                      isEditingThisComment={isEditingThisComment}
+                      editedContent={
+                        isEditingThisComment ? editingCommentDetailsForPost?.currentText || '' : ''
+                      }
+                      onEditContentChange={onEditCommentContentChange}
+                      onSaveEditedComment={() =>
+                        onSaveEditedCommentForPost(post.id, comment.commentId)
+                      }
+                      onCancelEdit={onCancelCommentEdit}
+                      isSavingEdit={isEditingThisComment && isSubmittingCommentEditForPost}
+                      // If CommentItemDisplay has internal strings, remember to i18n that component too.
+                    />
+                  );
+                })}
+              </ScrollView>
+            )}
+
+            {/* Add Comment (disabled for guest or while editing) */}
+            {canPostComment && (
+              <View style={[styles.addCommentContainer, { borderTopColor: commentItemBorderColor }]}>
+                <TextInput
+                  style={[
+                    styles.commentInput,
+                    {
+                      borderColor: commentInputBorderColor,
+                      color: commentInputTextColor,
+                      backgroundColor: commentInputBackgroundColor,
+                    },
+                  ]}
+                  placeholder={t('addACommentPlaceholder')}
+                  placeholderTextColor={commentInputPlaceholderColor}
+                  value={commentInputText}
+                  onChangeText={onCommentInputChange}
+                  multiline
+                  editable={!isPostingComment}
+                />
+                <TouchableOpacity
+                  testID="post-comment-button"
+                  style={[
+                    styles.postCommentButton,
+                    isPostingComment || !commentInputText.trim()
+                      ? styles.postCommentButtonDisabled
+                      : {},
+                  ]}
+                  onPress={onPostComment}
+                  disabled={isPostingComment || !commentInputText.trim()}
+                >
+                  {isPostingComment ? (
+                    <ActivityIndicator
+                      size="small"
+                      color={colorScheme === 'dark' ? '#FFFFFF' : '#007AFF'}
+                    />
+                  ) : (
+                    <ThemedText style={styles.postCommentButtonText}>{t('post')}</ThemedText>
+                  )}
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        </KeyboardAvoidingView>
       )}
     </View>
   );
@@ -512,8 +532,8 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   loadMoreText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-  commentsSection: { marginTop: 10, paddingTop: 10 },
-  commentsListContainer: { maxHeight: 200, marginBottom: 10 },
+  commentsSection: { marginTop: 10, paddingTop: 10, flex: 1 },
+  commentsListContainer: { marginBottom: 10 },
   commentItemContainer: { paddingVertical: 8, borderBottomWidth: 1 },
   commentHeader: {
     flexDirection: 'row',
@@ -601,5 +621,23 @@ const styles = StyleSheet.create({
     width: '100%',
    height: undefined,
     aspectRatio: 16 / 9,
+  },
+  reportButtonAbsolute: {
+  position: 'absolute',
+  top: 8,
+  right: 8,
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: 'rgba(255,255,255,0.8)', // improves visibility over images
+  borderRadius: 14,
+  paddingVertical: 4,
+  paddingHorizontal: 8,
+  zIndex: 10,
+  },
+  reportText: {
+    marginLeft: 4,
+    fontSize: 13,
+    color: '#515151',
+    fontWeight: '500',
   },
 });

@@ -261,6 +261,9 @@
     "deleteAccount": "Hesabımı Sil",
     "deleteAccountModalTitle": "Hesabınızı silmek için şifrenizi girin",
     "deleteAccountIncorrectPassword": "Yanlış şifre",
-    "deleteAccountGenericError": "Hesap silinemedi."
+    "deleteAccountGenericError": "Hesap silinemedi.",
+    "report": "Bildir",
+    "reportPost": "Gönderiyi Bildir",
+    "reportThisPostHint": "Bu gönderiyi moderatörlere bildirin."
   }
 }

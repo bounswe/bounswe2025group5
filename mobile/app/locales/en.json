@@ -261,6 +261,9 @@
     "deleteAccount": "Delete Account",
     "deleteAccountModalTitle": "Enter your password to delete your account:",
     "deleteAccountIncorrectPassword": "Incorrect password.",
-    "deleteAccountGenericError": "Could not delete account."
+    "deleteAccountGenericError": "Could not delete account.",
+    "report": "Report",
+    "reportPost": "Report Post",
+    "reportThisPostHint": "Report this post to the moderators."
   }
 }
