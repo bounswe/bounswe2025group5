@@ -2,13 +2,12 @@ package com.example.CMPE451.model.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-public class ProfileResponse {
-    private String username;
-    private String biography;
-    private String photoUrl;
-    private Integer followerCount;
+@NoArgsConstructor
+public class FollowStatsResponse {
+    private Integer followersCount;
     private Integer followingCount;
 }
