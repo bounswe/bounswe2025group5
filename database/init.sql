@@ -246,6 +246,17 @@ CREATE TABLE badge (
         ON UPDATE CASCADE
 );
 
+CREATE TABLE Follows (
+    follower_username VARCHAR(100) NOT NULL,
+    following_username VARCHAR(100) NOT NULL,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (follower_username, following_username),
+    FOREIGN KEY (follower_username) REFERENCES Users(username),
+    FOREIGN KEY (following_username) REFERENCES Users(username)
+);
+
 
 -- Trigger: after_like_insert
 -- Purpose: After a new row is inserted into `post_likes`,
@@ -487,6 +498,7 @@ BEGIN
     WHERE `challenge_id` = OLD.challenge_id;
 END$$
 DELIMITER ;
+
 
 
 
