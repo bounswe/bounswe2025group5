@@ -9,6 +9,10 @@
         "welcomeMessage": "Web Sitemize Hoş Geldiniz!",
         "description": "Burada olduğunuz için mutluyuz. Özelliklerimizi keşfedin ve keyfini çıkarın!"
     },
+    "motivation": {
+        "stayMotivated": "Motivasyonunuzu Yüksek Tutun",
+        "keepPushing": "Sınırlarınızı zorlamaya devam edin ve hayallerinizden asla vazgeçmeyin!"
+    },
     "login": {
         "title": "Hesabınıza giriş yapın",
         "description": "Hesabınıza giriş yapmak için lütfen e-posta adresinizi girin",

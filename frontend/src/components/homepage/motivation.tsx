@@ -1,8 +1,18 @@
+import { useTranslation } from "react-i18next";
+
 export default function Motivation() {
-    return (
-      <div className="text-center text-white">
-        <h1 className="text-4xl font-bold">Stay Motivated</h1>
-        <p className="mt-4">Keep pushing your limits and never give up on your dreams!</p>
+  const { t } = useTranslation();
+
+  return (
+    <div className="flex justify-center">
+      <div className="mx-auto max-w-xl rounded-xl px-8 py-6 text-center">
+        <h1 className="text-4xl font-extrabold text-foreground">
+          {t("motivation.stayMotivated")}
+        </h1>
+        <p className="mt-3 text-muted-foreground">
+          {t("motivation.keepPushing")}
+        </p>
       </div>
-    );
+    </div>
+  );
 }
