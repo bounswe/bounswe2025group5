@@ -27,6 +27,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final ActivityLogger activityLogger;
 
 
 
@@ -45,6 +46,13 @@ public class CommentService {
         comment.setCreatedAt(Timestamp.from(Instant.now()));
 
         Comment savedComment = commentRepository.save(comment);
+
+        activityLogger.logAction(
+                "Create",
+                "User", user.getUsername(),
+                "Comment", savedComment.getCommentId(),
+                "User", post.getUser().getUsername()
+        );
 
         return convertToResponse(savedComment);
     }

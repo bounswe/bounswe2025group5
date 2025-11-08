@@ -45,6 +45,8 @@ public class PostService {
     private final UserRepository userRepository;
     private final SavedPostRepository savedPostRepository;
 
+    private final ActivityLogger activityLogger;
+
     private final EmbeddingService embeddingService;
     private final VectorDBService vectorDBService;
 
@@ -85,7 +87,7 @@ public class PostService {
     }
 
     @Transactional
-    public CreateOrEditPostResponse createPost(String content ,String username, MultipartFile photoFile) {
+    public CreateOrEditPostResponse createPost(String content, String username, MultipartFile photoFile) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException("User not found: " + username));
 
@@ -102,16 +104,26 @@ public class PostService {
                 0
         );
         post.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-        Post savedPost= postRepository.saveAndFlush(post);
+        Post savedPost = postRepository.saveAndFlush(post);
 
         try {
             float[] vector = embeddingService.createEmbedding(savedPost.getContent());
-
             vectorDBService.upsertVector(savedPost.getPostId(), vector);
-
         } catch (Exception e) {
             System.err.println("Failed to create embedding for post " + savedPost.getPostId() + ": " + e.getMessage());
         }
+
+
+        //TODO
+        //Change the target to the followers of the post's owner
+
+        activityLogger.logAction(
+                "Create",
+                "User", user.getUsername(),
+                "Post", savedPost.getPostId(),
+                null, null
+        );
+
         return new CreateOrEditPostResponse(
                 post.getPostId(),
                 post.getContent(),
@@ -120,6 +132,7 @@ public class PostService {
                 post.getPhotoUrl()
         );
     }
+
 
 
     @Transactional

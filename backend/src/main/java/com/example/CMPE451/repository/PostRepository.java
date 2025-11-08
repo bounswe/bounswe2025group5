@@ -23,6 +23,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     @Query("SELECT p FROM Post p ORDER BY p.likes DESC")
     List<Post> findMostLikedPosts(Pageable pageable);
 
+    Post findByPostId(Integer postId);
 
     List<Post> findByUserId(Integer userId);
 

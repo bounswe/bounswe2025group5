@@ -20,5 +20,8 @@ public interface ChallengeUserRepository extends JpaRepository<ChallengeUser, Ch
 
     List<ChallengeUser> findByIdChallengeIdOrderByAmountDesc(Integer challengeId);
 
+    List<ChallengeUser> findByIdChallengeId(Integer challengeId);
+
+
 
 }
