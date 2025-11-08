@@ -11,8 +11,8 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = {"profile", "notifications", "userRewards", "goals", "logs"})
-@EqualsAndHashCode(exclude = {"profile", "notifications", "userRewards", "goals", "logs"})
+@ToString(exclude = {"profile", "notifications", "userRewards", "goals", "logs", "following", "followers"})
+@EqualsAndHashCode(exclude = {"profile", "notifications", "userRewards", "goals", "logs", "following", "followers"})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,6 +55,12 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<WasteLog> logs;
+
+    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Follow> following;
+
+    @OneToMany(mappedBy = "following", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Follow> followers;
 
     public User(String email, String username, String passwordHash) {
         this.email = email;

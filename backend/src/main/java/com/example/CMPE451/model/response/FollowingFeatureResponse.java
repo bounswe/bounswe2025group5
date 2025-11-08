@@ -5,10 +5,8 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ProfileResponse {
-    private String username;
-    private String biography;
-    private String photoUrl;
+public class FollowingFeatureResponse {
+    private String follower;
+    private String following;
     private Integer followerCount;
-    private Integer followingCount;
 }
