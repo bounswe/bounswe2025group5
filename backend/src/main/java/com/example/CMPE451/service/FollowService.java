@@ -1,6 +1,7 @@
 package com.example.CMPE451.service;
 
 import com.example.CMPE451.exception.AlreadyExistsException;
+import com.example.CMPE451.exception.ConflictException;
 import com.example.CMPE451.exception.NotFoundException;
 import com.example.CMPE451.model.Follow;
 import com.example.CMPE451.model.User;
@@ -34,7 +35,9 @@ public class FollowService {
     public FollowingFeatureResponse followUser(String followerUser, String followingUser) {
         User follower = findUserByUsername(followerUser);
         User following = findUserByUsername(followingUser);
-
+        if (followerUser.equals(followingUser)) {
+            throw new ConflictException("A user cannot follow himself/herself.");
+        }
         if (followRepository.existsByFollowerAndFollowing(follower, following)) {
             throw new AlreadyExistsException("User " + followerUser + " already follows " + followingUser);
         }

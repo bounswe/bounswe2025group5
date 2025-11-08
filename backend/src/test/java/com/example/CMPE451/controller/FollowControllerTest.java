@@ -96,7 +96,7 @@ class FollowControllerTest {
 
         given(followService.getFollowing(username)).willReturn(followingsList);
 
-        mvc.perform(get("/api/users/{username}/following", username)
+        mvc.perform(get("/api/users/{username}/followings", username)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(jsonFollowingsList.write(followingsList).getJson()));
