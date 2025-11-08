@@ -246,15 +246,15 @@ CREATE TABLE badge (
         ON UPDATE CASCADE
 );
 
-CREATE TABLE Follows (
+CREATE TABLE follows (
     follower_username VARCHAR(100) NOT NULL,
     following_username VARCHAR(100) NOT NULL,
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY (follower_username, following_username),
-    FOREIGN KEY (follower_username) REFERENCES Users(username),
-    FOREIGN KEY (following_username) REFERENCES Users(username)
+    FOREIGN KEY (follower_username) REFERENCES users(username),
+    FOREIGN KEY (following_username) REFERENCES users(username)
 );
 
 
