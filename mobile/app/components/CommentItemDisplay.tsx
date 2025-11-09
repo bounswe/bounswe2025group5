@@ -32,6 +32,8 @@ interface CommentItemDisplayProps {
   commentTextColor: string;
   commentUsernameColor: string;
   commentBorderColor: string;
+  /** background color of the container (hex) so AccessibleText can compute readable foreground */
+  backgroundColor?: string;
   loggedInUsername: string | null;
   onDeleteComment: (commentId: number) => void;
   deleteIconColor: string;
@@ -54,6 +56,7 @@ function CommentItemDisplay({
   commentBorderColor,
   loggedInUsername,
   onDeleteComment,
+  backgroundColor,
   deleteIconColor,
   // --- NEW PROPS for edit functionality ---
   editIconColor,
@@ -74,7 +77,7 @@ function CommentItemDisplay({
     return (
       <View style={[styles.commentItemContainer, { borderBottomColor: commentBorderColor }]}>
         <View style={styles.commentHeader}>
-          <AccessibleText style={[styles.commentUsername, { color: commentUsernameColor }]}>{comment.username} (editing)</AccessibleText>
+          <AccessibleText backgroundColor={backgroundColor} style={[styles.commentUsername]}>{comment.username} (editing)</AccessibleText>
         </View>
         <TextInput
           style={[styles.commentEditInput, { borderColor: editIconColor, color: commentTextColor, backgroundColor: colorScheme === 'dark' ? '#2C2C2E' : '#F9F9F9' }]}
@@ -90,7 +93,7 @@ function CommentItemDisplay({
             onPress={onCancelEdit}
             disabled={isSavingEdit}
           >
-            <AccessibleText style={styles.editActionButtonText}>{t('cancel')}</AccessibleText>
+            <AccessibleText backgroundColor={'#888'} style={styles.editActionButtonText}>{t('cancel')}</AccessibleText>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.editActionButton, { backgroundColor: editIconColor }]}
@@ -100,7 +103,7 @@ function CommentItemDisplay({
             {isSavingEdit ? (
               <ActivityIndicator size="small" color="#FFFFFF" />
             ) : (
-              <AccessibleText style={styles.editActionButtonText}>{t('save')}</AccessibleText>
+              <AccessibleText backgroundColor={editIconColor} style={styles.editActionButtonText}>{t('save')}</AccessibleText>
             )}
           </TouchableOpacity>
         </View>
@@ -111,16 +114,16 @@ function CommentItemDisplay({
   return (
     <View style={[styles.commentItemContainer, { borderBottomColor: commentBorderColor }]}>
       <View style={styles.commentHeader}>
-        <AccessibleText style={[styles.commentUsername, { color: commentUsernameColor }]}>{comment.username}</AccessibleText>
+  <AccessibleText backgroundColor={backgroundColor} style={[styles.commentUsername]}>{comment.username}</AccessibleText>
         {isOwner ? (
           <View style={styles.commentOwnerActions}>
             <TouchableOpacity onPress={() => onTriggerEdit(comment)} style={styles.commentActionButton}>
               <Ionicons name="pencil-outline" size={18} color={editIconColor} />
-              <AccessibleText style={[styles.commentActionText, { color: editIconColor }]}>{t('edit')}</AccessibleText>
+              <AccessibleText backgroundColor={backgroundColor} style={[styles.commentActionText, { color: editIconColor }]}>{t('edit')}</AccessibleText>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => onDeleteComment(comment.commentId)} style={styles.commentActionButton}>
               <Ionicons name="trash-outline" size={18} color={deleteIconColor} />
-              <AccessibleText style={[styles.commentActionText, { color: deleteIconColor }]}>{t('delete')}</AccessibleText>
+              <AccessibleText backgroundColor={backgroundColor} style={[styles.commentActionText, { color: deleteIconColor }]}>{t('delete')}</AccessibleText>
             </TouchableOpacity>
           </View>
         ) : (
@@ -131,12 +134,12 @@ function CommentItemDisplay({
             accessibilityRole="button"
           >
             <Ionicons name="warning-outline" size={16} color="#515151" />
-            <AccessibleText style={[styles.commentActionText, { color: "#515151" }]}>{t('report')}</AccessibleText>
+            <AccessibleText backgroundColor={backgroundColor} style={[styles.commentActionText, { color: "#515151" }]}>{t('report')}</AccessibleText>
           </TouchableOpacity>
         )}
       </View>
-      <AccessibleText style={[styles.commentContent, { color: commentTextColor }]}>{comment.content}</AccessibleText>
-      <AccessibleText style={[styles.commentTimestamp, { color: commentTextColor }]}>
+      <AccessibleText backgroundColor={backgroundColor} style={[styles.commentContent]}>{comment.content}</AccessibleText>
+      <AccessibleText backgroundColor={backgroundColor} style={[styles.commentTimestamp]}> 
         {new Date(comment.createdAt).toLocaleDateString()}
       </AccessibleText>
     </View>

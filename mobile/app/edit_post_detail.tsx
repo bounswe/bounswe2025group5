@@ -163,7 +163,7 @@ export default function EditPostDetailScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
     >
-      <AccessibleText type="title" style={styles.title}>
+      <AccessibleText type="title" backgroundColor={screenBackgroundColor} style={styles.title}>
         {t('editYourPost')}
       </AccessibleText>
 
@@ -187,7 +187,7 @@ export default function EditPostDetailScreen() {
       <View style={styles.imagePickerContainer}>
         <TouchableOpacity onPress={pickImage} style={styles.imagePickerButton}>
           <Ionicons name="attach" size={28} color={iconColor} />
-          <AccessibleText style={[styles.imagePickerText, { color: inputTextColor }]}>
+          <AccessibleText backgroundColor={screenBackgroundColor} style={[styles.imagePickerText, { color: inputTextColor }]}> 
             {newImage ? t('changeImage') : currentPhotoDisplayUrl ? t('changeImage') : t('addNewImage')}
           </AccessibleText>
         </TouchableOpacity>
@@ -197,11 +197,11 @@ export default function EditPostDetailScreen() {
             <Image source={{ uri: currentPhotoDisplayUrl }} style={styles.imagePreview} />
             {!newImage && (
               <TouchableOpacity
-                onPress={() => setCurrentPhotoDisplayUrl(null)}
-                style={styles.removeImageButton}
-              >
-                <AccessibleText style={styles.removeImageText}>{t('removeImage')}</AccessibleText>
-              </TouchableOpacity>
+                  onPress={() => setCurrentPhotoDisplayUrl(null)}
+                  style={styles.removeImageButton}
+                >
+                  <AccessibleText backgroundColor={'#E53935'} style={styles.removeImageText}>{t('removeImage')}</AccessibleText>
+                </TouchableOpacity>
             )}
           </>
         )}
@@ -216,7 +216,7 @@ export default function EditPostDetailScreen() {
         onPress={handleSaveChanges}
         disabled={loading || (!content.trim() && !currentPhotoDisplayUrl)}
       >
-        <AccessibleText style={[styles.saveButtonText, { color: saveButtonTextColor }]}>
+        <AccessibleText backgroundColor={saveButtonBackgroundColor} style={[styles.saveButtonText, { color: saveButtonTextColor }]}> 
           {loading ? t('saving') : t('saveChanges')}
         </AccessibleText>
       </TouchableOpacity>

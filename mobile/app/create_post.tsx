@@ -222,14 +222,14 @@ export default function CreatePostScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
     >
-      <AccessibleText type="title" style={styles.title}>
+      <AccessibleText type="title" backgroundColor={screenBackgroundColor} style={styles.title}>
         {t('createNewPost')}
       </AccessibleText>
 
       {/* Inline error banner */}
       {(errState.key || errState.message) && (
-        <View style={[styles.errorBanner, { backgroundColor: isDarkMode ? '#5D1F1A' : '#FFCDD2' }]}>
-          <AccessibleText style={[styles.errorBannerText, { color: isDarkMode ? '#FF9DA3' : '#C62828' }]}>
+        <View style={[styles.errorBanner, { backgroundColor: isDarkMode ? '#5D1F1A' : '#FFCDD2' }]}> 
+          <AccessibleText backgroundColor={isDarkMode ? '#5D1F1A' : '#FFCDD2'} style={[styles.errorBannerText, { color: isDarkMode ? '#FF9DA3' : '#C62828' }]}> 
             {t('error')}: {errState.resolved}
           </AccessibleText>
         </View>
@@ -255,7 +255,7 @@ export default function CreatePostScreen() {
       <View style={styles.imagePickerContainer}>
         <TouchableOpacity onPress={pickImage} style={styles.imagePickerButton}>
           <Ionicons name="attach" size={28} color={iconColor} />
-          <AccessibleText style={[styles.imagePickerText, { color: inputTextColor }]}>
+          <AccessibleText backgroundColor={screenBackgroundColor} style={[styles.imagePickerText, { color: inputTextColor }]}> 
             {image ? t('changeImage') : t('addImageOptional')}
           </AccessibleText>
         </TouchableOpacity>
@@ -274,7 +274,7 @@ export default function CreatePostScreen() {
         {loading ? (
           <ActivityIndicator size="small" color={postButtonTextColor} />
         ) : (
-          <AccessibleText style={[styles.postButtonText, { color: postButtonTextColor }]}>
+          <AccessibleText backgroundColor={postButtonBackgroundColor} style={[styles.postButtonText, { color: postButtonTextColor }]}> 
             {t('post')}
           </AccessibleText>
         )}

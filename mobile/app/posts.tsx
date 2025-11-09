@@ -234,16 +234,16 @@ export default function MyPostsScreen() {
     >
       {error ? (
         <View style={styles.centeredMessageContainer}>
-          <AccessibleText style={{ color: errorTextColor }}>{error}</AccessibleText>
+          <AccessibleText backgroundColor={screenBackgroundColor} style={{ color: errorTextColor }}>{error}</AccessibleText>
         </View>
       ) : userPosts.length === 0 && !loading ? (
         <View style={styles.centeredMessageContainer}>
-          <AccessibleText>{t('noPostsYet')}</AccessibleText>
+          <AccessibleText backgroundColor={screenBackgroundColor}>{t('noPostsYet')}</AccessibleText>
           <TouchableOpacity
             style={styles.createPostButton}
             onPress={() => navigation.navigate('create_post')}
           >
-            <AccessibleText style={styles.createPostButtonText}>
+            <AccessibleText backgroundColor={'#2196F3'} style={styles.createPostButtonText}>
               {t('createYourFirstPost')}
             </AccessibleText>
           </TouchableOpacity>

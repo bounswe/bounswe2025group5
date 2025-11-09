@@ -114,7 +114,7 @@ export default function BadgesScreen() {
 
     return (
       <View style={[styles.badgeCard, { backgroundColor: badgeColor }]}>
-        <AccessibleText style={styles.badgeName}>{item.badgeName}</AccessibleText>
+        <AccessibleText backgroundColor={badgeColor} style={styles.badgeName}>{item.badgeName}</AccessibleText>
       </View>
     );
   };
@@ -129,8 +129,8 @@ export default function BadgesScreen() {
 
   if (error.key || error.message) {
     return (
-      <View style={[styles.container, { backgroundColor }]}>
-        <AccessibleText style={[styles.errorText, { color: isDarkMode ? '#FF9DA3' : 'red' }]}>
+      <View style={[styles.container, { backgroundColor }]}> 
+        <AccessibleText backgroundColor={backgroundColor} style={[styles.errorText, { color: isDarkMode ? '#FF9DA3' : 'red' }]}>
           {t('error')}: {error.key ? t(error.key) : error.message}
         </AccessibleText>
       </View>
@@ -141,7 +141,7 @@ export default function BadgesScreen() {
     <View style={[styles.container, { backgroundColor }]}>
       {badges.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <AccessibleText style={[styles.emptyText, { color: textColor }]}>
+          <AccessibleText backgroundColor={backgroundColor} style={[styles.emptyText, { color: textColor }]}> 
             {t('noBadgesYet')}
           </AccessibleText>
         </View>

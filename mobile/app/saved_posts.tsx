@@ -326,11 +326,11 @@ export default function SavedPostsScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={refreshControlColors.tintColor} titleColor={refreshControlColors.titleColor} />}
       >
         <View style={styles.centeredMessageContainer}>
-          <AccessibleText style={[styles.messageText, { color: errorTextColor, marginBottom: 20 }]}>
+          <AccessibleText backgroundColor={screenBackgroundColor} style={[styles.messageText, { color: errorTextColor, marginBottom: 20 }]}> 
             {t('loginRequiredSaved')}
           </AccessibleText>
           <TouchableOpacity style={[styles.actionButton, { backgroundColor: primaryButtonColor }]} onPress={() => navigation.navigate('index' as never)}>
-            <AccessibleText style={styles.buttonText}>{t('goToLogin')}</AccessibleText>
+            <AccessibleText backgroundColor={primaryButtonColor} style={styles.buttonText}>{t('goToLogin')}</AccessibleText>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -353,7 +353,7 @@ export default function SavedPostsScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={refreshControlColors.tintColor} titleColor={refreshControlColors.titleColor} />}
       >
         <View style={styles.centeredMessageContainer}>
-          <AccessibleText style={[styles.messageText, { color: errorTextColor, marginBottom: 20 }]}>
+          <AccessibleText backgroundColor={screenBackgroundColor} style={[styles.messageText, { color: errorTextColor, marginBottom: 20 }]}> 
             {error.key ? t(error.key) : error.message}
           </AccessibleText>
           <TouchableOpacity onPress={fetchSavedPosts} style={styles.retryButton}>
@@ -372,12 +372,12 @@ export default function SavedPostsScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={refreshControlColors.tintColor} titleColor={refreshControlColors.titleColor} />}
       >
         <View style={styles.centeredMessageContainer}>
-          <AccessibleText style={styles.messageText}>{t('noSavedPosts')}</AccessibleText>
+          <AccessibleText backgroundColor={screenBackgroundColor} style={styles.messageText}>{t('noSavedPosts')}</AccessibleText>
           <TouchableOpacity
             style={[styles.actionButton, { backgroundColor: primaryButtonColor, marginTop: 20 }]}
             onPress={() => navigation.navigate('(tabs)', { screen: 'explore' })}
           >
-            <AccessibleText style={styles.buttonText}>{t('explorePosts')}</AccessibleText>
+            <AccessibleText backgroundColor={primaryButtonColor} style={styles.buttonText}>{t('explorePosts')}</AccessibleText>
           </TouchableOpacity>
         </View>
       </ScrollView>

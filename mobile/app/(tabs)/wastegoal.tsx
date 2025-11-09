@@ -607,8 +607,8 @@ export default function WasteGoalScreen() {
     <View style={[styles.goalItem, { backgroundColor: cardBackgroundColor }]}>
       <View style={styles.goalHeader}>
         <View style={styles.goalTypeContainer}>
-          <AccessibleText style={[styles.goalTypeLabel, { color: goalTypeLabelColor }]}>{t('wasteTypeLabel')}</AccessibleText>
-          <AccessibleText style={styles.goalType}>{item.displayWasteType}</AccessibleText>
+          <AccessibleText backgroundColor={cardBackgroundColor} style={[styles.goalTypeLabel, { color: goalTypeLabelColor }]}>{t('wasteTypeLabel')}</AccessibleText>
+          <AccessibleText backgroundColor={cardBackgroundColor} style={styles.goalType}>{item.displayWasteType}</AccessibleText>
         </View>
         <View style={styles.goalActions}>
           {progressPercentage < 100 && (
@@ -641,7 +641,7 @@ export default function WasteGoalScreen() {
           </TouchableOpacity>
         </View>
       </View>
-      <AccessibleText style={styles.goalDetails}>
+      <AccessibleText backgroundColor={cardBackgroundColor} style={styles.goalDetails}>
         {t('targetDetails', { amount: item.amount, unit: unitLabel(item.unit), duration: item.duration })}
       </AccessibleText>
 
@@ -649,10 +649,10 @@ export default function WasteGoalScreen() {
         <View style={[styles.progressBarFill, { width: `${progressBarWidthPercentage}%`, backgroundColor: progressBarColor }]} />
       </View>
       <View style={styles.progressTextsContainer}>
-        <AccessibleText style={[styles.goalProgressText, styles.remainingQuotaText, { color: progressBarColor }]}>
+        <AccessibleText backgroundColor={cardBackgroundColor} style={[styles.goalProgressText, styles.remainingQuotaText, { color: progressBarColor }]}>
           {t('remainingQuota')} {remainingQuota.toFixed(1)} {unitLabel(item.unit)}
         </AccessibleText>
-        <AccessibleText style={[styles.goalProgressText, { color: progressBarColor, textAlign: 'right' }]}>
+        <AccessibleText backgroundColor={cardBackgroundColor} style={[styles.goalProgressText, { color: progressBarColor, textAlign: 'right' }]}>
           {t('wasteLoad', { progress: progressPercentage.toFixed(1) })}
         </AccessibleText>
       </View>
@@ -664,7 +664,7 @@ export default function WasteGoalScreen() {
       <View style={styles.headerContainer}>
 
         <View style={styles.titleContainer}>
-          <AccessibleText type="title">
+          <AccessibleText type="title" backgroundColor={screenBackgroundColor}>
             {t('wasteGoalsTitle')}
           </AccessibleText>
         </View>
@@ -683,7 +683,7 @@ export default function WasteGoalScreen() {
       </View>
 
       {!username && userType === 'guest' ? (
-        <AccessibleText style={[styles.errorText, { color: errorTextColor, backgroundColor: errorBackgroundColor }]}>
+        <AccessibleText backgroundColor={errorBackgroundColor} style={[styles.errorText, { color: errorTextColor, backgroundColor: errorBackgroundColor }]}> 
           {t('logInToManageGoals')}
         </AccessibleText>
       ) : (
@@ -699,7 +699,7 @@ export default function WasteGoalScreen() {
           </TouchableOpacity>
 
           {(error.key || error.message) && !loading && (
-            <AccessibleText style={[styles.errorText, { color: errorTextColor, backgroundColor: errorBackgroundColor }]}>
+            <AccessibleText backgroundColor={errorBackgroundColor} style={[styles.errorText, { color: errorTextColor, backgroundColor: errorBackgroundColor }]}> 
               {error.key ? t(error.key) : error.message}
             </AccessibleText>
           )}
@@ -709,15 +709,15 @@ export default function WasteGoalScreen() {
             renderItem={renderGoalItem}
             keyExtractor={item => item.goalId.toString()}
             contentContainerStyle={styles.listContainer}
-            ListEmptyComponent={ !loading && !error ? (<AccessibleText style={[styles.emptyText, {color: emptyTextColor}]}>{t('noGoalsFound')}</AccessibleText>) : null }
+            ListEmptyComponent={ !loading && !error ? (<AccessibleText backgroundColor={screenBackgroundColor} style={[styles.emptyText, {color: emptyTextColor}]}>{t('noGoalsFound')}</AccessibleText>) : null }
             ListFooterComponent={ loading ? (<ActivityIndicator size="large" color={isDarkMode ? "#66BB6A" : "#4CAF50"} style={styles.loadingSpinner} />) : null }
           />
 
           <Modal visible={modalVisible} transparent={true} animationType="slide" onRequestClose={() => { setModalVisible(false); resetForm(); }}>
             <View style={styles.modalContainer}>
               <View style={[styles.modalContent, { backgroundColor: modalContentBgColor }]}>
-                <AccessibleText style={styles.modalTitle}>{editingGoal ? t('editWasteGoal') : t('createNewGoal')}</AccessibleText>
-                <AccessibleText style={styles.inputLabel}>{t('wasteType')}</AccessibleText>
+                <AccessibleText backgroundColor={modalContentBgColor} style={styles.modalTitle}>{editingGoal ? t('editWasteGoal') : t('createNewGoal')}</AccessibleText>
+                <AccessibleText backgroundColor={modalContentBgColor} style={styles.inputLabel}>{t('wasteType')}</AccessibleText>
                 <View style={[styles.pickerContainer, { borderColor: inputBorderColor, backgroundColor: pickerBackgroundColor }]}>
                   <Picker
                     selectedValue={wasteType}
@@ -730,7 +730,7 @@ export default function WasteGoalScreen() {
                     ))}
                   </Picker>
                 </View>
-                <AccessibleText style={styles.inputLabel}>{t('unit')}</AccessibleText>
+                <AccessibleText backgroundColor={modalContentBgColor} style={styles.inputLabel}>{t('unit')}</AccessibleText>
                 <View style={[styles.pickerContainer, { borderColor: inputBorderColor, backgroundColor: pickerBackgroundColor }]}>
                   <Picker
                     selectedValue={unit}
@@ -747,11 +747,11 @@ export default function WasteGoalScreen() {
                     ))}
                   </Picker>
                 </View>
-                <AccessibleText style={styles.inputLabel}>{t('amount')}</AccessibleText>
+                <AccessibleText backgroundColor={modalContentBgColor} style={styles.inputLabel}>{t('amount')}</AccessibleText>
                 <TextInput style={[styles.input, { borderColor: inputBorderColor, color: inputTextColor, backgroundColor: pickerBackgroundColor }]} value={amount} onChangeText={setAmount} keyboardType="numeric" placeholder={t('amountPlaceholder')} placeholderTextColor={placeholderTextColor} />
-                <AccessibleText style={styles.inputLabel}>{t('durationDays')}</AccessibleText>
+                <AccessibleText backgroundColor={modalContentBgColor} style={styles.inputLabel}>{t('durationDays')}</AccessibleText>
                 <TextInput style={[styles.input, { borderColor: inputBorderColor, color: inputTextColor, backgroundColor: pickerBackgroundColor }]} value={duration} onChangeText={setDuration} keyboardType="numeric" placeholder={t('durationPlaceholder')} placeholderTextColor={placeholderTextColor} />
-                {goalFormError && (<AccessibleText style={[styles.modalFormErrorText, { color: errorTextColor }]}>{t(goalFormError)}</AccessibleText>)}
+                {goalFormError && (<AccessibleText backgroundColor={modalContentBgColor} style={[styles.modalFormErrorText, { color: errorTextColor }]}>{t(goalFormError)}</AccessibleText>)}
                 <View style={styles.modalButtons}>
                   <TouchableOpacity style={styles.cancelButton} onPress={() => { setModalVisible(false); resetForm(); }}>
                     <Text style={styles.buttonText}>{t('cancel')}</Text>
@@ -779,9 +779,9 @@ export default function WasteGoalScreen() {
           >
             <View style={styles.modalContainer}>
               <View style={[styles.modalContent, { backgroundColor: modalContentBgColor }]}>
-                <AccessibleText style={styles.modalTitle}>{t('addWasteLog')}</AccessibleText>
+                <AccessibleText backgroundColor={modalContentBgColor} style={styles.modalTitle}>{t('addWasteLog')}</AccessibleText>
                 {currentGoalForLog && (
-                  <AccessibleText style={styles.modalSubtitle}>
+                  <AccessibleText backgroundColor={modalContentBgColor} style={styles.modalSubtitle}>
                     {t('forGoal', {
                       wasteType: currentGoalForLog.displayWasteType,
                       amount: currentGoalForLog.amount,
@@ -789,7 +789,7 @@ export default function WasteGoalScreen() {
                     })}
                   </AccessibleText>
                 )}
-                <AccessibleText style={styles.inputLabel}>{t('selectWasteItem')}</AccessibleText>
+                <AccessibleText backgroundColor={modalContentBgColor} style={styles.inputLabel}>{t('selectWasteItem')}</AccessibleText>
                 {fetchingWasteItems ? (
                   <ActivityIndicator style={styles.loadingSpinner} color={isDarkMode ? '#FFFFFF' : '#000000'} />
                 ) : wasteItemsForCurrentGoal.length > 0 ? (
@@ -817,9 +817,9 @@ export default function WasteGoalScreen() {
                     </Picker>
                   </View>
                 ) : (
-                  <AccessibleText style={[styles.modalFormErrorText, { color: errorTextColor }]}>{t('noWasteItemsForGoal')}</AccessibleText>
+                  <AccessibleText backgroundColor={modalContentBgColor} style={[styles.modalFormErrorText, { color: errorTextColor }]}>{t('noWasteItemsForGoal')}</AccessibleText>
                 )}
-                <AccessibleText style={styles.inputLabel}>{t('logQuantity')}</AccessibleText>
+                <AccessibleText backgroundColor={modalContentBgColor} style={styles.inputLabel}>{t('logQuantity')}</AccessibleText>
                 <TextInput
                   style={[styles.input, { borderColor: inputBorderColor, color: inputTextColor, backgroundColor: pickerBackgroundColor }]}
                   value={logEntryQuantity}
@@ -828,7 +828,7 @@ export default function WasteGoalScreen() {
                   placeholder={t('logQuantityPlaceholder')}
                   placeholderTextColor={placeholderTextColor}
                 />
-                <AccessibleText style={styles.inputLabel}>{t('customLogAmountLabel')}</AccessibleText>
+                <AccessibleText backgroundColor={modalContentBgColor} style={styles.inputLabel}>{t('customLogAmountLabel')}</AccessibleText>
                 <TextInput
                   style={[styles.input, { borderColor: inputBorderColor, color: inputTextColor, backgroundColor: pickerBackgroundColor }]}
                   value={customLogAmount}
@@ -838,7 +838,7 @@ export default function WasteGoalScreen() {
                   placeholder={t('customLogAmountPlaceholder')}
                   placeholderTextColor={placeholderTextColor}
                 />
-                {logFormError && (<AccessibleText style={[styles.modalFormErrorText, { color: errorTextColor }]}>{t(logFormError)}</AccessibleText>)}
+                {logFormError && (<AccessibleText backgroundColor={modalContentBgColor} style={[styles.modalFormErrorText, { color: errorTextColor }]}>{t(logFormError)}</AccessibleText>)}
                 <View style={styles.modalButtons}>
                   <TouchableOpacity
                     style={styles.cancelButton}
@@ -868,9 +868,9 @@ export default function WasteGoalScreen() {
           <Modal visible={isDeleteModalVisible} transparent={true} animationType="slide" onRequestClose={() => { setIsDeleteModalVisible(false); setGoalToDelete(null); }}>
             <View style={styles.modalContainer}>
               <View style={[styles.modalContent, { backgroundColor: modalContentBgColor }]}>
-                <AccessibleText style={styles.modalTitle}>{t('confirmDeletion')}</AccessibleText>
+                <AccessibleText backgroundColor={modalContentBgColor} style={styles.modalTitle}>{t('confirmDeletion')}</AccessibleText>
                 {goalToDelete && (
-                  <AccessibleText style={styles.deleteConfirmText}>
+                  <AccessibleText backgroundColor={modalContentBgColor} style={styles.deleteConfirmText}>
                     {t('deleteConfirmation', {
                       wasteType: goalToDelete.displayWasteType,
                       amount: goalToDelete.amount,

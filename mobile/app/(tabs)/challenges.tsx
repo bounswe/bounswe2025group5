@@ -15,7 +15,7 @@ import {
 
 import { useAppColors } from "@/hooks/useAppColors";
 import { useSwitchColors } from "@/utils/colorUtils";
-import AccessibleText from '@/components/AccessibleText';
+import { ThemedText } from "@/components/ThemedText";
 import { AuthContext } from "../_layout";
 import { apiRequest } from "../services/apiClient";
 import { useTranslation } from "react-i18next";
@@ -424,7 +424,7 @@ export default function ChallengesScreen() {
       {/* Header to match Explore and WasteGoal */}
       <View style={styles.headerContainer}>
         <View style={styles.titleContainer}>
-          <AccessibleText type="title">{t("challengesTitle")}</AccessibleText>
+          <ThemedText type="title">{t("challengesTitle")}</ThemedText>
         </View>
         <View style={styles.languageToggleContainer}>
           <Text style={styles.languageLabel}>EN</Text>
@@ -460,12 +460,12 @@ export default function ChallengesScreen() {
 
       {/* Render error using the key */}
       {(error.key || error.message) && !loading && (
-        <AccessibleText
+        <ThemedText
           type="default"
           style={[styles.error, { color: colors.error }]}
         >
           {error.key ? t(error.key) : error.message}
-        </AccessibleText>
+        </ThemedText>
       )}
 
       <View style={styles.filterRow}>
@@ -477,9 +477,9 @@ export default function ChallengesScreen() {
             thumbColor={switchColors.thumbColor}
             trackColor={switchColors.trackColor}
           />
-          <AccessibleText type="default" style={styles.switchLabel}>
+          <ThemedText type="default" style={styles.switchLabel}>
             {t("attendedOnly")}
-          </AccessibleText>
+          </ThemedText>
         </View>
         <View style={styles.switchRow}>
           <Switch
@@ -489,9 +489,9 @@ export default function ChallengesScreen() {
             thumbColor={switchColors.thumbColor}
             trackColor={switchColors.trackColor}
           />
-          <AccessibleText type="default" style={styles.switchLabel}>
+          <ThemedText type="default" style={styles.switchLabel}>
             {t("activeOnly")}
-          </AccessibleText>
+          </ThemedText>
         </View>
       </View>
 
@@ -506,15 +506,15 @@ export default function ChallengesScreen() {
           >
             <TouchableOpacity onPress={() => toggleExpand(item.challengeId)}>
               <View style={styles.cardHeader}>
-                <AccessibleText type="subtitle" style={styles.cardTitle}>
+                <ThemedText type="subtitle" style={styles.cardTitle}>
                   {item.name}
-                </AccessibleText>
-                <AccessibleText
+                </ThemedText>
+                <ThemedText
                   type="default"
                   style={[styles.cardDate, { color: colors.textSecondary }]}
                 >
                   {item.startDate} – {item.endDate}
-                </AccessibleText>
+                </ThemedText>
               </View>
             </TouchableOpacity>
 
@@ -525,20 +525,20 @@ export default function ChallengesScreen() {
                   { borderTopColor: colors.borderColor },
                 ]}
               >
-                <AccessibleText type="default" style={styles.cardDescription}>
+                <ThemedText type="default" style={styles.cardDescription}>
                   {item.description}
-                </AccessibleText>
-                <AccessibleText type="default" style={styles.cardInfo}>
+                </ThemedText>
+                <ThemedText type="default" style={styles.cardInfo}>
                   {t("challengeAmountAndType", {
                     amount: item.amount,
                     wasteType: item.type,
                   })}
-                </AccessibleText>
+                </ThemedText>
 
                 {/* Progress Bar */}
                 <View style={styles.progressContainer}>
                   <View style={styles.progressHeader}>
-                    <AccessibleText
+                    <ThemedText
                       type="default"
                       style={[
                         styles.progressText,
@@ -547,8 +547,8 @@ export default function ChallengesScreen() {
                     >
                       {t("progressText")}: {item.currentAmount?.toFixed(1) || 0}{" "}
                       / {item.amount} kg
-                    </AccessibleText>
-                    <AccessibleText
+                    </ThemedText>
+                    <ThemedText
                       type="default"
                       style={[
                         styles.progressPercentage,
@@ -569,7 +569,7 @@ export default function ChallengesScreen() {
                         100
                       ).toFixed(1)}
                       %{(item.currentAmount || 0) / item.amount >= 1 && " ✅"}
-                    </AccessibleText>
+                    </ThemedText>
                   </View>
                   <View
                     style={[
@@ -613,12 +613,12 @@ export default function ChallengesScreen() {
                           ]}
                           onPress={() => openLogModal(item.challengeId)}
                         >
-                          <AccessibleText
+                          <ThemedText
                             type="defaultSemiBold"
                             style={[styles.buttonText, { color: "#FFFFFF" }]}
                           >
                             {t("addLog")}
-                          </AccessibleText>
+                          </ThemedText>
                         </TouchableOpacity>
 
                         <TouchableOpacity
@@ -629,12 +629,12 @@ export default function ChallengesScreen() {
                           onPress={() => handleShowLogs(item.challengeId)}
                           disabled={logsLoading}
                         >
-                          <AccessibleText
+                          <ThemedText
                             type="defaultSemiBold"
                             style={[styles.buttonText, { color: "#FFFFFF" }]}
                           >
                             {logsLoading ? t("loading") : t("showLogs")}
-                          </AccessibleText>
+                          </ThemedText>
                         </TouchableOpacity>
                       </View>
                     )}
@@ -656,14 +656,14 @@ export default function ChallengesScreen() {
                           )
                         }
                       >
-                        <AccessibleText
+                        <ThemedText
                           type="defaultSemiBold"
                           style={[styles.buttonText, { color: "#FFFFFF" }]}
                         >
                           {item.userInChallenge
                             ? t("leaveChallenge")
                             : t("attendChallenge")}
-                        </AccessibleText>
+                        </ThemedText>
                       </TouchableOpacity>
 
                       <TouchableOpacity
@@ -674,12 +674,12 @@ export default function ChallengesScreen() {
                         testID={`view-leaderboard-button-${item.challengeId}`}
                         onPress={() => handleViewLeaderboard(item.challengeId)}
                       >
-                        <AccessibleText
+                        <ThemedText
                           type="defaultSemiBold"
                           style={[styles.buttonText, { color: "#FFFFFF" }]}
                         >
                           {t("viewLeaderboard")}
-                        </AccessibleText>
+                        </ThemedText>
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -692,12 +692,12 @@ export default function ChallengesScreen() {
                       /* TODO: end challenge */
                     }}
                   >
-                    <AccessibleText
+                    <ThemedText
                       type="defaultSemiBold"
                       style={styles.buttonText}
                     >
                       {t("endChallenge")}
-                    </AccessibleText>
+                    </ThemedText>
                   </TouchableOpacity>
                 )}
               </View>
@@ -707,7 +707,7 @@ export default function ChallengesScreen() {
         ListEmptyComponent={
           !loading && !error.key ? (
             <View style={styles.emptyListContainer}>
-              <AccessibleText>{t("noChallengesMatchFilters")}</AccessibleText>
+              <ThemedText>{t("noChallengesMatchFilters")}</ThemedText>
             </View>
           ) : null
         }
@@ -726,9 +726,9 @@ export default function ChallengesScreen() {
               { backgroundColor: colors.modalBackground },
             ]}
           >
-            <AccessibleText type="title" style={styles.lbTitle}>
+            <ThemedText type="title" style={styles.lbTitle}>
               {t("leaderboardTitle")}
-            </AccessibleText>
+            </ThemedText>
             {lbLoading ? (
               <View style={styles.center}>
                 <ActivityIndicator
@@ -738,12 +738,12 @@ export default function ChallengesScreen() {
                 />
               </View>
             ) : lbError.key || lbError.message ? (
-              <AccessibleText
+              <ThemedText
                 type="default"
                 style={[styles.error, { color: colors.error }]}
               >
                 {lbError.key ? t(lbError.key) : lbError.message}
-              </AccessibleText>
+              </ThemedText>
             ) : (
               <>
                 <View
@@ -752,18 +752,18 @@ export default function ChallengesScreen() {
                     { borderBottomColor: colors.borderColor },
                   ]}
                 >
-                  <AccessibleText
+                  <ThemedText
                     type="defaultSemiBold"
                     style={styles.lbHeaderCell}
                   >
                     {t("username")}
-                  </AccessibleText>
-                  <AccessibleText
+                  </ThemedText>
+                  <ThemedText
                     type="defaultSemiBold"
                     style={styles.lbHeaderCell}
                   >
                     {t("remaining")}
-                  </AccessibleText>
+                  </ThemedText>
                 </View>
                 <FlatList
                   data={leaderboard}
@@ -775,17 +775,19 @@ export default function ChallengesScreen() {
                         { borderBottomColor: colors.borderColor },
                       ]}
                     >
-                      <AccessibleText type="defaultSemiBold" style={styles.lbCell}>
+                      <ThemedText type="defaultSemiBold" style={styles.lbCell}>
                         {index + 1}. {item.username}
-                      </AccessibleText>
-                      <AccessibleText type="default" style={styles.lbCell}>
+                      </ThemedText>
+                      <ThemedText type="default" style={styles.lbCell}>
                         {item.logAmount} kg
-                      </AccessibleText>
+                      </ThemedText>
                     </View>
                   )}
                   ListEmptyComponent={
                     <View style={styles.emptyListContainer}>
-                      <AccessibleText>{t("leaderboardEmpty")}</AccessibleText>
+                      <ThemedText style={{ color: colors.textSecondary }}>
+                        {t("leaderboardEmpty")}
+                      </ThemedText>
                     </View>
                   }
                 />
@@ -796,7 +798,7 @@ export default function ChallengesScreen() {
               testID="leaderboard-close-button"
               onPress={() => setLeaderboardVisible(false)}
             >
-              <AccessibleText type="defaultSemiBold">{t("close")}</AccessibleText>
+              <ThemedText type="defaultSemiBold">{t("close")}</ThemedText>
             </TouchableOpacity>
           </View>
         </View>
@@ -819,13 +821,13 @@ export default function ChallengesScreen() {
               { backgroundColor: colors.modalBackground },
             ]}
           >
-            <AccessibleText type="title" style={styles.lbTitle}>
+            <ThemedText type="title" style={styles.lbTitle}>
               {t("createNewChallengeModal")}
-            </AccessibleText>
+            </ThemedText>
 
-            <AccessibleText style={styles.inputLabel}>
+            <ThemedText style={styles.inputLabel}>
               {t("challengeNameLabel")}
-            </AccessibleText>
+            </ThemedText>
             <TextInput
               style={[
                 styles.input,
@@ -841,9 +843,9 @@ export default function ChallengesScreen() {
               placeholderTextColor={colors.textSubtle}
             />
 
-            <AccessibleText style={styles.inputLabel}>
+            <ThemedText style={styles.inputLabel}>
               {t("descriptionLabel")}
-            </AccessibleText>
+            </ThemedText>
             <TextInput
               style={[
                 styles.input,
@@ -862,9 +864,7 @@ export default function ChallengesScreen() {
               numberOfLines={3}
             />
 
-            <AccessibleText style={styles.inputLabel}>
-              {t("wasteTypeLabel")}
-            </AccessibleText>
+            <ThemedText style={styles.inputLabel}>{t("wasteTypeLabel")}</ThemedText>
             <TextInput
               style={[
                 styles.input,
@@ -880,9 +880,7 @@ export default function ChallengesScreen() {
               placeholderTextColor={colors.textSubtle}
             />
 
-            <AccessibleText style={styles.inputLabel}>
-              {t("targetAmountLabel")}
-            </AccessibleText>
+            <ThemedText style={styles.inputLabel}>{t("targetAmountLabel")}</ThemedText>
             <TextInput
               style={[
                 styles.input,
@@ -899,9 +897,7 @@ export default function ChallengesScreen() {
               keyboardType="numeric"
             />
 
-            <AccessibleText style={styles.inputLabel}>
-              {t("durationLabel")}
-            </AccessibleText>
+            <ThemedText style={styles.inputLabel}>{t("durationLabel")}</ThemedText>
             <TextInput
               style={[
                 styles.input,
@@ -919,9 +915,9 @@ export default function ChallengesScreen() {
             />
 
             {createError ? (
-              <AccessibleText style={[styles.error, { color: colors.error }]}>
+              <ThemedText style={[styles.error, { color: colors.error }]}> 
                 {createError}
-              </AccessibleText>
+              </ThemedText>
             ) : null}
 
             <View style={styles.modalButtons}>
@@ -952,9 +948,7 @@ export default function ChallengesScreen() {
                 {loading ? (
                   <ActivityIndicator size="small" color="#FFF" />
                 ) : (
-                  <Text style={styles.buttonText}>
-                    {t("createChallengeButton")}
-                  </Text>
+                  <Text style={styles.buttonText}>{t("createChallengeButton")}</Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -976,22 +970,20 @@ export default function ChallengesScreen() {
               { backgroundColor: colors.modalBackground },
             ]}
           >
-            <AccessibleText
+            <ThemedText
               type="title"
               style={[styles.lbTitle, { color: colors.text }]}
             >
               {t("logWaste")}
-            </AccessibleText>
+            </ThemedText>
 
             {logError && (
-              <AccessibleText style={[styles.error, { color: "#FF6B6B" }]}>
+              <ThemedText style={[styles.error, { color: "#FF6B6B" }]}> 
                 {logError}
-              </AccessibleText>
+              </ThemedText>
             )}
 
-            <AccessibleText style={styles.inputLabel}>
-              {t("amountKgLabel")}
-            </AccessibleText>
+            <ThemedText style={styles.inputLabel}>{t("amountKgLabel")}</ThemedText>
             <TextInput
               style={[
                 styles.input,
@@ -1047,17 +1039,17 @@ export default function ChallengesScreen() {
               { backgroundColor: colors.modalBackground },
             ]}
           >
-            <AccessibleText
+            <ThemedText
               type="title"
               style={[styles.lbTitle, { color: colors.text }]}
             >
               {t("challengeLogs")}
-            </AccessibleText>
+            </ThemedText>
 
             {logsError && (
-              <AccessibleText style={[styles.error, { color: "#FF6B6B" }]}>
+              <ThemedText style={[styles.error, { color: "#FF6B6B" }]}> 
                 {logsError}
-              </AccessibleText>
+              </ThemedText>
             )}
 
             {logsLoading ? (
@@ -1078,12 +1070,12 @@ export default function ChallengesScreen() {
                     ]}
                   >
                     <View style={styles.logHeader}>
-                      <AccessibleText
+                      <ThemedText
                         style={[styles.logAmount, { color: colors.text }]}
                       >
                         {item.amount} kg
-                      </AccessibleText>
-                      <AccessibleText
+                      </ThemedText>
+                      <ThemedText
                         style={[
                           styles.logDate,
                           { color: colors.textSecondary },
@@ -1095,15 +1087,15 @@ export default function ChallengesScreen() {
                         {new Date(item.timestamp).toLocaleTimeString(
                           i18n.language === "tr" ? "tr-TR" : "en-US"
                         )}
-                      </AccessibleText>
+                      </ThemedText>
                     </View>
                   </View>
                 )}
                 ListEmptyComponent={
                   <View style={styles.emptyListContainer}>
-                    <AccessibleText style={{ color: colors.textSecondary }}>
+                    <ThemedText style={{ color: colors.textSecondary }}>
                       {t("noLogsFound")}
-                    </AccessibleText>
+                    </ThemedText>
                   </View>
                 }
               />
@@ -1116,9 +1108,9 @@ export default function ChallengesScreen() {
               ]}
               onPress={() => setLogsModalVisible(false)}
             >
-              <AccessibleText style={[styles.buttonText, { color: "#FFFFFF" }]}>
+              <ThemedText style={[styles.buttonText, { color: "#FFFFFF" }]}> 
                 {t("close")}
-              </AccessibleText>
+              </ThemedText>
             </TouchableOpacity>
           </View>
         </View>

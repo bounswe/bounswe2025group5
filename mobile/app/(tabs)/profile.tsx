@@ -651,8 +651,8 @@ export default function ProfileScreen() {
         </View>
 
         {profileUpdateBannerVisible && (
-          <View style={[styles.successBanner, { backgroundColor: successBannerBgColor }]}>
-            <Text style={[styles.successBannerText, { color: successBannerTextColor }]}>{t('successBioUpdated')}</Text>
+          <View style={[styles.successBanner, { backgroundColor: successBannerBgColor }]}> 
+            <AccessibleText backgroundColor={successBannerBgColor} style={[styles.successBannerText, { color: successBannerTextColor }]}>{t('successBioUpdated')}</AccessibleText>
           </View>
         )}
 
@@ -699,7 +699,7 @@ export default function ProfileScreen() {
           )}
           <View style={{ marginLeft: 12, flexShrink: 1 }}>
             <View style={styles.profileGreetingRow}>
-              <AccessibleText testID="profile-username-text" type="default" style={{ fontSize: 20 }}>
+              <AccessibleText testID="profile-username-text" type="default" backgroundColor={contentBackgroundColor} style={{ fontSize: 20 }}>
                 {t('helloUser', { username })}
               </AccessibleText>
               <TouchableOpacity
@@ -713,6 +713,7 @@ export default function ProfileScreen() {
             <AccessibleText
               testID="profile-bio-text"
               type="default"
+              backgroundColor={contentBackgroundColor}
               style={{ marginTop: 4, fontStyle: bio ? 'normal' : 'italic' }}
               numberOfLines={3}
             >
@@ -722,11 +723,11 @@ export default function ProfileScreen() {
         </View>
         
         {/* ERROR MESSAGE INSERTED HERE */}
-        {error.key && (
-            <AccessibleText style={[styles.errorText, { color: errorTextColor, backgroundColor: errorBackgroundColor }]}>
-                {t(error.key)}
-            </AccessibleText>
-        )}
+    {error.key && (
+      <AccessibleText backgroundColor={errorBackgroundColor} style={[styles.errorText, { color: errorTextColor, backgroundColor: errorBackgroundColor }]}> 
+        {t(error.key)}
+      </AccessibleText>
+    )}
         
         <TouchableOpacity
           testID="create-post-button"
@@ -753,15 +754,15 @@ export default function ProfileScreen() {
 
         <View style={[styles.sectionDivider, { backgroundColor: isDarkMode ? '#2E2E2E' : '#D9D9D9' }]} />
 
-        <AccessibleText style={[styles.postsHeader, { color: generalTextColor }]}>{t('profilePostsTitle')}</AccessibleText>
+  <AccessibleText backgroundColor={contentBackgroundColor} style={[styles.postsHeader, { color: generalTextColor }]}>{t('profilePostsTitle')}</AccessibleText>
 
         <View style={styles.postListContainer}>
           {postsLoading ? (
             <ActivityIndicator style={styles.postsLoadingIndicator} color={iconColor} />
           ) : postsError ? (
-            <AccessibleText style={[styles.postsErrorText, { color: errorTextColor }]}>{postsError}</AccessibleText>
+            <AccessibleText backgroundColor={contentBackgroundColor} style={[styles.postsErrorText, { color: errorTextColor }]}>{postsError}</AccessibleText>
           ) : posts.length === 0 ? (
-            <AccessibleText style={[styles.emptyPostsText, { color: iconColor }]}>{t('noPostsYet')}</AccessibleText>
+            <AccessibleText backgroundColor={contentBackgroundColor} style={[styles.emptyPostsText, { color: iconColor }]}>{t('noPostsYet')}</AccessibleText>
           ) : (
             posts.map((post) => (
               <PostItem
@@ -817,7 +818,7 @@ export default function ProfileScreen() {
         />
         <View style={[styles.progressModalCard, { backgroundColor: cardBackgroundColor }]}>
           <View style={styles.progressModalHeader}>
-            <AccessibleText style={[styles.progressModalTitle, { color: generalTextColor }]}>
+            <AccessibleText backgroundColor={cardBackgroundColor} style={[styles.progressModalTitle, { color: generalTextColor }]}> 
               Historical data
             </AccessibleText>
             <TouchableOpacity
@@ -832,18 +833,18 @@ export default function ProfileScreen() {
           <View style={styles.chartArea}>
             <View style={[styles.chartAxes, { borderColor: iconColor }]}>
               {chartBarHeights.length === 0 ? (
-                <AccessibleText style={[styles.chartEmptyText, { color: iconColor }]}>
+                <AccessibleText backgroundColor={cardBackgroundColor} style={[styles.chartEmptyText, { color: iconColor }]}> 
                   {t('noData', { defaultValue: 'No data available' })}
                 </AccessibleText>
               ) : (
                 <View style={styles.chartBarsContainer}>
                   {chartBarHeights.map((height, index) => (
                     <View key={`chart-bar-${index}`} style={styles.chartBarWrapper}>
-                      <AccessibleText style={[styles.chartValueLabel, { color: iconColor }]}>
+                      <AccessibleText backgroundColor={cardBackgroundColor} style={[styles.chartValueLabel, { color: iconColor }]}> 
                         {formatChartValue(chartValues[index])}
                       </AccessibleText>
                       <View style={[styles.chartBar, { height }]} />
-                      <AccessibleText style={[styles.chartXAxisLabel, { color: iconColor }]}>
+                      <AccessibleText backgroundColor={cardBackgroundColor} style={[styles.chartXAxisLabel, { color: iconColor }]}> 
                         {index + 1}
                       </AccessibleText>
                     </View>
@@ -851,13 +852,13 @@ export default function ProfileScreen() {
                 </View>
               )}
             </View>
-            <AccessibleText style={[styles.chartYAxisLabel, { color: iconColor }]}>
+            <AccessibleText backgroundColor={cardBackgroundColor} style={[styles.chartYAxisLabel, { color: iconColor }]}> 
               {t('timeAxisLabel', { defaultValue: 'Time axis' })}
             </AccessibleText>
           </View>
 
           <View style={styles.wasteTypeSelector}>
-            <AccessibleText style={[styles.wasteTypeLabel, { color: generalTextColor }]}>
+            <AccessibleText backgroundColor={cardBackgroundColor} style={[styles.wasteTypeLabel, { color: generalTextColor }]}> 
               {t('wasteTypeLabel', { defaultValue: 'Waste Type:' })}
             </AccessibleText>
             <View style={styles.wasteTypeChips}>
@@ -874,6 +875,7 @@ export default function ProfileScreen() {
                     ]}
                   >
                     <AccessibleText
+                      backgroundColor={cardBackgroundColor}
                       style={[
                         styles.wasteTypeChipText,
                         { color: isActive ? '#FFFFFF' : generalTextColor },
