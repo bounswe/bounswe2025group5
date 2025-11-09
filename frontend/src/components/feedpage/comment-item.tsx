@@ -108,7 +108,15 @@ export default function CommentItem({ comment, onUpdate, onDelete, className }: 
   return (
     <div className={cn("flex gap-3 py-2 group", className)}>
       <Avatar className="w-8 h-8 shrink-0">
-        <AvatarImage src={userAvatar} alt={commentUsername || 'User'} />
+        <AvatarImage
+          src={userAvatar}
+          alt={commentUsername
+            ? t('profile.photoAlt', {
+                username: commentUsername,
+                defaultValue: `${commentUsername}'s profile photo`,
+              })
+            : t('profile.photoAltAnon', 'Profile photo')}
+        />
         <AvatarFallback className="bg-primary text-primary-foreground text-xs">
           {(commentUsername || 'U').charAt(0).toUpperCase()}
         </AvatarFallback>

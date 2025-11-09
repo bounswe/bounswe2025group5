@@ -9,6 +9,9 @@
         "welcomeMessage": "Web Sitemize Hoş Geldiniz!",
         "description": "Burada olduğunuz için mutluyuz. Özelliklerimizi keşfedin ve keyfini çıkarın!"
     },
+    "navbar": {
+        "logoAlt": "WasteLess uygulama logosu"
+    },
     "login": {
         "title": "Hesabınıza giriş yapın",
         "description": "Hesabınıza giriş yapmak için lütfen e-posta adresinizi girin",
@@ -62,7 +65,10 @@
         "changePhoto": "Fotoğrafı Değiştir",
         "delete": "Hesabı Sil",
         "confirmDelete": "Bu işlem hesabınızı kalıcı olarak silecek. Devam edilsin mi?",
-        "deleting": "Siliniyor..."
+        "deleting": "Siliniyor...",
+        "photoAlt": "{{username}}'in profil fotoğrafı",
+        "photoAltAnon": "Profil fotoğrafı",
+        "editImage": "Resmi Düzenle"
     },
     "main" : {
         "navbar": "Ana Sayfa"
@@ -169,7 +175,7 @@
         }
     },
     "post": {
-        "imageAlt": "Gönderi resmi",
+        "imageAlt": "{{username}}'in gönderi resmi",
         "likes": "{{count}} beğeni",
         "viewComments": "{{count}} yorumu görüntüle",
         "hideComments": "Yorumları gizle",
@@ -211,7 +217,8 @@
             "minutes": "{{count}}dk",
             "hours": "{{count}}sa",
             "days": "{{count}}g"
-        }
+        },
+        "send": "Yorumu Gönder"
     },
     "search": {
         "placeholder": "Gönderi ara...",

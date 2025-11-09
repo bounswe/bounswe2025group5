@@ -37,7 +37,11 @@ export default function Navbar({ className }: NavbarProps) {
     <nav className={`bg-[#b07f5a]/90 backdrop-blur-sm text-white px-3 py-2 flex items-center gap-2 h-16 rounded-full shadow-lg border border-white/20 max-w-4xl mx-auto ${className || ''}`}>
       {/* Logo and Title */}
       <div className="flex items-center shrink-0">
-        <img src={logo} alt="Wasteless Logo" className="h-23 w-auto" />
+        <img
+          src={logo}
+          alt={t ? t('navbar.logoAlt', 'WasteLess application logo') : 'WasteLess application logo'}
+          className="h-23 w-auto"
+        />
       </div>
 
       {/* Navigation Links */}
