@@ -11,7 +11,7 @@ import {
   useColorScheme,
   Image,
 } from 'react-native';
-import { ThemedText } from '@/components/ThemedText';
+import AccessibleText from '@/components/AccessibleText';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { AuthContext } from './_layout';
 import { apiRequest } from './services/apiClient';
@@ -163,9 +163,9 @@ export default function EditPostDetailScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
     >
-      <ThemedText type="title" style={styles.title}>
+      <AccessibleText type="title" style={styles.title}>
         {t('editYourPost')}
-      </ThemedText>
+      </AccessibleText>
 
       <TextInput
         style={[
@@ -187,9 +187,9 @@ export default function EditPostDetailScreen() {
       <View style={styles.imagePickerContainer}>
         <TouchableOpacity onPress={pickImage} style={styles.imagePickerButton}>
           <Ionicons name="attach" size={28} color={iconColor} />
-          <ThemedText style={[styles.imagePickerText, { color: inputTextColor }]}>
+          <AccessibleText style={[styles.imagePickerText, { color: inputTextColor }]}>
             {newImage ? t('changeImage') : currentPhotoDisplayUrl ? t('changeImage') : t('addNewImage')}
-          </ThemedText>
+          </AccessibleText>
         </TouchableOpacity>
 
         {currentPhotoDisplayUrl && (
@@ -200,7 +200,7 @@ export default function EditPostDetailScreen() {
                 onPress={() => setCurrentPhotoDisplayUrl(null)}
                 style={styles.removeImageButton}
               >
-                <ThemedText style={styles.removeImageText}>{t('removeImage')}</ThemedText>
+                <AccessibleText style={styles.removeImageText}>{t('removeImage')}</AccessibleText>
               </TouchableOpacity>
             )}
           </>
@@ -216,9 +216,9 @@ export default function EditPostDetailScreen() {
         onPress={handleSaveChanges}
         disabled={loading || (!content.trim() && !currentPhotoDisplayUrl)}
       >
-        <ThemedText style={[styles.saveButtonText, { color: saveButtonTextColor }]}>
+        <AccessibleText style={[styles.saveButtonText, { color: saveButtonTextColor }]}>
           {loading ? t('saving') : t('saveChanges')}
-        </ThemedText>
+        </AccessibleText>
       </TouchableOpacity>
     </KeyboardAvoidingView>
   );

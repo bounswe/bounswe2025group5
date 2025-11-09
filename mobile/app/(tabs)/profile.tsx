@@ -15,7 +15,7 @@ import {
   Keyboard,
 } from 'react-native';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
+import AccessibleText from '@/components/AccessibleText';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
 import { apiRequest, clearSession } from '../services/apiClient';
@@ -699,9 +699,9 @@ export default function ProfileScreen() {
           )}
           <View style={{ marginLeft: 12, flexShrink: 1 }}>
             <View style={styles.profileGreetingRow}>
-              <ThemedText testID="profile-username-text" type="default" style={{ fontSize: 20 }}>
+              <AccessibleText testID="profile-username-text" type="default" style={{ fontSize: 20 }}>
                 {t('helloUser', { username })}
-              </ThemedText>
+              </AccessibleText>
               <TouchableOpacity
                 style={styles.progressButton}
                 onPress={() => setProgressModalVisible(true)}
@@ -710,22 +710,22 @@ export default function ProfileScreen() {
                 <Ionicons name="stats-chart" size={20} color="#FFFFFF" />
               </TouchableOpacity>
             </View>
-            <ThemedText
+            <AccessibleText
               testID="profile-bio-text"
               type="default"
               style={{ marginTop: 4, fontStyle: bio ? 'normal' : 'italic' }}
               numberOfLines={3}
             >
               {bio || t('noBioYet')}
-            </ThemedText>
+            </AccessibleText>
           </View>
         </View>
         
         {/* ERROR MESSAGE INSERTED HERE */}
         {error.key && (
-            <ThemedText style={[styles.errorText, { color: errorTextColor, backgroundColor: errorBackgroundColor }]}>
+            <AccessibleText style={[styles.errorText, { color: errorTextColor, backgroundColor: errorBackgroundColor }]}>
                 {t(error.key)}
-            </ThemedText>
+            </AccessibleText>
         )}
         
         <TouchableOpacity
@@ -753,15 +753,15 @@ export default function ProfileScreen() {
 
         <View style={[styles.sectionDivider, { backgroundColor: isDarkMode ? '#2E2E2E' : '#D9D9D9' }]} />
 
-        <ThemedText style={[styles.postsHeader, { color: generalTextColor }]}>{t('profilePostsTitle')}</ThemedText>
+        <AccessibleText style={[styles.postsHeader, { color: generalTextColor }]}>{t('profilePostsTitle')}</AccessibleText>
 
         <View style={styles.postListContainer}>
           {postsLoading ? (
             <ActivityIndicator style={styles.postsLoadingIndicator} color={iconColor} />
           ) : postsError ? (
-            <ThemedText style={[styles.postsErrorText, { color: errorTextColor }]}>{postsError}</ThemedText>
+            <AccessibleText style={[styles.postsErrorText, { color: errorTextColor }]}>{postsError}</AccessibleText>
           ) : posts.length === 0 ? (
-            <ThemedText style={[styles.emptyPostsText, { color: iconColor }]}>{t('noPostsYet')}</ThemedText>
+            <AccessibleText style={[styles.emptyPostsText, { color: iconColor }]}>{t('noPostsYet')}</AccessibleText>
           ) : (
             posts.map((post) => (
               <PostItem
@@ -817,9 +817,9 @@ export default function ProfileScreen() {
         />
         <View style={[styles.progressModalCard, { backgroundColor: cardBackgroundColor }]}>
           <View style={styles.progressModalHeader}>
-            <ThemedText style={[styles.progressModalTitle, { color: generalTextColor }]}>
+            <AccessibleText style={[styles.progressModalTitle, { color: generalTextColor }]}>
               Historical data
-            </ThemedText>
+            </AccessibleText>
             <TouchableOpacity
               onPress={() => setProgressModalVisible(false)}
               style={styles.progressModalCloseButton}
@@ -832,34 +832,34 @@ export default function ProfileScreen() {
           <View style={styles.chartArea}>
             <View style={[styles.chartAxes, { borderColor: iconColor }]}>
               {chartBarHeights.length === 0 ? (
-                <ThemedText style={[styles.chartEmptyText, { color: iconColor }]}>
+                <AccessibleText style={[styles.chartEmptyText, { color: iconColor }]}>
                   {t('noData', { defaultValue: 'No data available' })}
-                </ThemedText>
+                </AccessibleText>
               ) : (
                 <View style={styles.chartBarsContainer}>
                   {chartBarHeights.map((height, index) => (
                     <View key={`chart-bar-${index}`} style={styles.chartBarWrapper}>
-                      <ThemedText style={[styles.chartValueLabel, { color: iconColor }]}>
+                      <AccessibleText style={[styles.chartValueLabel, { color: iconColor }]}>
                         {formatChartValue(chartValues[index])}
-                      </ThemedText>
+                      </AccessibleText>
                       <View style={[styles.chartBar, { height }]} />
-                      <ThemedText style={[styles.chartXAxisLabel, { color: iconColor }]}>
+                      <AccessibleText style={[styles.chartXAxisLabel, { color: iconColor }]}>
                         {index + 1}
-                      </ThemedText>
+                      </AccessibleText>
                     </View>
                   ))}
                 </View>
               )}
             </View>
-            <ThemedText style={[styles.chartYAxisLabel, { color: iconColor }]}>
+            <AccessibleText style={[styles.chartYAxisLabel, { color: iconColor }]}>
               {t('timeAxisLabel', { defaultValue: 'Time axis' })}
-            </ThemedText>
+            </AccessibleText>
           </View>
 
           <View style={styles.wasteTypeSelector}>
-            <ThemedText style={[styles.wasteTypeLabel, { color: generalTextColor }]}>
+            <AccessibleText style={[styles.wasteTypeLabel, { color: generalTextColor }]}>
               {t('wasteTypeLabel', { defaultValue: 'Waste Type:' })}
-            </ThemedText>
+            </AccessibleText>
             <View style={styles.wasteTypeChips}>
               {WASTE_TYPES.map((type) => {
                 const isActive = selectedWasteType === type;
@@ -873,14 +873,14 @@ export default function ProfileScreen() {
                       isActive && styles.wasteTypeChipActive,
                     ]}
                   >
-                    <ThemedText
+                    <AccessibleText
                       style={[
                         styles.wasteTypeChipText,
                         { color: isActive ? '#FFFFFF' : generalTextColor },
                       ]}
                     >
                       {t(type.toLowerCase(), { defaultValue: type })}
-                    </ThemedText>
+                    </AccessibleText>
                   </TouchableOpacity>
                 );
               })}

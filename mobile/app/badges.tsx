@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from './_layout';
-import { ThemedText } from '@/components/ThemedText';
+import AccessibleText from '@/components/AccessibleText';
 
 import { useTranslation } from 'react-i18next';
 import { apiRequest } from './services/apiClient';
@@ -114,7 +114,7 @@ export default function BadgesScreen() {
 
     return (
       <View style={[styles.badgeCard, { backgroundColor: badgeColor }]}>
-        <ThemedText style={styles.badgeName}>{item.badgeName}</ThemedText>
+        <AccessibleText style={styles.badgeName}>{item.badgeName}</AccessibleText>
       </View>
     );
   };
@@ -130,9 +130,9 @@ export default function BadgesScreen() {
   if (error.key || error.message) {
     return (
       <View style={[styles.container, { backgroundColor }]}>
-        <ThemedText style={[styles.errorText, { color: isDarkMode ? '#FF9DA3' : 'red' }]}>
+        <AccessibleText style={[styles.errorText, { color: isDarkMode ? '#FF9DA3' : 'red' }]}>
           {t('error')}: {error.key ? t(error.key) : error.message}
-        </ThemedText>
+        </AccessibleText>
       </View>
     );
   }
@@ -141,9 +141,9 @@ export default function BadgesScreen() {
     <View style={[styles.container, { backgroundColor }]}>
       {badges.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <ThemedText style={[styles.emptyText, { color: textColor }]}>
+          <AccessibleText style={[styles.emptyText, { color: textColor }]}>
             {t('noBadgesYet')}
-          </ThemedText>
+          </AccessibleText>
         </View>
       ) : (
         <FlatList

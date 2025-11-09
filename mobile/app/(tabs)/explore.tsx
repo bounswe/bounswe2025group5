@@ -16,7 +16,7 @@ import {
   Switch,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { ThemedText } from '@/components/ThemedText';
+import AccessibleText from '@/components/AccessibleText';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
 import { apiRequest } from '../services/apiClient';
@@ -580,11 +580,11 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
       >
       <View style={styles.header}>
         <View style={styles.titleContainer}>
-          <ThemedText type="title">{t('explore')}</ThemedText>
+          <AccessibleText type="title">{t('explore')}</AccessibleText>
         </View>
 
         <View style={styles.languageToggleContainer}>
-          <ThemedText style={styles.languageLabel}>EN</ThemedText>
+          <AccessibleText style={styles.languageLabel}>EN</AccessibleText>
           <Switch
             trackColor={{ false: '#767577', true: '#81b0ff' }}
             thumbColor={isTurkish ? '#f5dd4b' : '#f4f3f4'}
@@ -592,7 +592,7 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
             onValueChange={value => { toggleLanguage(value); }}
             value={isTurkish}
           />
-          <ThemedText style={styles.languageLabel}>TR</ThemedText>
+          <AccessibleText style={styles.languageLabel}>TR</AccessibleText>
         </View>
       </View>
 
@@ -603,7 +603,7 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
               style={styles.loginButton}
               onPress={() => navigation.navigate('index' as never)}
             >
-              <ThemedText style={styles.loginButtonText}>{t('goToLogin')}</ThemedText>
+              <AccessibleText style={styles.loginButtonText}>{t('goToLogin')}</AccessibleText>
             </TouchableOpacity>
           </View>
         )}
@@ -637,7 +637,7 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
           <ActivityIndicator style={{ marginTop: 20 }} size="large" color={activityIndicatorColor} />
         ) : error && currentDisplayPosts.length === 0 ? (
           <View style={[styles.errorBox, { backgroundColor: themedErrorBoxBackgroundColor }]}>
-            <ThemedText style={[styles.errorText, { color: themedErrorBoxTextColor }]}>{t('errorFailedToLoadPosts')} </ThemedText>
+            <AccessibleText style={[styles.errorText, { color: themedErrorBoxTextColor }]}>{t('errorFailedToLoadPosts')} </AccessibleText>
           </View>
         ) : inSearchMode ? (
           <>
@@ -670,7 +670,7 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
               ))
             ) : (
               <View style={[styles.noMoreBox, { backgroundColor: themedNoMoreBoxBackgroundColor }]}>
-                <ThemedText style={[styles.noMoreText, { color: themedNoMoreBoxTextColor }]}>No results found.</ThemedText>
+                <AccessibleText style={[styles.noMoreText, { color: themedNoMoreBoxTextColor }]}>No results found.</AccessibleText>
               </View>
             )}
           </>
@@ -713,21 +713,21 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
                     {loadingMore ? (
                       <ActivityIndicator color="#fff" />
                     ) : (
-                      <ThemedText style={styles.loadMoreText}>{t('loadMorePosts')}</ThemedText>
+                      <AccessibleText style={styles.loadMoreText}>{t('loadMorePosts')}</AccessibleText>
                     )}
                   </TouchableOpacity>
                 )}
                 {noMorePosts && posts.length > 0 && !loadingMore && !refreshing && (
                   <View style={[styles.noMoreBox, { backgroundColor: themedNoMoreBoxBackgroundColor, marginTop: 20, marginBottom: 20 }]}>
-                    <ThemedText style={[styles.noMoreText, { color: themedNoMoreBoxTextColor }]}>{t('endOfFeed')}</ThemedText>
+                    <AccessibleText style={[styles.noMoreText, { color: themedNoMoreBoxTextColor }]}>{t('endOfFeed')}</AccessibleText>
                   </View>
                 )}
               </>
             ) : (
               !loading && !error && !refreshing && !isSearching && (
                 <View style={[styles.noMoreBox, { backgroundColor: themedNoMoreBoxBackgroundColor }]}>
-                  <ThemedText style={[styles.noMoreText, { color: themedNoMoreBoxTextColor }]}>{t('noPostsAvailable')}</ThemedText>
-                  <ThemedText style={[styles.noMoreText, { color: themedNoMoreBoxTextColor, fontSize: 14, marginTop: 8 }]}>{t('pullToRefresh')}</ThemedText>
+                  <AccessibleText style={[styles.noMoreText, { color: themedNoMoreBoxTextColor }]}>{t('noPostsAvailable')}</AccessibleText>
+                  <AccessibleText style={[styles.noMoreText, { color: themedNoMoreBoxTextColor, fontSize: 14, marginTop: 8 }]}>{t('pullToRefresh')}</AccessibleText>
                 </View>
               )
             )}

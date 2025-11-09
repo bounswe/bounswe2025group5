@@ -12,7 +12,7 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
-import { ThemedText } from '@/components/ThemedText';
+import AccessibleText from '@/components/AccessibleText';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from './_layout';
 
@@ -222,16 +222,16 @@ export default function CreatePostScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
     >
-      <ThemedText type="title" style={styles.title}>
+      <AccessibleText type="title" style={styles.title}>
         {t('createNewPost')}
-      </ThemedText>
+      </AccessibleText>
 
       {/* Inline error banner */}
       {(errState.key || errState.message) && (
         <View style={[styles.errorBanner, { backgroundColor: isDarkMode ? '#5D1F1A' : '#FFCDD2' }]}>
-          <ThemedText style={[styles.errorBannerText, { color: isDarkMode ? '#FF9DA3' : '#C62828' }]}>
+          <AccessibleText style={[styles.errorBannerText, { color: isDarkMode ? '#FF9DA3' : '#C62828' }]}>
             {t('error')}: {errState.resolved}
-          </ThemedText>
+          </AccessibleText>
         </View>
       )}
 
@@ -255,9 +255,9 @@ export default function CreatePostScreen() {
       <View style={styles.imagePickerContainer}>
         <TouchableOpacity onPress={pickImage} style={styles.imagePickerButton}>
           <Ionicons name="attach" size={28} color={iconColor} />
-          <ThemedText style={[styles.imagePickerText, { color: inputTextColor }]}>
+          <AccessibleText style={[styles.imagePickerText, { color: inputTextColor }]}>
             {image ? t('changeImage') : t('addImageOptional')}
-          </ThemedText>
+          </AccessibleText>
         </TouchableOpacity>
         {image && <Image source={{ uri: image.uri }} style={styles.imagePreview} />}
       </View>
@@ -274,9 +274,9 @@ export default function CreatePostScreen() {
         {loading ? (
           <ActivityIndicator size="small" color={postButtonTextColor} />
         ) : (
-          <ThemedText style={[styles.postButtonText, { color: postButtonTextColor }]}>
+          <AccessibleText style={[styles.postButtonText, { color: postButtonTextColor }]}>
             {t('post')}
-          </ThemedText>
+          </AccessibleText>
         )}
       </TouchableOpacity>
     </KeyboardAvoidingView>

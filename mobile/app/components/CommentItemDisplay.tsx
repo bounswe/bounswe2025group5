@@ -14,7 +14,7 @@ import {
   Keyboard,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { ThemedText } from '@/components/ThemedText';
+import AccessibleText from '@/components/AccessibleText';
 import { useTranslation } from 'react-i18next';
 
 
@@ -74,7 +74,7 @@ function CommentItemDisplay({
     return (
       <View style={[styles.commentItemContainer, { borderBottomColor: commentBorderColor }]}>
         <View style={styles.commentHeader}>
-          <ThemedText style={[styles.commentUsername, { color: commentUsernameColor }]}>{comment.username} (editing)</ThemedText>
+          <AccessibleText style={[styles.commentUsername, { color: commentUsernameColor }]}>{comment.username} (editing)</AccessibleText>
         </View>
         <TextInput
           style={[styles.commentEditInput, { borderColor: editIconColor, color: commentTextColor, backgroundColor: colorScheme === 'dark' ? '#2C2C2E' : '#F9F9F9' }]}
@@ -90,7 +90,7 @@ function CommentItemDisplay({
             onPress={onCancelEdit}
             disabled={isSavingEdit}
           >
-            <ThemedText style={styles.editActionButtonText}>{t('cancel')}</ThemedText>
+            <AccessibleText style={styles.editActionButtonText}>{t('cancel')}</AccessibleText>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.editActionButton, { backgroundColor: editIconColor }]}
@@ -100,7 +100,7 @@ function CommentItemDisplay({
             {isSavingEdit ? (
               <ActivityIndicator size="small" color="#FFFFFF" />
             ) : (
-              <ThemedText style={styles.editActionButtonText}>{t('save')}</ThemedText>
+              <AccessibleText style={styles.editActionButtonText}>{t('save')}</AccessibleText>
             )}
           </TouchableOpacity>
         </View>
@@ -111,16 +111,16 @@ function CommentItemDisplay({
   return (
     <View style={[styles.commentItemContainer, { borderBottomColor: commentBorderColor }]}>
       <View style={styles.commentHeader}>
-        <ThemedText style={[styles.commentUsername, { color: commentUsernameColor }]}>{comment.username}</ThemedText>
+        <AccessibleText style={[styles.commentUsername, { color: commentUsernameColor }]}>{comment.username}</AccessibleText>
         {isOwner ? (
           <View style={styles.commentOwnerActions}>
             <TouchableOpacity onPress={() => onTriggerEdit(comment)} style={styles.commentActionButton}>
               <Ionicons name="pencil-outline" size={18} color={editIconColor} />
-              <ThemedText style={[styles.commentActionText, { color: editIconColor }]}>{t('edit')}</ThemedText>
+              <AccessibleText style={[styles.commentActionText, { color: editIconColor }]}>{t('edit')}</AccessibleText>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => onDeleteComment(comment.commentId)} style={styles.commentActionButton}>
               <Ionicons name="trash-outline" size={18} color={deleteIconColor} />
-              <ThemedText style={[styles.commentActionText, { color: deleteIconColor }]}>{t('delete')}</ThemedText>
+              <AccessibleText style={[styles.commentActionText, { color: deleteIconColor }]}>{t('delete')}</AccessibleText>
             </TouchableOpacity>
           </View>
         ) : (
@@ -131,14 +131,14 @@ function CommentItemDisplay({
             accessibilityRole="button"
           >
             <Ionicons name="warning-outline" size={16} color="#515151" />
-            <ThemedText style={[styles.commentActionText, { color: "#515151" }]}>{t('report')}</ThemedText>
+            <AccessibleText style={[styles.commentActionText, { color: "#515151" }]}>{t('report')}</AccessibleText>
           </TouchableOpacity>
         )}
       </View>
-      <ThemedText style={[styles.commentContent, { color: commentTextColor }]}>{comment.content}</ThemedText>
-      <ThemedText style={[styles.commentTimestamp, { color: commentTextColor }]}>
+      <AccessibleText style={[styles.commentContent, { color: commentTextColor }]}>{comment.content}</AccessibleText>
+      <AccessibleText style={[styles.commentTimestamp, { color: commentTextColor }]}>
         {new Date(comment.createdAt).toLocaleDateString()}
-      </ThemedText>
+      </AccessibleText>
     </View>
   );
 }
