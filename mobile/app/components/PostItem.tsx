@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
+import AccessibleText from '@/components/AccessibleText';
 import CommentItemDisplay from './CommentItemDisplay';
 
 import { useTranslation } from 'react-i18next';
@@ -179,10 +180,10 @@ function PostItem({
           </TouchableOpacity>
         )}
         
-        {/* ... Post title, image, content, footer (likes/comment count) ... no changes here */}
-        <ThemedText type="title" style={styles.postTitle}>
+        {/* ... Post title, image, content, footer (likes/comment count) ... */}
+        <AccessibleText type="title" isLargeText backgroundColor={cardBackgroundColor} style={styles.postTitle}>
           {post.title}
-        </ThemedText>
+        </AccessibleText>
         {imageUri && (
           <>
             <View style={styles.imageWrapper}>
@@ -264,9 +265,9 @@ function PostItem({
         )}
 
         {post.content ? (
-          <ThemedText style={[styles.postContent, { color: textColor }]}>
+          <AccessibleText backgroundColor={cardBackgroundColor} style={[styles.postContent]}> 
             {post.content}
-          </ThemedText>
+          </AccessibleText>
         ) : null}
         <View style={styles.postMetaRow}>
           {formattedPublishedAt ? (
@@ -329,9 +330,9 @@ function PostItem({
             {isLoadingComments ? (
               <ActivityIndicator style={{ marginVertical: 15 }} color={iconColor} />
             ) : commentsList.length === 0 && !editingCommentDetailsForPost ? (
-              <ThemedText style={[styles.noCommentsText, { color: textColor }]}>
+              <AccessibleText backgroundColor={cardBackgroundColor} style={[styles.noCommentsText]}> 
                 {t('noCommentsYetBeFirst')}
-              </ThemedText>
+              </AccessibleText>
             ) : (
               <ScrollView
                 style={styles.commentsListContainer}
