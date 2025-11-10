@@ -195,8 +195,13 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
               
               {/* Progress Bar */}
               {challenge.amount != null && (
-                <div className="pt-2">
+                <div className="pt-2 space-y-1">
                   <Progress value={challenge.amount > 0 ? (currentAmount / challenge.amount) * 100 : 0} />
+                  <div className="flex justify-center">
+                    <span className="text-xs text-muted-foreground font-medium">
+                      {currentAmount} / {challenge.amount}
+                    </span>
+                  </div>
                 </div>
               )}
             </CardContent>
