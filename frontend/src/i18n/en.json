@@ -9,6 +9,9 @@
         "welcomeMessage": "Welcome to Our Website!",
         "description": "We are glad to have you here. Explore our features and enjoy your stay!"
     },
+    "motivation": {
+        "stayMotivated": "Stay Motivated",
+        "keepPushing": "Keep pushing your limits and never give up on your dreams!"
     "navbar": {
         "logoAlt": "WasteLess application logo"
     },
