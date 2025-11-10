@@ -166,7 +166,7 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, className }
         <div className="w-full aspect-square relative overflow-hidden">
           <img
             src={post.photoUrl}
-            alt={t('post.imageAlt')}
+            alt={t('post.imageAlt', { username: post.creatorUsername, defaultValue: `${post.creatorUsername}'s post image` })}
             className="w-full h-full object-cover"
             loading="lazy"
           />
@@ -178,7 +178,15 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, className }
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Avatar className="w-6 h-6">
-              <AvatarImage src={userAvatar} alt={post.creatorUsername} />
+              <AvatarImage
+                src={userAvatar}
+                alt={post.creatorUsername
+                  ? t('profile.photoAlt', {
+                      username: post.creatorUsername,
+                      defaultValue: `${post.creatorUsername}'s profile photo`,
+                    })
+                  : t('profile.photoAltAnon', 'Profile photo')}
+              />
               <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                 {post.creatorUsername.charAt(0).toUpperCase()}
               </AvatarFallback>

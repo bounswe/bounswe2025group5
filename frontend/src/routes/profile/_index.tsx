@@ -133,7 +133,11 @@ export default function ProfileIndex() {
             <div className="flex flex-col items-center text-center gap-4">
               <div className="w-28 h-28 rounded-full overflow-hidden bg-muted border border-border">
                 {photoUrl ? (
-                  <img src={photoUrl} alt="Profile" className="w-full h-full object-cover" />
+                  <img
+                    src={photoUrl}
+                    alt={username ? t('profile.photoAlt', { username, defaultValue: `${username}'s profile photo` }) : t('profile.photoAltAnon', 'Profile photo')}
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   <div className="w-full h-full grid place-items-center text-muted-foreground">{t('profile.noPhoto', 'No photo')}</div>
                 )}
