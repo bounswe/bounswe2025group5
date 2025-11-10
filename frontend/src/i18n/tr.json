@@ -12,6 +12,8 @@
     "motivation": {
         "stayMotivated": "Motivasyonunuzu Yüksek Tutun",
         "keepPushing": "Sınırlarınızı zorlamaya devam edin ve hayallerinizden asla vazgeçmeyin!"
+    "navbar": {
+        "logoAlt": "WasteLess uygulama logosu"
     },
     "login": {
         "title": "Hesabınıza giriş yapın",
@@ -66,7 +68,10 @@
         "changePhoto": "Fotoğrafı Değiştir",
         "delete": "Hesabı Sil",
         "confirmDelete": "Bu işlem hesabınızı kalıcı olarak silecek. Devam edilsin mi?",
-        "deleting": "Siliniyor..."
+        "deleting": "Siliniyor...",
+        "photoAlt": "{{username}}'in profil fotoğrafı",
+        "photoAltAnon": "Profil fotoğrafı",
+        "editImage": "Resmi Düzenle"
     },
     "main" : {
         "navbar": "Ana Sayfa"
@@ -173,7 +178,7 @@
         }
     },
     "post": {
-        "imageAlt": "Gönderi resmi",
+        "imageAlt": "{{username}}'in gönderi resmi",
         "likes": "{{count}} beğeni",
         "viewComments": "{{count}} yorumu görüntüle",
         "hideComments": "Yorumları gizle",
@@ -215,7 +220,8 @@
             "minutes": "{{count}}dk",
             "hours": "{{count}}sa",
             "days": "{{count}}g"
-        }
+        },
+        "send": "Yorumu Gönder"
     },
     "search": {
         "placeholder": "Gönderi ara...",

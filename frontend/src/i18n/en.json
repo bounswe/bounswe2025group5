@@ -12,6 +12,8 @@
     "motivation": {
         "stayMotivated": "Stay Motivated",
         "keepPushing": "Keep pushing your limits and never give up on your dreams!"
+    "navbar": {
+        "logoAlt": "WasteLess application logo"
     },
     "login": {
         "title": "Login to your account",
@@ -66,7 +68,10 @@
         "changePhoto": "Change Photo",
         "delete": "Delete Account",
         "confirmDelete": "This will permanently delete your account. Continue?",
-        "deleting": "Deleting..."
+        "deleting": "Deleting...",
+        "photoAlt": "{{username}}'s profile photo",
+        "photoAltAnon": "Profile photo",
+        "editImage": "Edit Image"
     },
     "main": {
         "navbar": "Main"
@@ -185,7 +190,7 @@
         }
     },
     "post": {
-        "imageAlt": "Post image",
+        "imageAlt": "{{username}}'s post image",
         "likes": "{{count}} like",
         "likes_plural": "{{count}} likes",
         "viewComments": "View {{count}} comment",
@@ -229,7 +234,8 @@
             "minutes": "{{count}}m", 
             "hours": "{{count}}h",
             "days": "{{count}}d"
-        }
+        },
+        "send": "Send comment"
     },
     "search": {
         "placeholder": "Search posts...",

@@ -24,21 +24,25 @@ export default function RecyclingProgressVisualization({
   const clampedProgress = useMemo(() => Math.max(0, Math.min(100, progress)), [progress]);
 
   return (
-    <div 
+    <div
       className={`relative overflow-hidden rounded-lg ${className}`}
       style={{ width, height }}
+      role="group"
+      aria-label={`Recycling progress ${clampedProgress.toFixed(0)} percent`}
     >
       {/* Background dirty image */}
       <img
         src={progressDirtyImage}
-        alt="Dirty state"
+        alt=""
+        aria-hidden="true"
         className="absolute inset-0 w-full h-full object-cover"
       />
       
       {/* Clean image with progressive reveal */}
       <img
         src={progressCleanImage}
-        alt="Clean state"
+        alt=""
+        aria-hidden="true"
         className="absolute inset-0 w-full h-full object-cover"
         style={{ 
           clipPath: `inset(0 ${100 - clampedProgress}% 0 0)`
@@ -50,12 +54,14 @@ export default function RecyclingProgressVisualization({
         <div
           className="absolute top-0 bottom-0 w-0.5 bg-white/80 shadow-lg"
           style={{ left: `${clampedProgress}%` }}
+          aria-hidden="true"
         >
           {/* Animated recycling icon */}
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 rounded-full shadow-lg flex items-center justify-center">
             <img 
               src={recycleGif}
-              alt="Recycling animation"
+              alt=""
+              aria-hidden="true"
               className="w-8 h-8 object-contain"
             />
           </div>
