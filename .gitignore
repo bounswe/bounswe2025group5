@@ -1,8 +1,6 @@
 archive/backend/src/main/resources/application.properties
-backend/src/main/resources/application.properties
 archive/frontend/node_modules
 node_modules
 .vscode
 .idea
-backend/src/main/resources/application.properties
 copilot-instructions.md

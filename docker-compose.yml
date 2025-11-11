@@ -1,10 +1,19 @@
 services:
   backend:
     build: backend
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DO_SPACES_ACCESS_KEY=${DO_SPACES_ACCESS_KEY}
+      - DO_SPACES_SECRET_KEY=${DO_SPACES_SECRET_KEY}
+      - QDRANT_HOST=${QDRANT_HOST}
     networks:
       - appnet
     ports:
       - "127.0.0.1:8080:8080"
+    depends_on:
+      - qdrant-db
 
   frontend:
     build:
@@ -16,6 +25,7 @@ services:
       - appnet
     ports:
       - "127.0.0.1:3000:3000"
+
   qdrant-db:
     image: qdrant/qdrant:v1.15.0
     container_name: qdrant-db
@@ -32,7 +42,3 @@ networks:
 
 volumes:
   qdrant_storage:
-
-
-
-
