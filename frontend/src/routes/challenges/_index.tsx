@@ -79,7 +79,7 @@ export default function ChallengesIndex() {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
                 {items.map((item) => (
                   <ChallengeCard key={item.challengeId} challenge={item} />
                 ))}

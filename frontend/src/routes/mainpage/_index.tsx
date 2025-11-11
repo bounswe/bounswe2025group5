@@ -87,7 +87,7 @@ export default function MainpageIndex() {
           {challenges.length === 0 ? (
             <div className="text-muted-foreground">{t('mainpage.noChallenges', 'No active challenges')}</div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 px-4">
+            <div className="space-y-4 px-4">
               {challenges.map((ch) => (
                 <ChallengeCard key={ch.challengeId} challenge={ch} />
               ))}
