@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { AuthApi } from "@/lib/api/auth";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import GlassCard from "@/components/ui/glass-card";
 import { useTranslation } from "react-i18next";
-import zxcvbn from "zxcvbn";
+import { usePasswordStrength } from "@/hooks/usePasswordStrength";
+import PasswordStrengthMeter from "@/components/common/password-strength-meter";
 
 
 export default function Register() {
@@ -21,9 +22,7 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const zxResult = useMemo(() => (password ? zxcvbn(password) : null), [password]);
-  const passwordScore = zxResult?.score ?? 0; // 0-4
-  const isPasswordStrong = password.length > 0 ? passwordScore >= 3 : false; // Good or Strong
+  const { isStrong: isPasswordStrong } = usePasswordStrength(password);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -87,14 +86,10 @@ export default function Register() {
               aria-describedby="password-requirements"
               placeholder={t("register.password.placeholder")}
             />
-            <p id="password-requirements" className="mt-1 text-xs text-gray-600">
-              {t("register.password.requirements")}
+            <p id="password-requirements" className="mt-1 text-xs text-muted-foreground">
+                {t("register.password.requirements")}
             </p>
-            {password.length > 0 && !isPasswordStrong && (
-              <div className="mt-1 text-red-600 bg-red-50 p-2 rounded text-xs">
-                {t("register.password.error.tooWeak")}
-              </div>
-            )}
+            <PasswordStrengthMeter password={password} className="mt-2" />
           </div>
 
           <div>
@@ -103,11 +98,11 @@ export default function Register() {
           </div>
 
           {error && (
-            <div className="text-red-600 bg-red-50 p-3 rounded text-sm">{error}</div>
+            <div className="text-destructive bg-destructive/10 p-3 rounded-md text-sm">{error}</div>
           )}
 
           {success && (
-            <div className="text-green-700 bg-green-50 p-3 rounded text-sm">{success}</div>
+            <div className="text-success bg-success/10 p-3 rounded-md text-sm">{success}</div>
           )}
 
           <Button
@@ -118,11 +113,11 @@ export default function Register() {
             {loading ? t("register.loading") : t("register.registerButton")}
           </Button>
         </form>
-        <p className="mt-4 text-center text-sm text-gray-700">
-          {t("register.haveAccount")}{" "}
+        <p className="mt-4 text-center text-sm text-muted-foreground">
+            {t("register.haveAccount")}{" "}
           <button 
             onClick={() => navigate('/auth/login')} 
-            className="text-blue-600 hover:underline bg-transparent border-none cursor-pointer"
+              className="text-primary hover:underline bg-transparent border-none cursor-pointer"
           >
             {t("register.login")}
           </button>

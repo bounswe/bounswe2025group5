@@ -3,7 +3,15 @@
         "create": "Yarat",
         "submit": "Onayla",
         "cancel": "İptal",
-        "posting": "Paylaşılıyor..."
+        "posting": "Paylaşılıyor...",
+        "passwordStrength": {
+            "label": "Güç",
+            "veryWeak": "Çok zayıf",
+            "weak": "Zayıf",
+            "fair": "Orta",
+            "good": "İyi",
+            "strong": "Çok iyi"
+        }
     },
     "welcome": {
         "welcomeMessage": "Web Sitemize Hoş Geldiniz!",
@@ -45,10 +53,7 @@
         "password": {
             "label": "Şifre",
             "placeholder": "Güçlü bir şifre seçin",
-            "requirements": "Şifre gücü 'İyi' veya daha yüksek olmalıdır.",
-            "error": {
-                "tooWeak": "Şifre çok zayıf. 'İyi' veya daha yüksek olmalı."
-            }
+            "requirements": "Şifre gücü 'İyi' veya daha yüksek olmalıdır."
         },
         "confirmPassword": {
             "label": "Şifreyi Onayla",

@@ -3,7 +3,15 @@
         "create": "Create",
         "submit": "Submit",
         "cancel": "Cancel",
-        "posting": "Posting..."
+        "posting": "Posting...",
+        "passwordStrength": {
+            "label": "Strength",
+            "veryWeak": "Very weak",
+            "weak": "Weak",
+            "fair": "Fair",
+            "good": "Good",
+            "strong": "Strong"
+        }
     },
     "welcome": {
         "welcomeMessage": "Welcome to Our Website!",
@@ -45,10 +53,7 @@
         "password": {
             "label": "Password",
             "placeholder": "Choose a strong password",
-            "requirements": "Password must be rated 'Good' or higher.",
-            "error": {
-                "tooWeak": "Password is too weak. Aim for 'Good' or higher."
-            }
+            "requirements": "Password must be rated 'Good' or higher."
         },
         "confirmPassword": {
             "label": "Confirm Password",
