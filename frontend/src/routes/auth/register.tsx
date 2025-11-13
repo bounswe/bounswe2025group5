@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { AuthApi } from "@/lib/api/auth";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import GlassCard from "@/components/ui/glass-card";
 import { useTranslation } from "react-i18next";
+import zxcvbn from "zxcvbn";
 
 
 export default function Register() {
@@ -20,23 +21,34 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const zxResult = useMemo(() => (password ? zxcvbn(password) : null), [password]);
+  const passwordScore = zxResult?.score ?? 0; // 0-4
+  const isPasswordStrong = password.length > 0 ? passwordScore >= 3 : false; // Good or Strong
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
 
+    if (!isPasswordStrong) {
+      setError(t("register.password.error.tooWeak"));
+      return;
+    }
+
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError(t("register.error.passwordsDontMatch"));
       return;
     }
 
     try {
       setLoading(true);
       await AuthApi.register(username, email, password);
-      setSuccess("Account created successfully. Redirecting to login...");
+      setSuccess(t("register.success.accountCreated"));
       setTimeout(() => navigate("/auth/login"), 1200);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Registration failed");
+      setError(
+        err instanceof Error ? err.message : t("register.error.registrationFailed")
+      );
       console.error("Registration error:", err);
     } finally {
       setLoading(false);
@@ -65,7 +77,24 @@ export default function Register() {
 
           <div>
             <Label htmlFor="password" className="mb-1 block">{t("register.password.label")}</Label>
-            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} placeholder={t("register.password.placeholder")} />
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              aria-invalid={password.length > 0 && !isPasswordStrong}
+              aria-describedby="password-requirements"
+              placeholder={t("register.password.placeholder")}
+            />
+            <p id="password-requirements" className="mt-1 text-xs text-gray-600">
+              {t("register.password.requirements")}
+            </p>
+            {password.length > 0 && !isPasswordStrong && (
+              <div className="mt-1 text-red-600 bg-red-50 p-2 rounded text-xs">
+                {t("register.password.error.tooWeak")}
+              </div>
+            )}
           </div>
 
           <div>
@@ -83,7 +112,7 @@ export default function Register() {
 
           <Button
             type="submit"
-            disabled={loading}
+            disabled={loading || (password.length > 0 && !isPasswordStrong)}
             className="w-full"
           >
             {loading ? t("register.loading") : t("register.registerButton")}

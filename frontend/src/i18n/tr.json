@@ -44,7 +44,11 @@
         },
         "password": {
             "label": "Şifre",
-            "placeholder": "Güçlü bir şifre seçin"
+            "placeholder": "Güçlü bir şifre seçin",
+            "requirements": "Şifre gücü 'İyi' veya daha yüksek olmalıdır.",
+            "error": {
+                "tooWeak": "Şifre çok zayıf. 'İyi' veya daha yüksek olmalı."
+            }
         },
         "confirmPassword": {
             "label": "Şifreyi Onayla",
@@ -53,7 +57,14 @@
         "registerButton": "Kayıt Ol",
         "loading": "Hesap oluşturuluyor...",
         "haveAccount": "Zaten bir hesabınız var mı? ",
-        "login": "Giriş Yap"
+        "login": "Giriş Yap",
+        "error": {
+            "passwordsDontMatch": "Şifreler eşleşmiyor",
+            "registrationFailed": "Kayıt başarısız"
+        },
+        "success": {
+            "accountCreated": "Hesap başarıyla oluşturuldu. Giriş sayfasına yönlendiriliyor..."
+        }
     },
     "profile": {
         "edit": "Profili Düzenle",

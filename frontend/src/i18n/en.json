@@ -44,7 +44,11 @@
         },
         "password": {
             "label": "Password",
-            "placeholder": "Choose a strong password"
+            "placeholder": "Choose a strong password",
+            "requirements": "Password must be rated 'Good' or higher.",
+            "error": {
+                "tooWeak": "Password is too weak. Aim for 'Good' or higher."
+            }
         },
         "confirmPassword": {
             "label": "Confirm Password",
@@ -53,7 +57,14 @@
         "registerButton": "Register",
         "loading": "Creating account...",
         "haveAccount": "Already have an account? ",
-        "login": "Login"
+        "login": "Login",
+        "error": {
+            "passwordsDontMatch": "Passwords do not match",
+            "registrationFailed": "Registration failed"
+        },
+        "success": {
+            "accountCreated": "Account created successfully. Redirecting to login..."
+        }
     },
     "profile": {
         "edit": "Edit Profile", 
