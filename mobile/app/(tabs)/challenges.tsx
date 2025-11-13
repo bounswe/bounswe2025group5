@@ -785,7 +785,9 @@ export default function ChallengesScreen() {
                   )}
                   ListEmptyComponent={
                     <View style={styles.emptyListContainer}>
-                      <ThemedText>{t("leaderboardEmpty")}</ThemedText>
+                      <ThemedText style={{ color: colors.textSecondary }}>
+                        {t("leaderboardEmpty")}
+                      </ThemedText>
                     </View>
                   }
                 />
@@ -862,9 +864,7 @@ export default function ChallengesScreen() {
               numberOfLines={3}
             />
 
-            <ThemedText style={styles.inputLabel}>
-              {t("wasteTypeLabel")}
-            </ThemedText>
+            <ThemedText style={styles.inputLabel}>{t("wasteTypeLabel")}</ThemedText>
             <TextInput
               style={[
                 styles.input,
@@ -880,9 +880,7 @@ export default function ChallengesScreen() {
               placeholderTextColor={colors.textSubtle}
             />
 
-            <ThemedText style={styles.inputLabel}>
-              {t("targetAmountLabel")}
-            </ThemedText>
+            <ThemedText style={styles.inputLabel}>{t("targetAmountLabel")}</ThemedText>
             <TextInput
               style={[
                 styles.input,
@@ -899,9 +897,7 @@ export default function ChallengesScreen() {
               keyboardType="numeric"
             />
 
-            <ThemedText style={styles.inputLabel}>
-              {t("durationLabel")}
-            </ThemedText>
+            <ThemedText style={styles.inputLabel}>{t("durationLabel")}</ThemedText>
             <TextInput
               style={[
                 styles.input,
@@ -919,7 +915,7 @@ export default function ChallengesScreen() {
             />
 
             {createError ? (
-              <ThemedText style={[styles.error, { color: colors.error }]}>
+              <ThemedText style={[styles.error, { color: colors.error }]}> 
                 {createError}
               </ThemedText>
             ) : null}
@@ -952,9 +948,7 @@ export default function ChallengesScreen() {
                 {loading ? (
                   <ActivityIndicator size="small" color="#FFF" />
                 ) : (
-                  <Text style={styles.buttonText}>
-                    {t("createChallengeButton")}
-                  </Text>
+                  <Text style={styles.buttonText}>{t("createChallengeButton")}</Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -984,14 +978,12 @@ export default function ChallengesScreen() {
             </ThemedText>
 
             {logError && (
-              <ThemedText style={[styles.error, { color: "#FF6B6B" }]}>
+              <ThemedText style={[styles.error, { color: "#FF6B6B" }]}> 
                 {logError}
               </ThemedText>
             )}
 
-            <ThemedText style={styles.inputLabel}>
-              {t("amountKgLabel")}
-            </ThemedText>
+            <ThemedText style={styles.inputLabel}>{t("amountKgLabel")}</ThemedText>
             <TextInput
               style={[
                 styles.input,
@@ -1055,7 +1047,7 @@ export default function ChallengesScreen() {
             </ThemedText>
 
             {logsError && (
-              <ThemedText style={[styles.error, { color: "#FF6B6B" }]}>
+              <ThemedText style={[styles.error, { color: "#FF6B6B" }]}> 
                 {logsError}
               </ThemedText>
             )}
@@ -1116,7 +1108,7 @@ export default function ChallengesScreen() {
               ]}
               onPress={() => setLogsModalVisible(false)}
             >
-              <ThemedText style={[styles.buttonText, { color: "#FFFFFF" }]}>
+              <ThemedText style={[styles.buttonText, { color: "#FFFFFF" }]}> 
                 {t("close")}
               </ThemedText>
             </TouchableOpacity>
