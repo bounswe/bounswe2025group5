@@ -786,7 +786,9 @@ export default function ChallengesScreen() {
                   )}
                   ListEmptyComponent={
                     <View style={styles.emptyListContainer}>
-                      <ThemedText>{t("leaderboardEmpty")}</ThemedText>
+                      <ThemedText style={{ color: colors.textSecondary }}>
+                        {t("leaderboardEmpty")}
+                      </ThemedText>
                     </View>
                   }
                 />
