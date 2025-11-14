@@ -14,6 +14,8 @@ import {
   Alert,
   Keyboard,
   Switch,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AccessibleText from '@/components/AccessibleText';
@@ -247,6 +249,20 @@ export default function ExploreScreen() {
   const handleLoadMore = () => {
     if (!loading && !loadingMore && !refreshing && !isSearching && lastPostId !== null && !noMorePosts) {
       fetchPosts(true);
+    }
+  };
+
+  const isCloseToBottom = (nativeEvent: NativeScrollEvent) => {
+    const paddingToBottom = 150;
+    return (
+      nativeEvent.layoutMeasurement.height + nativeEvent.contentOffset.y >=
+      nativeEvent.contentSize.height - paddingToBottom
+    );
+  };
+
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (isCloseToBottom(event.nativeEvent)) {
+      handleLoadMore();
     }
   };
 
@@ -578,6 +594,8 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} progressViewOffset={36} />
         }
+        onScroll={handleScroll}
+        scrollEventThrottle={200}
       >
       <View style={styles.header}>
         <View style={styles.titleContainer}>
@@ -713,18 +731,12 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
                     isSubmittingCommentEditForPost={editingCommentDetails?.postId === post.id && isSubmittingCommentEdit}
                   />
                 ))}
-                {!noMorePosts && !refreshing && posts.length > 0 && (
-                  <TouchableOpacity
-                    style={styles.loadMoreButton}
-                    onPress={handleLoadMore}
-                    disabled={loadingMore || refreshing || isSearching}
-                  >
-                    {loadingMore ? (
-                          <ActivityIndicator color="#fff" />
-                        ) : (
-                          <AccessibleText backgroundColor={'#2196F3'} style={styles.loadMoreText}>{t('loadMorePosts')}</AccessibleText>
-                        )}
-                  </TouchableOpacity>
+                {loadingMore && posts.length > 0 && (
+                  <ActivityIndicator
+                    style={styles.listLoadingIndicator}
+                    size="small"
+                    color={activityIndicatorColor}
+                  />
                 )}
                 {noMorePosts && posts.length > 0 && !loadingMore && !refreshing && (
                   <View style={[styles.noMoreBox, { backgroundColor: themedNoMoreBoxBackgroundColor, marginTop: 20, marginBottom: 20 }]}> 
@@ -748,7 +760,7 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  content: { paddingBottom: 24 },
+  content: { paddingBottom: 80 },
   header: { 
     paddingHorizontal: 16, 
     marginTop: Platform.OS === 'ios' ? 48 : 48, 
@@ -787,8 +799,7 @@ const styles = StyleSheet.create({
   errorText: { fontSize: 16, fontWeight: 'bold', textAlign: 'center' },
   noMoreBox: { marginTop: 40, marginHorizontal: 20, padding: 16, borderRadius: 8, alignItems: 'center' },
   noMoreText: { fontSize: 16, fontWeight: '500', textAlign: 'center' },
-  loadMoreButton: { marginVertical: 20, marginHorizontal: 40, backgroundColor: '#2196F3', paddingVertical: 12, borderRadius: 25, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 3, elevation: 2 },
-  loadMoreText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  listLoadingIndicator: { marginVertical: 20 },
   commentsSection: { marginTop: 10, paddingTop: 10 },
   commentsListContainer: { maxHeight: 200, marginBottom: 10 },
   commentItemContainer: { paddingVertical: 8, borderBottomWidth: 1 },
