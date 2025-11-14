@@ -13,7 +13,6 @@ import {
   Image,
   Alert,
   Keyboard,
-  Switch,
   Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -23,7 +22,6 @@ import { AuthContext } from '../_layout';
 import { apiRequest } from '../services/apiClient';
 import PostItem from '../components/PostItem';
 import { useTranslation } from 'react-i18next';
-import { useLanguageSwitch } from '@/hooks/useLanguageSwitch';
 
 type CommentData = {
   commentId: number;
@@ -47,9 +45,7 @@ type Post = {
 export default function ExploreScreen() {
   const navigation = useNavigation();
 
-  const { t, i18n } = useTranslation();
-  const isTurkish = (i18n.resolvedLanguage || i18n.language || '').toLowerCase().startsWith('tr');
-  const toggleLanguage = (value: boolean) => i18n.changeLanguage(value ? 'tr-TR' : 'en-US');
+  const { t } = useTranslation();
 
   const authContext = useContext(AuthContext);
   const userType = authContext?.userType;
@@ -591,28 +587,15 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
           <AccessibleText type="title" backgroundColor={screenBackgroundColor}>{t('explore')}</AccessibleText>
         </View>
 
-        <View style={styles.headerActions}>
-          <View style={styles.languageToggleContainer}>
-            <AccessibleText backgroundColor={screenBackgroundColor} style={styles.languageLabel}>EN</AccessibleText>
-            <Switch
-              trackColor={{ false: '#767577', true: '#81b0ff' }}
-              thumbColor={isTurkish ? '#f5dd4b' : '#f4f3f4'}
-              ios_backgroundColor="#3e3e3e"
-              onValueChange={value => { toggleLanguage(value); }}
-              value={isTurkish}
-            />
-            <AccessibleText backgroundColor={screenBackgroundColor} style={styles.languageLabel}>TR</AccessibleText>
-          </View>
-          <TouchableOpacity
-            style={[styles.notificationButton, { backgroundColor: notificationButtonBackground }]}
-            onPress={openNotifications}
-            accessibilityRole="button"
-            accessibilityLabel={t('openNotifications', { defaultValue: 'Open notifications' })}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
-            <Ionicons name="notifications-outline" size={22} color={notificationIconColor} />
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          style={[styles.notificationButton, { backgroundColor: notificationButtonBackground }]}
+          onPress={openNotifications}
+          accessibilityRole="button"
+          accessibilityLabel={t('openNotifications', { defaultValue: 'Open notifications' })}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Ionicons name="notifications-outline" size={28} color={notificationIconColor} />
+        </TouchableOpacity>
       </View>
 
 
@@ -794,7 +777,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between', 
     alignItems: 'center',
   },
-  headerActions: { flexDirection: 'row', alignItems: 'center' },
   titleContainer: {
     flex: 1, // This is the key: it makes the title expand and pushes the toggle
     marginRight: 8,
@@ -847,21 +829,6 @@ const styles = StyleSheet.create({
   postCommentButton: { paddingHorizontal: 12, paddingVertical: 10, borderRadius: 20, backgroundColor: '#007AFF' },
   postCommentButtonDisabled: { backgroundColor: '#B0C4DE' },
   postCommentButtonText: { color: '#FFFFFF', fontWeight: '600', fontSize: 14 },
-  languageToggleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.2)',
-    borderRadius: 20,
-    paddingHorizontal: 4,
-    paddingVertical: 2,
-    marginRight: 10,
-  },
-  languageLabel: {
-    color: '#fff',
-    fontWeight: 'bold',
-    marginHorizontal: 6,
-    fontSize: 12,
-  },
   notificationButton: {
     padding: 8,
     borderRadius: 24,
