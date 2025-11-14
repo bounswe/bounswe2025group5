@@ -5,6 +5,8 @@ type GlobalWithLocation = typeof globalThis & { location?: { hostname?: string }
 
 const PROD_BASE_URL = 'https://waste-less.alibartukonca.org';
 
+const FORCE_PRODUCTION = true;
+
 const envBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 const envHost = process.env.EXPO_PUBLIC_API_HOST;
 const envPort = process.env.EXPO_PUBLIC_API_PORT ?? '8080';
@@ -49,6 +51,12 @@ const isLocalHost = (host?: string) =>
 const buildDevBaseUrl = (host: string) => `http://${host}:${envPort}`;
 
 const resolveBaseUrl = () => {
+    // Force production backend if enabled
+  if (FORCE_PRODUCTION) {
+    return PROD_BASE_URL;
+  }
+
+
   if (envBaseUrl) return envBaseUrl;
 
   if (Platform.OS === 'web' && browserHost && !isLocalHost(browserHost)) {
@@ -68,8 +76,8 @@ const resolveBaseUrl = () => {
   return buildDevBaseUrl(host);
 };
 
-export const API_HOST = coerceHost();
-export const API_PORT = envPort;
+export const API_HOST = FORCE_PRODUCTION ? 'waste-less.alibartukonca.org' : coerceHost();
+export const API_PORT = FORCE_PRODUCTION ? '443' : envPort;
 export const API_BASE_URL = resolveBaseUrl();
 
 export const apiUrl = (path: string) =>
