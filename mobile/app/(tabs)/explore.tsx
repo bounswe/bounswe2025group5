@@ -568,6 +568,7 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
 
   const currentDisplayPosts = inSearchMode ? searchResults : posts;
   const isContentLoading = (loading && !inSearchMode && currentDisplayPosts.length === 0) || (isSearching && inSearchMode && currentDisplayPosts.length === 0);
+  const showInlineRefreshIndicator = !inSearchMode && !isContentLoading && currentDisplayPosts.length > 0 && (refreshing || loading);
 
   return (
       <ScrollView
@@ -632,6 +633,14 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
             editable={!isSearching && !editingCommentDetails}
           />
         </View>
+
+        {showInlineRefreshIndicator && (
+          <ActivityIndicator
+            size="small"
+            color={activityIndicatorColor}
+            style={styles.refreshingIndicatorSpinner}
+          />
+        )}
 
         {isContentLoading ? (
           <ActivityIndicator style={{ marginTop: 20 }} size="large" color={activityIndicatorColor} />
@@ -800,6 +809,11 @@ const styles = StyleSheet.create({
   postCommentButton: { paddingHorizontal: 12, paddingVertical: 10, borderRadius: 20, backgroundColor: '#007AFF' },
   postCommentButtonDisabled: { backgroundColor: '#B0C4DE' },
   postCommentButtonText: { color: '#FFFFFF', fontWeight: '600', fontSize: 14 },
+  refreshingIndicatorSpinner: {
+    alignSelf: 'center',
+    marginTop: -8,
+    marginBottom: 10,
+  },
   languageToggleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
