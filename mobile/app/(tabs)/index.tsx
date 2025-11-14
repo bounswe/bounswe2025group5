@@ -83,6 +83,7 @@ export default function HomeScreen() {
 
   const [usernameInput, setUsernameInput] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordStrength, setPasswordStrength] = useState({ label: 'Very weak', color: '#D32F2F', score: 0 });
   const [confirmPassword, setConfirmPassword] = useState("");
   const [email, setEmail] = useState("");
   const [kvkkChecked, setKvkkChecked] = useState(false);
@@ -317,6 +318,21 @@ export default function HomeScreen() {
     navigation.navigate("explore");
   };
 
+  const evaluatePasswordStrength = (value: string) => {
+    const score =
+      (value.length >= 8 ? 1 : 0) +
+      (/[A-Z]/.test(value) ? 1 : 0) +
+      (/[0-9]/.test(value) ? 1 : 0) +
+      (/[^A-Za-z0-9]/.test(value) ? 1 : 0) +
+      (value.length >= 12 ? 1 : 0);
+    if (!value) return { label: 'Very weak', color: '#D32F2F', score: 0 };
+    if (score <= 1) return { label: 'Very weak', color: '#D32F2F', score };
+    if (score === 2) return { label: 'Weak', color: '#F44336', score };
+    if (score === 3) return { label: 'Fair', color: '#FBC02D', score };
+    if (score === 4) return { label: 'Good', color: '#66BB6A', score };
+    return { label: 'Strong', color: '#2E7D32', score };
+  };
+
   return (
     <>
       <ParallaxScrollView
@@ -488,23 +504,50 @@ export default function HomeScreen() {
               />
             )}
 
-            <TextInput
-              style={[
-                styles.input,
-                { color: themeColors.inputText, backgroundColor: themeColors.inputBackground, borderColor: themeColors.inputBorder },
-              ]}
-              onChangeText={setPassword}
-              placeholder={t("password")}
-              placeholderTextColor={themeColors.inputPlaceholder ?? '#888'}
-              secureTextEntry
-              value={password}
-            />
+            <View>
+              <TextInput
+                style={[
+                  styles.input,
+                  styles.passwordInput,
+                  { color: themeColors.inputText, backgroundColor: themeColors.inputBackground, borderColor: themeColors.inputBorder },
+                ]}
+                onChangeText={(value) => {
+                  setPassword(value);
+                  setPasswordStrength(evaluatePasswordStrength(value));
+                }}
+                placeholder={t("password")}
+                placeholderTextColor={themeColors.inputPlaceholder ?? '#888'}
+                secureTextEntry
+                value={password}
+              />
+              {isRegistering && (
+                <View style={styles.passwordStrengthContainer}>
+                  <View style={styles.passwordStrengthBarBackground}>
+                    <View
+                      style={[
+                        styles.passwordStrengthBarFill,
+                        {
+                          backgroundColor: passwordStrength.color,
+                          width: `${(passwordStrength.score / 5) * 100}%`,
+                        },
+                      ]}
+                    />
+                  </View>
+                  <Text style={[styles.passwordStrengthLabel, { color: passwordStrength.color }]}>
+                    {t(passwordStrength.label.replace(' ', '').toLowerCase(), {
+                      defaultValue: passwordStrength.label,
+                    })}
+                  </Text>
+                </View>
+              )}
+            </View>
 
             {isRegistering && (
               <>
                 <TextInput
                   style={[
                     styles.input,
+                    styles.confirmInput,
                     { color: themeColors.inputText, backgroundColor: themeColors.inputBackground, borderColor: themeColors.inputBorder },
                   ]}
                   onChangeText={setConfirmPassword}
@@ -724,4 +767,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   errorText: { color: "#fff", fontSize: 14, textAlign: "center" },
+  passwordStrengthContainer: { marginTop: 8, marginBottom: 4, marginHorizontal: 16, alignItems: 'center' },
+  passwordStrengthBarBackground: { height: 4, borderRadius: 3, backgroundColor: '#E0E0E0', overflow: 'hidden', width: '50%' },
+  passwordStrengthBarFill: { height: '100%', borderRadius: 3 },
+  passwordStrengthLabel: { marginTop: 4, fontSize: 12, fontWeight: '600', textAlign: 'center' },
+  passwordInput: { marginBottom: 0 },
+  confirmInput: { marginTop: -10 },
 });
