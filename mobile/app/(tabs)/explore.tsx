@@ -54,6 +54,7 @@ export default function ExploreScreen() {
 
 
   const [posts, setPosts] = useState<Post[]>([]);
+  const [isFriendsFeed, setIsFriendsFeed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [lastPostId, setLastPostId] = useState<number | null>(null);
@@ -100,6 +101,8 @@ export default function ExploreScreen() {
   const refreshControlColors = colorScheme === 'dark' ? { tintColor: '#FFFFFF', titleColor: '#FFFFFF'} : { tintColor: '#000000', titleColor: '#000000'};
   const notificationButtonBackground = colorScheme === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)';
   const notificationIconColor = colorScheme === 'dark' ? '#FFFFFF' : '#1C1C1E';
+  const feedAccentColor = isFriendsFeed ? '#2E7D32' : '#1976D2';
+  const feedAccentShadow = isFriendsFeed ? 'rgba(30, 94, 48, 0.2)' : 'rgba(13, 71, 161, 0.2)';
   
 
   useEffect(() => {
@@ -631,9 +634,27 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
         }
       >
       <View style={styles.header}>
-        <View style={styles.titleContainer}>
-          <AccessibleText type="title" backgroundColor={screenBackgroundColor}>{t('explore')}</AccessibleText>
-        </View>
+        <TouchableOpacity
+          style={styles.feedToggle}
+          onPress={() => setIsFriendsFeed((prev) => !prev)}
+          accessibilityRole="button"
+          accessibilityLabel={t('toggleFeed', { defaultValue: 'Toggle feed' })}
+        >
+          <AccessibleText
+            type="title"
+            backgroundColor={screenBackgroundColor}
+            style={[
+              styles.feedToggleLabel,
+              {
+                color: feedAccentColor,
+              },
+            ]}
+          >
+            {isFriendsFeed
+              ? t('exploreFriends', { defaultValue: 'Explore Friends' })
+              : t('exploreGlobal', { defaultValue: 'Explore Global' })}
+          </AccessibleText>
+        </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.notificationButton, { backgroundColor: notificationButtonBackground }]}
@@ -826,8 +847,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   titleContainer: {
-    flex: 1, // This is the key: it makes the title expand and pushes the toggle
+    flex: 1,
     marginRight: 8,
+  },
+  feedToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  feedToggleLabel: {
+    paddingHorizontal: 4,
+    paddingVertical: 4,
+    fontWeight: '700',
   },
   guestActionHeader: {
     paddingHorizontal: 16,
