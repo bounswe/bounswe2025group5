@@ -56,6 +56,7 @@ const ReportModal = ({
   const reasonSelectedTextColor = colorScheme === 'dark' ? '#FFFFFF' : '#141417';
   const reasonSelectedIconColor = colorScheme === 'dark' ? '#FFFFFF' : '#141417';
   const reasonUnselectedIconColor = colorScheme === 'dark' ? '#7A7A80' : '#A0A0A5';
+  const submitTextColor = colorScheme === 'dark' ? '#1C1C1E' : '#FFFFFF';
 
   useEffect(() => {
     if (!visible) {
@@ -240,7 +241,10 @@ const ReportModal = ({
           >
             <AccessibleText
               backgroundColor={selectedReason ? accentColor : '#CCCCCC'}
-              style={styles.submitButtonText}
+              style={[
+                styles.submitButtonText,
+                { color: selectedReason ? submitTextColor : '#FFFFFF' },
+              ]}
             >
               {t('sendReport', { defaultValue: 'Send Report' })}
             </AccessibleText>
@@ -319,7 +323,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   submitButtonText: {
-    color: '#FFFFFF',
     fontWeight: '600',
     fontSize: 15,
   },

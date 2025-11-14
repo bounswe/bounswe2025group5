@@ -115,7 +115,7 @@ function PostItem({
   const commentContentActualColor = textColor;
   const deleteIconActualColor = colorScheme === 'dark' ? '#FF8A80' : '#D9534F';
   const editIconActualColor = colorScheme === 'dark' ? '#82B1FF' : '#007AFF';
-  const reportAccentColor = colorScheme === 'dark' ? '#FF8A80' : '#D9534F';
+  const reportAccentColor = colorScheme === 'dark' ? '#F3F3F6' : '#1F1F24';
   const reportLabelColor = colorScheme === 'dark' ? '#ECECEC' : '#2C2C2E';
   const imageUri = post.photoUrl
     ? post.photoUrl.startsWith('http')
