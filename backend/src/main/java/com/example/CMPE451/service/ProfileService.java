@@ -8,8 +8,10 @@ import com.example.CMPE451.model.User;
 import com.example.CMPE451.model.Profile;
 import com.example.CMPE451.model.request.ProfileEditAndCreateRequest;
 import com.example.CMPE451.model.response.BadgeResponse;
+import com.example.CMPE451.model.response.FollowStatsResponse;
 import com.example.CMPE451.model.response.ProfileResponse;
 import com.example.CMPE451.repository.BadgeRepository;
+import com.example.CMPE451.repository.FollowRepository;
 import com.example.CMPE451.repository.ProfileRepository;
 import com.example.CMPE451.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -36,6 +38,7 @@ public class ProfileService {
 
     private final ProfileRepository profileRepository;
     private final UserRepository userRepository;
+    private final FollowRepository followRepository;
     private final S3Client s3Client;
     private final BadgeRepository badgeRepository;
 
@@ -55,10 +58,16 @@ public class ProfileService {
         Profile p = profileRepository
                 .findByUser(user)
                 .orElseThrow(() -> new NotFoundException("Profile not found for user: " + username));
+        Integer followersCount = followRepository.countByFollowing(user);
+        Integer followingCount = followRepository.countByFollower(user);
+
         return new ProfileResponse(
                 username,
                 p.getBiography(),
-                p.getPhotoUrl());
+                p.getPhotoUrl(),
+                followersCount,
+                followingCount
+        );
     }
 
 
@@ -73,10 +82,15 @@ public class ProfileService {
                 .orElseThrow(() -> new NotFoundException("Profile not found for user: " + username));
         p.setBiography(newProfileInfo.getBiography());
         profileRepository.save(p);
+        Integer followersCount = followRepository.countByFollowing(user);
+        Integer followingCount = followRepository.countByFollower(user);
+
         return new ProfileResponse(
                 username,
-                newProfileInfo.getBiography(),
-                p.getPhotoUrl()
+                p.getBiography(),
+                p.getPhotoUrl(),
+                followersCount,
+                followingCount
         );
     }
 
@@ -122,10 +136,15 @@ public class ProfileService {
             profile.setPhotoUrl(publicUrl);
             profileRepository.save(profile);
 
+            Integer followersCount = followRepository.countByFollowing(user);
+            Integer followingCount = followRepository.countByFollower(user);
+
             return new ProfileResponse(
-                    user.getUsername(),
+                    username,
                     profile.getBiography(),
-                    profile.getPhotoUrl()
+                    profile.getPhotoUrl(),
+                    followersCount,
+                    followingCount
             );
         } catch (IOException e) {
             throw new UploadFailedException("Failed to read file data for upload: " + e.getMessage(), e);

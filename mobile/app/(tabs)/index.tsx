@@ -15,7 +15,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
+import AccessibleText from "@/components/AccessibleText";
 import { Colors } from "@/constants/Colors";
+import { pickAccessibleTextColor } from "@/utils/contrast";
 import {
   useNavigation,
   useFocusEffect,
@@ -65,6 +67,16 @@ export default function HomeScreen() {
 
   // Get theme colors
   const themeColors = Colors[colorScheme ?? "light"];
+
+  // Compute accessible foreground colors for key backgrounds used in this screen
+  const registerBg = themeColors.buttonPrimary;
+  const loginBg = themeColors.buttonSuccess ?? themeColors.buttonPrimary;
+  const registerTextColor = pickAccessibleTextColor(registerBg);
+  const loginTextColor = pickAccessibleTextColor(loginBg);
+  const continueBg = themeColors.tint ?? themeColors.buttonSecondary ?? themeColors.cardBackground ?? "#f9f6ee";
+  const continueTextColor = pickAccessibleTextColor(continueBg);
+  const postBg = themeColors.commentBackground ?? "#f5f5f5";
+  const postTextColor = pickAccessibleTextColor(postBg);
 
   const [showAuthFields, setShowAuthFields] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
@@ -348,14 +360,26 @@ export default function HomeScreen() {
                 style={styles.trendingContainer}
               >
                 {trendingPosts.map((post) => (
-                  <View key={post.postId} style={styles.postContainer}>
-                    <ThemedText type="title" style={styles.postTitle}>
+                  <View
+                    key={post.postId}
+                    style={[styles.postContainer, { backgroundColor: postBg }]}
+                  >
+                    <AccessibleText
+                      type="title"
+                      isLargeText
+                      backgroundColor={postBg}
+                      style={[styles.postTitle]}
+                    >
                       {post.creatorUsername}
-                    </ThemedText>
+                    </AccessibleText>
 
-                    <ThemedText style={styles.postContent} numberOfLines={3}>
+                    <AccessibleText
+                      backgroundColor={postBg}
+                      style={[styles.postContent]}
+                      numberOfLines={3}
+                    >
                       {post.content}
-                    </ThemedText>
+                    </AccessibleText>
 
                     {post.photoUrl && (
                       <Image
@@ -376,13 +400,13 @@ export default function HomeScreen() {
 
                     <View style={styles.postFooter}>
                       <Ionicons name="heart-outline" size={16} />
-                      <ThemedText style={styles.footerText}>
+                      <AccessibleText backgroundColor={postBg} style={[styles.footerText]}> 
                         {post.likes}
-                      </ThemedText>
+                      </AccessibleText>
                       <Ionicons name="chatbubble-outline" size={16} />
-                      <ThemedText style={styles.footerText}>
+                      <AccessibleText backgroundColor={postBg} style={[styles.footerText]}> 
                         {post.comments}
-                      </ThemedText>
+                      </AccessibleText>
                     </View>
                   </View>
                 ))}
@@ -391,30 +415,45 @@ export default function HomeScreen() {
 
             <View style={[styles.buttonsColumn, { marginTop: -5 }]}>
               <TouchableOpacity
-                style={[styles.authButtonFull, styles.loginAreaFull]}
+                style={[
+                  styles.authButtonFull,
+                  { backgroundColor: loginBg, borderColor: themeColors.borderColor },
+                ]}
                 onPress={() => {
                   setShowAuthFields(true);
                   setIsRegistering(false);
                 }}
               >
-                <Text style={styles.authText}>{t("logIn")}</Text>
+                <Text style={[styles.authText, { color: loginTextColor }]}>
+                  {t("logIn")}
+                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.authButtonFull, styles.registerAreaFull]}
+                style={[
+                  styles.authButtonFull,
+                  { backgroundColor: registerBg, borderColor: themeColors.borderColor },
+                ]}
                 onPress={() => {
                   setShowAuthFields(true);
                   setIsRegistering(true);
                 }}
               >
-                <Text style={styles.authText}>{t("register")}</Text>
+                <Text style={[styles.authText, { color: registerTextColor }]}> 
+                  {t("register")}
+                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={styles.continueButton}
+                style={[
+                  styles.continueButton,
+                  { backgroundColor: continueBg, borderColor: continueBg },
+                ]}
                 onPress={continueAsGuest}
               >
-                <Text style={styles.authText}>{t("continueAsGuest")}</Text>
+                <Text style={[styles.authText, { color: continueTextColor }]}> 
+                  {t("continueAsGuest")}
+                </Text>
               </TouchableOpacity>
             </View>
           </>
@@ -422,15 +461,18 @@ export default function HomeScreen() {
 
         {showAuthFields && (
           <>
-            <Text style={styles.modeHeader}>
+            <Text style={[styles.modeHeader, { color: themeColors.text }]}> 
               {isRegistering ? t("createAccount") : t("loginHere")}
             </Text>
 
             <TextInput
-              style={[styles.input, styles.inputLight]}
+              style={[
+                styles.input,
+                { color: themeColors.inputText, backgroundColor: themeColors.inputBackground, borderColor: themeColors.inputBorder },
+              ]}
               onChangeText={setUsernameInput}
               placeholder={isRegistering ? t("username") : t("emailOrUsername")}
-              placeholderTextColor="#888"
+              placeholderTextColor={themeColors.inputPlaceholder ?? '#888'}
               value={usernameInput}
               autoCapitalize="none"
             />
@@ -447,10 +489,13 @@ export default function HomeScreen() {
             )}
 
             <TextInput
-              style={[styles.input, styles.inputLight]}
+              style={[
+                styles.input,
+                { color: themeColors.inputText, backgroundColor: themeColors.inputBackground, borderColor: themeColors.inputBorder },
+              ]}
               onChangeText={setPassword}
               placeholder={t("password")}
-              placeholderTextColor="#888"
+              placeholderTextColor={themeColors.inputPlaceholder ?? '#888'}
               secureTextEntry
               value={password}
             />
@@ -458,10 +503,13 @@ export default function HomeScreen() {
             {isRegistering && (
               <>
                 <TextInput
-                  style={[styles.input, styles.inputLight]}
+                  style={[
+                    styles.input,
+                    { color: themeColors.inputText, backgroundColor: themeColors.inputBackground, borderColor: themeColors.inputBorder },
+                  ]}
                   onChangeText={setConfirmPassword}
                   placeholder={t("confirmPassword")}
-                  placeholderTextColor="#888"
+                  placeholderTextColor={themeColors.inputPlaceholder ?? '#888'}
                   secureTextEntry
                   value={confirmPassword}
                 />
@@ -482,41 +530,66 @@ export default function HomeScreen() {
               {isRegistering ? (
                 <>
                   <TouchableOpacity
-                    style={[styles.authButtonFull, styles.registerAreaFull]}
+                    style={[
+                      styles.authButtonFull,
+                      { backgroundColor: registerBg, borderColor: themeColors.borderColor },
+                    ]}
                     onPress={() =>
                       sendRegisterRequest(usernameInput, email, password)
                     }
                   >
-                    <Text style={styles.authText}>{t("register")}</Text>
+                    <Text style={[styles.authText, { color: registerTextColor }]}>
+                      {t("register")}
+                    </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={[styles.authButtonFull, styles.loginAreaFull]}
+                    style={[
+                      styles.authButtonFull,
+                      { backgroundColor: loginBg, borderColor: themeColors.borderColor },
+                    ]}
                     onPress={() => setIsRegistering(false)}
                   >
-                    <Text style={styles.authText}>{t("backToLogIn")}</Text>
+                    <Text style={[styles.authText, { color: loginTextColor }]}>
+                      {t("backToLogIn")}
+                    </Text>
                   </TouchableOpacity>
                 </>
               ) : (
                 <>
                   <TouchableOpacity
-                    style={[styles.authButtonFull, styles.loginAreaFull]}
+                    style={[
+                      styles.authButtonFull,
+                      { backgroundColor: loginBg, borderColor: themeColors.borderColor },
+                    ]}
                     onPress={() => sendLoginRequest(usernameInput, password)}
                   >
-                    <Text style={styles.authText}>{t("logIn")}</Text>
+                    <Text style={[styles.authText, { color: loginTextColor }]}>
+                      {t("logIn")}
+                    </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={[styles.authButtonFull, styles.registerAreaFull]}
+                    style={[
+                      styles.authButtonFull,
+                      { backgroundColor: registerBg, borderColor: themeColors.borderColor },
+                    ]}
                     onPress={() => setIsRegistering(true)}
                   >
-                    <Text style={styles.authText}>{t("register")}</Text>
+                    <Text style={[styles.authText, { color: registerTextColor }]}>
+                      {t("register")}
+                    </Text>
                   </TouchableOpacity>
                 </>
               )}
               <TouchableOpacity
-                style={styles.continueButton}
+                style={[
+                  styles.continueButton,
+                  { backgroundColor: continueBg, borderColor: continueBg },
+                ]}
                 onPress={continueAsGuest}
               >
-                <Text style={styles.authText}>{t("continueAsGuest")}</Text>
+                <Text style={[styles.authText, { color: continueTextColor }]}>
+                  {t("continueAsGuest")}
+                </Text>
               </TouchableOpacity>
             </View>
           </>

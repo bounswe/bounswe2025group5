@@ -15,13 +15,16 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
 
-    public Notification createNotification(User user, String message) {
+    public Notification createNotification(User user, String message, String objectType, String objectId) {
         Notification notification = new Notification();
         notification.setUser(user);
         notification.setMessage(message);
         notification.setIsRead(false);
+        notification.setObjectType(objectType);
+        notification.setObjectId(objectId);
         return notificationRepository.save(notification);
     }
+
 
     public List<NotificationResponse> getUnreadNotifications(User user) {
         return notificationRepository.findByUserAndIsReadFalseOrderByCreatedAtDesc(user)
