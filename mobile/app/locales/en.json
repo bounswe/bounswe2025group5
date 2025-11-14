@@ -262,6 +262,9 @@
     "deleteAccountModalTitle": "Enter your password to delete your account:",
     "deleteAccountIncorrectPassword": "Incorrect password.",
     "deleteAccountGenericError": "Could not delete account.",
+    "deleteAccountWarning": "This will permanently delete your account.",
+    "deleteAccountPasswordPlaceholder": "Enter your password",
+    "deleteAccountConfirmButton": "Yes, delete account",
     "report": "Report",
     "reportPost": "Report Post",
     "reportThisPostHint": "Report this post to the moderators."
