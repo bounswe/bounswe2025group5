@@ -51,6 +51,11 @@ const ReportModal = ({
   const subtitleColor = colorScheme === 'dark' ? '#C8C8CC' : '#535353';
   const reasonBackground = colorScheme === 'dark' ? '#1F1F22' : '#F7F7FA';
   const reasonTextColor = colorScheme === 'dark' ? '#E8E8ED' : '#1C1C1E';
+  const reasonSelectedBackground = colorScheme === 'dark' ? '#2C2C2E' : '#E1E4EA';
+  const reasonSelectedBorder = colorScheme === 'dark' ? '#F2F2F7' : '#5D5D63';
+  const reasonSelectedTextColor = colorScheme === 'dark' ? '#FFFFFF' : '#141417';
+  const reasonSelectedIconColor = colorScheme === 'dark' ? '#FFFFFF' : '#141417';
+  const reasonUnselectedIconColor = colorScheme === 'dark' ? '#7A7A80' : '#A0A0A5';
 
   useEffect(() => {
     if (!visible) {
@@ -161,8 +166,8 @@ const ReportModal = ({
                   style={[
                     styles.reasonOption,
                     {
-                      borderColor: isSelected ? accentColor : borderColor,
-                      backgroundColor: reasonBackground,
+                      borderColor: isSelected ? reasonSelectedBorder : borderColor,
+                      backgroundColor: isSelected ? reasonSelectedBackground : reasonBackground,
                     },
                   ]}
                   onPress={() => setSelectedReason(option.value)}
@@ -172,14 +177,14 @@ const ReportModal = ({
                   <Ionicons
                     name={isSelected ? 'checkmark-circle' : 'ellipse-outline'}
                     size={22}
-                    color={isSelected ? accentColor : subtitleColor}
+                    color={isSelected ? reasonSelectedIconColor : reasonUnselectedIconColor}
                     style={styles.reasonIcon}
                   />
                   <AccessibleText
-                    backgroundColor={reasonBackground}
+                    backgroundColor={isSelected ? reasonSelectedBackground : reasonBackground}
                     style={[
                       styles.reasonLabel,
-                      { color: isSelected ? accentColor : reasonTextColor },
+                      { color: isSelected ? reasonSelectedTextColor : reasonTextColor },
                     ]}
                   >
                     {option.label}

@@ -116,9 +116,7 @@ function PostItem({
   const deleteIconActualColor = colorScheme === 'dark' ? '#FF8A80' : '#D9534F';
   const editIconActualColor = colorScheme === 'dark' ? '#82B1FF' : '#007AFF';
   const reportAccentColor = colorScheme === 'dark' ? '#FF8A80' : '#D9534F';
-  const reportButtonBackground = colorScheme === 'dark' ? 'rgba(44,44,46,0.92)' : 'rgba(255,255,255,0.92)';
-  const reportButtonBorderColor = colorScheme === 'dark' ? '#4A4A4A' : '#E0E0E0';
-  const reportLabelColor = colorScheme === 'dark' ? '#F2F2F7' : '#515151';
+  const reportLabelColor = colorScheme === 'dark' ? '#ECECEC' : '#2C2C2E';
   const imageUri = post.photoUrl
     ? post.photoUrl.startsWith('http')
       ? post.photoUrl
@@ -195,10 +193,7 @@ function PostItem({
         {/* Report Button (Moved to top-right) */}
         {loggedInUsername && loggedInUsername !== post.title && (
           <TouchableOpacity
-            style={[
-              styles.reportButtonAbsolute,
-              { backgroundColor: reportButtonBackground, borderColor: reportButtonBorderColor },
-            ]}
+            style={styles.reportButtonAbsolute}
             onPress={openReportModalForPost}
             accessible
             accessibilityRole="button"
@@ -214,7 +209,7 @@ function PostItem({
               importantForAccessibility="no-hide-descendants"
             />
             <AccessibleText
-              backgroundColor={reportButtonBackground}
+              backgroundColor={'transparent'}
               style={[styles.reportText, { color: reportLabelColor }]}
             >
               {t('report', { defaultValue: 'Report' })}
@@ -685,17 +680,14 @@ const styles = StyleSheet.create({
     right: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.85)',
-    borderRadius: 14,
     paddingVertical: 4,
-    paddingHorizontal: 8,
+    paddingHorizontal: 6,
     zIndex: 10,
-    borderWidth: 1,
   },
   reportText: {
     marginLeft: 4,
     fontSize: 13,
-    color: '#515151',
+    color: '#2C2C2E',
     fontWeight: '500',
   },
 });
