@@ -466,6 +466,10 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
   }
 
   const handleToggleComments = (postId: number) => {
+    if (userType === 'guest' || !username) {
+      Alert.alert(t('loginRequired'), t('loginRequiredForComment'));
+      return;
+    }
     const isCurrentlyExpanded = expandedPostId === postId;
     if (editingCommentDetails && editingCommentDetails.postId === postId && !isCurrentlyExpanded) {
     }

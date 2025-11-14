@@ -378,6 +378,10 @@ export default function ProfileScreen() {
   };
 
   const handleToggleComments = (postId: number) => {
+    if (userType !== 'user' || !username) {
+      Alert.alert(t('loginRequired'), t('loginRequiredForComment'));
+      return;
+    }
     const isCurrentlyExpanded = expandedPostId === postId;
     if (isCurrentlyExpanded) {
       if (editingCommentDetails && editingCommentDetails.postId === postId) {
