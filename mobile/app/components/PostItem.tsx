@@ -116,6 +116,9 @@ function PostItem({
   const deleteIconActualColor = colorScheme === 'dark' ? '#FF8A80' : '#D9534F';
   const editIconActualColor = colorScheme === 'dark' ? '#82B1FF' : '#007AFF';
   const reportAccentColor = colorScheme === 'dark' ? '#FF8A80' : '#D9534F';
+  const reportButtonBackground = colorScheme === 'dark' ? 'rgba(44,44,46,0.92)' : 'rgba(255,255,255,0.92)';
+  const reportButtonBorderColor = colorScheme === 'dark' ? '#4A4A4A' : '#E0E0E0';
+  const reportLabelColor = colorScheme === 'dark' ? '#F2F2F7' : '#515151';
   const imageUri = post.photoUrl
     ? post.photoUrl.startsWith('http')
       ? post.photoUrl
@@ -192,7 +195,10 @@ function PostItem({
         {/* Report Button (Moved to top-right) */}
         {loggedInUsername && loggedInUsername !== post.title && (
           <TouchableOpacity
-            style={styles.reportButtonAbsolute}
+            style={[
+              styles.reportButtonAbsolute,
+              { backgroundColor: reportButtonBackground, borderColor: reportButtonBorderColor },
+            ]}
             onPress={openReportModalForPost}
             accessible
             accessibilityRole="button"
@@ -203,11 +209,14 @@ function PostItem({
             <Ionicons
               name="warning-outline"
               size={16}
-              color="#515151ff"
+              color={reportLabelColor}
               accessibilityElementsHidden
               importantForAccessibility="no-hide-descendants"
             />
-            <AccessibleText backgroundColor={cardBackgroundColor} style={styles.reportText}>
+            <AccessibleText
+              backgroundColor={reportButtonBackground}
+              style={[styles.reportText, { color: reportLabelColor }]}
+            >
               {t('report', { defaultValue: 'Report' })}
             </AccessibleText>
           </TouchableOpacity>
@@ -408,6 +417,7 @@ function PostItem({
                         isSavingEdit={isEditingThisComment && isSubmittingCommentEditForPost}
                         backgroundColor={cardBackgroundColor}
                         onReportComment={reportCommentHandler}
+                        reportActionColor={reportLabelColor}
                         // If CommentItemDisplay has internal strings, remember to i18n that component too.
                       />
                     );
@@ -670,16 +680,17 @@ const styles = StyleSheet.create({
     aspectRatio: 16 / 9,
   },
   reportButtonAbsolute: {
-  position: 'absolute',
-  top: 8,
-  right: 8,
-  flexDirection: 'row',
-  alignItems: 'center',
-  backgroundColor: 'rgba(255,255,255,0.8)', // improves visibility over images
-  borderRadius: 14,
-  paddingVertical: 4,
-  paddingHorizontal: 8,
-  zIndex: 10,
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.85)',
+    borderRadius: 14,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    zIndex: 10,
+    borderWidth: 1,
   },
   reportText: {
     marginLeft: 4,

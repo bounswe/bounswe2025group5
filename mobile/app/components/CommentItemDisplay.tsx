@@ -47,6 +47,7 @@ interface CommentItemDisplayProps {
   onCancelEdit: () => void;
   isSavingEdit: boolean;
   onReportComment?: (comment: CommentData) => void;
+  reportActionColor?: string;
   // --- END NEW PROPS for edit ---
 }
 
@@ -69,11 +70,13 @@ function CommentItemDisplay({
   onCancelEdit,
   isSavingEdit,
   onReportComment,
+  reportActionColor,
   // --- END NEW PROPS for edit ---
 }: CommentItemDisplayProps) {
   const { t } = useTranslation();
   const isOwner = loggedInUsername && comment.username === loggedInUsername;
   const colorScheme = useColorScheme(); // For save/cancel button text color
+  const resolvedReportColor = reportActionColor || '#515151';
 
   if (isOwner && isEditingThisComment) {
     return (
@@ -135,8 +138,8 @@ function CommentItemDisplay({
             accessibilityLabel="Report comment"
             accessibilityRole="button"
           >
-            <Ionicons name="warning-outline" size={16} color="#515151" />
-            <AccessibleText backgroundColor={backgroundColor} style={[styles.commentActionText, { color: "#515151" }]}>{t('report')}</AccessibleText>
+            <Ionicons name="warning-outline" size={16} color={resolvedReportColor} />
+            <AccessibleText backgroundColor={backgroundColor} style={[styles.commentActionText, { color: resolvedReportColor }]}>{t('report')}</AccessibleText>
           </TouchableOpacity>
         ) : null}
       </View>
