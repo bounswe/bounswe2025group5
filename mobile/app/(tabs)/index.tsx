@@ -373,59 +373,88 @@ export default function HomeScreen() {
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.trendingRow}
                 style={styles.trendingContainer}
               >
-                {trendingPosts.map((post) => (
-                  <View
-                    key={post.postId}
-                    style={[styles.postContainer, { backgroundColor: postBg }]}
-                  >
-                    <AccessibleText
-                      type="title"
-                      isLargeText
-                      backgroundColor={postBg}
-                      style={[styles.postTitle]}
+                {trendingPosts.map((post) => {
+                  const initials =
+                    post.creatorUsername?.substring(0, 2).toUpperCase() ?? "US";
+                  const imageUri = post.photoUrl
+                    ? post.photoUrl.startsWith("http")
+                      ? post.photoUrl
+                      : `${API_BASE_URL}${post.photoUrl}`
+                    : null;
+
+                  return (
+                    <View
+                      key={post.postId}
+                      style={[styles.trendingCard, { backgroundColor: postBg }]}
                     >
-                      {post.creatorUsername}
-                    </AccessibleText>
+                      <View style={styles.trendingHeaderRow}>
+                        <View style={styles.trendingAvatar}>
+                          <Text style={styles.trendingAvatarText}>{initials}</Text>
+                        </View>
+                        <View style={styles.trendingHeaderText}>
+                          <AccessibleText
+                            backgroundColor={postBg}
+                            style={styles.trendingName}
+                          >
+                            {post.creatorUsername}
+                          </AccessibleText>
+                          <Text style={styles.trendingSubtitle}>
+                            {t("trendingCardSubtitle", {
+                              defaultValue: "Community member",
+                            })}
+                          </Text>
+                        </View>
+                      </View>
 
-                    <AccessibleText
-                      backgroundColor={postBg}
-                      style={[styles.postContent]}
-                      numberOfLines={3}
-                    >
-                      {post.content}
-                    </AccessibleText>
+                      {post.content ? (
+                        <AccessibleText
+                          backgroundColor={postBg}
+                          style={[styles.trendingContent, { color: postTextColor }]}
+                          numberOfLines={3}
+                        >
+                          {post.content}
+                        </AccessibleText>
+                      ) : null}
 
-                    {post.photoUrl && (
-                      <Image
-                        source={{
-                          uri: post.photoUrl.startsWith("http")
-                            ? post.photoUrl
-                            : `${API_BASE_URL}${post.photoUrl}`,
-                        }}
-                        style={styles.postImage}
-                        onError={(e) =>
-                          console.warn(
-                            "Image failed to load:",
-                            e.nativeEvent.error
-                          )
-                        }
-                      />
-                    )}
+                      {imageUri && (
+                        <Image
+                          source={{ uri: imageUri }}
+                          style={styles.trendingImage}
+                          onError={(e) =>
+                            console.warn(
+                              "Image failed to load:",
+                              e.nativeEvent.error
+                            )
+                          }
+                        />
+                      )}
 
-                    <View style={styles.postFooter}>
-                      <Ionicons name="heart-outline" size={16} />
-                      <AccessibleText backgroundColor={postBg} style={[styles.footerText]}> 
-                        {post.likes}
-                      </AccessibleText>
-                      <Ionicons name="chatbubble-outline" size={16} />
-                      <AccessibleText backgroundColor={postBg} style={[styles.footerText]}> 
-                        {post.comments}
-                      </AccessibleText>
+                      <View style={styles.trendingFooter}>
+                        <View style={styles.trendingStat}>
+                          <Ionicons name="heart-outline" size={14} color="#FF6B6B" />
+                          <AccessibleText
+                            backgroundColor={postBg}
+                            style={styles.trendingStatText}
+                          >
+                            {post.likes}
+                          </AccessibleText>
+                        </View>
+                        <View style={styles.trendingStat}>
+                          <Ionicons name="chatbubble-outline" size={14} color="#FFFFFF" />
+                          <AccessibleText
+                            backgroundColor={postBg}
+                            style={styles.trendingStatText}
+                          >
+                            {post.comments}
+                          </AccessibleText>
+                        </View>
+                      </View>
                     </View>
-                  </View>
-                ))}
+                  );
+                })}
               </ScrollView>
             </View>
 
@@ -681,28 +710,40 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 8,
   },
-  trendingContainer: { height: 260, marginVertical: 8 },
-  postContainer: {
+  trendingContainer: { marginVertical: 8 },
+  trendingRow: { paddingHorizontal: 0, paddingVertical: 6 },
+  trendingCard: {
     width: 250,
-    height: 240,
-    marginRight: 16,
-    backgroundColor: "#f5f5f5",
-    borderRadius: 8,
-    padding: 12,
-    justifyContent: "space-between",
-    overflow: "hidden",
+    minHeight: 220,
+    borderRadius: 16,
+    padding: 14,
+    marginRight: 14,
+    shadowColor: "#000",
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
+    justifyContent: "center",
   },
-  postTitle: { fontSize: 16, fontWeight: "bold", marginTop: -5, color: "#000" },
-  postContent: { fontSize: 14, marginTop: -20, color: "#000" },
-  postImage: {
-    width: "100%",
-    aspectRatio: 16 / 9,
-    maxHeight: 120,
-    borderRadius: 6,
-    resizeMode: "cover",
+  trendingHeaderRow: { flexDirection: "row", alignItems: "center", marginBottom: 8 },
+  trendingAvatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "rgba(0,0,0,0.08)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 10,
   },
-  postFooter: { flexDirection: "row", alignItems: "center" },
-  footerText: { fontSize: 12, marginHorizontal: 4, color: "#000" },
+  trendingAvatarText: { fontWeight: "700", color: "#1F2933" },
+  trendingHeaderText: { flex: 1 },
+  trendingName: { fontSize: 15, fontWeight: "700" },
+  trendingSubtitle: { fontSize: 12, color: "#6B7280", marginTop: 2 },
+  trendingContent: { fontSize: 14, lineHeight: 18, marginBottom: 8 },
+  trendingImage: { width: "100%", height: 120, borderRadius: 10, marginBottom: 8, resizeMode: "cover" },
+  trendingFooter: { flexDirection: "row", alignItems: "center", marginTop: 4 },
+  trendingStat: { flexDirection: "row", alignItems: "center", marginRight: 16 },
+  trendingStatText: { marginLeft: 4, fontSize: 13, fontWeight: "600" },
   modeHeader: {
     fontSize: 20,
     fontWeight: "bold",
