@@ -13,10 +13,10 @@ import AccessibleText from '@/components/AccessibleText';
 import { useTranslation } from 'react-i18next';
 
 const REPORT_OPTIONS = [
-  { value: 'spam', label: 'Spam' },
-  { value: 'hate', label: 'Hate Speech' },
-  { value: 'harm', label: 'Harm / Violence' },
-  { value: 'other', label: 'Other' },
+  { value: 'spam', labelKey: 'reportReasonSpam', defaultLabel: 'Spam' },
+  { value: 'hate', labelKey: 'reportReasonHate', defaultLabel: 'Hate Speech' },
+  { value: 'harm', labelKey: 'reportReasonHarm', defaultLabel: 'Harm / Violence' },
+  { value: 'other', labelKey: 'reportReasonOther', defaultLabel: 'Other' },
 ] as const;
 
 export type ReportContext = {
@@ -161,6 +161,7 @@ const ReportModal = ({
           <View style={styles.reasonList}>
             {REPORT_OPTIONS.map((option) => {
               const isSelected = selectedReason === option.value;
+              const translatedLabel = t(option.labelKey, { defaultValue: option.defaultLabel });
               return (
                 <TouchableOpacity
                   key={option.value}
@@ -188,7 +189,7 @@ const ReportModal = ({
                       { color: isSelected ? reasonSelectedTextColor : reasonTextColor },
                     ]}
                   >
-                    {option.label}
+                    {translatedLabel}
                   </AccessibleText>
                 </TouchableOpacity>
               );
