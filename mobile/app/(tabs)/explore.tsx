@@ -111,6 +111,12 @@ export default function ExploreScreen() {
     }
   }, [userType, username, navigation]);
 
+  useEffect(() => {
+    if (userType === 'guest' && isFriendsFeed) {
+      setIsFriendsFeed(false);
+    }
+  }, [userType, isFriendsFeed]);
+
   const mapApiItemToPost = (item: any): Post => ({
     id: item.postId,
     title: item.creatorUsername,
@@ -634,37 +640,49 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
         }
       >
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.feedToggle}
-          onPress={() => setIsFriendsFeed((prev) => !prev)}
-          accessibilityRole="button"
-          accessibilityLabel={t('toggleFeed', { defaultValue: 'Toggle feed' })}
-        >
+        {userType === 'guest' ? (
           <AccessibleText
             type="title"
             backgroundColor={screenBackgroundColor}
-            style={[
-              styles.feedToggleLabel,
-              {
-                color: feedAccentColor,
-              },
-            ]}
+            style={styles.staticFeedLabel}
           >
-            {isFriendsFeed
-              ? t('exploreFriends', { defaultValue: 'Explore Friends' })
-              : t('exploreGlobal', { defaultValue: 'Explore Global' })}
+            {t('exploreGlobal', { defaultValue: 'Explore Global' })}
           </AccessibleText>
-        </TouchableOpacity>
+        ) : (
+          <>
+            <TouchableOpacity
+              style={styles.feedToggle}
+              onPress={() => setIsFriendsFeed((prev) => !prev)}
+              accessibilityRole="button"
+              accessibilityLabel={t('toggleFeed', { defaultValue: 'Toggle feed' })}
+            >
+              <AccessibleText
+                type="title"
+                backgroundColor={screenBackgroundColor}
+                style={[
+                  styles.feedToggleLabel,
+                  {
+                    color: feedAccentColor,
+                  },
+                ]}
+              >
+                {isFriendsFeed
+                  ? t('exploreFriends', { defaultValue: 'Explore Friends' })
+                  : t('exploreGlobal', { defaultValue: 'Explore Global' })}
+              </AccessibleText>
+            </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.notificationButton, { backgroundColor: notificationButtonBackground }]}
-          onPress={openNotifications}
-          accessibilityRole="button"
-          accessibilityLabel={t('openNotifications', { defaultValue: 'Open notifications' })}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <Ionicons name="notifications-outline" size={28} color={notificationIconColor} />
-        </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.notificationButton, { backgroundColor: notificationButtonBackground }]}
+              onPress={openNotifications}
+              accessibilityRole="button"
+              accessibilityLabel={t('openNotifications', { defaultValue: 'Open notifications' })}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Ionicons name="notifications-outline" size={28} color={notificationIconColor} />
+            </TouchableOpacity>
+          </>
+        )}
       </View>
 
 
@@ -859,6 +877,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     fontWeight: '700',
   },
+  staticFeedLabel: { flex: 1, textAlign: 'left', fontWeight: '700', color: '#1976D2' },
   guestActionHeader: {
     paddingHorizontal: 16,
     marginBottom: 18,
