@@ -741,14 +741,14 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
         animationType="slide"
         onRequestClose={closeNotifications}
       >
-        <View style={[styles.notificationsModal, { backgroundColor: screenBackgroundColor }]}>
+        <View style={[styles.notificationsOverlay, { backgroundColor: screenBackgroundColor }]}>
           <View style={styles.notificationsHeader}>
             <TouchableOpacity
               onPress={closeNotifications}
               accessibilityLabel={t('close', { defaultValue: 'Close' })}
               style={styles.notificationsBackButton}
             >
-              <Ionicons name="arrow-back" size={22} color={generalTextColor} />
+              <Ionicons name="arrow-back" size={24} color={generalTextColor} />
             </TouchableOpacity>
             <AccessibleText backgroundColor={screenBackgroundColor} style={[styles.notificationsTitle, { color: generalTextColor }]}>
               {t('notificationsTitle', { defaultValue: 'Notifications' })}
@@ -835,9 +835,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  notificationsModal: {
+  notificationsOverlay: {
     flex: 1,
-    paddingTop: Platform.OS === 'ios' ? 60 : 30,
+    paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingHorizontal: 16,
   },
   notificationsHeader: {
