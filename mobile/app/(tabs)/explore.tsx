@@ -14,6 +14,7 @@ import {
   Alert,
   Keyboard,
   Switch,
+  Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AccessibleText from '@/components/AccessibleText';
@@ -79,6 +80,7 @@ export default function ExploreScreen() {
     currentText: string;
   } | null>(null);
   const [isSubmittingCommentEdit, setIsSubmittingCommentEdit] = useState(false);
+  const [isNotificationsVisible, setNotificationsVisible] = useState(false);
 
   const colorScheme = useColorScheme();
   const screenBackgroundColor = colorScheme === 'dark' ? '#151718' : '#F0F2F5';
@@ -98,6 +100,8 @@ export default function ExploreScreen() {
   const themedNoMoreBoxTextColor = colorScheme === 'dark' ? '#9EE8FF' : '#00796b';
   const activityIndicatorColor = colorScheme === 'dark' ? '#FFFFFF' : '#000000';
   const refreshControlColors = colorScheme === 'dark' ? { tintColor: '#FFFFFF', titleColor: '#FFFFFF'} : { tintColor: '#000000', titleColor: '#000000'};
+  const notificationButtonBackground = colorScheme === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)';
+  const notificationIconColor = colorScheme === 'dark' ? '#FFFFFF' : '#1C1C1E';
   
 
   useEffect(() => {
@@ -287,6 +291,9 @@ export default function ExploreScreen() {
     setEditingCommentDetails(null); 
     if (expandedPostId) setExpandedPostId(null);
   };
+
+  const openNotifications = () => setNotificationsVisible(true);
+  const closeNotifications = () => setNotificationsVisible(false);
 
   const handleLikeToggle = async (postId: number, currentlyLiked: boolean) => {
     if (userType === 'guest' || !username) {
@@ -570,6 +577,7 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
   const isContentLoading = (loading && !inSearchMode && currentDisplayPosts.length === 0) || (isSearching && inSearchMode && currentDisplayPosts.length === 0);
 
   return (
+    <>
       <ScrollView
         style={[styles.container, { backgroundColor: screenBackgroundColor }]}
         contentContainerStyle={styles.content}
@@ -583,16 +591,27 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
           <AccessibleText type="title" backgroundColor={screenBackgroundColor}>{t('explore')}</AccessibleText>
         </View>
 
-        <View style={styles.languageToggleContainer}>
-          <AccessibleText backgroundColor={screenBackgroundColor} style={styles.languageLabel}>EN</AccessibleText>
-          <Switch
-            trackColor={{ false: '#767577', true: '#81b0ff' }}
-            thumbColor={isTurkish ? '#f5dd4b' : '#f4f3f4'}
-            ios_backgroundColor="#3e3e3e"
-            onValueChange={value => { toggleLanguage(value); }}
-            value={isTurkish}
-          />
-          <AccessibleText backgroundColor={screenBackgroundColor} style={styles.languageLabel}>TR</AccessibleText>
+        <View style={styles.headerActions}>
+          <View style={styles.languageToggleContainer}>
+            <AccessibleText backgroundColor={screenBackgroundColor} style={styles.languageLabel}>EN</AccessibleText>
+            <Switch
+              trackColor={{ false: '#767577', true: '#81b0ff' }}
+              thumbColor={isTurkish ? '#f5dd4b' : '#f4f3f4'}
+              ios_backgroundColor="#3e3e3e"
+              onValueChange={value => { toggleLanguage(value); }}
+              value={isTurkish}
+            />
+            <AccessibleText backgroundColor={screenBackgroundColor} style={styles.languageLabel}>TR</AccessibleText>
+          </View>
+          <TouchableOpacity
+            style={[styles.notificationButton, { backgroundColor: notificationButtonBackground }]}
+            onPress={openNotifications}
+            accessibilityRole="button"
+            accessibilityLabel={t('openNotifications', { defaultValue: 'Open notifications' })}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Ionicons name="notifications-outline" size={22} color={notificationIconColor} />
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -734,7 +753,34 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
           </>
         )}
       </ScrollView>
-    );
+      <Modal
+        visible={isNotificationsVisible}
+        animationType="slide"
+        onRequestClose={closeNotifications}
+      >
+        <View style={[styles.notificationsModal, { backgroundColor: screenBackgroundColor }]}>
+          <View style={styles.notificationsHeader}>
+            <TouchableOpacity
+              onPress={closeNotifications}
+              accessibilityLabel={t('close', { defaultValue: 'Close' })}
+              style={styles.notificationsBackButton}
+            >
+              <Ionicons name="arrow-back" size={22} color={generalTextColor} />
+            </TouchableOpacity>
+            <AccessibleText backgroundColor={screenBackgroundColor} style={[styles.notificationsTitle, { color: generalTextColor }]}>
+              {t('notificationsTitle', { defaultValue: 'Notifications' })}
+            </AccessibleText>
+            <View style={{ width: 32 }} />
+          </View>
+          <View style={styles.notificationsContent}>
+            <AccessibleText backgroundColor={screenBackgroundColor} style={[styles.notificationsEmptyText, { color: iconColor }]}>
+              {t('notificationsEmpty', { defaultValue: "You're all caught up!" })}
+            </AccessibleText>
+          </View>
+        </View>
+      </Modal>
+    </>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -748,6 +794,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between', 
     alignItems: 'center',
   },
+  headerActions: { flexDirection: 'row', alignItems: 'center' },
   titleContainer: {
     flex: 1, // This is the key: it makes the title expand and pushes the toggle
     marginRight: 8,
@@ -807,6 +854,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: 4,
     paddingVertical: 2,
+    marginRight: 10,
   },
   languageLabel: {
     color: '#fff',
@@ -814,4 +862,29 @@ const styles = StyleSheet.create({
     marginHorizontal: 6,
     fontSize: 12,
   },
+  notificationButton: {
+    padding: 8,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  notificationsModal: {
+    flex: 1,
+    paddingTop: Platform.OS === 'ios' ? 60 : 30,
+    paddingHorizontal: 16,
+  },
+  notificationsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+  },
+  notificationsBackButton: { padding: 6, marginRight: 8 },
+  notificationsTitle: { fontSize: 20, fontWeight: '700' },
+  notificationsContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  notificationsEmptyText: { fontSize: 16, textAlign: 'center', lineHeight: 22 },
 });
