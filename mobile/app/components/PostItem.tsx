@@ -26,6 +26,7 @@ interface CommentData {
   username: string;
   content: string;
   createdAt: string | Date;
+  avatarUrl?: string | null;
 }
 
 type Post = {

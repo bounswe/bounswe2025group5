@@ -24,6 +24,7 @@ interface CommentData {
   username: string;
   content: string;
   createdAt: string | Date; // Can be string from API, then converted to Date
+  avatarUrl?: string | null;
 }
 
 // --- CommentItemDisplay Component ---
@@ -133,11 +134,15 @@ function CommentItemDisplay({
     <View style={styles.commentItemWrapper}>
       <View style={[styles.commentBubble, { backgroundColor: bubbleBackground, borderColor: bubbleBorderColor }]}>
         <View style={styles.commentTopRow}>
-          <View style={[styles.commentAvatar, { backgroundColor: avatarBackground }]}>
-            <AccessibleText backgroundColor={avatarBackground} style={[styles.commentAvatarText, { color: avatarTextColor }]}>
-              {avatarInitial}
-            </AccessibleText>
-          </View>
+          {comment.avatarUrl ? (
+            <Image source={{ uri: comment.avatarUrl }} style={styles.commentAvatarImage} />
+          ) : (
+            <View style={[styles.commentAvatar, { backgroundColor: avatarBackground }]}>
+              <AccessibleText backgroundColor={avatarBackground} style={[styles.commentAvatarText, { color: avatarTextColor }]}>
+                {avatarInitial}
+              </AccessibleText>
+            </View>
+          )}
           <View style={styles.commentMeta}>
             <AccessibleText backgroundColor={bubbleBackground} style={[styles.commentUsername, { marginRight: 0 }]}>
               {comment.username}
@@ -160,7 +165,7 @@ function CommentItemDisplay({
           ) : (
             <TouchableOpacity
               onPress={() => {}}
-              style={styles.commentActionButton}
+              style={[styles.commentActionButton, styles.commentActionEnd]}
               accessibilityLabel="Report comment"
               accessibilityRole="button"
             >
@@ -192,7 +197,7 @@ const styles = StyleSheet.create({
       marginBottom: 6,
     },
     commentHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-    commentMeta: { flex: 1, marginLeft: 8 },
+    commentMeta: { flex: 1, marginLeft: 10 },
     commentUsername: { fontWeight: '700', fontSize: 14, flexShrink: 1 },
     commentAvatar: {
       width: 32,
@@ -201,10 +206,17 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       justifyContent: 'center',
     },
+    commentAvatarImage: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+    },
     commentAvatarText: { fontWeight: '700' },
     // --- MODIFIED/NEW Styles for comment actions and editing ---
     commentOwnerActions: {
       flexDirection: 'row',
+      alignItems: 'center',
+      marginLeft: 'auto',
     },
     commentActionButton: {
       paddingHorizontal: 6, // Space out icons
@@ -212,6 +224,7 @@ const styles = StyleSheet.create({
       flexDirection: 'row',
       alignItems: 'center',
     },
+    commentActionEnd: { marginLeft: 'auto' },
     commentActionText: {
       marginLeft: 4,
       fontSize: 13,

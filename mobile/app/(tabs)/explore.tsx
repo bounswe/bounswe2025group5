@@ -27,7 +27,8 @@ type CommentData = {
   commentId: number;
   username: string;
   content: string;
-  createdAt: string | Date; 
+  createdAt: string | Date;
+  avatarUrl?: string | null;
 }
 
 type Post = {
@@ -76,6 +77,7 @@ export default function ExploreScreen() {
     currentText: string;
   } | null>(null);
   const [isSubmittingCommentEdit, setIsSubmittingCommentEdit] = useState(false);
+  const [commenterAvatars, setCommenterAvatars] = useState<{ [username: string]: string | null }>({});
   const [isNotificationsVisible, setNotificationsVisible] = useState(false);
 
   const colorScheme = useColorScheme();
@@ -132,24 +134,53 @@ export default function ExploreScreen() {
     return Promise.all(promises);
   };
 
-  const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentUsername: string): Promise<Post[]> => {
-    if (!currentUsername || currentPostsToUpdate.length === 0) return currentPostsToUpdate;
-      try {
-        const res = await apiRequest(`/api/users/${encodeURIComponent(currentUsername)}/saved-posts`);
-        if (!res.ok) return currentPostsToUpdate;
+const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentUsername: string): Promise<Post[]> => {
+  if (!currentUsername || currentPostsToUpdate.length === 0) return currentPostsToUpdate;
+    try {
+      const res = await apiRequest(`/api/users/${encodeURIComponent(currentUsername)}/saved-posts`);
+      if (!res.ok) return currentPostsToUpdate;
         const savedPostsData = await res.json();
         const savedPostIds = new Set(savedPostsData.map((post: any) => post.postId));
         return currentPostsToUpdate.map(post => ({
           ...post,
           savedByUser: savedPostIds.has(post.id), 
         }));
-      } catch (e) { 
-        console.error('Error fetching saved statuses:', e);
-        return currentPostsToUpdate;
-      }
-  }
-        
+    } catch (e) { 
+      console.error('Error fetching saved statuses:', e);
+      return currentPostsToUpdate;
+    }
+  };
 
+  const fetchAvatarForUsername = async (username: string) => {
+    if (!username) return null;
+    try {
+      const encoded = encodeURIComponent(username);
+      const response = await apiRequest(`/api/users/${encoded}/profile?username=${encoded}`);
+      if (!response.ok) return null;
+      const data = await response.json();
+      return data?.photoUrl ?? null;
+    } catch {
+      return null;
+    }
+  };
+
+  const ensureAvatarsForUsernames = async (usernames: string[]) => {
+    const uniqueUsernames = Array.from(new Set(usernames.filter(Boolean)));
+    const missing = uniqueUsernames.filter((name) => commenterAvatars[name] === undefined);
+    if (!missing.length) return {};
+    const fetchedEntries = await Promise.all(
+      missing.map(async (name) => {
+        const url = await fetchAvatarForUsername(name);
+        return [name, url] as const;
+      })
+    );
+    const newMap = Object.fromEntries(fetchedEntries);
+    if (Object.keys(newMap).length > 0) {
+      setCommenterAvatars((prev) => ({ ...prev, ...newMap }));
+    }
+    return newMap;
+  };
+        
 
   const fetchPosts = async (loadMore = false) => {
     const isGuestUser = userType === 'guest';
@@ -408,8 +439,16 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
       const response = await apiRequest(`/api/posts/${postId}/comments`);
       if (!response.ok) { /* ... error handling ... */ throw new Error(`Failed to fetch comments: ${response.status}`); }
       const apiResponse = await response.json();
-      const fetchedComments: CommentData[] = (apiResponse.comments || []).map((apiComment: any) => ({
-        commentId: apiComment.commentId, content: apiComment.content, createdAt: apiComment.createdAt, username: apiComment.creatorUsername,
+      const apiComments = apiResponse.comments || [];
+      const usernamesNeedingAvatars = apiComments.map((apiComment: any) => apiComment.creatorUsername);
+      const newlyFetchedAvatars = await ensureAvatarsForUsernames(usernamesNeedingAvatars);
+      const avatarLookup = { ...commenterAvatars, ...newlyFetchedAvatars };
+      const fetchedComments: CommentData[] = apiComments.map((apiComment: any) => ({
+        commentId: apiComment.commentId,
+        content: apiComment.content,
+        createdAt: apiComment.createdAt,
+        username: apiComment.creatorUsername,
+        avatarUrl: avatarLookup[apiComment.creatorUsername] ?? null,
       }));
       setCommentsByPostId(prev => ({ ...prev, [postId]: fetchedComments }));
       if (typeof apiResponse.totalComments === 'number') { /* ... update post comment count ... */ }
@@ -458,7 +497,16 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
         });
         const apiResponseData = await response.json();
         if (!response.ok) throw new Error(apiResponseData.message || `Failed to post comment`);
-        const newComment: CommentData = { /* ... map response ... */ commentId: apiResponseData.commentId, content: apiResponseData.content, createdAt: apiResponseData.createdAt, username: apiResponseData.creatorUsername || username };
+        const authorUsername = apiResponseData.creatorUsername || username;
+        const avatarUpdates = await ensureAvatarsForUsernames([authorUsername]);
+        const avatarLookup = { ...commenterAvatars, ...avatarUpdates };
+        const newComment: CommentData = {
+          commentId: apiResponseData.commentId,
+          content: apiResponseData.content,
+          createdAt: apiResponseData.createdAt,
+          username: authorUsername,
+          avatarUrl: avatarLookup[authorUsername] ?? null,
+        };
         setCommentsByPostId(prev => ({ ...prev, [postId]: [newComment, ...(prev[postId] || [])] }));
         const listUpdater = (list: Post[]) => list.map(p => p.id === postId ? { ...p, comments: p.comments + 1 } : p);
         setPosts(listUpdater);
