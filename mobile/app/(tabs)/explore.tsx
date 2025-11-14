@@ -1,5 +1,5 @@
 //app/(tabs)/explore.tsx
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -16,6 +16,7 @@ import {
   Switch,
   NativeSyntheticEvent,
   NativeScrollEvent,
+  InteractionManager,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AccessibleText from '@/components/AccessibleText';
@@ -81,6 +82,9 @@ export default function ExploreScreen() {
     currentText: string;
   } | null>(null);
   const [isSubmittingCommentEdit, setIsSubmittingCommentEdit] = useState(false);
+  const hasLoadedPostsRef = useRef(false);
+  const scrollViewRef = useRef<ScrollView | null>(null);
+  const lastScrollOffsetRef = useRef(0);
 
   const colorScheme = useColorScheme();
   const screenBackgroundColor = colorScheme === 'dark' ? '#151718' : '#F0F2F5';
@@ -153,7 +157,8 @@ export default function ExploreScreen() {
         
 
 
-  const fetchPosts = async (loadMore = false) => {
+  const fetchPosts = async (loadMore = false, options?: { preserveExisting?: boolean }) => {
+    const preserveExisting = Boolean(options?.preserveExisting);
     const isGuestUser = userType === 'guest';
     const currentOperation = loadMore ? 'loading more' : 'fetching initial/refresh';
     try {
@@ -192,6 +197,18 @@ export default function ExploreScreen() {
 
       if (loadMore) {
         setPosts(prevPosts => [...prevPosts, ...processedNewItems]);
+      } else if (preserveExisting) {
+        setPosts(prevPosts => {
+          if (prevPosts.length === 0) return processedNewItems;
+          const prevIds = new Set(prevPosts.map(post => post.id));
+          const newOnly = processedNewItems.filter(post => !prevIds.has(post.id));
+          const freshMap = new Map(processedNewItems.map(post => [post.id, post]));
+          const mergedExisting = prevPosts.map(post => freshMap.get(post.id) || post);
+          return [...newOnly, ...mergedExisting];
+        });
+        if (expandedPostId && processedNewItems.find(p => p.id === expandedPostId)) {
+          fetchCommentsForPost(expandedPostId, true);
+        }
       } else {
         setPosts(processedNewItems);
         if (expandedPostId && processedNewItems.find(p => p.id === expandedPostId)) {
@@ -209,7 +226,7 @@ export default function ExploreScreen() {
       if (isGuestUser) {
         setLastPostId(null);
         setNoMorePosts(true);
-      } else {
+      } else if (loadMore || !preserveExisting) {
         if (data.length > 0) setLastPostId(processedNewItems[processedNewItems.length - 1].id);
         if (data.length < 5) setNoMorePosts(true);
         else setNoMorePosts(false);
@@ -226,25 +243,52 @@ export default function ExploreScreen() {
     }
   };
   
+  const refreshFeed = (useRefreshControlIndicator: boolean, preserveExisting = false) => {
+    if (useRefreshControlIndicator) setRefreshing(true);
+    if (!preserveExisting) {
+      setLastPostId(null);
+      setNoMorePosts(false);
+      setEditingCommentDetails(null); 
+    }
+    setError(false);
+    fetchPosts(false, { preserveExisting });
+  };
+
+  const handleRefresh = () => refreshFeed(true);
+
+  useEffect(() => {
+    hasLoadedPostsRef.current = posts.length > 0;
+  }, [posts.length]);
+
   useFocusEffect(
     React.useCallback(() => {
+      let isActive = true;
+      let rafId: number | null = null;
+      const interactionHandle = InteractionManager.runAfterInteractions(() => {
+        if (!isActive || lastScrollOffsetRef.current <= 0) return;
+        rafId = requestAnimationFrame(() => {
+          if (isActive && scrollViewRef.current) {
+            scrollViewRef.current.scrollTo({
+              y: lastScrollOffsetRef.current,
+              animated: false,
+            });
+          }
+        });
+      });
+
       if (userType) { 
-        handleRefresh();
+        refreshFeed(false, hasLoadedPostsRef.current);
       } else if (username === null || username === '') {
         setPosts([]);
         setLoading(false);
       }
+      return () => {
+        isActive = false;
+        if (rafId !== null) cancelAnimationFrame(rafId);
+        interactionHandle?.cancel?.();
+      };
     }, [userType, username]) 
   );
-
-  const handleRefresh = () => {
-    setRefreshing(true);
-    setLastPostId(null);
-    setNoMorePosts(false);
-    setError(false);
-    setEditingCommentDetails(null); 
-    fetchPosts(false);
-  };
 
   const handleLoadMore = () => {
     if (!loading && !loadingMore && !refreshing && !isSearching && lastPostId !== null && !noMorePosts) {
@@ -261,6 +305,7 @@ export default function ExploreScreen() {
   };
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    lastScrollOffsetRef.current = event.nativeEvent.contentOffset.y;
     if (isCloseToBottom(event.nativeEvent)) {
       handleLoadMore();
     }
@@ -588,6 +633,7 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
 
   return (
       <ScrollView
+        ref={scrollViewRef}
         style={[styles.container, { backgroundColor: screenBackgroundColor }]}
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
@@ -595,7 +641,7 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} progressViewOffset={36} />
         }
         onScroll={handleScroll}
-        scrollEventThrottle={200}
+        scrollEventThrottle={32}
       >
       <View style={styles.header}>
         <View style={styles.titleContainer}>
