@@ -12,6 +12,13 @@ import { Ionicons } from '@expo/vector-icons';
 import AccessibleText from '@/components/AccessibleText';
 import { useTranslation } from 'react-i18next';
 
+const REPORT_OPTIONS = [
+  { value: 'spam', label: 'Spam' },
+  { value: 'hate', label: 'Hate Speech' },
+  { value: 'harm', label: 'Harm / Violence' },
+  { value: 'other', label: 'Other' },
+] as const;
+
 export type ReportContext = {
   type: 'post' | 'comment';
   title?: string | null;
@@ -39,16 +46,21 @@ const ReportModal = ({
   const { t } = useTranslation();
   const colorScheme = useColorScheme();
   const [details, setDetails] = useState('');
+  const [selectedReason, setSelectedReason] = useState<string | null>(null);
   const borderColor = colorScheme === 'dark' ? '#3A3A3C' : '#E4E4E7';
   const subtitleColor = colorScheme === 'dark' ? '#C8C8CC' : '#535353';
+  const reasonBackground = colorScheme === 'dark' ? '#1F1F22' : '#F7F7FA';
+  const reasonTextColor = colorScheme === 'dark' ? '#E8E8ED' : '#1C1C1E';
 
   useEffect(() => {
     if (!visible) {
       setDetails('');
+      setSelectedReason(null);
     }
   }, [visible]);
 
   const handleSubmit = () => {
+    if (!selectedReason) return;
     Alert.alert(
       t('reportSentTitle', { defaultValue: 'Report submitted' }),
       t('reportSentMessage', {
@@ -137,8 +149,52 @@ const ReportModal = ({
             backgroundColor={surfaceColor}
             style={[styles.helperLabel, { color: subtitleColor }]}
           >
+            {t('reportReasonLabel', { defaultValue: 'Why are you reporting this?' })}
+          </AccessibleText>
+
+          <View style={styles.reasonList}>
+            {REPORT_OPTIONS.map((option) => {
+              const isSelected = selectedReason === option.value;
+              return (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[
+                    styles.reasonOption,
+                    {
+                      borderColor: isSelected ? accentColor : borderColor,
+                      backgroundColor: reasonBackground,
+                    },
+                  ]}
+                  onPress={() => setSelectedReason(option.value)}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: isSelected }}
+                >
+                  <Ionicons
+                    name={isSelected ? 'checkmark-circle' : 'ellipse-outline'}
+                    size={22}
+                    color={isSelected ? accentColor : subtitleColor}
+                    style={styles.reasonIcon}
+                  />
+                  <AccessibleText
+                    backgroundColor={reasonBackground}
+                    style={[
+                      styles.reasonLabel,
+                      { color: isSelected ? accentColor : reasonTextColor },
+                    ]}
+                  >
+                    {option.label}
+                  </AccessibleText>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          <AccessibleText
+            backgroundColor={surfaceColor}
+            style={[styles.helperLabel, { color: subtitleColor, marginTop: 10 }]}
+          >
             {t('reportDetailsLabel', {
-              defaultValue: 'What happened? Give more details for faster review.',
+              defaultValue: 'Add extra details (optional)',
             })}
           </AccessibleText>
 
@@ -168,17 +224,17 @@ const ReportModal = ({
             style={[
               styles.submitButton,
               {
-                backgroundColor: details.trim().length ? accentColor : '#CCCCCC',
+                backgroundColor: selectedReason ? accentColor : '#CCCCCC',
               },
             ]}
             onPress={handleSubmit}
-            disabled={!details.trim().length}
+            disabled={!selectedReason}
             accessibilityRole="button"
-            accessibilityState={{ disabled: !details.trim().length }}
+            accessibilityState={{ disabled: !selectedReason }}
             accessibilityLabel={t('submitReport', { defaultValue: 'Submit report' })}
           >
             <AccessibleText
-              backgroundColor={details.trim().length ? accentColor : '#CCCCCC'}
+              backgroundColor={selectedReason ? accentColor : '#CCCCCC'}
               style={styles.submitButtonText}
             >
               {t('sendReport', { defaultValue: 'Send Report' })}
@@ -231,6 +287,18 @@ const styles = StyleSheet.create({
   },
   snippetText: { fontSize: 13, fontStyle: 'italic' },
   helperLabel: { fontSize: 13, marginBottom: 6 },
+  reasonList: { marginBottom: 10 },
+  reasonOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    marginBottom: 8,
+  },
+  reasonIcon: { marginRight: 10 },
+  reasonLabel: { fontSize: 15, fontWeight: '600' },
   detailsInput: {
     borderWidth: 1,
     borderRadius: 14,
