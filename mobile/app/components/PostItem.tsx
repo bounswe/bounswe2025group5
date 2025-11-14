@@ -17,6 +17,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import AccessibleText from '@/components/AccessibleText';
 import CommentItemDisplay from './CommentItemDisplay';
+import ReportModal, { ReportContext } from './ReportModal';
 
 import { useTranslation } from 'react-i18next';
 import { apiUrl } from '../apiConfig';
@@ -106,12 +107,15 @@ function PostItem({
   const colorScheme = useColorScheme();
   const [isImageViewerVisible, setImageViewerVisible] = useState(false);
   const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
+  const [reportModalVisible, setReportModalVisible] = useState(false);
+  const [reportContext, setReportContext] = useState<ReportContext | null>(null);
 
   const commentItemBorderColor = colorScheme === 'dark' ? '#3A3A3C' : '#EAEAEA';
   const commentUsernameActualColor = colorScheme === 'dark' ? '#E0E0E0' : '#333333';
   const commentContentActualColor = textColor;
   const deleteIconActualColor = colorScheme === 'dark' ? '#FF8A80' : '#D9534F';
   const editIconActualColor = colorScheme === 'dark' ? '#82B1FF' : '#007AFF';
+  const reportAccentColor = colorScheme === 'dark' ? '#FF8A80' : '#D9534F';
   const imageUri = post.photoUrl
     ? post.photoUrl.startsWith('http')
       ? post.photoUrl
@@ -148,18 +152,48 @@ function PostItem({
     onSavePress(post.id, post.savedByUser);
   };
 
-    
-  
-    const canPostComment = userType !== 'guest' && loggedInUsername && !editingCommentDetailsForPost; // Disable new comment if editing one in this post
+  const openReportModalForPost = () => {
+    setReportContext({
+      type: 'post',
+      title: post.title,
+      snippet: post.content,
+    });
+    setReportModalVisible(true);
+  };
+
+  const openReportModalForComment = (comment: CommentData) => {
+    if (!loggedInUsername) {
+      Alert.alert(
+        t('loginRequired'),
+        t('pleaseLogInToReport', { defaultValue: 'Please log in to report content.' })
+      );
+      return;
+    }
+    setReportContext({
+      type: 'comment',
+      title: post.title,
+      username: comment.username,
+      snippet: comment.content,
+    });
+    setReportModalVisible(true);
+  };
+
+  const closeReportModal = () => {
+    setReportModalVisible(false);
+    setReportContext(null);
+  };
+  const canPostComment = userType !== 'guest' && loggedInUsername && !editingCommentDetailsForPost; // Disable new comment if editing one in this post
+  const reportCommentHandler = loggedInUsername ? openReportModalForComment : undefined;
   
   return (
+    <>
       <View testID={`post-${post.id}`} style={[styles.postContainer, { backgroundColor: cardBackgroundColor }]}>
 
         {/* Report Button (Moved to top-right) */}
         {loggedInUsername && loggedInUsername !== post.title && (
           <TouchableOpacity
             style={styles.reportButtonAbsolute}
-            onPress={() => {}}
+            onPress={openReportModalForPost}
             accessible
             accessibilityRole="button"
             accessibilityLabel={t('reportPost', { defaultValue: 'Report post' })}
@@ -373,6 +407,7 @@ function PostItem({
                         onCancelEdit={onCancelCommentEdit}
                         isSavingEdit={isEditingThisComment && isSubmittingCommentEditForPost}
                         backgroundColor={cardBackgroundColor}
+                        onReportComment={reportCommentHandler}
                         // If CommentItemDisplay has internal strings, remember to i18n that component too.
                       />
                     );
@@ -424,7 +459,16 @@ function PostItem({
           </View>
         </KeyboardAvoidingView>
       )}
-    </View>
+      </View>
+      <ReportModal
+        visible={reportModalVisible}
+        onClose={closeReportModal}
+        context={reportContext}
+        surfaceColor={cardBackgroundColor}
+        textColor={textColor}
+        accentColor={reportAccentColor}
+      />
+    </>
   );
 }
 

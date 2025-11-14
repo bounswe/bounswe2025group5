@@ -46,6 +46,7 @@ interface CommentItemDisplayProps {
   onSaveEditedComment: (commentId: number) => void;
   onCancelEdit: () => void;
   isSavingEdit: boolean;
+  onReportComment?: (comment: CommentData) => void;
   // --- END NEW PROPS for edit ---
 }
 
@@ -67,6 +68,7 @@ function CommentItemDisplay({
   onSaveEditedComment,
   onCancelEdit,
   isSavingEdit,
+  onReportComment,
   // --- END NEW PROPS for edit ---
 }: CommentItemDisplayProps) {
   const { t } = useTranslation();
@@ -126,9 +128,9 @@ function CommentItemDisplay({
               <AccessibleText backgroundColor={backgroundColor} style={[styles.commentActionText, { color: deleteIconColor }]}>{t('delete')}</AccessibleText>
             </TouchableOpacity>
           </View>
-        ) : (
+        ) : onReportComment ? (
           <TouchableOpacity
-            onPress={() => {}}
+            onPress={() => onReportComment(comment)}
             style={styles.commentActionButton}
             accessibilityLabel="Report comment"
             accessibilityRole="button"
@@ -136,7 +138,7 @@ function CommentItemDisplay({
             <Ionicons name="warning-outline" size={16} color="#515151" />
             <AccessibleText backgroundColor={backgroundColor} style={[styles.commentActionText, { color: "#515151" }]}>{t('report')}</AccessibleText>
           </TouchableOpacity>
-        )}
+        ) : null}
       </View>
       <AccessibleText backgroundColor={backgroundColor} style={[styles.commentContent]}>{comment.content}</AccessibleText>
       <AccessibleText backgroundColor={backgroundColor} style={[styles.commentTimestamp]}> 
