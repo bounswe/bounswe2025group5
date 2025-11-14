@@ -99,7 +99,7 @@ export default function ProfileScreen() {
   };
 
   const isDarkMode = colorScheme === 'dark';
-  const parallaxHeaderBgColor = isDarkMode ? '#000000' : '#FFFFFF';
+  const parallaxHeaderBgColor = isDarkMode ? '#000000' : '#F0F2F5';
   const avatarPlaceholderColor = isDarkMode ? '#5A5A5D' : '#999';
   const contentBackgroundColor = isDarkMode ? '#151718' : '#F0F2F5';
   const buttonTextColor = '#FFFFFF';
