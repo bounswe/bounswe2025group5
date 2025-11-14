@@ -54,7 +54,7 @@ public class ActivityLogger {
                         .orElse(null);
 
                 String message = actorId + " liked your post with id " + objectId;
-                notificationService.createNotification(targetUser, message);
+                notificationService.createNotification(targetUser, message, "Post", objectId.toString());
             }
 
             else if ("End".equals(type)) {
@@ -69,8 +69,8 @@ public class ActivityLogger {
                     List<User> targetUsers = userRepository.findAllByUsernameIn(targetUsernames);
 
                     targetUsers.forEach(user -> {
-                        String message = "Challenge with id " + objectId + " has ended";
-                        notificationService.createNotification(user, message);
+                        String message = "A challenge has ended";
+                        notificationService.createNotification(user, message, "Challenge", objectId.toString());
                     });
                 }
             }
@@ -79,8 +79,34 @@ public class ActivityLogger {
                 User targetUser = userRepository.findByUsername((String) targetId)
                         .orElse(null);
 
-                String message = "User with id " + actorId + " left the comment with id " + objectId;
-                notificationService.createNotification(targetUser, message);
+                String message = "User " + actorId + " left a comment on your post";
+                notificationService.createNotification(targetUser, message, "Comment", objectId.toString());
+            }
+
+            else if ("Create".equals(type)) {
+                // A followed user has created a post
+                if ("Post".equals(objectType)) {
+                    List<String> targetUsernames = ((List<?>) targetId).stream()
+                            .filter(u -> u instanceof String)
+                            .map(u -> (String) u)
+                            .toList();
+
+                    List<User> targetUsers = userRepository.findAllByUsernameIn(targetUsernames);
+
+                    targetUsers.forEach(user -> {
+                        String message = "User " + actorId + " has created a post";
+                        notificationService.createNotification(user, message, "Post", objectId.toString());
+                    });
+                }
+            }
+
+            else if ("Follow".equals(type)) {
+
+                User targetUser = userRepository.findByUsername((String) targetId)
+                        .orElse(null);
+
+                String message = "User " + actorId + " started following you";
+                notificationService.createNotification(targetUser, message, "User", (String)objectId);
             }
 
 

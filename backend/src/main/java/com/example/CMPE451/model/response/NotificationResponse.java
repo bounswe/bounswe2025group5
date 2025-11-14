@@ -10,6 +10,6 @@ public class NotificationResponse {
     private String message;
     private Boolean isRead;
     private Timestamp createdAt;
-    private Integer objectId;
+    private String objectId;
     private String objectType;
 }

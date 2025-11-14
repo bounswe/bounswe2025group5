@@ -35,6 +35,8 @@ public class NotificationService {
                     dto.setMessage(n.getMessage());
                     dto.setIsRead(n.getIsRead());
                     dto.setCreatedAt(n.getCreatedAt());
+                    dto.setObjectId(n.getObjectId());
+                    dto.setObjectType(n.getObjectType());
                     return dto;
                 })
                 .toList();
@@ -44,7 +46,7 @@ public class NotificationService {
     public void markAsRead(Integer notificationId) {
         notificationRepository.findById(notificationId).ifPresent(notification -> {
             notification.setIsRead(true);
-            notificationRepository.save(notification);
+            notificationRepository.delete(notification);
         });
     }
 }

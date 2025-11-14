@@ -11,11 +11,7 @@ import com.example.CMPE451.model.User;
 import com.example.CMPE451.model.request.CommentRequest;
 import com.example.CMPE451.model.request.CreatePostRequest;
 import com.example.CMPE451.model.request.SavePostRequest;
-import com.example.CMPE451.model.response.CreateOrEditPostResponse;
-import com.example.CMPE451.model.response.GetPostResponse;
-import com.example.CMPE451.model.response.CommentResponse;
-import com.example.CMPE451.model.response.GetSavedPostResponse;
-import com.example.CMPE451.model.response.SavePostResponse;
+import com.example.CMPE451.model.response.*;
 import com.example.CMPE451.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,6 +45,7 @@ public class PostService {
 
     private final EmbeddingService embeddingService;
     private final VectorDBService vectorDBService;
+    private final FollowService followService;
 
     private final S3Client s3Client;
 
@@ -113,15 +110,16 @@ public class PostService {
             System.err.println("Failed to create embedding for post " + savedPost.getPostId() + ": " + e.getMessage());
         }
 
-
-        //TODO
-        //Change the target to the followers of the post's owner
+        List<String> followerUsernames = followService.getFollowers(username)
+                .stream()
+                .map(GetFollowersResponse::getUsername)
+                .toList();
 
         activityLogger.logAction(
                 "Create",
                 "User", user.getUsername(),
                 "Post", savedPost.getPostId(),
-                null, null
+                "Users", followerUsernames
         );
 
         return new CreateOrEditPostResponse(
