@@ -262,6 +262,9 @@
     "deleteAccountModalTitle": "Hesabınızı silmek için şifrenizi girin",
     "deleteAccountIncorrectPassword": "Yanlış şifre",
     "deleteAccountGenericError": "Hesap silinemedi.",
+    "deleteAccountWarning": "Bu işlem hesabınızı kalıcı olarak silecek.",
+    "deleteAccountPasswordPlaceholder": "Şifrenizi girin",
+    "deleteAccountConfirmButton": "Evet, hesabı sil",
     "report": "Bildir",
     "reportPost": "Gönderiyi Bildir",
     "reportThisPostHint": "Bu gönderiyi moderatörlere bildirin."
