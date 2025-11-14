@@ -6,6 +6,7 @@ import com.example.CMPE451.model.response.NotificationResponse;
 import com.example.CMPE451.repository.UserRepository;
 import com.example.CMPE451.service.NotificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,7 +27,13 @@ public class NotificationController {
     }
 
     @PostMapping("/read/{id}")
-    public void markAsRead(@PathVariable Integer id) {
-        notificationService.markAsRead(id);
+    public ResponseEntity<String> markAsRead(@PathVariable Integer id) {
+        boolean deleted = notificationService.markAsRead(id);
+        if (deleted) {
+            return ResponseEntity.ok("Notification deleted.");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
+
 }

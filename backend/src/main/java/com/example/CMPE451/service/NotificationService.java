@@ -4,6 +4,7 @@ import com.example.CMPE451.model.Notification;
 import com.example.CMPE451.model.User;
 import com.example.CMPE451.model.response.NotificationResponse;
 import com.example.CMPE451.repository.NotificationRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -43,10 +44,13 @@ public class NotificationService {
     }
 
 
-    public void markAsRead(Integer notificationId) {
-        notificationRepository.findById(notificationId).ifPresent(notification -> {
+    @Transactional
+    public boolean markAsRead(Integer notificationId) {
+        return notificationRepository.findById(notificationId).map(notification -> {
             notification.setIsRead(true);
             notificationRepository.delete(notification);
-        });
+            return true;
+        }).orElse(false);
     }
+
 }
