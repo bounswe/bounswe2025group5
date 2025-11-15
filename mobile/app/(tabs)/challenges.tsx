@@ -535,6 +535,15 @@ export default function ChallengesScreen() {
                 <ThemedText type="default" style={styles.cardDescription}>
                   {item.description}
                 </ThemedText>
+                <ThemedText
+                  type="default"
+                  style={[styles.progressText, { color: colors.textSecondary }]}
+                >
+                  {t("challengeAmountAndType", {
+                    amount: item.amount,
+                    wasteType: item.type,
+                  })}
+                </ThemedText>
 
                 {/* Progress Bar */}
                 <View style={styles.progressContainer}>
@@ -547,7 +556,7 @@ export default function ChallengesScreen() {
                       ]}
                     >
                       {t("progressText")}: {item.currentAmount?.toFixed(1) || 0}{" "}
-                      / {item.amount} {item.type}
+                      / {item.amount}
                     </ThemedText>
                     <ThemedText
                       type="default"
@@ -780,7 +789,7 @@ export default function ChallengesScreen() {
                         {index + 1}. {item.username}
                       </ThemedText>
                       <ThemedText type="default" style={styles.lbCell}>
-                        {item.logAmount} {currentChallengeType}
+                        {item.logAmount}
                       </ThemedText>
                     </View>
                   )}
@@ -992,9 +1001,7 @@ export default function ChallengesScreen() {
               </ThemedText>
             )}
 
-            <ThemedText style={styles.inputLabel}>
-              {t("amountLabel")}
-            </ThemedText>
+            <ThemedText style={styles.inputLabel}>{t("amount")}</ThemedText>
             <TextInput
               style={[
                 styles.input,
