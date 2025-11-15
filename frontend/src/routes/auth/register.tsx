@@ -9,6 +9,7 @@ import GlassCard from "@/components/ui/glass-card";
 import { useTranslation } from "react-i18next";
 import { usePasswordStrength } from "@/hooks/usePasswordStrength";
 import PasswordStrengthMeter from "@/components/common/password-strength-meter";
+import { Alert, AlertDescription } from "@/components/ui/alert"; // added
 
 
 export default function Register() {
@@ -30,7 +31,7 @@ export default function Register() {
     setSuccess(null);
 
     if (!isPasswordStrong) {
-      setError(t("register.password.error.tooWeak"));
+      setError(t("register.error.tooWeak"));
       return;
     }
 
@@ -82,7 +83,6 @@ export default function Register() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              aria-invalid={password.length > 0 && !isPasswordStrong}
               aria-describedby="password-requirements"
               placeholder={t("register.password.placeholder")}
             />
@@ -98,16 +98,22 @@ export default function Register() {
           </div>
 
           {error && (
-            <div className="text-destructive bg-destructive/10 p-3 rounded-md text-sm">{error}</div>
+            // Use shadcn Alert with destructive variant (theme tokens)
+            <Alert variant="destructive" className="p-3">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
           )}
 
           {success && (
-            <div className="text-success bg-success/10 p-3 rounded-md text-sm">{success}</div>
+            // Use default Alert (pulls neutral/primary tokens)
+            <Alert className="p-3">
+              <AlertDescription>{success}</AlertDescription>
+            </Alert>
           )}
 
           <Button
             type="submit"
-            disabled={loading || (password.length > 0 && !isPasswordStrong)}
+            disabled={loading}
             className="w-full"
           >
             {loading ? t("register.loading") : t("register.registerButton")}
@@ -115,12 +121,15 @@ export default function Register() {
         </form>
         <p className="mt-4 text-center text-sm text-muted-foreground">
             {t("register.haveAccount")}{" "}
-          <button 
-            onClick={() => navigate('/auth/login')} 
-              className="text-primary hover:underline bg-transparent border-none cursor-pointer"
+          {/* Use link-variant Button to follow theme tokens */}
+          <Button
+            type="button"
+            variant="link"
+            onClick={() => navigate("/auth/login")}
+            className="px-0 h-auto align-baseline"
           >
             {t("register.login")}
-          </button>
+          </Button>
         </p>
           </CardContent>
         </Card>

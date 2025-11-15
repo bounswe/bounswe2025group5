@@ -65,7 +65,8 @@
         "login": "Giriş Yap",
         "error": {
             "passwordsDontMatch": "Şifreler eşleşmiyor",
-            "registrationFailed": "Kayıt başarısız"
+            "registrationFailed": "Kayıt başarısız",
+            "tooWeak": "Şifre çok zayıf. 'İyi' veya daha yüksek olmalı."
         },
         "success": {
             "accountCreated": "Hesap başarıyla oluşturuldu. Giriş sayfasına yönlendiriliyor..."

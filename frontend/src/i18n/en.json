@@ -65,7 +65,8 @@
         "login": "Login",
         "error": {
             "passwordsDontMatch": "Passwords do not match",
-            "registrationFailed": "Registration failed"
+            "registrationFailed": "Registration failed",
+            "tooWeak": "Password is too weak. Aim for 'Good' or higher."
         },
         "success": {
             "accountCreated": "Account created successfully. Redirecting to login..."
