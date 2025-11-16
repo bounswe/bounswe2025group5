@@ -65,7 +65,7 @@ export default function Register() {
   return (
     <GlassCard className="mx-auto">
       <div className="max-w-md min-w-80 mx-auto animate-fade-in">
-        <Card className="max-w-[20rem]">
+        <Card className="max-w-[20rem] min-h-[35rem]">
           <CardHeader>
             <CardTitle className="text-center">{t("register.title")}</CardTitle>
           </CardHeader>
@@ -96,7 +96,11 @@ export default function Register() {
             <p id="password-requirements" className="mt-1 text-xs text-muted-foreground">
               {t("register.password.requirements")}
             </p>
-            <PasswordStrengthMeter password={password} className="mt-2" />
+              {password ? (
+                <PasswordStrengthMeter password={password}/>
+              ) : (
+                <div className="mt-12.5" aria-hidden="true" />
+              )}
           </div>
 
           <div>
