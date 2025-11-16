@@ -16,19 +16,19 @@ export default function PasswordStrengthMeter({ password, className }: PasswordS
   const { t } = useTranslation();
   const { score } = usePasswordStrength(password);
 
-  const { labelKey, badgeVariant } = useMemo(() => {
+  const { labelKey, badgeVariant, progressVariant } = useMemo(() => {
     switch (score) {
       case 0:
-        return { labelKey: "common.passwordStrength.veryWeak", badgeVariant: "destructive" as const };
+        return { labelKey: "common.passwordStrength.veryWeak", badgeVariant: "destructive" as const, progressVariant: "destructive" as const };
       case 1:
-        return { labelKey: "common.passwordStrength.weak", badgeVariant: "destructive" as const };
+        return { labelKey: "common.passwordStrength.weak", badgeVariant: "destructive" as const, progressVariant: "destructive" as const };
       case 2:
-        return { labelKey: "common.passwordStrength.fair", badgeVariant: "secondary" as const };
+        return { labelKey: "common.passwordStrength.fair", badgeVariant: "secondary" as const, progressVariant: "accent" as const };
       case 3:
-        return { labelKey: "common.passwordStrength.good", badgeVariant: "default" as const };
+        return { labelKey: "common.passwordStrength.good", badgeVariant: "default" as const, progressVariant: "default" as const };
       case 4:
       default:
-        return { labelKey: "common.passwordStrength.strong", badgeVariant: "default" as const };
+        return { labelKey: "common.passwordStrength.strong", badgeVariant: "tertiary" as const, progressVariant: "tertiary" as const };
     }
   }, [score]);
 
@@ -38,7 +38,7 @@ export default function PasswordStrengthMeter({ password, className }: PasswordS
         <span>{t("common.passwordStrength.label")}</span>
         <Badge variant={badgeVariant}>{t(labelKey)}</Badge>
       </div>
-      <Progress value={scoreToPercent(score)} />
+      <Progress value={scoreToPercent(score)} variant={progressVariant} />
     </div>
   );
 }
