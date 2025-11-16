@@ -53,7 +53,7 @@
         "password": {
             "label": "Password",
             "placeholder": "Choose a strong password",
-            "requirements": "Password must be rated 'Good' or higher."
+            "requirements": "Hint: Mix unrelated letters, numbers, and symbols, avoid common patterns like \"123456\", at least 8 characters"
         },
         "confirmPassword": {
             "label": "Confirm Password",
@@ -66,7 +66,8 @@
         "error": {
             "passwordsDontMatch": "Passwords do not match",
             "registrationFailed": "Registration failed",
-            "tooWeak": "Password is too weak. Aim for 'Good' or higher."
+            "tooWeak": "Password is too weak. Aim for 'Good' or higher.",
+            "tooShort": "Password must be at least {{min}} characters long."
         },
         "success": {
             "accountCreated": "Account created successfully. Redirecting to login..."

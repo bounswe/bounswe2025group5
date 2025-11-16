@@ -32,6 +32,10 @@ export default function PasswordStrengthMeter({ password, className }: PasswordS
     }
   }, [score]);
 
+  if (!password) {
+    return null;
+  }
+
   return (
     <div className={cn("flex flex-col gap-1", className)}>
       <div className="flex items-center justify-between text-xs text-muted-foreground">

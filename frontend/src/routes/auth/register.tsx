@@ -11,6 +11,8 @@ import { usePasswordStrength } from "@/hooks/usePasswordStrength";
 import PasswordStrengthMeter from "@/components/common/password-strength-meter";
 import { Alert, AlertDescription } from "@/components/ui/alert"; // added
 
+const MIN_PASSWORD_LENGTH = 8;
+
 
 export default function Register() {
   const { t } = useTranslation();
@@ -29,6 +31,11 @@ export default function Register() {
     e.preventDefault();
     setError(null);
     setSuccess(null);
+
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setError(t("register.error.tooShort", { min: MIN_PASSWORD_LENGTH }));
+      return;
+    }
 
     if (!isPasswordStrong) {
       setError(t("register.error.tooWeak"));
@@ -58,7 +65,7 @@ export default function Register() {
   return (
     <GlassCard className="mx-auto">
       <div className="max-w-md min-w-80 mx-auto animate-fade-in">
-        <Card>
+        <Card className="max-w-[20rem]">
           <CardHeader>
             <CardTitle className="text-center">{t("register.title")}</CardTitle>
           </CardHeader>
@@ -87,7 +94,7 @@ export default function Register() {
               placeholder={t("register.password.placeholder")}
             />
             <p id="password-requirements" className="mt-1 text-xs text-muted-foreground">
-                {t("register.password.requirements")}
+              {t("register.password.requirements")}
             </p>
             <PasswordStrengthMeter password={password} className="mt-2" />
           </div>
