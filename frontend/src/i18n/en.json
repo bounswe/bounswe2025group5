@@ -154,6 +154,8 @@
     },
     "challenges": {
         "title": "Challenges",
+        "leaderboard": "Leaderboard",
+        "leaderboardEmpty": "No entries yet",
         "attendError": "Could not attend the challenge",
         "leaveError": "Could not leave the challenge",
         "logError": "Could not log challenge progress",
