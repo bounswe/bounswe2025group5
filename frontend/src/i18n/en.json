@@ -72,7 +72,25 @@
         "deleting": "Deleting...",
         "photoAlt": "{{username}}'s profile photo",
         "photoAltAnon": "Profile photo",
-        "editImage": "Edit Image"
+        "editImage": "Edit Image",
+
+        "userProfile": "User profile",
+        "userProfileTitle": "{{username}}'s profile",
+        "error": {
+            "loadFailed": "Failed to load profile"
+        },
+        "noBio": "No bio yet",
+        "postsTitle": "Posts",
+        "postsDesc": "Posts created by this user",
+        "noPosts": "No posts yet",
+        "followers": {
+            "button": "Followers",
+            "empty": "No followers yet"
+        },
+        "following": {
+            "button": "Following",
+            "empty": "Not following anyone yet"
+        }
     },
     "main": {
         "navbar": "Main"

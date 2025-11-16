@@ -72,7 +72,25 @@
         "deleting": "Siliniyor...",
         "photoAlt": "{{username}}'in profil fotoğrafı",
         "photoAltAnon": "Profil fotoğrafı",
-        "editImage": "Resmi Düzenle"
+        "editImage": "Resmi Düzenle",
+
+        "userProfile": "Kullanıcı profili",
+        "userProfileTitle": "{{username}}'in profili",
+        "error": {
+            "loadFailed": "Profil yüklenemedi"
+        },
+        "noBio": "Henüz biyografi yok",
+        "postsTitle": "Gönderiler",
+        "postsDesc": "Bu kullanıcının oluşturduğu gönderiler",
+        "noPosts": "Henüz gönderi yok",
+        "followers": {
+            "button": "Takipçiler",
+            "empty": "Henüz takipçi yok"
+        },
+        "following": {
+            "button": "Takip edilenler",
+            "empty": "Henüz kimseyi takip etmiyor"
+        }
     },
     "main" : {
         "navbar": "Ana Sayfa"

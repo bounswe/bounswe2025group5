@@ -24,10 +24,11 @@ interface PostCardProps {
   post: PostItem;
   onPostUpdate?: (post: PostItem) => void;
   onPostDelete?: (postId: number) => void;
+  onUsernameClick?: (username: string) => void;
   className?: string;
 }
 
-export default function PostCard({ post, onPostUpdate, onPostDelete, className }: PostCardProps) {
+export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameClick, className }: PostCardProps) {
   const { t } = useTranslation();
   const [commentCount, setCommentCount] = useState(post.comments || 0);
   const [showComments, setShowComments] = useState(false);
@@ -191,7 +192,13 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, className }
                 {post.creatorUsername.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <p className="font-semibold text-sm">{post.creatorUsername}</p>
+            <button
+              type="button"
+              onClick={() => onUsernameClick?.(post.creatorUsername)}
+              className="font-semibold text-sm hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+            >
+              {post.creatorUsername}
+            </button>
           </div>
           <div className="text-right">
             <p className="text-xs text-muted-foreground">{date}</p>
@@ -295,6 +302,7 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, className }
         <CommentSection
           postId={post.postId}
           onCommentAdded={handleCommentAdded}
+          onUsernameClick={onUsernameClick}
         />
       )}
 

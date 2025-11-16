@@ -7,6 +7,7 @@ import ScrollPanel from '@/components/mainpage/ScrollPanel';
 import ChallengeCard from '@/components/challenges/challengeCard';
 import type { PostItem } from '@/lib/api/schemas/posts';
 import PostCard from '@/components/feedpage/post-card';
+import UserProfileDialog from '@/components/profile/userProfileDialog';
 
 export default function MainpageIndex() {
   const { t } = useTranslation();
@@ -15,6 +16,8 @@ export default function MainpageIndex() {
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const storedUsername = useMemo(() => {
     try {
@@ -77,6 +80,11 @@ export default function MainpageIndex() {
     setPosts(prev => prev.filter(post => post.postId !== postId));
   };
 
+  const handleUsernameClick = (username: string) => {
+    setSelectedUsername(username);
+    setIsProfileOpen(true);
+  };
+
   return (
     <div className="container mx-auto px-4 pb-10">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -104,12 +112,30 @@ export default function MainpageIndex() {
           ) : (
             <div className="space-y-4 grid gap-4 sm:grid-cols-2">
               {posts.map((p) => (
-                <PostCard key={p.postId} post={p} onPostUpdate={handlePostUpdate} onPostDelete={handlePostDelete} />
+                <PostCard
+                  key={p.postId}
+                  post={p}
+                  onPostUpdate={handlePostUpdate}
+                  onPostDelete={handlePostDelete}
+                  onUsernameClick={handleUsernameClick}
+                />
               ))}
             </div>
           )}
         </ScrollPanel>
       </div>
+      {selectedUsername && (
+        <UserProfileDialog
+          username={selectedUsername}
+          open={isProfileOpen}
+          onOpenChange={(open) => {
+            setIsProfileOpen(open);
+            if (!open) {
+              setSelectedUsername(null);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

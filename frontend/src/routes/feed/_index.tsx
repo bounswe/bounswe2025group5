@@ -11,6 +11,7 @@ import type { PostItem } from '@/lib/api/schemas/posts';
 import { RefreshCw, TrendingUp } from 'lucide-react';
 import GlassCard from '@/components/ui/glass-card';
 import Masonry from 'react-masonry-css';
+import UserProfileDialog from '@/components/profile/userProfileDialog';
 
 const POSTS_PER_PAGE = 10;
 
@@ -23,6 +24,8 @@ export default function FeedPage() {
   const [lastPostId, setLastPostId] = useState<number | undefined>();
   const [feedType, setFeedType] = useState<'latest' | 'popular'>('latest');
   const [error, setError] = useState<string | null>(null);
+  const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   
   // Search state
   const [searchResults, setSearchResults] = useState<PostItem[]>([]);
@@ -98,6 +101,11 @@ export default function FeedPage() {
   const handlePostDelete = (postId: number) => {
     setPosts(prev => prev.filter(post => post.postId !== postId));
     setSearchResults(prev => prev.filter(post => post.postId !== postId));
+  };
+
+  const handleUsernameClick = (username: string) => {
+    setSelectedUsername(username);
+    setIsProfileOpen(true);
   };
 
   // Search handlers
@@ -234,6 +242,7 @@ export default function FeedPage() {
                       post={post}
                       onPostUpdate={handlePostUpdate}
                       onPostDelete={handlePostDelete}
+                      onUsernameClick={handleUsernameClick}
                     />
                   </div>
                 ))}
@@ -270,6 +279,7 @@ export default function FeedPage() {
                         post={post}
                         onPostUpdate={handlePostUpdate}
                         onPostDelete={handlePostDelete}
+                        onUsernameClick={handleUsernameClick}
                       />
                     </div>
                   ))}
@@ -329,6 +339,18 @@ export default function FeedPage() {
           )}
         </GlassCard>
       </div>
+      {selectedUsername && (
+        <UserProfileDialog
+          username={selectedUsername}
+          open={isProfileOpen}
+          onOpenChange={(open) => {
+            setIsProfileOpen(open);
+            if (!open) {
+              setSelectedUsername(null);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
