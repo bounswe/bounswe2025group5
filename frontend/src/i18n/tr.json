@@ -160,6 +160,8 @@
     },
     "challenges": {
         "title": "Etkinlikler",
+        "leaderboard": "Liderlik Tablosu",
+        "leaderboardEmpty": "Henüz kayıt yok",
         "attendError": "Etkinliğe katılınamadı",
         "leaveError": "Etkinlikten ayrılınamadı",
         "logError": "Etkinlik ilerlemesi kaydedilemedi",
