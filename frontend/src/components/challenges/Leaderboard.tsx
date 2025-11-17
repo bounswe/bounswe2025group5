@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChallengesApi } from '@/lib/api/challenges';
 import { Spinner } from '@/components/ui/spinner';
-import { Dialog, DialogContent, DialogOverlay, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import type { LeaderboardItem } from '@/lib/api/schemas/leaderboard';
 
@@ -32,7 +32,6 @@ export default function Leaderboard({ challengeId }: { challengeId: number }) {
           {t('challenges.leaderboard', 'Leaderboard')}
         </Button>
       </DialogTrigger>
-      <DialogOverlay />
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{t('challenges.leaderboard', 'Leaderboard')}</DialogTitle>
@@ -44,7 +43,7 @@ export default function Leaderboard({ challengeId }: { challengeId: number }) {
         ) : (
           <div className="mt-4">
             {leaderboardEntries.length ? (
-              <div className="max-h-72 overflow-y-auto pr-2">
+              <div className="max-h-120 overflow-y-auto pr-2">
                 <ul className="divide-y divide-border">
                   {leaderboardEntries.map((item, index) => (
                     <li key={item.username} className="flex items-center justify-between py-3">
