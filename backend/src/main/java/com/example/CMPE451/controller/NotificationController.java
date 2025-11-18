@@ -23,7 +23,7 @@ public class NotificationController {
     public List<NotificationResponse> getNotifications(@PathVariable String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found: " + username));
-        return notificationService.getUnreadNotifications(user);
+        return notificationService.getNotifications(user);
     }
 
     @PostMapping("/read/{id}")

@@ -27,8 +27,8 @@ public class NotificationService {
     }
 
 
-    public List<NotificationResponse> getUnreadNotifications(User user) {
-        return notificationRepository.findByUserAndIsReadFalseOrderByCreatedAtDesc(user)
+    public List<NotificationResponse> getNotifications(User user) {
+        return notificationRepository.findByUserOrderByCreatedAtDesc(user)
                 .stream()
                 .map(n -> {
                     NotificationResponse dto = new NotificationResponse();
@@ -48,7 +48,6 @@ public class NotificationService {
     public boolean markAsRead(Integer notificationId) {
         return notificationRepository.findById(notificationId).map(notification -> {
             notification.setIsRead(true);
-            notificationRepository.delete(notification);
             return true;
         }).orElse(false);
     }
