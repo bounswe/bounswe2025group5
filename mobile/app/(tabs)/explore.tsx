@@ -1,5 +1,5 @@
 //app/(tabs)/explore.tsx
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -14,6 +14,10 @@ import {
   Alert,
   Keyboard,
   Modal,
+  Switch,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
+  InteractionManager,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AccessibleText from '@/components/AccessibleText';
@@ -80,6 +84,9 @@ export default function ExploreScreen() {
   const [isSubmittingCommentEdit, setIsSubmittingCommentEdit] = useState(false);
   const [commenterAvatars, setCommenterAvatars] = useState<{ [username: string]: string | null }>({});
   const [isNotificationsVisible, setNotificationsVisible] = useState(false);
+  const hasLoadedPostsRef = useRef(false);
+  const scrollViewRef = useRef<ScrollView | null>(null);
+  const lastScrollOffsetRef = useRef(0);
 
   const colorScheme = useColorScheme();
   const screenBackgroundColor = colorScheme === 'dark' ? '#151718' : '#F0F2F5';
@@ -191,7 +198,8 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
   };
         
 
-  const fetchPosts = async (loadMore = false) => {
+  const fetchPosts = async (loadMore = false, options?: { preserveExisting?: boolean }) => {
+    const preserveExisting = Boolean(options?.preserveExisting);
     const isGuestUser = userType === 'guest';
     const currentOperation = loadMore ? 'loading more' : 'fetching initial/refresh';
     try {
@@ -230,6 +238,18 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
 
       if (loadMore) {
         setPosts(prevPosts => [...prevPosts, ...processedNewItems]);
+      } else if (preserveExisting) {
+        setPosts(prevPosts => {
+          if (prevPosts.length === 0) return processedNewItems;
+          const prevIds = new Set(prevPosts.map(post => post.id));
+          const newOnly = processedNewItems.filter(post => !prevIds.has(post.id));
+          const freshMap = new Map(processedNewItems.map(post => [post.id, post]));
+          const mergedExisting = prevPosts.map(post => freshMap.get(post.id) || post);
+          return [...newOnly, ...mergedExisting];
+        });
+        if (expandedPostId && processedNewItems.find(p => p.id === expandedPostId)) {
+          fetchCommentsForPost(expandedPostId, true);
+        }
       } else {
         setPosts(processedNewItems);
         if (expandedPostId && processedNewItems.find(p => p.id === expandedPostId)) {
@@ -247,7 +267,7 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
       if (isGuestUser) {
         setLastPostId(null);
         setNoMorePosts(true);
-      } else {
+      } else if (loadMore || !preserveExisting) {
         if (data.length > 0) setLastPostId(processedNewItems[processedNewItems.length - 1].id);
         if (data.length < 5) setNoMorePosts(true);
         else setNoMorePosts(false);
@@ -264,29 +284,71 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
     }
   };
   
+  const refreshFeed = (useRefreshControlIndicator: boolean, preserveExisting = false) => {
+    if (useRefreshControlIndicator) setRefreshing(true);
+    if (!preserveExisting) {
+      setLastPostId(null);
+      setNoMorePosts(false);
+      setEditingCommentDetails(null); 
+    }
+    setError(false);
+    fetchPosts(false, { preserveExisting });
+  };
+
+  const handleRefresh = () => refreshFeed(true);
+
+  useEffect(() => {
+    hasLoadedPostsRef.current = posts.length > 0;
+  }, [posts.length]);
+
   useFocusEffect(
     React.useCallback(() => {
+      let isActive = true;
+      let rafId: number | null = null;
+      const interactionHandle = InteractionManager.runAfterInteractions(() => {
+        if (!isActive || lastScrollOffsetRef.current <= 0) return;
+        rafId = requestAnimationFrame(() => {
+          if (isActive && scrollViewRef.current) {
+            scrollViewRef.current.scrollTo({
+              y: lastScrollOffsetRef.current,
+              animated: false,
+            });
+          }
+        });
+      });
+
       if (userType) { 
-        handleRefresh();
+        refreshFeed(false, hasLoadedPostsRef.current);
       } else if (username === null || username === '') {
         setPosts([]);
         setLoading(false);
       }
+      return () => {
+        isActive = false;
+        if (rafId !== null) cancelAnimationFrame(rafId);
+        interactionHandle?.cancel?.();
+      };
     }, [userType, username]) 
   );
-
-  const handleRefresh = () => {
-    setRefreshing(true);
-    setLastPostId(null);
-    setNoMorePosts(false);
-    setError(false);
-    setEditingCommentDetails(null); 
-    fetchPosts(false);
-  };
 
   const handleLoadMore = () => {
     if (!loading && !loadingMore && !refreshing && !isSearching && lastPostId !== null && !noMorePosts) {
       fetchPosts(true);
+    }
+  };
+
+  const isCloseToBottom = (nativeEvent: NativeScrollEvent) => {
+    const paddingToBottom = 150;
+    return (
+      nativeEvent.layoutMeasurement.height + nativeEvent.contentOffset.y >=
+      nativeEvent.contentSize.height - paddingToBottom
+    );
+  };
+
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    lastScrollOffsetRef.current = event.nativeEvent.contentOffset.y;
+    if (isCloseToBottom(event.nativeEvent)) {
+      handleLoadMore();
     }
   };
 
@@ -632,16 +694,20 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
 
   const currentDisplayPosts = inSearchMode ? searchResults : posts;
   const isContentLoading = (loading && !inSearchMode && currentDisplayPosts.length === 0) || (isSearching && inSearchMode && currentDisplayPosts.length === 0);
+  const showInlineRefreshIndicator = !inSearchMode && !isContentLoading && currentDisplayPosts.length > 0 && (refreshing || loading);
 
   return (
     <>
       <ScrollView
+        ref={scrollViewRef}
         style={[styles.container, { backgroundColor: screenBackgroundColor }]}
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} progressViewOffset={36} />
         }
+        onScroll={handleScroll}
+        scrollEventThrottle={32}
       >
       <View style={styles.header}>
         {userType === 'guest' ? (
@@ -726,6 +792,14 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
           />
         </View>
 
+        {showInlineRefreshIndicator && (
+          <ActivityIndicator
+            size="small"
+            color={activityIndicatorColor}
+            style={styles.refreshingIndicatorSpinner}
+          />
+        )}
+
         {isContentLoading ? (
           <ActivityIndicator style={{ marginTop: 20 }} size="large" color={activityIndicatorColor} />
         ) : error && currentDisplayPosts.length === 0 ? (
@@ -797,18 +871,12 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
                     isSubmittingCommentEditForPost={editingCommentDetails?.postId === post.id && isSubmittingCommentEdit}
                   />
                 ))}
-                {!noMorePosts && !refreshing && posts.length > 0 && (
-                  <TouchableOpacity
-                    style={styles.loadMoreButton}
-                    onPress={handleLoadMore}
-                    disabled={loadingMore || refreshing || isSearching}
-                  >
-                    {loadingMore ? (
-                          <ActivityIndicator color="#fff" />
-                        ) : (
-                          <AccessibleText backgroundColor={'#2196F3'} style={styles.loadMoreText}>{t('loadMorePosts')}</AccessibleText>
-                        )}
-                  </TouchableOpacity>
+                {loadingMore && posts.length > 0 && (
+                  <ActivityIndicator
+                    style={styles.listLoadingIndicator}
+                    size="small"
+                    color={activityIndicatorColor}
+                  />
                 )}
                 {noMorePosts && posts.length > 0 && !loadingMore && !refreshing && (
                   <View style={[styles.noMoreBox, { backgroundColor: themedNoMoreBoxBackgroundColor, marginTop: 20, marginBottom: 20 }]}> 
@@ -859,7 +927,7 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  content: { paddingBottom: 24 },
+  content: { paddingBottom: 80 },
   header: { 
     paddingHorizontal: 16, 
     marginTop: Platform.OS === 'ios' ? 48 : 48, 
@@ -908,8 +976,7 @@ const styles = StyleSheet.create({
   errorText: { fontSize: 16, fontWeight: 'bold', textAlign: 'center' },
   noMoreBox: { marginTop: 40, marginHorizontal: 20, padding: 16, borderRadius: 8, alignItems: 'center' },
   noMoreText: { fontSize: 16, fontWeight: '500', textAlign: 'center' },
-  loadMoreButton: { marginVertical: 20, marginHorizontal: 40, backgroundColor: '#2196F3', paddingVertical: 12, borderRadius: 25, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 3, elevation: 2 },
-  loadMoreText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  listLoadingIndicator: { marginVertical: 20 },
   commentsSection: { marginTop: 10, paddingTop: 10 },
   commentsListContainer: { maxHeight: 200, marginBottom: 10 },
   commentItemContainer: { paddingVertical: 8, borderBottomWidth: 1 },
@@ -942,6 +1009,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   notificationsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+  },
+
+  refreshingIndicatorSpinner: {
+    alignSelf: 'center',
+    marginTop: -8,
+    marginBottom: 10,
+  },
+  languageToggleContainer: {
+
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
