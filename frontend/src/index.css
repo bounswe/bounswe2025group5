@@ -143,8 +143,19 @@
   * {
     @apply border-border outline-ring/50;
   }
+  
+  html {
+    /* Reserve scrollbar space to prevent layout shifts */
+    overflow-y: scroll;
+  }
+  
   body {
     @apply bg-background text-foreground;
+    /* Use scrollbar-gutter to reserve space for scrollbar */
+    scrollbar-gutter: stable;
+    /* Prevent width changes when modals open */
+    width: 100vw;
+    overflow-x: hidden;
   }
 }
 

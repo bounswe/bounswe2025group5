@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -28,6 +29,7 @@ public class ChallengeService {
     private final UserRepository userRepository;
     private final ChallengeUserRepository challengeUserRepository;
     private final ChallengeLogRepository challengeLogRepository;
+    private final ActivityLogger activityLogger;
 
 
     @Transactional
@@ -64,6 +66,15 @@ public class ChallengeService {
         challenge.setStatus(Challenge.Status.Ended);
         challenge.setEndDate(LocalDate.now());
         challengeRepository.saveAndFlush(challenge);
+
+        List<String> users = getUsernamesForChallenge(id);
+
+        activityLogger.logAction(
+                "End",
+                null, null,
+                "Challenge", challenge.getChallengeId(),
+                "Users", users
+        );
 
         return new EndChallengeResponse(challenge.getChallengeId(), true);
     }
@@ -218,4 +229,15 @@ public class ChallengeService {
                 ))
                 .collect(Collectors.toList());
     }
+
+    @Transactional(readOnly = true)
+    public List<String> getUsernamesForChallenge(Integer challengeId) {
+        Challenge challenge = challengeRepository.findById(challengeId)
+                .orElseThrow(() -> new NotFoundException("Challenge not found with ID: " + challengeId));
+
+        return challengeUserRepository.findByIdChallengeId(challengeId).stream()
+                .map(cu -> cu.getUser().getUsername())
+                .toList();
+    }
+
 }

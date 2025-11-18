@@ -83,6 +83,7 @@ export default function HomeScreen() {
 
   const [usernameInput, setUsernameInput] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordStrength, setPasswordStrength] = useState({ label: 'Very weak', color: '#D32F2F', score: 0 });
   const [confirmPassword, setConfirmPassword] = useState("");
   const [email, setEmail] = useState("");
   const [kvkkChecked, setKvkkChecked] = useState(false);
@@ -317,6 +318,21 @@ export default function HomeScreen() {
     navigation.navigate("explore");
   };
 
+  const evaluatePasswordStrength = (value: string) => {
+    const score =
+      (value.length >= 8 ? 1 : 0) +
+      (/[A-Z]/.test(value) ? 1 : 0) +
+      (/[0-9]/.test(value) ? 1 : 0) +
+      (/[^A-Za-z0-9]/.test(value) ? 1 : 0) +
+      (value.length >= 12 ? 1 : 0);
+    if (!value) return { label: 'Very weak', color: '#D32F2F', score: 0 };
+    if (score <= 1) return { label: 'Very weak', color: '#D32F2F', score };
+    if (score === 2) return { label: 'Weak', color: '#F44336', score };
+    if (score === 3) return { label: 'Fair', color: '#FBC02D', score };
+    if (score === 4) return { label: 'Good', color: '#66BB6A', score };
+    return { label: 'Strong', color: '#2E7D32', score };
+  };
+
   return (
     <>
       <ParallaxScrollView
@@ -357,59 +373,88 @@ export default function HomeScreen() {
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.trendingRow}
                 style={styles.trendingContainer}
               >
-                {trendingPosts.map((post) => (
-                  <View
-                    key={post.postId}
-                    style={[styles.postContainer, { backgroundColor: postBg }]}
-                  >
-                    <AccessibleText
-                      type="title"
-                      isLargeText
-                      backgroundColor={postBg}
-                      style={[styles.postTitle]}
+                {trendingPosts.map((post) => {
+                  const initials =
+                    post.creatorUsername?.substring(0, 2).toUpperCase() ?? "US";
+                  const imageUri = post.photoUrl
+                    ? post.photoUrl.startsWith("http")
+                      ? post.photoUrl
+                      : `${API_BASE_URL}${post.photoUrl}`
+                    : null;
+
+                  return (
+                    <View
+                      key={post.postId}
+                      style={[styles.trendingCard, { backgroundColor: postBg }]}
                     >
-                      {post.creatorUsername}
-                    </AccessibleText>
+                      <View style={styles.trendingHeaderRow}>
+                        <View style={styles.trendingAvatar}>
+                          <Text style={styles.trendingAvatarText}>{initials}</Text>
+                        </View>
+                        <View style={styles.trendingHeaderText}>
+                          <AccessibleText
+                            backgroundColor={postBg}
+                            style={styles.trendingName}
+                          >
+                            {post.creatorUsername}
+                          </AccessibleText>
+                          <Text style={styles.trendingSubtitle}>
+                            {t("trendingCardSubtitle", {
+                              defaultValue: "Community member",
+                            })}
+                          </Text>
+                        </View>
+                      </View>
 
-                    <AccessibleText
-                      backgroundColor={postBg}
-                      style={[styles.postContent]}
-                      numberOfLines={3}
-                    >
-                      {post.content}
-                    </AccessibleText>
+                      {post.content ? (
+                        <AccessibleText
+                          backgroundColor={postBg}
+                          style={[styles.trendingContent, { color: postTextColor }]}
+                          numberOfLines={3}
+                        >
+                          {post.content}
+                        </AccessibleText>
+                      ) : null}
 
-                    {post.photoUrl && (
-                      <Image
-                        source={{
-                          uri: post.photoUrl.startsWith("http")
-                            ? post.photoUrl
-                            : `${API_BASE_URL}${post.photoUrl}`,
-                        }}
-                        style={styles.postImage}
-                        onError={(e) =>
-                          console.warn(
-                            "Image failed to load:",
-                            e.nativeEvent.error
-                          )
-                        }
-                      />
-                    )}
+                      {imageUri && (
+                        <Image
+                          source={{ uri: imageUri }}
+                          style={styles.trendingImage}
+                          onError={(e) =>
+                            console.warn(
+                              "Image failed to load:",
+                              e.nativeEvent.error
+                            )
+                          }
+                        />
+                      )}
 
-                    <View style={styles.postFooter}>
-                      <Ionicons name="heart-outline" size={16} />
-                      <AccessibleText backgroundColor={postBg} style={[styles.footerText]}> 
-                        {post.likes}
-                      </AccessibleText>
-                      <Ionicons name="chatbubble-outline" size={16} />
-                      <AccessibleText backgroundColor={postBg} style={[styles.footerText]}> 
-                        {post.comments}
-                      </AccessibleText>
+                      <View style={styles.trendingFooter}>
+                        <View style={styles.trendingStat}>
+                          <Ionicons name="heart-outline" size={14} color="#FF6B6B" />
+                          <AccessibleText
+                            backgroundColor={postBg}
+                            style={styles.trendingStatText}
+                          >
+                            {post.likes}
+                          </AccessibleText>
+                        </View>
+                        <View style={styles.trendingStat}>
+                          <Ionicons name="chatbubble-outline" size={14} color="#FFFFFF" />
+                          <AccessibleText
+                            backgroundColor={postBg}
+                            style={styles.trendingStatText}
+                          >
+                            {post.comments}
+                          </AccessibleText>
+                        </View>
+                      </View>
                     </View>
-                  </View>
-                ))}
+                  );
+                })}
               </ScrollView>
             </View>
 
@@ -488,23 +533,50 @@ export default function HomeScreen() {
               />
             )}
 
-            <TextInput
-              style={[
-                styles.input,
-                { color: themeColors.inputText, backgroundColor: themeColors.inputBackground, borderColor: themeColors.inputBorder },
-              ]}
-              onChangeText={setPassword}
-              placeholder={t("password")}
-              placeholderTextColor={themeColors.inputPlaceholder ?? '#888'}
-              secureTextEntry
-              value={password}
-            />
+            <View>
+              <TextInput
+                style={[
+                  styles.input,
+                  styles.passwordInput,
+                  { color: themeColors.inputText, backgroundColor: themeColors.inputBackground, borderColor: themeColors.inputBorder },
+                ]}
+                onChangeText={(value) => {
+                  setPassword(value);
+                  setPasswordStrength(evaluatePasswordStrength(value));
+                }}
+                placeholder={t("password")}
+                placeholderTextColor={themeColors.inputPlaceholder ?? '#888'}
+                secureTextEntry
+                value={password}
+              />
+              {isRegistering && (
+                <View style={styles.passwordStrengthContainer}>
+                  <View style={styles.passwordStrengthBarBackground}>
+                    <View
+                      style={[
+                        styles.passwordStrengthBarFill,
+                        {
+                          backgroundColor: passwordStrength.color,
+                          width: `${(passwordStrength.score / 5) * 100}%`,
+                        },
+                      ]}
+                    />
+                  </View>
+                  <Text style={[styles.passwordStrengthLabel, { color: passwordStrength.color }]}>
+                    {t(passwordStrength.label.replace(' ', '').toLowerCase(), {
+                      defaultValue: passwordStrength.label,
+                    })}
+                  </Text>
+                </View>
+              )}
+            </View>
 
             {isRegistering && (
               <>
                 <TextInput
                   style={[
                     styles.input,
+                    styles.confirmInput,
                     { color: themeColors.inputText, backgroundColor: themeColors.inputBackground, borderColor: themeColors.inputBorder },
                   ]}
                   onChangeText={setConfirmPassword}
@@ -638,28 +710,40 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 8,
   },
-  trendingContainer: { height: 260, marginVertical: 8 },
-  postContainer: {
+  trendingContainer: { marginVertical: 8 },
+  trendingRow: { paddingHorizontal: 0, paddingVertical: 6 },
+  trendingCard: {
     width: 250,
-    height: 240,
-    marginRight: 16,
-    backgroundColor: "#f5f5f5",
-    borderRadius: 8,
-    padding: 12,
-    justifyContent: "space-between",
-    overflow: "hidden",
+    minHeight: 220,
+    borderRadius: 16,
+    padding: 14,
+    marginRight: 14,
+    shadowColor: "#000",
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
+    justifyContent: "center",
   },
-  postTitle: { fontSize: 16, fontWeight: "bold", marginTop: -5, color: "#000" },
-  postContent: { fontSize: 14, marginTop: -20, color: "#000" },
-  postImage: {
-    width: "100%",
-    aspectRatio: 16 / 9,
-    maxHeight: 120,
-    borderRadius: 6,
-    resizeMode: "cover",
+  trendingHeaderRow: { flexDirection: "row", alignItems: "center", marginBottom: 8 },
+  trendingAvatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "rgba(0,0,0,0.08)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 10,
   },
-  postFooter: { flexDirection: "row", alignItems: "center" },
-  footerText: { fontSize: 12, marginHorizontal: 4, color: "#000" },
+  trendingAvatarText: { fontWeight: "700", color: "#1F2933" },
+  trendingHeaderText: { flex: 1 },
+  trendingName: { fontSize: 15, fontWeight: "700" },
+  trendingSubtitle: { fontSize: 12, color: "#6B7280", marginTop: 2 },
+  trendingContent: { fontSize: 14, lineHeight: 18, marginBottom: 8 },
+  trendingImage: { width: "100%", height: 120, borderRadius: 10, marginBottom: 8, resizeMode: "cover" },
+  trendingFooter: { flexDirection: "row", alignItems: "center", marginTop: 4 },
+  trendingStat: { flexDirection: "row", alignItems: "center", marginRight: 16 },
+  trendingStatText: { marginLeft: 4, fontSize: 13, fontWeight: "600" },
   modeHeader: {
     fontSize: 20,
     fontWeight: "bold",
@@ -724,4 +808,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   errorText: { color: "#fff", fontSize: 14, textAlign: "center" },
+  passwordStrengthContainer: { marginTop: 8, marginBottom: 4, marginHorizontal: 16, alignItems: 'center' },
+  passwordStrengthBarBackground: { height: 4, borderRadius: 3, backgroundColor: '#E0E0E0', overflow: 'hidden', width: '50%' },
+  passwordStrengthBarFill: { height: '100%', borderRadius: 3 },
+  passwordStrengthLabel: { marginTop: 4, fontSize: 12, fontWeight: '600', textAlign: 'center' },
+  passwordInput: { marginBottom: 0 },
+  confirmInput: { marginTop: -10 },
 });
