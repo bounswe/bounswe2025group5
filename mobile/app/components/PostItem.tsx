@@ -15,7 +15,7 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { ThemedText } from '@/components/ThemedText';
+import AccessibleText from '@/components/AccessibleText';
 import CommentItemDisplay from './CommentItemDisplay';
 
 import { useTranslation } from 'react-i18next';
@@ -26,6 +26,7 @@ interface CommentData {
   username: string;
   content: string;
   createdAt: string | Date;
+  avatarUrl?: string | null;
 }
 
 type Post = {
@@ -173,16 +174,16 @@ function PostItem({
               accessibilityElementsHidden
               importantForAccessibility="no-hide-descendants"
             />
-            <ThemedText style={styles.reportText}>
+            <AccessibleText backgroundColor={cardBackgroundColor} style={styles.reportText}>
               {t('report', { defaultValue: 'Report' })}
-            </ThemedText>
+            </AccessibleText>
           </TouchableOpacity>
         )}
         
-        {/* ... Post title, image, content, footer (likes/comment count) ... no changes here */}
-        <ThemedText type="title" style={styles.postTitle}>
+        {/* ... Post title, image, content, footer (likes/comment count) ... */}
+        <AccessibleText type="title" isLargeText backgroundColor={cardBackgroundColor} style={styles.postTitle}>
           {post.title}
-        </ThemedText>
+        </AccessibleText>
         {imageUri && (
           <>
             <View style={styles.imageWrapper}>
@@ -264,18 +265,19 @@ function PostItem({
         )}
 
         {post.content ? (
-          <ThemedText style={[styles.postContent, { color: textColor }]}>
+          <AccessibleText backgroundColor={cardBackgroundColor} style={[styles.postContent]}> 
             {post.content}
-          </ThemedText>
+          </AccessibleText>
         ) : null}
         <View style={styles.postMetaRow}>
           {formattedPublishedAt ? (
-            <ThemedText
+            <AccessibleText
+              backgroundColor={cardBackgroundColor}
               style={[styles.postTimestamp, { color: iconColor }]}
               accessibilityLabel={formattedPublishedAt}
             >
               {formattedPublishedAt}
-            </ThemedText>
+            </AccessibleText>
           ) : (
             <View />
           )}
@@ -288,16 +290,16 @@ function PostItem({
               size={20}
               color={post.likedByUser ? 'red' : iconColor}
             />
-            <ThemedText style={[styles.footerText, { color: post.likedByUser ? 'red' : iconColor, marginLeft: 4 }]}>
+            <AccessibleText backgroundColor={cardBackgroundColor} style={[styles.footerText, { color: post.likedByUser ? 'red' : iconColor, marginLeft: 4 }]}> 
               {post.likes}
-            </ThemedText>
+            </AccessibleText>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={onToggleComments} style={styles.footerAction}>
             <Ionicons name="chatbubble-outline" size={20} color={iconColor} />
-            <ThemedText style={[styles.footerText, { color: iconColor, marginLeft: 4 }]}>
+            <AccessibleText backgroundColor={cardBackgroundColor} style={[styles.footerText, { color: iconColor, marginLeft: 4 }]}> 
               {post.comments}
-            </ThemedText>
+            </AccessibleText>
           </TouchableOpacity>
 
           <TouchableOpacity testID="save-toggle" onPress={handleSave} style={[styles.footerAction, { marginLeft: 'auto' }]}>
@@ -307,14 +309,15 @@ function PostItem({
               size={20}
               color={post.savedByUser ? '#FFC107' : iconColor}
             />
-            <ThemedText
+            <AccessibleText
+              backgroundColor={cardBackgroundColor}
               style={[
                 styles.footerText,
                 { color: post.savedByUser ? '#FFC107' : iconColor, marginLeft: 4 },
               ]}
             >
               {post.savedByUser ? t('saved') : t('save')}
-            </ThemedText>
+            </AccessibleText>
           </TouchableOpacity>
         </View>
 
@@ -329,9 +332,9 @@ function PostItem({
             {isLoadingComments ? (
               <ActivityIndicator style={{ marginVertical: 15 }} color={iconColor} />
             ) : commentsList.length === 0 && !editingCommentDetailsForPost ? (
-              <ThemedText style={[styles.noCommentsText, { color: textColor }]}>
+              <AccessibleText backgroundColor={cardBackgroundColor} style={[styles.noCommentsText]}> 
                 {t('noCommentsYetBeFirst')}
-              </ThemedText>
+              </AccessibleText>
             ) : (
               <ScrollView
                 style={styles.commentsListContainer}
@@ -341,38 +344,39 @@ function PostItem({
                 {commentsList.map((comment) => {
                   const isEditingThisComment =
                     editingCommentDetailsForPost?.commentId === comment.commentId;
-                  return (
-                    <CommentItemDisplay
-                      key={comment.commentId}
-                      comment={comment}
-                      commentTextColor={commentContentActualColor}
-                      commentUsernameColor={commentUsernameActualColor}
-                      commentBorderColor={commentItemBorderColor}
-                      loggedInUsername={loggedInUsername}
-                      onDeleteComment={(commentIdToDelete) =>
-                        onDeleteComment(post.id, commentIdToDelete)
-                      }
-                      deleteIconColor={deleteIconActualColor}
-                      editIconColor={editIconActualColor}
-                      onTriggerEdit={(commentToEdit) =>
-                        onTriggerEditComment(post.id, {
-                          ...commentToEdit,
-                          createdAt: commentToEdit.createdAt.toString(),
-                        })
-                      }
-                      isEditingThisComment={isEditingThisComment}
-                      editedContent={
-                        isEditingThisComment ? editingCommentDetailsForPost?.currentText || '' : ''
-                      }
-                      onEditContentChange={onEditCommentContentChange}
-                      onSaveEditedComment={() =>
-                        onSaveEditedCommentForPost(post.id, comment.commentId)
-                      }
-                      onCancelEdit={onCancelCommentEdit}
-                      isSavingEdit={isEditingThisComment && isSubmittingCommentEditForPost}
-                      // If CommentItemDisplay has internal strings, remember to i18n that component too.
-                    />
-                  );
+                    return (
+                      <CommentItemDisplay
+                        key={comment.commentId}
+                        comment={comment}
+                        commentTextColor={commentContentActualColor}
+                        commentUsernameColor={commentUsernameActualColor}
+                        commentBorderColor={commentItemBorderColor}
+                        loggedInUsername={loggedInUsername}
+                        onDeleteComment={(commentIdToDelete) =>
+                          onDeleteComment(post.id, commentIdToDelete)
+                        }
+                        deleteIconColor={deleteIconActualColor}
+                        editIconColor={editIconActualColor}
+                        onTriggerEdit={(commentToEdit) =>
+                          onTriggerEditComment(post.id, {
+                            ...commentToEdit,
+                            createdAt: commentToEdit.createdAt.toString(),
+                          })
+                        }
+                        isEditingThisComment={isEditingThisComment}
+                        editedContent={
+                          isEditingThisComment ? editingCommentDetailsForPost?.currentText || '' : ''
+                        }
+                        onEditContentChange={onEditCommentContentChange}
+                        onSaveEditedComment={() =>
+                          onSaveEditedCommentForPost(post.id, comment.commentId)
+                        }
+                        onCancelEdit={onCancelCommentEdit}
+                        isSavingEdit={isEditingThisComment && isSubmittingCommentEditForPost}
+                        backgroundColor={cardBackgroundColor}
+                        // If CommentItemDisplay has internal strings, remember to i18n that component too.
+                      />
+                    );
                 })}
               </ScrollView>
             )}
@@ -413,7 +417,7 @@ function PostItem({
                       color={colorScheme === 'dark' ? '#FFFFFF' : '#007AFF'}
                     />
                   ) : (
-                    <ThemedText style={styles.postCommentButtonText}>{t('post')}</ThemedText>
+                    <AccessibleText backgroundColor={'#007AFF'} style={styles.postCommentButtonText}>{t('post')}</AccessibleText>
                   )}
                 </TouchableOpacity>
               </View>
