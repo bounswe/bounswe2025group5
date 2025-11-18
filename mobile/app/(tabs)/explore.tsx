@@ -13,6 +13,7 @@ import {
   Image,
   Alert,
   Keyboard,
+  Modal,
   Switch,
   NativeSyntheticEvent,
   NativeScrollEvent,
@@ -25,13 +26,13 @@ import { AuthContext } from '../_layout';
 import { apiRequest } from '../services/apiClient';
 import PostItem from '../components/PostItem';
 import { useTranslation } from 'react-i18next';
-import { useLanguageSwitch } from '@/hooks/useLanguageSwitch';
 
 type CommentData = {
   commentId: number;
   username: string;
   content: string;
-  createdAt: string | Date; 
+  createdAt: string | Date;
+  avatarUrl?: string | null;
 }
 
 type Post = {
@@ -49,9 +50,7 @@ type Post = {
 export default function ExploreScreen() {
   const navigation = useNavigation();
 
-  const { t, i18n } = useTranslation();
-  const isTurkish = (i18n.resolvedLanguage || i18n.language || '').toLowerCase().startsWith('tr');
-  const toggleLanguage = (value: boolean) => i18n.changeLanguage(value ? 'tr-TR' : 'en-US');
+  const { t } = useTranslation();
 
   const authContext = useContext(AuthContext);
   const userType = authContext?.userType;
@@ -59,6 +58,7 @@ export default function ExploreScreen() {
 
 
   const [posts, setPosts] = useState<Post[]>([]);
+  const [isFriendsFeed, setIsFriendsFeed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [lastPostId, setLastPostId] = useState<number | null>(null);
@@ -82,6 +82,8 @@ export default function ExploreScreen() {
     currentText: string;
   } | null>(null);
   const [isSubmittingCommentEdit, setIsSubmittingCommentEdit] = useState(false);
+  const [commenterAvatars, setCommenterAvatars] = useState<{ [username: string]: string | null }>({});
+  const [isNotificationsVisible, setNotificationsVisible] = useState(false);
   const hasLoadedPostsRef = useRef(false);
   const scrollViewRef = useRef<ScrollView | null>(null);
   const lastScrollOffsetRef = useRef(0);
@@ -104,6 +106,10 @@ export default function ExploreScreen() {
   const themedNoMoreBoxTextColor = colorScheme === 'dark' ? '#9EE8FF' : '#00796b';
   const activityIndicatorColor = colorScheme === 'dark' ? '#FFFFFF' : '#000000';
   const refreshControlColors = colorScheme === 'dark' ? { tintColor: '#FFFFFF', titleColor: '#FFFFFF'} : { tintColor: '#000000', titleColor: '#000000'};
+  const notificationButtonBackground = colorScheme === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)';
+  const notificationIconColor = colorScheme === 'dark' ? '#FFFFFF' : '#1C1C1E';
+  const feedAccentColor = isFriendsFeed ? '#2E7D32' : '#1976D2';
+  const feedAccentShadow = isFriendsFeed ? 'rgba(30, 94, 48, 0.2)' : 'rgba(13, 71, 161, 0.2)';
   
 
   useEffect(() => {
@@ -111,6 +117,12 @@ export default function ExploreScreen() {
       navigation.navigate('index'as never);
     }
   }, [userType, username, navigation]);
+
+  useEffect(() => {
+    if (userType === 'guest' && isFriendsFeed) {
+      setIsFriendsFeed(false);
+    }
+  }, [userType, isFriendsFeed]);
 
   const mapApiItemToPost = (item: any): Post => ({
     id: item.postId,
@@ -138,24 +150,53 @@ export default function ExploreScreen() {
     return Promise.all(promises);
   };
 
-  const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentUsername: string): Promise<Post[]> => {
-    if (!currentUsername || currentPostsToUpdate.length === 0) return currentPostsToUpdate;
-      try {
-        const res = await apiRequest(`/api/users/${encodeURIComponent(currentUsername)}/saved-posts`);
-        if (!res.ok) return currentPostsToUpdate;
+const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentUsername: string): Promise<Post[]> => {
+  if (!currentUsername || currentPostsToUpdate.length === 0) return currentPostsToUpdate;
+    try {
+      const res = await apiRequest(`/api/users/${encodeURIComponent(currentUsername)}/saved-posts`);
+      if (!res.ok) return currentPostsToUpdate;
         const savedPostsData = await res.json();
         const savedPostIds = new Set(savedPostsData.map((post: any) => post.postId));
         return currentPostsToUpdate.map(post => ({
           ...post,
           savedByUser: savedPostIds.has(post.id), 
         }));
-      } catch (e) { 
-        console.error('Error fetching saved statuses:', e);
-        return currentPostsToUpdate;
-      }
-  }
-        
+    } catch (e) { 
+      console.error('Error fetching saved statuses:', e);
+      return currentPostsToUpdate;
+    }
+  };
 
+  const fetchAvatarForUsername = async (username: string) => {
+    if (!username) return null;
+    try {
+      const encoded = encodeURIComponent(username);
+      const response = await apiRequest(`/api/users/${encoded}/profile?username=${encoded}`);
+      if (!response.ok) return null;
+      const data = await response.json();
+      return data?.photoUrl ?? null;
+    } catch {
+      return null;
+    }
+  };
+
+  const ensureAvatarsForUsernames = async (usernames: string[]) => {
+    const uniqueUsernames = Array.from(new Set(usernames.filter(Boolean)));
+    const missing = uniqueUsernames.filter((name) => commenterAvatars[name] === undefined);
+    if (!missing.length) return {};
+    const fetchedEntries = await Promise.all(
+      missing.map(async (name) => {
+        const url = await fetchAvatarForUsername(name);
+        return [name, url] as const;
+      })
+    );
+    const newMap = Object.fromEntries(fetchedEntries);
+    if (Object.keys(newMap).length > 0) {
+      setCommenterAvatars((prev) => ({ ...prev, ...newMap }));
+    }
+    return newMap;
+  };
+        
 
   const fetchPosts = async (loadMore = false, options?: { preserveExisting?: boolean }) => {
     const preserveExisting = Boolean(options?.preserveExisting);
@@ -349,6 +390,9 @@ export default function ExploreScreen() {
     if (expandedPostId) setExpandedPostId(null);
   };
 
+  const openNotifications = () => setNotificationsVisible(true);
+  const closeNotifications = () => setNotificationsVisible(false);
+
   const handleLikeToggle = async (postId: number, currentlyLiked: boolean) => {
     if (userType === 'guest' || !username) {
       Alert.alert(t('loginRequired'), t('pleaseLogInToLike'));
@@ -466,8 +510,16 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
       const response = await apiRequest(`/api/posts/${postId}/comments`);
       if (!response.ok) { /* ... error handling ... */ throw new Error(`Failed to fetch comments: ${response.status}`); }
       const apiResponse = await response.json();
-      const fetchedComments: CommentData[] = (apiResponse.comments || []).map((apiComment: any) => ({
-        commentId: apiComment.commentId, content: apiComment.content, createdAt: apiComment.createdAt, username: apiComment.creatorUsername,
+      const apiComments = apiResponse.comments || [];
+      const usernamesNeedingAvatars = apiComments.map((apiComment: any) => apiComment.creatorUsername);
+      const newlyFetchedAvatars = await ensureAvatarsForUsernames(usernamesNeedingAvatars);
+      const avatarLookup = { ...commenterAvatars, ...newlyFetchedAvatars };
+      const fetchedComments: CommentData[] = apiComments.map((apiComment: any) => ({
+        commentId: apiComment.commentId,
+        content: apiComment.content,
+        createdAt: apiComment.createdAt,
+        username: apiComment.creatorUsername,
+        avatarUrl: avatarLookup[apiComment.creatorUsername] ?? null,
       }));
       setCommentsByPostId(prev => ({ ...prev, [postId]: fetchedComments }));
       if (typeof apiResponse.totalComments === 'number') { /* ... update post comment count ... */ }
@@ -476,6 +528,10 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
   }
 
   const handleToggleComments = (postId: number) => {
+    if (userType === 'guest' || !username) {
+      Alert.alert(t('loginRequired'), t('loginRequiredForComment'));
+      return;
+    }
     const isCurrentlyExpanded = expandedPostId === postId;
     if (editingCommentDetails && editingCommentDetails.postId === postId && !isCurrentlyExpanded) {
     }
@@ -516,7 +572,16 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
         });
         const apiResponseData = await response.json();
         if (!response.ok) throw new Error(apiResponseData.message || `Failed to post comment`);
-        const newComment: CommentData = { /* ... map response ... */ commentId: apiResponseData.commentId, content: apiResponseData.content, createdAt: apiResponseData.createdAt, username: apiResponseData.creatorUsername || username };
+        const authorUsername = apiResponseData.creatorUsername || username;
+        const avatarUpdates = await ensureAvatarsForUsernames([authorUsername]);
+        const avatarLookup = { ...commenterAvatars, ...avatarUpdates };
+        const newComment: CommentData = {
+          commentId: apiResponseData.commentId,
+          content: apiResponseData.content,
+          createdAt: apiResponseData.createdAt,
+          username: authorUsername,
+          avatarUrl: avatarLookup[authorUsername] ?? null,
+        };
         setCommentsByPostId(prev => ({ ...prev, [postId]: [newComment, ...(prev[postId] || [])] }));
         const listUpdater = (list: Post[]) => list.map(p => p.id === postId ? { ...p, comments: p.comments + 1 } : p);
         setPosts(listUpdater);
@@ -632,6 +697,7 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
   const showInlineRefreshIndicator = !inSearchMode && !isContentLoading && currentDisplayPosts.length > 0 && (refreshing || loading);
 
   return (
+    <>
       <ScrollView
         ref={scrollViewRef}
         style={[styles.container, { backgroundColor: screenBackgroundColor }]}
@@ -644,21 +710,49 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
         scrollEventThrottle={32}
       >
       <View style={styles.header}>
-        <View style={styles.titleContainer}>
-          <AccessibleText type="title" backgroundColor={screenBackgroundColor}>{t('explore')}</AccessibleText>
-        </View>
+        {userType === 'guest' ? (
+          <AccessibleText
+            type="title"
+            backgroundColor={screenBackgroundColor}
+            style={styles.staticFeedLabel}
+          >
+            {t('exploreGlobal', { defaultValue: 'Explore Global' })}
+          </AccessibleText>
+        ) : (
+          <>
+            <TouchableOpacity
+              style={styles.feedToggle}
+              onPress={() => setIsFriendsFeed((prev) => !prev)}
+              accessibilityRole="button"
+              accessibilityLabel={t('toggleFeed', { defaultValue: 'Toggle feed' })}
+            >
+              <AccessibleText
+                type="title"
+                backgroundColor={screenBackgroundColor}
+                style={[
+                  styles.feedToggleLabel,
+                  {
+                    color: feedAccentColor,
+                  },
+                ]}
+              >
+                {isFriendsFeed
+                  ? t('exploreFriends', { defaultValue: 'Explore Friends' })
+                  : t('exploreGlobal', { defaultValue: 'Explore Global' })}
+              </AccessibleText>
+            </TouchableOpacity>
 
-        <View style={styles.languageToggleContainer}>
-          <AccessibleText backgroundColor={screenBackgroundColor} style={styles.languageLabel}>EN</AccessibleText>
-          <Switch
-            trackColor={{ false: '#767577', true: '#81b0ff' }}
-            thumbColor={isTurkish ? '#f5dd4b' : '#f4f3f4'}
-            ios_backgroundColor="#3e3e3e"
-            onValueChange={value => { toggleLanguage(value); }}
-            value={isTurkish}
-          />
-          <AccessibleText backgroundColor={screenBackgroundColor} style={styles.languageLabel}>TR</AccessibleText>
-        </View>
+            <TouchableOpacity
+              style={[styles.notificationButton, { backgroundColor: notificationButtonBackground }]}
+              onPress={openNotifications}
+              accessibilityRole="button"
+              accessibilityLabel={t('openNotifications', { defaultValue: 'Open notifications' })}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Ionicons name="notifications-outline" size={28} color={notificationIconColor} />
+            </TouchableOpacity>
+          </>
+        )}
       </View>
 
 
@@ -801,7 +895,34 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
           </>
         )}
       </ScrollView>
-    );
+      <Modal
+        visible={isNotificationsVisible}
+        animationType="slide"
+        onRequestClose={closeNotifications}
+      >
+        <View style={[styles.notificationsOverlay, { backgroundColor: screenBackgroundColor }]}>
+          <View style={styles.notificationsHeader}>
+            <TouchableOpacity
+              onPress={closeNotifications}
+              accessibilityLabel={t('close', { defaultValue: 'Close' })}
+              style={styles.notificationsBackButton}
+            >
+              <Ionicons name="arrow-back" size={24} color={generalTextColor} />
+            </TouchableOpacity>
+            <AccessibleText backgroundColor={screenBackgroundColor} style={[styles.notificationsTitle, { color: generalTextColor }]}>
+              {t('notificationsTitle', { defaultValue: 'Notifications' })}
+            </AccessibleText>
+            <View style={{ width: 32 }} />
+          </View>
+          <View style={styles.notificationsContent}>
+            <AccessibleText backgroundColor={screenBackgroundColor} style={[styles.notificationsEmptyText, { color: iconColor }]}>
+              {t('notificationsEmpty', { defaultValue: "You're all caught up!" })}
+            </AccessibleText>
+          </View>
+        </View>
+      </Modal>
+    </>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -816,9 +937,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   titleContainer: {
-    flex: 1, // This is the key: it makes the title expand and pushes the toggle
+    flex: 1,
     marginRight: 8,
   },
+  feedToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  feedToggleLabel: {
+    paddingHorizontal: 4,
+    paddingVertical: 4,
+    fontWeight: '700',
+  },
+  staticFeedLabel: { flex: 1, textAlign: 'left', fontWeight: '700', color: '#1976D2' },
   guestActionHeader: {
     paddingHorizontal: 16,
     marginBottom: 18,
@@ -866,23 +997,42 @@ const styles = StyleSheet.create({
   postCommentButton: { paddingHorizontal: 12, paddingVertical: 10, borderRadius: 20, backgroundColor: '#007AFF' },
   postCommentButtonDisabled: { backgroundColor: '#B0C4DE' },
   postCommentButtonText: { color: '#FFFFFF', fontWeight: '600', fontSize: 14 },
+  notificationButton: {
+    padding: 8,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  notificationsOverlay: {
+    flex: 1,
+    paddingTop: Platform.OS === 'ios' ? 60 : 40,
+    paddingHorizontal: 16,
+  },
+  notificationsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+  },
+
   refreshingIndicatorSpinner: {
     alignSelf: 'center',
     marginTop: -8,
     marginBottom: 10,
   },
   languageToggleContainer: {
+
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.2)',
-    borderRadius: 20,
-    paddingHorizontal: 4,
-    paddingVertical: 2,
+    justifyContent: 'space-between',
+    marginBottom: 24,
   },
-  languageLabel: {
-    color: '#fff',
-    fontWeight: 'bold',
-    marginHorizontal: 6,
-    fontSize: 12,
+  notificationsBackButton: { padding: 6, marginRight: 8 },
+  notificationsTitle: { fontSize: 20, fontWeight: '700' },
+  notificationsContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
+  notificationsEmptyText: { fontSize: 16, textAlign: 'center', lineHeight: 22 },
 });
