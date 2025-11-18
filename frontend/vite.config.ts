@@ -36,5 +36,20 @@ export default defineConfig({
     host: true,
     allowedHosts: ['waste-less.alibartukonca.org'],
   },
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: "./src/tests/setup.ts",
+    css: true,
+    passWithNoTests: true,
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "lcov"],
+      reportsDirectory: "coverage",
+    },
+  },
 });
 
