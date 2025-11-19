@@ -79,6 +79,16 @@ function CommentItemDisplay({
   const colorScheme = useColorScheme(); // For save/cancel button text color
   const resolvedReportColor = reportActionColor || '#515151';
 
+  // Derived UI values (previously referenced but not defined)
+  const bubbleBackground = backgroundColor ?? (colorScheme === 'dark' ? '#1C1C1E' : '#FFFFFF');
+  const bubbleBorderColor = commentBorderColor || (colorScheme === 'dark' ? '#2C2C2E' : '#E5E5EA');
+  const avatarBackground = '#D9D9D9';
+  const avatarTextColor = '#111111';
+  const avatarInitial = comment.username ? comment.username.charAt(0).toUpperCase() : '?';
+  const timestamp = comment.createdAt ? new Date(comment.createdAt) : new Date();
+  const timestampText = timestamp.toLocaleString();
+  const timestampColor = '#8E8E93';
+
   if (isOwner && isEditingThisComment) {
     return (
       <View style={styles.commentItemWrapper}>
@@ -127,30 +137,56 @@ function CommentItemDisplay({
             <Image source={{ uri: comment.avatarUrl }} style={styles.commentAvatarImage} />
           ) : (
             <View style={[styles.commentAvatar, { backgroundColor: avatarBackground }]}>
-              <AccessibleText backgroundColor={avatarBackground} style={[styles.commentAvatarText, { color: avatarTextColor }]}>
+              <AccessibleText backgroundColor={avatarBackground} style={[styles.commentAvatarText, { color: avatarTextColor }]}> 
                 {avatarInitial}
               </AccessibleText>
             </View>
           )}
+
           <View style={styles.commentMeta}>
-            <AccessibleText backgroundColor={bubbleBackground} style={[styles.commentUsername, { marginRight: 0 }]}>
+            <AccessibleText backgroundColor={bubbleBackground} style={[styles.commentUsername, { marginRight: 0, color: commentUsernameColor }]}>
               {comment.username}
             </AccessibleText>
-            <AccessibleText backgroundColor={bubbleBackground} style={[styles.commentTimestamp, { color: timestampColor }]}>
+            <AccessibleText backgroundColor={bubbleBackground} style={[styles.commentTimestamp, { color: timestampColor }]}> 
               {timestampText}
             </AccessibleText>
           </View>
-        ) : onReportComment ? (
-          <TouchableOpacity
-            onPress={() => onReportComment(comment)}
-            style={styles.commentActionButton}
-            accessibilityLabel="Report comment"
-            accessibilityRole="button"
-          >
-            <Ionicons name="warning-outline" size={16} color={resolvedReportColor} />
-            <AccessibleText backgroundColor={backgroundColor} style={[styles.commentActionText, { color: resolvedReportColor }]}>{t('report')}</AccessibleText>
-          </TouchableOpacity>
-        ) : null}
+
+          {isOwner ? (
+            <View style={styles.commentOwnerActions}>
+              <TouchableOpacity
+                onPress={() => onTriggerEdit(comment)}
+                style={styles.commentActionButton}
+                accessibilityLabel="Edit comment"
+                accessibilityRole="button"
+              >
+                <Ionicons name="pencil-outline" size={16} color={editIconColor} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => onDeleteComment(comment.commentId)}
+                style={styles.commentActionButton}
+                accessibilityLabel="Delete comment"
+                accessibilityRole="button"
+              >
+                <Ionicons name="trash-outline" size={16} color={deleteIconColor} />
+              </TouchableOpacity>
+            </View>
+          ) : onReportComment ? (
+            <TouchableOpacity
+              onPress={() => onReportComment(comment)}
+              style={styles.commentActionButton}
+              accessibilityLabel="Report comment"
+              accessibilityRole="button"
+            >
+              <Ionicons name="warning-outline" size={16} color={resolvedReportColor} />
+              <AccessibleText backgroundColor={backgroundColor} style={[styles.commentActionText, { color: resolvedReportColor }]}>{t('report')}</AccessibleText>
+            </TouchableOpacity>
+          ) : null}
+        </View>
+
+        <AccessibleText backgroundColor={bubbleBackground} style={[styles.commentContent, { color: commentTextColor }]}> 
+          {comment.content}
+        </AccessibleText>
       </View>
     </View>
   );
