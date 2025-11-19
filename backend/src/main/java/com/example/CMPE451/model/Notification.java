@@ -29,4 +29,11 @@ public class Notification {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;
+
+    @Column(name = "object_type", nullable = false)
+    private String objectType;
+
+    @Column(name = "object_id", nullable = false)
+    private String objectId;
+
 }

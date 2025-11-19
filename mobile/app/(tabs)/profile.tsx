@@ -15,7 +15,7 @@ import {
   Keyboard,
 } from 'react-native';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
+import AccessibleText from '@/components/AccessibleText';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
 import { apiRequest, clearSession } from '../services/apiClient';
@@ -28,6 +28,7 @@ type CommentData = {
   username: string;
   content: string;
   createdAt: string | Date;
+  avatarUrl?: string | null;
 };
 
 type Post = {
@@ -93,6 +94,7 @@ export default function ProfileScreen() {
     currentText: string;
   } | null>(null);
   const [isSubmittingCommentEdit, setIsSubmittingCommentEdit] = useState(false);
+  const [commenterAvatars, setCommenterAvatars] = useState<{ [username: string]: string | null }>({});
   const isTurkish = (i18n.resolvedLanguage || i18n.language || '').toLowerCase().startsWith('tr');
   const toggleLanguage = (value: boolean) => {
     i18n.changeLanguage(value ? 'tr-TR' : 'en-US');
@@ -180,6 +182,36 @@ export default function ProfileScreen() {
       console.warn('Error fetching saved statuses:', e);
       return currentPostsToUpdate;
     }
+  };
+
+  const fetchAvatarForUsername = async (username: string) => {
+    if (!username) return null;
+    try {
+      const encoded = encodeURIComponent(username);
+      const response = await apiRequest(`/api/users/${encoded}/profile?username=${encoded}`);
+      if (!response.ok) return null;
+      const data = await response.json();
+      return data?.photoUrl ?? null;
+    } catch {
+      return null;
+    }
+  };
+
+  const ensureAvatarsForUsernames = async (usernames: string[]) => {
+    const uniqueUsernames = Array.from(new Set(usernames.filter(Boolean)));
+    const missing = uniqueUsernames.filter((name) => commenterAvatars[name] === undefined);
+    if (!missing.length) return {};
+    const fetchedEntries = await Promise.all(
+      missing.map(async (name) => {
+        const url = await fetchAvatarForUsername(name);
+        return [name, url] as const;
+      })
+    );
+    const newMap = Object.fromEntries(fetchedEntries);
+    if (Object.keys(newMap).length > 0) {
+      setCommenterAvatars((prev) => ({ ...prev, ...newMap }));
+    }
+    return newMap;
   };
 
   const fetchUserPosts = useCallback(async () => {
@@ -320,11 +352,16 @@ export default function ProfileScreen() {
         throw new Error(`Failed to fetch comments: ${response.status}`);
       }
       const apiResponse = await response.json();
-      const fetchedComments: CommentData[] = (apiResponse.comments || []).map((apiComment: any) => ({
+      const apiComments = apiResponse.comments || [];
+      const usernames = apiComments.map((apiComment: any) => apiComment.creatorUsername);
+      const newAvatarEntries = await ensureAvatarsForUsernames(usernames);
+      const avatarLookup = { ...commenterAvatars, ...newAvatarEntries };
+      const fetchedComments: CommentData[] = apiComments.map((apiComment: any) => ({
         commentId: apiComment.commentId,
         content: apiComment.content,
         createdAt: apiComment.createdAt,
         username: apiComment.creatorUsername,
+        avatarUrl: avatarLookup[apiComment.creatorUsername] ?? null,
       }));
       setCommentsByPostId((prev) => ({ ...prev, [postId]: fetchedComments }));
       if (typeof apiResponse.totalComments === 'number') {
@@ -341,6 +378,10 @@ export default function ProfileScreen() {
   };
 
   const handleToggleComments = (postId: number) => {
+    if (userType !== 'user' || !username) {
+      Alert.alert(t('loginRequired'), t('loginRequiredForComment'));
+      return;
+    }
     const isCurrentlyExpanded = expandedPostId === postId;
     if (isCurrentlyExpanded) {
       if (editingCommentDetails && editingCommentDetails.postId === postId) {
@@ -387,11 +428,15 @@ export default function ProfileScreen() {
       if (!response.ok) {
         throw new Error(responseData.message || 'Failed to post comment.');
       }
+      const authorUsername = responseData.creatorUsername || username;
+      const avatarEntries = await ensureAvatarsForUsernames([authorUsername]);
+      const avatarLookup = { ...commenterAvatars, ...avatarEntries };
       const newComment: CommentData = {
         commentId: responseData.commentId,
         content: responseData.content,
         createdAt: responseData.createdAt,
-        username: responseData.creatorUsername || username,
+        username: authorUsername,
+        avatarUrl: avatarLookup[authorUsername] ?? null,
       };
       setCommentsByPostId((prev) => ({ ...prev, [postId]: [newComment, ...(prev[postId] || [])] }));
       setPosts((prev) =>
@@ -651,8 +696,8 @@ export default function ProfileScreen() {
         </View>
 
         {profileUpdateBannerVisible && (
-          <View style={[styles.successBanner, { backgroundColor: successBannerBgColor }]}>
-            <Text style={[styles.successBannerText, { color: successBannerTextColor }]}>{t('successBioUpdated')}</Text>
+          <View style={[styles.successBanner, { backgroundColor: successBannerBgColor }]}> 
+            <AccessibleText backgroundColor={successBannerBgColor} style={[styles.successBannerText, { color: successBannerTextColor }]}>{t('successBioUpdated')}</AccessibleText>
           </View>
         )}
 
@@ -699,9 +744,9 @@ export default function ProfileScreen() {
           )}
           <View style={{ marginLeft: 12, flexShrink: 1 }}>
             <View style={styles.profileGreetingRow}>
-              <ThemedText testID="profile-username-text" type="default" style={{ fontSize: 20 }}>
+              <AccessibleText testID="profile-username-text" type="default" backgroundColor={contentBackgroundColor} style={{ fontSize: 20 }}>
                 {t('helloUser', { username })}
-              </ThemedText>
+              </AccessibleText>
               <TouchableOpacity
                 style={styles.progressButton}
                 onPress={() => setProgressModalVisible(true)}
@@ -710,23 +755,24 @@ export default function ProfileScreen() {
                 <Ionicons name="stats-chart" size={20} color="#FFFFFF" />
               </TouchableOpacity>
             </View>
-            <ThemedText
+            <AccessibleText
               testID="profile-bio-text"
               type="default"
+              backgroundColor={contentBackgroundColor}
               style={{ marginTop: 4, fontStyle: bio ? 'normal' : 'italic' }}
               numberOfLines={3}
             >
               {bio || t('noBioYet')}
-            </ThemedText>
+            </AccessibleText>
           </View>
         </View>
         
         {/* ERROR MESSAGE INSERTED HERE */}
-        {error.key && (
-            <ThemedText style={[styles.errorText, { color: errorTextColor, backgroundColor: errorBackgroundColor }]}>
-                {t(error.key)}
-            </ThemedText>
-        )}
+    {error.key && (
+      <AccessibleText backgroundColor={errorBackgroundColor} style={[styles.errorText, { color: errorTextColor, backgroundColor: errorBackgroundColor }]}> 
+        {t(error.key)}
+      </AccessibleText>
+    )}
         
         <TouchableOpacity
           testID="create-post-button"
@@ -753,15 +799,15 @@ export default function ProfileScreen() {
 
         <View style={[styles.sectionDivider, { backgroundColor: isDarkMode ? '#2E2E2E' : '#D9D9D9' }]} />
 
-        <ThemedText style={[styles.postsHeader, { color: generalTextColor }]}>{t('profilePostsTitle')}</ThemedText>
+  <AccessibleText backgroundColor={contentBackgroundColor} style={[styles.postsHeader, { color: generalTextColor }]}>{t('profilePostsTitle')}</AccessibleText>
 
         <View style={styles.postListContainer}>
           {postsLoading ? (
             <ActivityIndicator style={styles.postsLoadingIndicator} color={iconColor} />
           ) : postsError ? (
-            <ThemedText style={[styles.postsErrorText, { color: errorTextColor }]}>{postsError}</ThemedText>
+            <AccessibleText backgroundColor={contentBackgroundColor} style={[styles.postsErrorText, { color: errorTextColor }]}>{postsError}</AccessibleText>
           ) : posts.length === 0 ? (
-            <ThemedText style={[styles.emptyPostsText, { color: iconColor }]}>{t('noPostsYet')}</ThemedText>
+            <AccessibleText backgroundColor={contentBackgroundColor} style={[styles.emptyPostsText, { color: iconColor }]}>{t('noPostsYet')}</AccessibleText>
           ) : (
             posts.map((post) => (
               <PostItem
@@ -817,9 +863,9 @@ export default function ProfileScreen() {
         />
         <View style={[styles.progressModalCard, { backgroundColor: cardBackgroundColor }]}>
           <View style={styles.progressModalHeader}>
-            <ThemedText style={[styles.progressModalTitle, { color: generalTextColor }]}>
+            <AccessibleText backgroundColor={cardBackgroundColor} style={[styles.progressModalTitle, { color: generalTextColor }]}> 
               Historical data
-            </ThemedText>
+            </AccessibleText>
             <TouchableOpacity
               onPress={() => setProgressModalVisible(false)}
               style={styles.progressModalCloseButton}
@@ -832,34 +878,34 @@ export default function ProfileScreen() {
           <View style={styles.chartArea}>
             <View style={[styles.chartAxes, { borderColor: iconColor }]}>
               {chartBarHeights.length === 0 ? (
-                <ThemedText style={[styles.chartEmptyText, { color: iconColor }]}>
+                <AccessibleText backgroundColor={cardBackgroundColor} style={[styles.chartEmptyText, { color: iconColor }]}> 
                   {t('noData', { defaultValue: 'No data available' })}
-                </ThemedText>
+                </AccessibleText>
               ) : (
                 <View style={styles.chartBarsContainer}>
                   {chartBarHeights.map((height, index) => (
                     <View key={`chart-bar-${index}`} style={styles.chartBarWrapper}>
-                      <ThemedText style={[styles.chartValueLabel, { color: iconColor }]}>
+                      <AccessibleText backgroundColor={cardBackgroundColor} style={[styles.chartValueLabel, { color: iconColor }]}> 
                         {formatChartValue(chartValues[index])}
-                      </ThemedText>
+                      </AccessibleText>
                       <View style={[styles.chartBar, { height }]} />
-                      <ThemedText style={[styles.chartXAxisLabel, { color: iconColor }]}>
+                      <AccessibleText backgroundColor={cardBackgroundColor} style={[styles.chartXAxisLabel, { color: iconColor }]}> 
                         {index + 1}
-                      </ThemedText>
+                      </AccessibleText>
                     </View>
                   ))}
                 </View>
               )}
             </View>
-            <ThemedText style={[styles.chartYAxisLabel, { color: iconColor }]}>
+            <AccessibleText backgroundColor={cardBackgroundColor} style={[styles.chartYAxisLabel, { color: iconColor }]}> 
               {t('timeAxisLabel', { defaultValue: 'Time axis' })}
-            </ThemedText>
+            </AccessibleText>
           </View>
 
           <View style={styles.wasteTypeSelector}>
-            <ThemedText style={[styles.wasteTypeLabel, { color: generalTextColor }]}>
+            <AccessibleText backgroundColor={cardBackgroundColor} style={[styles.wasteTypeLabel, { color: generalTextColor }]}> 
               {t('wasteTypeLabel', { defaultValue: 'Waste Type:' })}
-            </ThemedText>
+            </AccessibleText>
             <View style={styles.wasteTypeChips}>
               {WASTE_TYPES.map((type) => {
                 const isActive = selectedWasteType === type;
@@ -873,14 +919,15 @@ export default function ProfileScreen() {
                       isActive && styles.wasteTypeChipActive,
                     ]}
                   >
-                    <ThemedText
+                    <AccessibleText
+                      backgroundColor={cardBackgroundColor}
                       style={[
                         styles.wasteTypeChipText,
                         { color: isActive ? '#FFFFFF' : generalTextColor },
                       ]}
                     >
                       {t(type.toLowerCase(), { defaultValue: type })}
-                    </ThemedText>
+                    </AccessibleText>
                   </TouchableOpacity>
                 );
               })}

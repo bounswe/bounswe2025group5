@@ -13,6 +13,7 @@ import {
   useColorScheme,
   ActivityIndicator,
 } from "react-native";
+import { Colors } from '@/constants/Colors';
 import { useNavigation } from "@react-navigation/native";
 import { AuthContext } from "./_layout";
 import { apiRequest, clearSession, getAccessToken } from "./services/apiClient";
@@ -55,6 +56,7 @@ export default function EditProfileScreen() {
   }, [navigation, i18n.language, t]);
 
   const isDarkMode = colorScheme === "dark";
+  const theme = isDarkMode ? 'dark' : 'light';
   const screenBackgroundColor = isDarkMode ? "#151718" : "#F0F2F5";
   const inputBackgroundColor = isDarkMode ? "#1C1C1E" : "#FFFFFF";
   const inputBorderColor = isDarkMode ? "#3A3A3C" : "#ccc";
@@ -470,7 +472,7 @@ export default function EditProfileScreen() {
               styles.btn,
               styles.delete,
               {
-                backgroundColor: isDarkMode ? "#C72C1C" : "#FF3B30",
+                backgroundColor: isDarkMode ? "#C72C1C" : Colors[theme].error,
                 width: "100%",
                 maxWidth: 200,
               },
@@ -540,7 +542,7 @@ export default function EditProfileScreen() {
               secureTextEntry
             />
             {deleteError && (
-              <Text style={{ color: "#FF3B30", marginBottom: 8 }}>
+              <Text style={{ color: Colors[theme].error, marginBottom: 8 }}>
                 {t("error")}
               </Text>
             )}
@@ -549,12 +551,12 @@ export default function EditProfileScreen() {
                 onPress={handleCancelDelete}
                 style={{ marginRight: 12 }}
               >
-                <Text style={{ color: "#2196F3", fontWeight: "bold" }}>
+                <Text style={{ color: Colors[theme].tint, fontWeight: "bold" }}>
                   {t("cancel")}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleConfirmDelete}>
-                <Text style={{ color: "#FF3B30", fontWeight: "bold" }}>
+                <Text style={{ color: Colors[theme].error, fontWeight: "bold" }}>
                   {t("delete")}
                 </Text>
               </TouchableOpacity>
