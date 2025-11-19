@@ -28,6 +28,7 @@ type CommentData = {
   username: string;
   content: string;
   createdAt: string | Date;
+  avatarUrl?: string | null;
 };
 
 type Post = {
@@ -93,6 +94,7 @@ export default function ProfileScreen() {
     currentText: string;
   } | null>(null);
   const [isSubmittingCommentEdit, setIsSubmittingCommentEdit] = useState(false);
+  const [commenterAvatars, setCommenterAvatars] = useState<{ [username: string]: string | null }>({});
   const isTurkish = (i18n.resolvedLanguage || i18n.language || '').toLowerCase().startsWith('tr');
   const toggleLanguage = (value: boolean) => {
     i18n.changeLanguage(value ? 'tr-TR' : 'en-US');
@@ -180,6 +182,36 @@ export default function ProfileScreen() {
       console.warn('Error fetching saved statuses:', e);
       return currentPostsToUpdate;
     }
+  };
+
+  const fetchAvatarForUsername = async (username: string) => {
+    if (!username) return null;
+    try {
+      const encoded = encodeURIComponent(username);
+      const response = await apiRequest(`/api/users/${encoded}/profile?username=${encoded}`);
+      if (!response.ok) return null;
+      const data = await response.json();
+      return data?.photoUrl ?? null;
+    } catch {
+      return null;
+    }
+  };
+
+  const ensureAvatarsForUsernames = async (usernames: string[]) => {
+    const uniqueUsernames = Array.from(new Set(usernames.filter(Boolean)));
+    const missing = uniqueUsernames.filter((name) => commenterAvatars[name] === undefined);
+    if (!missing.length) return {};
+    const fetchedEntries = await Promise.all(
+      missing.map(async (name) => {
+        const url = await fetchAvatarForUsername(name);
+        return [name, url] as const;
+      })
+    );
+    const newMap = Object.fromEntries(fetchedEntries);
+    if (Object.keys(newMap).length > 0) {
+      setCommenterAvatars((prev) => ({ ...prev, ...newMap }));
+    }
+    return newMap;
   };
 
   const fetchUserPosts = useCallback(async () => {
@@ -320,11 +352,16 @@ export default function ProfileScreen() {
         throw new Error(`Failed to fetch comments: ${response.status}`);
       }
       const apiResponse = await response.json();
-      const fetchedComments: CommentData[] = (apiResponse.comments || []).map((apiComment: any) => ({
+      const apiComments = apiResponse.comments || [];
+      const usernames = apiComments.map((apiComment: any) => apiComment.creatorUsername);
+      const newAvatarEntries = await ensureAvatarsForUsernames(usernames);
+      const avatarLookup = { ...commenterAvatars, ...newAvatarEntries };
+      const fetchedComments: CommentData[] = apiComments.map((apiComment: any) => ({
         commentId: apiComment.commentId,
         content: apiComment.content,
         createdAt: apiComment.createdAt,
         username: apiComment.creatorUsername,
+        avatarUrl: avatarLookup[apiComment.creatorUsername] ?? null,
       }));
       setCommentsByPostId((prev) => ({ ...prev, [postId]: fetchedComments }));
       if (typeof apiResponse.totalComments === 'number') {
@@ -341,6 +378,10 @@ export default function ProfileScreen() {
   };
 
   const handleToggleComments = (postId: number) => {
+    if (userType !== 'user' || !username) {
+      Alert.alert(t('loginRequired'), t('loginRequiredForComment'));
+      return;
+    }
     const isCurrentlyExpanded = expandedPostId === postId;
     if (isCurrentlyExpanded) {
       if (editingCommentDetails && editingCommentDetails.postId === postId) {
@@ -387,11 +428,15 @@ export default function ProfileScreen() {
       if (!response.ok) {
         throw new Error(responseData.message || 'Failed to post comment.');
       }
+      const authorUsername = responseData.creatorUsername || username;
+      const avatarEntries = await ensureAvatarsForUsernames([authorUsername]);
+      const avatarLookup = { ...commenterAvatars, ...avatarEntries };
       const newComment: CommentData = {
         commentId: responseData.commentId,
         content: responseData.content,
         createdAt: responseData.createdAt,
-        username: responseData.creatorUsername || username,
+        username: authorUsername,
+        avatarUrl: avatarLookup[authorUsername] ?? null,
       };
       setCommentsByPostId((prev) => ({ ...prev, [postId]: [newComment, ...(prev[postId] || [])] }));
       setPosts((prev) =>

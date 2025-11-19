@@ -13,5 +13,5 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
 
     List<Notification> findByUser(User user);
 
-    List<Notification> findByUserAndIsRead(User user, boolean isRead);
+    List<Notification> findByUserOrderByCreatedAtDesc(User user);
 }

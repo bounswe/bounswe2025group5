@@ -24,6 +24,7 @@ public class PostLikeService {
     private final PostLikeRepository postLikeRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final ActivityLogger activityLogger;
 
 
     @Transactional
@@ -31,7 +32,7 @@ public class PostLikeService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new InvalidCredentialsException("User not found with username: " + username));
 
-        postRepository.findById(postId)
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new InvalidCredentialsException("Post not found with id: " + postId));
 
         if (postLikeRepository.existsByUserIdAndPostId(user.getId(), postId)) {
@@ -39,6 +40,14 @@ public class PostLikeService {
         }
         PostLike like = new PostLike(user.getId(), postId);
         postLikeRepository.save(like);
+
+        activityLogger.logAction(
+                "Like",
+                "User", user.getUsername(),
+                "Post", post.getPostId(),
+                "User", post.getUser().getUsername()
+        );
+
         return Map.of("success", true);
     }
 

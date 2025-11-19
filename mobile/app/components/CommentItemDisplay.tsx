@@ -24,6 +24,7 @@ interface CommentData {
   username: string;
   content: string;
   createdAt: string | Date; // Can be string from API, then converted to Date
+  avatarUrl?: string | null;
 }
 
 // --- CommentItemDisplay Component ---
@@ -73,63 +74,71 @@ function CommentItemDisplay({
   reportActionColor,
   // --- END NEW PROPS for edit ---
 }: CommentItemDisplayProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isOwner = loggedInUsername && comment.username === loggedInUsername;
   const colorScheme = useColorScheme(); // For save/cancel button text color
   const resolvedReportColor = reportActionColor || '#515151';
 
   if (isOwner && isEditingThisComment) {
     return (
-      <View style={[styles.commentItemContainer, { borderBottomColor: commentBorderColor }]}>
-        <View style={styles.commentHeader}>
-          <AccessibleText backgroundColor={backgroundColor} style={[styles.commentUsername]}>{comment.username} (editing)</AccessibleText>
-        </View>
-        <TextInput
-          style={[styles.commentEditInput, { borderColor: editIconColor, color: commentTextColor, backgroundColor: colorScheme === 'dark' ? '#2C2C2E' : '#F9F9F9' }]}
-          value={editedContent}
-          onChangeText={onEditContentChange}
-          multiline
-          autoFocus
-          editable={!isSavingEdit}
-        />
-        <View style={styles.editActionsContainer}>
-          <TouchableOpacity
-            style={[styles.editActionButton, { backgroundColor: '#888' }]}
-            onPress={onCancelEdit}
-            disabled={isSavingEdit}
-          >
-            <AccessibleText backgroundColor={'#888'} style={styles.editActionButtonText}>{t('cancel')}</AccessibleText>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.editActionButton, { backgroundColor: editIconColor }]}
-            onPress={() => onSaveEditedComment(comment.commentId)}
-            disabled={isSavingEdit || !editedContent.trim()}
-          >
-            {isSavingEdit ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
-            ) : (
-              <AccessibleText backgroundColor={editIconColor} style={styles.editActionButtonText}>{t('save')}</AccessibleText>
-            )}
-          </TouchableOpacity>
+      <View style={styles.commentItemWrapper}>
+        <View style={[styles.commentBubble, { backgroundColor: bubbleBackground, borderColor: bubbleBorderColor }]}>
+          <View style={styles.commentHeader}>
+            <AccessibleText backgroundColor={bubbleBackground} style={[styles.commentUsername]}>{comment.username} (editing)</AccessibleText>
+          </View>
+          <TextInput
+            style={[styles.commentEditInput, { borderColor: editIconColor, color: commentTextColor, backgroundColor: colorScheme === 'dark' ? '#2C2C2E' : '#F9F9F9' }]}
+            value={editedContent}
+            onChangeText={onEditContentChange}
+            multiline
+            autoFocus
+            editable={!isSavingEdit}
+          />
+          <View style={styles.editActionsContainer}>
+            <TouchableOpacity
+              style={[styles.editActionButton, { backgroundColor: '#888' }]}
+              onPress={onCancelEdit}
+              disabled={isSavingEdit}
+            >
+              <AccessibleText backgroundColor={'#888'} style={styles.editActionButtonText}>{t('cancel')}</AccessibleText>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.editActionButton, { backgroundColor: editIconColor }]}
+              onPress={() => onSaveEditedComment(comment.commentId)}
+              disabled={isSavingEdit || !editedContent.trim()}
+            >
+              {isSavingEdit ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <AccessibleText backgroundColor={editIconColor} style={styles.editActionButtonText}>{t('save')}</AccessibleText>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     );
   }
 
   return (
-    <View style={[styles.commentItemContainer, { borderBottomColor: commentBorderColor }]}>
-      <View style={styles.commentHeader}>
-  <AccessibleText backgroundColor={backgroundColor} style={[styles.commentUsername]}>{comment.username}</AccessibleText>
-        {isOwner ? (
-          <View style={styles.commentOwnerActions}>
-            <TouchableOpacity onPress={() => onTriggerEdit(comment)} style={styles.commentActionButton}>
-              <Ionicons name="pencil-outline" size={18} color={editIconColor} />
-              <AccessibleText backgroundColor={backgroundColor} style={[styles.commentActionText, { color: editIconColor }]}>{t('edit')}</AccessibleText>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => onDeleteComment(comment.commentId)} style={styles.commentActionButton}>
-              <Ionicons name="trash-outline" size={18} color={deleteIconColor} />
-              <AccessibleText backgroundColor={backgroundColor} style={[styles.commentActionText, { color: deleteIconColor }]}>{t('delete')}</AccessibleText>
-            </TouchableOpacity>
+    <View style={styles.commentItemWrapper}>
+      <View style={[styles.commentBubble, { backgroundColor: bubbleBackground, borderColor: bubbleBorderColor }]}>
+        <View style={styles.commentTopRow}>
+          {comment.avatarUrl ? (
+            <Image source={{ uri: comment.avatarUrl }} style={styles.commentAvatarImage} />
+          ) : (
+            <View style={[styles.commentAvatar, { backgroundColor: avatarBackground }]}>
+              <AccessibleText backgroundColor={avatarBackground} style={[styles.commentAvatarText, { color: avatarTextColor }]}>
+                {avatarInitial}
+              </AccessibleText>
+            </View>
+          )}
+          <View style={styles.commentMeta}>
+            <AccessibleText backgroundColor={bubbleBackground} style={[styles.commentUsername, { marginRight: 0 }]}>
+              {comment.username}
+            </AccessibleText>
+            <AccessibleText backgroundColor={bubbleBackground} style={[styles.commentTimestamp, { color: timestampColor }]}>
+              {timestampText}
+            </AccessibleText>
           </View>
         ) : onReportComment ? (
           <TouchableOpacity
@@ -143,10 +152,6 @@ function CommentItemDisplay({
           </TouchableOpacity>
         ) : null}
       </View>
-      <AccessibleText backgroundColor={backgroundColor} style={[styles.commentContent]}>{comment.content}</AccessibleText>
-      <AccessibleText backgroundColor={backgroundColor} style={[styles.commentTimestamp]}> 
-        {new Date(comment.createdAt).toLocaleDateString()}
-      </AccessibleText>
     </View>
   );
 }
@@ -156,12 +161,38 @@ export default CommentItemDisplay;
 const styles = StyleSheet.create({
     commentsSection: { marginTop: 10, paddingTop: 10 },
     commentsListContainer: { maxHeight: 200, marginBottom: 10 },
-    commentItemContainer: { paddingVertical: 8, borderBottomWidth: 1 },
-    commentHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
-    commentUsername: { fontWeight: 'bold', fontSize: 13, flexShrink: 1, marginRight: 8 },
+    commentItemWrapper: { marginBottom: 12 },
+    commentBubble: {
+      borderWidth: 1,
+      borderRadius: 14,
+      padding: 12,
+    },
+    commentTopRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 6,
+    },
+    commentHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+    commentMeta: { flex: 1, marginLeft: 10 },
+    commentUsername: { fontWeight: '700', fontSize: 14, flexShrink: 1 },
+    commentAvatar: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    commentAvatarImage: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+    },
+    commentAvatarText: { fontWeight: '700' },
     // --- MODIFIED/NEW Styles for comment actions and editing ---
     commentOwnerActions: {
       flexDirection: 'row',
+      alignItems: 'center',
+      marginLeft: 'auto',
     },
     commentActionButton: {
       paddingHorizontal: 6, // Space out icons
@@ -169,6 +200,7 @@ const styles = StyleSheet.create({
       flexDirection: 'row',
       alignItems: 'center',
     },
+    commentActionEnd: { marginLeft: 'auto' },
     commentActionText: {
       marginLeft: 4,
       fontSize: 13,
@@ -205,8 +237,8 @@ const styles = StyleSheet.create({
       fontSize: 13,
     },
     // --- END ---
-    commentContent: { fontSize: 14, lineHeight: 18 },
-    commentTimestamp: { fontSize: 10, opacity: 0.7, marginTop: 4, textAlign: 'right' },
+    commentContent: { fontSize: 14, lineHeight: 20 },
+    commentTimestamp: { fontSize: 11, marginTop: 2 },
     noCommentsText: { textAlign: 'center', marginVertical: 15, fontSize: 14, opacity: 0.7 },
     addCommentContainer: { flexDirection: 'row', alignItems: 'center', paddingTop: 10, borderTopWidth: 1, marginTop: 5 },
     commentInput: { flex: 1, borderWidth: 1, borderRadius: 20, paddingHorizontal: 15, paddingVertical: 8, fontSize: 14, marginRight: 10, maxHeight: 80 },

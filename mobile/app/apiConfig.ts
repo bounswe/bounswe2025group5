@@ -51,11 +51,10 @@ const isLocalHost = (host?: string) =>
 const buildDevBaseUrl = (host: string) => `http://${host}:${envPort}`;
 
 const resolveBaseUrl = () => {
-    // Force production backend if enabled
+  // Force production backend if enabled
   if (FORCE_PRODUCTION) {
     return PROD_BASE_URL;
   }
-
 
   if (envBaseUrl) return envBaseUrl;
 
@@ -82,4 +81,3 @@ export const API_BASE_URL = resolveBaseUrl();
 
 export const apiUrl = (path: string) =>
   `${API_BASE_URL}${path.startsWith('/') ? path : `/${path}`}`;
-
