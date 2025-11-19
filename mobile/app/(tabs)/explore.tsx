@@ -45,6 +45,7 @@ type Post = {
   likedByUser: boolean;
   savedByUser: boolean;
   createdAt?: string | null;
+  authorAvatarUrl?: string | null;
 };
 
 export default function ExploreScreen() {
@@ -82,7 +83,7 @@ export default function ExploreScreen() {
     currentText: string;
   } | null>(null);
   const [isSubmittingCommentEdit, setIsSubmittingCommentEdit] = useState(false);
-  const [commenterAvatars, setCommenterAvatars] = useState<{ [username: string]: string | null }>({});
+  const [userAvatars, setUserAvatars] = useState<{ [username: string]: string | null }>({});
   const [isNotificationsVisible, setNotificationsVisible] = useState(false);
   const hasLoadedPostsRef = useRef(false);
   const scrollViewRef = useRef<ScrollView | null>(null);
@@ -134,6 +135,7 @@ export default function ExploreScreen() {
     likedByUser: false,
     savedByUser: false,
     createdAt: item.createdAt ?? null,
+    authorAvatarUrl: item.creatorUsername ? userAvatars[item.creatorUsername] ?? null : null,
   });
 
   const fetchLikeStatusesForPosts = async (currentPostsToUpdate: Post[], currentUsername: string): Promise<Post[]> => {
@@ -182,7 +184,7 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
 
   const ensureAvatarsForUsernames = async (usernames: string[]) => {
     const uniqueUsernames = Array.from(new Set(usernames.filter(Boolean)));
-    const missing = uniqueUsernames.filter((name) => commenterAvatars[name] === undefined);
+    const missing = uniqueUsernames.filter((name) => userAvatars[name] === undefined);
     if (!missing.length) return {};
     const fetchedEntries = await Promise.all(
       missing.map(async (name) => {
@@ -192,9 +194,20 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
     );
     const newMap = Object.fromEntries(fetchedEntries);
     if (Object.keys(newMap).length > 0) {
-      setCommenterAvatars((prev) => ({ ...prev, ...newMap }));
+      setUserAvatars((prev) => ({ ...prev, ...newMap }));
     }
     return newMap;
+  };
+  
+  const attachAvatarsToPosts = async (postsToDecorate: Post[]): Promise<Post[]> => {
+    if (!postsToDecorate.length) return postsToDecorate;
+    const usernames = postsToDecorate.map((post) => post.title).filter(Boolean);
+    const fetched = await ensureAvatarsForUsernames(usernames);
+    const merged = { ...userAvatars, ...fetched };
+    return postsToDecorate.map((post) => ({
+      ...post,
+      authorAvatarUrl: post.title ? merged[post.title] ?? post.authorAvatarUrl ?? null : post.authorAvatarUrl ?? null,
+    }));
   };
         
 
@@ -230,6 +243,10 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
       }
 
       let processedNewItems: Post[] = data.map(mapApiItemToPost);
+
+      if (processedNewItems.length > 0) {
+        processedNewItems = await attachAvatarsToPosts(processedNewItems);
+      }
 
       if (username && userType === 'user' && processedNewItems.length > 0) {
         processedNewItems = await fetchLikeStatusesForPosts(processedNewItems, username); 
@@ -365,6 +382,9 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
       if (!res.ok) throw new Error('Search failed');
       const data = await res.json();
       let processedResults: Post[] = data.map(mapApiItemToPost);
+      if (processedResults.length > 0) {
+        processedResults = await attachAvatarsToPosts(processedResults);
+      }
       if (username && userType === 'user' && processedResults.length > 0) {
         processedResults = await fetchLikeStatusesForPosts(processedResults, username); 
         processedResults = await fetchSavedStatusesForPosts(processedResults, username);
@@ -513,7 +533,7 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
       const apiComments = apiResponse.comments || [];
       const usernamesNeedingAvatars = apiComments.map((apiComment: any) => apiComment.creatorUsername);
       const newlyFetchedAvatars = await ensureAvatarsForUsernames(usernamesNeedingAvatars);
-      const avatarLookup = { ...commenterAvatars, ...newlyFetchedAvatars };
+      const avatarLookup = { ...userAvatars, ...newlyFetchedAvatars };
       const fetchedComments: CommentData[] = apiComments.map((apiComment: any) => ({
         commentId: apiComment.commentId,
         content: apiComment.content,
@@ -574,7 +594,7 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
         if (!response.ok) throw new Error(apiResponseData.message || `Failed to post comment`);
         const authorUsername = apiResponseData.creatorUsername || username;
         const avatarUpdates = await ensureAvatarsForUsernames([authorUsername]);
-        const avatarLookup = { ...commenterAvatars, ...avatarUpdates };
+        const avatarLookup = { ...userAvatars, ...avatarUpdates };
         const newComment: CommentData = {
           commentId: apiResponseData.commentId,
           content: apiResponseData.content,

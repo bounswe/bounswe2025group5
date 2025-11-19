@@ -23,6 +23,7 @@ type Post = {
     photoUrl: string | null;
     likedByUser: boolean;
     savedByUser: boolean;
+    authorAvatarUrl?: string | null;
   };
 
 
@@ -71,6 +72,7 @@ const createMockPost = (overrides: Partial<Post> = {}): Post => ({
   photoUrl: null,
   likedByUser: false,
   savedByUser: false,
+  authorAvatarUrl: null,
   ...overrides,
 });
 

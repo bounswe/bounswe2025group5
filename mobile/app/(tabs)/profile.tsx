@@ -41,6 +41,7 @@ type Post = {
   likedByUser: boolean;
   savedByUser: boolean;
   createdAt?: string | Date | null;
+  authorAvatarUrl?: string | null;
 };
 
 const WASTE_TYPES = ['Plastic', 'Paper', 'Glass', 'Metal', 'Organic'] as const;
@@ -94,7 +95,7 @@ export default function ProfileScreen() {
     currentText: string;
   } | null>(null);
   const [isSubmittingCommentEdit, setIsSubmittingCommentEdit] = useState(false);
-  const [commenterAvatars, setCommenterAvatars] = useState<{ [username: string]: string | null }>({});
+  const [userAvatars, setUserAvatars] = useState<{ [username: string]: string | null }>({});
   const isTurkish = (i18n.resolvedLanguage || i18n.language || '').toLowerCase().startsWith('tr');
   const toggleLanguage = (value: boolean) => {
     i18n.changeLanguage(value ? 'tr-TR' : 'en-US');
@@ -147,6 +148,7 @@ export default function ProfileScreen() {
     likedByUser: false,
     savedByUser: false,
     createdAt: item.createdAt ?? null,
+    authorAvatarUrl: item.creatorUsername ? userAvatars[item.creatorUsername] ?? null : null,
   });
 
   const fetchLikeStatusesForPosts = async (currentPostsToUpdate: Post[], currentUsername: string): Promise<Post[]> => {
@@ -199,7 +201,7 @@ export default function ProfileScreen() {
 
   const ensureAvatarsForUsernames = async (usernames: string[]) => {
     const uniqueUsernames = Array.from(new Set(usernames.filter(Boolean)));
-    const missing = uniqueUsernames.filter((name) => commenterAvatars[name] === undefined);
+    const missing = uniqueUsernames.filter((name) => userAvatars[name] === undefined);
     if (!missing.length) return {};
     const fetchedEntries = await Promise.all(
       missing.map(async (name) => {
@@ -209,9 +211,20 @@ export default function ProfileScreen() {
     );
     const newMap = Object.fromEntries(fetchedEntries);
     if (Object.keys(newMap).length > 0) {
-      setCommenterAvatars((prev) => ({ ...prev, ...newMap }));
+      setUserAvatars((prev) => ({ ...prev, ...newMap }));
     }
     return newMap;
+  };
+  
+  const attachAvatarsToPosts = async (postsToDecorate: Post[]): Promise<Post[]> => {
+    if (!postsToDecorate.length) return postsToDecorate;
+    const usernames = postsToDecorate.map((post) => post.title).filter(Boolean);
+    const fetchedEntries = await ensureAvatarsForUsernames(usernames);
+    const merged = { ...userAvatars, ...fetchedEntries };
+    return postsToDecorate.map((post) => ({
+      ...post,
+      authorAvatarUrl: post.title ? merged[post.title] ?? post.authorAvatarUrl ?? null : post.authorAvatarUrl ?? null,
+    }));
   };
 
   const fetchUserPosts = useCallback(async () => {
@@ -233,6 +246,9 @@ export default function ProfileScreen() {
       }
       const data = await res.json();
       let mappedPosts: Post[] = Array.isArray(data) ? data.map(mapApiItemToPost) : [];
+      if (mappedPosts.length > 0) {
+        mappedPosts = await attachAvatarsToPosts(mappedPosts);
+      }
       if (userType === 'user') {
         mappedPosts = await fetchLikeStatusesForPosts(mappedPosts, username);
         mappedPosts = await fetchSavedStatusesForPosts(mappedPosts, username);
@@ -355,7 +371,7 @@ export default function ProfileScreen() {
       const apiComments = apiResponse.comments || [];
       const usernames = apiComments.map((apiComment: any) => apiComment.creatorUsername);
       const newAvatarEntries = await ensureAvatarsForUsernames(usernames);
-      const avatarLookup = { ...commenterAvatars, ...newAvatarEntries };
+      const avatarLookup = { ...userAvatars, ...newAvatarEntries };
       const fetchedComments: CommentData[] = apiComments.map((apiComment: any) => ({
         commentId: apiComment.commentId,
         content: apiComment.content,
@@ -430,7 +446,7 @@ export default function ProfileScreen() {
       }
       const authorUsername = responseData.creatorUsername || username;
       const avatarEntries = await ensureAvatarsForUsernames([authorUsername]);
-      const avatarLookup = { ...commenterAvatars, ...avatarEntries };
+      const avatarLookup = { ...userAvatars, ...avatarEntries };
       const newComment: CommentData = {
         commentId: responseData.commentId,
         content: responseData.content,
