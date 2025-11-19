@@ -266,5 +266,20 @@
         "noResults": "No posts found matching your search.",
         "loading": "Searching...",
         "error": "Failed to search posts. Please try again."
+    },
+    "notifications": {
+        "title": "Notifications",
+        "unread": "New",
+        "markAsRead": "Mark as read",
+        "markAllRead": "Mark all as read",
+        "noNotifications": "No notifications yet",
+        "loading": "Loading notifications...",
+        "error": "Failed to load notifications",
+        "timeAgo": {
+            "seconds": "{{count}}s",
+            "minutes": "{{count}}m",
+            "hours": "{{count}}h",
+            "days": "{{count}}d"
+        }
     }
 }
