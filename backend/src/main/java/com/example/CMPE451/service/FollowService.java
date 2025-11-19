@@ -98,4 +98,11 @@ public class FollowService {
 
         return new FollowStatsResponse(followersCount, followingCount);
     }
+
+    public boolean isFollowing(String followerUsername, String followingUsername) {
+        User follower = findUserByUsername(followerUsername);
+        User following = findUserByUsername(followingUsername);
+
+        return followRepository.existsByFollowerAndFollowing(follower, following);
+    }
 }
