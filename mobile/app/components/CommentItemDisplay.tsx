@@ -47,6 +47,8 @@ interface CommentItemDisplayProps {
   onSaveEditedComment: (commentId: number) => void;
   onCancelEdit: () => void;
   isSavingEdit: boolean;
+  onReportComment?: (comment: CommentData) => void;
+  reportActionColor?: string;
   // --- END NEW PROPS for edit ---
 }
 
@@ -68,27 +70,14 @@ function CommentItemDisplay({
   onSaveEditedComment,
   onCancelEdit,
   isSavingEdit,
+  onReportComment,
+  reportActionColor,
   // --- END NEW PROPS for edit ---
 }: CommentItemDisplayProps) {
   const { t, i18n } = useTranslation();
   const isOwner = loggedInUsername && comment.username === loggedInUsername;
   const colorScheme = useColorScheme(); // For save/cancel button text color
-  const resolvedLanguage = (i18n.resolvedLanguage || i18n.language || 'en').toString();
-  const timestampText = (() => {
-    const dateInstance = comment.createdAt instanceof Date ? comment.createdAt : new Date(comment.createdAt);
-    if (Number.isNaN(dateInstance.getTime())) return '';
-    try {
-      return dateInstance.toLocaleString(resolvedLanguage, { dateStyle: 'medium', timeStyle: 'short' });
-    } catch {
-      return dateInstance.toLocaleDateString();
-    }
-  })();
-  const avatarInitial = comment.username?.[0]?.toUpperCase() || '?';
-  const bubbleBackground = colorScheme === 'dark' ? '#1F1F22' : '#F7F7FA';
-  const bubbleBorderColor = commentBorderColor || (colorScheme === 'dark' ? '#2C2C2E' : '#E2E4EA');
-  const avatarBackground = colorScheme === 'dark' ? '#2C2C30' : '#E0E4EA';
-  const avatarTextColor = colorScheme === 'dark' ? '#F2F2F7' : '#2C2C34';
-  const timestampColor = colorScheme === 'dark' ? '#A0A0A9' : '#6A6A73';
+  const resolvedReportColor = reportActionColor || '#515151';
 
   if (isOwner && isEditingThisComment) {
     return (
@@ -151,30 +140,17 @@ function CommentItemDisplay({
               {timestampText}
             </AccessibleText>
           </View>
-          {isOwner ? (
-            <View style={styles.commentOwnerActions}>
-              <TouchableOpacity onPress={() => onTriggerEdit(comment)} style={styles.commentActionButton}>
-                <Ionicons name="pencil-outline" size={18} color={editIconColor} />
-                <AccessibleText backgroundColor={bubbleBackground} style={[styles.commentActionText, { color: editIconColor }]}>{t('edit')}</AccessibleText>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => onDeleteComment(comment.commentId)} style={styles.commentActionButton}>
-                <Ionicons name="trash-outline" size={18} color={deleteIconColor} />
-                <AccessibleText backgroundColor={bubbleBackground} style={[styles.commentActionText, { color: deleteIconColor }]}>{t('delete')}</AccessibleText>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <TouchableOpacity
-              onPress={() => {}}
-              style={[styles.commentActionButton, styles.commentActionEnd]}
-              accessibilityLabel="Report comment"
-              accessibilityRole="button"
-            >
-              <Ionicons name="warning-outline" size={16} color="#8E8E93" />
-              <AccessibleText backgroundColor={bubbleBackground} style={[styles.commentActionText, { color: "#8E8E93" }]}>{t('report')}</AccessibleText>
-            </TouchableOpacity>
-          )}
-        </View>
-        <AccessibleText backgroundColor={bubbleBackground} style={[styles.commentContent, { color: commentTextColor }]}>{comment.content}</AccessibleText>
+        ) : onReportComment ? (
+          <TouchableOpacity
+            onPress={() => onReportComment(comment)}
+            style={styles.commentActionButton}
+            accessibilityLabel="Report comment"
+            accessibilityRole="button"
+          >
+            <Ionicons name="warning-outline" size={16} color={resolvedReportColor} />
+            <AccessibleText backgroundColor={backgroundColor} style={[styles.commentActionText, { color: resolvedReportColor }]}>{t('report')}</AccessibleText>
+          </TouchableOpacity>
+        ) : null}
       </View>
     </View>
   );

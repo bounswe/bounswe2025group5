@@ -269,6 +269,25 @@
     "openNotifications": "Bildirimleri aç",
     "report": "Bildir",
     "reportPost": "Gönderiyi Bildir",
-    "reportThisPostHint": "Bu gönderiyi moderatörlere bildirin."
+    "reportThisPostHint": "Bu gönderiyi moderatörlere bildirin.",
+    "reportReasonSpam": "Spam",
+    "reportReasonHate": "Nefret Söylemi",
+    "reportReasonHarm": "Zarar / Şiddet",
+    "reportReasonOther": "Diğer",
+    "reportReasonLabel": "Ne tür bir sorun bildiriyorsunuz?",
+    "reportDetailsLabel": "Ek ayrıntılar ekle (isteğe bağlı)",
+    "reportDetailsPlaceholder": "Sorunu anlat veya yardımcı olabilecek bir şey paylaş...",
+    "reportDetailsInputLabel": "Ne olduğuna dair ayrıntılar",
+    "reportSentTitle": "Rapor gönderildi",
+    "reportSentMessage": "Bize haber verdiğin için teşekkürler. Moderatörlerimiz kısa sürede inceleyecek.",
+    "reportCommentTitle": "Yorumu Bildir",
+    "reportPostTitle": "Gönderiyi Bildir",
+    "reportingCommentBy": "{{username}} kullanıcısının yorumu",
+    "reportingPost": "Gönderi: {{title}}",
+    "unknownUser": "bilinmeyen kullanıcı",
+    "untitledPost": "Başlıksız gönderi",
+    "sendReport": "Raporu Gönder",
+    "closeModal": "Pencereyi kapat",
+    "submitReport": "Raporu gönder"
   }
 }
