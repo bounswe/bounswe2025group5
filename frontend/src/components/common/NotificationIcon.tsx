@@ -39,11 +39,19 @@ export default function NotificationIcon() {
     }
   };
 
+  // Fetch notifications on mount (page refresh/login)
+  useEffect(() => {
+    if (username) {
+      fetchNotifications();
+    }
+  }, [username]);
+
+  // Refresh notifications when popover is opened
   useEffect(() => {
     if (username && isOpen) {
       fetchNotifications();
     }
-  }, [username, isOpen]);
+  }, [isOpen]);
 
   const handleMarkAsRead = async (id: number) => {
     try {
