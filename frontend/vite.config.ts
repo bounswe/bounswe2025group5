@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import Pages from "vite-plugin-pages";
 import path from "path";
@@ -35,6 +35,21 @@ export default defineConfig({
     port: 3000,
     host: true,
     allowedHosts: ['waste-less.alibartukonca.org'],
+  },
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: "./src/tests/setup.ts",
+    css: true,
+    passWithNoTests: true,
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "lcov"],
+      reportsDirectory: "coverage",
+    },
   },
 });
 
