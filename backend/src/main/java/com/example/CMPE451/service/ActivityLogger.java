@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
 
 @Component
 public class ActivityLogger {
@@ -25,6 +26,11 @@ public class ActivityLogger {
         this.notificationService = notificationService;
     }
 
+    private String safe(Object o) {
+        return o == null ? "" : o.toString();
+    }
+
+    @SuppressWarnings("unchecked")
     public void logAction(String type,
                           String actorType, Object actorId,
                           String objectType, Object objectId,
@@ -32,12 +38,20 @@ public class ActivityLogger {
         try {
             Map<String, Object> activity = new LinkedHashMap<>();
             activity.put("@context", "https://www.w3.org/ns/activitystreams");
-            activity.put("type", type);
+            activity.put("type", safe(type));
 
-            Map<String, Object> actorMap = Map.of("type", actorType, "id", actorId);
-            Map<String, Object> objectMap = Map.of("type", objectType, "id", objectId);
-            Map<String, Object> targetMap = targetType != null || targetId != null
-                    ? Map.of("type", targetType, "id", targetId)
+            Map<String, Object> actorMap = Map.of(
+                    "type", safe(actorType),
+                    "id", safe(actorId)
+            );
+
+            Map<String, Object> objectMap = Map.of(
+                    "type", safe(objectType),
+                    "id", safe(objectId)
+            );
+
+            Map<String, Object> targetMap = (targetType != null || targetId != null)
+                    ? Map.of("type", safe(targetType), "id", safe(targetId))
                     : null;
 
             activity.put("actor", actorMap);
@@ -48,65 +62,32 @@ public class ActivityLogger {
             String json = mapper.writeValueAsString(activity);
             log.info(json);
 
-            // A post has been liked. Notify the owner of the post
-            if ("Like".equals(type)) {
-                User targetUser = userRepository.findByUsername((String) targetId)
-                        .orElse(null);
+            List<String> targetUsernames;
 
-                String message = actorId + " liked your post with id " + objectId;
-                notificationService.createNotification(targetUser, message, "Post", objectId.toString());
+            if (targetId instanceof List<?> l) {
+                targetUsernames = l.stream()
+                        .filter(u -> u != null && !u.toString().isBlank())
+                        .map(Object::toString)
+                        .toList();
+            }
+            else if (targetId != null && !targetId.toString().isBlank()) {
+                targetUsernames = List.of(targetId.toString());
+            }
+            else {
+                targetUsernames = Collections.emptyList();
             }
 
-            else if ("End".equals(type)) {
 
-                // A challenge has ended. Notify all users who have attended it.
-                if ("Challenge".equals(objectType)) {
-                    List<String> targetUsernames = ((List<?>) targetId).stream()
-                            .filter(u -> u instanceof String)
-                            .map(u -> (String) u)
-                            .toList();
+            List<User> targetUsers = userRepository.findAllByUsernameIn(targetUsernames);
 
-                    List<User> targetUsers = userRepository.findAllByUsernameIn(targetUsernames);
-
-                    targetUsers.forEach(user -> {
-                        String message = "A challenge has ended";
-                        notificationService.createNotification(user, message, "Challenge", objectId.toString());
-                    });
-                }
-            }
-
-            else if ("Comment".equals(type)) {
-                User targetUser = userRepository.findByUsername((String) targetId)
-                        .orElse(null);
-
-                String message = "User " + actorId + " left a comment on your post";
-                notificationService.createNotification(targetUser, message, "Comment", objectId.toString());
-            }
-
-            else if ("Create".equals(type)) {
-                // A followed user has created a post
-                if ("Post".equals(objectType)) {
-                    List<String> targetUsernames = ((List<?>) targetId).stream()
-                            .filter(u -> u instanceof String)
-                            .map(u -> (String) u)
-                            .toList();
-
-                    List<User> targetUsers = userRepository.findAllByUsernameIn(targetUsernames);
-
-                    targetUsers.forEach(user -> {
-                        String message = "User " + actorId + " has created a post";
-                        notificationService.createNotification(user, message, "Post", objectId.toString());
-                    });
-                }
-            }
-
-            else if ("Follow".equals(type)) {
-
-                User targetUser = userRepository.findByUsername((String) targetId)
-                        .orElse(null);
-
-                String message = "User " + actorId + " started following you";
-                notificationService.createNotification(targetUser, message, "User", (String)objectId);
+            for (User user : targetUsers) {
+                notificationService.createNotification(
+                        user,
+                        safe(type),
+                        safe(objectType),
+                        safe(actorId),
+                        safe(objectId)
+                );
             }
 
 

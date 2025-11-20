@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -50,4 +51,10 @@ public class FollowController {
     public ResponseEntity<FollowingFeatureResponse> unfollow(@PathVariable String followerUsername, @PathVariable String followingUserName) {
         FollowingFeatureResponse unFollowUserResponse=  followService.unfollowUser(followerUsername, followingUserName);
         return ResponseEntity.ok(unFollowUserResponse);    }
+
+    @GetMapping("/{followerUsername}/is-following/{followingUserName}")
+    public ResponseEntity<Map<String, Boolean>>isFollowing(@PathVariable String followerUsername, @PathVariable String followingUserName) {
+        boolean isFollowing = followService.isFollowing(followerUsername, followingUserName);
+        return  ResponseEntity.ok(Map.of("follow", isFollowing));
+    }
 }
