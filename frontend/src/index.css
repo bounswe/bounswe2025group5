@@ -72,7 +72,7 @@
   --tertiary: oklch(63.147% 0.17226 282.58);   /* #8B7FCF soft purple */
   --tertiary-foreground: oklch(0.985 0 0);
 
-  --accent: oklch(0.83 0.18 80);      /* #F8B82A golden yellow */
+  --accent: oklch(84.284% 0.16689 83.545);      /* #F8B82A golden yellow */
   --accent-foreground: oklch(0.22 0 0);
 
   --muted: oklch(0.92 0.02 95);

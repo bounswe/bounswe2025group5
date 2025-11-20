@@ -1,20 +1,23 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Heart, MessageCircle, UserPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import type { Notification } from '@/lib/api/schemas/notifications';
+import userAvatar from '@/assets/user.png';
 
 interface NotificationCardProps {
   notification: Notification;
   onMarkAsRead?: (id: number) => void;
-  onClick?: (notification: Notification) => void;
+  onNotificationClick?: (notification: Notification) => void;
   className?: string;
 }
 
 export default function NotificationCard({
   notification,
   onMarkAsRead,
-  onClick,
+  onNotificationClick,
   className,
 }: NotificationCardProps) {
   const { t } = useTranslation();
@@ -41,13 +44,26 @@ export default function NotificationCard({
 
     switch (type) {
       case 'Like':
-        return `${actor} liked your ${objType}`;
+        return { actor, text: `liked your ${objType}` };
       case 'Create':
-        return `${actor} commented on your ${objType}`;
+        return { actor, text: `commented on your ${objType}` };
       case 'Follow':
-        return `${actor} started following you`;
+        return { actor, text: 'started following you' };
       default:
-        return `${actor} interacted with your content`;
+        return { actor, text: 'interacted with your content' };
+    }
+  };
+
+  const getActionIcon = () => {
+    switch (notification.type) {
+      case 'Like':
+        return <Heart className="h-3.5 w-3.5 text-red-500" />;
+      case 'Create':
+        return <MessageCircle className="h-3.5 w-3.5 text-blue-500" />;
+      case 'Follow':
+        return <UserPlus className="h-3.5 w-3.5 text-green-500" />;
+      default:
+        return null;
     }
   };
 
@@ -55,8 +71,8 @@ export default function NotificationCard({
     if (!notification.isRead && onMarkAsRead) {
       onMarkAsRead(notification.id);
     }
-    if (onClick) {
-      onClick(notification);
+    if (onNotificationClick) {
+      onNotificationClick(notification);
     }
   };
 
@@ -64,29 +80,39 @@ export default function NotificationCard({
     <Card
       className={cn(
         'cursor-pointer transition-all hover:shadow-md py-2',
-        !notification.isRead && 'bg-accent/50 border-primary/20',
+        !notification.isRead && 'bg-[#f0c647]',
         className
       )}
       onClick={handleClick}
     >
-      <CardContent className="p-3 py-2">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex-1 space-y-0.5">
-            <p className={cn(
-              'text-sm leading-tight',
-              !notification.isRead && 'font-semibold'
-            )}>
-              {getNotificationMessage()}
+      <CardContent className="p-3 py-2 relative">
+        <div className="flex items-start gap-2">
+          <Avatar className="h-8 w-8 shrink-0">
+            <AvatarImage src={userAvatar} alt={notification.actorId || 'User'} />
+            <AvatarFallback>{(notification.actorId || 'U')[0].toUpperCase()}</AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm leading-tight">
+              <span className="font-semibold">{getNotificationMessage().actor}</span>
+              {' '}
+              <span className={cn(!notification.isRead && 'font-medium')}>
+                {getNotificationMessage().text}
+              </span>
             </p>
-            <p className="text-[10px] text-muted-foreground">
-              {formatTimeAgo(notification.createdAt)}
-            </p>
+            <div className="flex items-center justify-between mt-0.5">
+              <p className="text-[10px] text-muted-foreground">
+                {formatTimeAgo(notification.createdAt)}
+              </p>
+              <div className="flex items-center gap-1">
+                {getActionIcon()}
+                {!notification.isRead && (
+                  <Badge variant="default" className="shrink-0 text-[10px] h-4 px-1.5 ml-1">
+                    {t('notifications.unread')}
+                  </Badge>
+                )}
+              </div>
+            </div>
           </div>
-          {!notification.isRead && (
-            <Badge variant="default" className="shrink-0 text-[10px] h-4 px-1.5">
-              {t('notifications.unread')}
-            </Badge>
-          )}
         </div>
       </CardContent>
     </Card>
