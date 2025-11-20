@@ -55,6 +55,8 @@ type NotificationItem = {
   createdAt: string | Date | null;
   objectId?: string | null;
   objectType?: string | null;
+  actorUsername?: string | null;
+  actorAvatarUrl?: string | null;
 };
 
 type NotificationFetchError = Error & { status?: number };
@@ -125,6 +127,8 @@ export default function ExploreScreen() {
   const notificationCardBackground = colorScheme === 'dark' ? '#1F1F21' : '#FFFFFF';
   const notificationBorderColor = colorScheme === 'dark' ? '#2C2C2E' : '#E5E5EA';
   const notificationUnreadAccent = colorScheme === 'dark' ? '#4ADE80' : '#2E7D32';
+  const notificationAvatarBackground = colorScheme === 'dark' ? '#2F2F31' : '#D9D9D9';
+  const notificationAvatarTextColor = colorScheme === 'dark' ? '#F5F5F7' : '#111111';
   const feedAccentColor = isFriendsFeed ? '#2E7D32' : '#1976D2';
   const feedAccentShadow = isFriendsFeed ? 'rgba(30, 94, 48, 0.2)' : 'rgba(13, 71, 161, 0.2)';
   const resolvedLanguage = (i18n.resolvedLanguage || i18n.language || 'en').toString();
@@ -253,8 +257,23 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
           createdAt: item.createdAt ?? null,
           objectId: item.objectId ?? null,
           objectType: item.objectType ?? null,
+          actorUsername: item.actorUsername ?? null,
+          actorAvatarUrl: null,
         }))
       : [];
+
+  const attachAvatarsToNotifications = async (items: NotificationItem[]): Promise<NotificationItem[]> => {
+    const usernames = items
+      .map((item) => item.actorUsername)
+      .filter((name): name is string => Boolean(name && name.trim().length > 0));
+    if (!usernames.length) return items;
+    const avatarUpdates = await ensureAvatarsForUsernames(usernames);
+    const lookup = { ...userAvatars, ...avatarUpdates };
+    return items.map((item) => ({
+      ...item,
+      actorAvatarUrl: item.actorUsername ? lookup[item.actorUsername] ?? null : null,
+    }));
+  };
 
   const fetchNotificationsFromEndpoint = async (path: string): Promise<NotificationItem[]> => {
     const response = await apiRequest(path);
@@ -303,7 +322,8 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
         }
       }
       if (fetched) {
-        setNotifications(fetched);
+        const withAvatars = await attachAvatarsToNotifications(fetched);
+        setNotifications(withAvatars);
         return;
       }
       throw lastError ?? new Error('Failed to fetch notifications.');
@@ -325,11 +345,18 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
     } finally {
       setNotificationsLoading(false);
     }
-  }, [username, userType, t]);
+  }, [username, userType, t, userAvatars]);
 
   const handleNotificationsRefresh = useCallback(() => {
     fetchNotifications();
   }, [fetchNotifications]);
+
+  const getNotificationInitial = (notif: NotificationItem) => {
+    const source = notif.actorUsername ?? notif.message ?? '';
+    const trimmed = source.trim();
+    if (!trimmed.length) return '?';
+    return trimmed.charAt(0).toUpperCase();
+  };
 
   useEffect(() => {
     if (isNotificationsVisible && userType === 'user') {
@@ -1130,6 +1157,7 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
                     notif.message?.trim()?.length
                       ? notif.message
                       : t('notificationFallbackMessage', { defaultValue: 'You have a new notification.' });
+                  const avatarInitial = getNotificationInitial(notif);
                   return (
                     <View
                       key={`${notif.id}-${notif.createdAt ?? 'timestamp'}`}
@@ -1141,30 +1169,54 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
                         },
                       ]}
                     >
-                      <View style={styles.notificationItemHeader}>
-                        {!notif.isRead && (
+                      <View style={styles.notificationBody}>
+                        {notif.actorAvatarUrl ? (
+                          <Image
+                            source={{ uri: notif.actorAvatarUrl }}
+                            style={styles.notificationAvatarImage}
+                          />
+                        ) : (
                           <View
                             style={[
-                              styles.notificationUnreadDot,
-                              { backgroundColor: notificationUnreadAccent },
+                              styles.notificationAvatarFallback,
+                              { backgroundColor: notificationAvatarBackground },
                             ]}
-                          />
+                          >
+                            <AccessibleText
+                              backgroundColor={notificationAvatarBackground}
+                              style={[styles.notificationAvatarInitial, { color: notificationAvatarTextColor }]}
+                            >
+                              {avatarInitial}
+                            </AccessibleText>
+                          </View>
                         )}
-                        <AccessibleText
-                          backgroundColor={notificationCardBackground}
-                          style={[styles.notificationMessage, { color: generalTextColor }]}
-                        >
-                          {messageText}
-                        </AccessibleText>
+                        <View style={styles.notificationTextGroup}>
+                          <View style={styles.notificationItemHeader}>
+                            {!notif.isRead && (
+                              <View
+                                style={[
+                                  styles.notificationUnreadDot,
+                                  { backgroundColor: notificationUnreadAccent },
+                                ]}
+                              />
+                            )}
+                            <AccessibleText
+                              backgroundColor={notificationCardBackground}
+                              style={[styles.notificationMessage, { color: generalTextColor }]}
+                            >
+                              {messageText}
+                            </AccessibleText>
+                          </View>
+                          {timestamp ? (
+                            <AccessibleText
+                              backgroundColor={notificationCardBackground}
+                              style={[styles.notificationTimestamp, { color: iconColor }]}
+                            >
+                              {timestamp}
+                            </AccessibleText>
+                          ) : null}
+                        </View>
                       </View>
-                      {timestamp ? (
-                        <AccessibleText
-                          backgroundColor={notificationCardBackground}
-                          style={[styles.notificationTimestamp, { color: iconColor }]}
-                        >
-                          {timestamp}
-                        </AccessibleText>
-                      ) : null}
                     </View>
                   );
                 })}
@@ -1305,8 +1357,19 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 12,
   },
+  notificationBody: { flexDirection: 'row', alignItems: 'center' },
+  notificationTextGroup: { flex: 1, marginLeft: 12 },
   notificationItemHeader: { flexDirection: 'row', alignItems: 'center' },
   notificationUnreadDot: { width: 10, height: 10, borderRadius: 5, marginRight: 10 },
   notificationMessage: { fontSize: 15, flexShrink: 1, fontWeight: '500' },
   notificationTimestamp: { fontSize: 12, marginTop: 8 },
+  notificationAvatarFallback: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  notificationAvatarImage: { width: 48, height: 48, borderRadius: 24 },
+  notificationAvatarInitial: { fontSize: 18, fontWeight: '700' },
 });

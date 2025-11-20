@@ -16,13 +16,14 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
 
-    public Notification createNotification(User user, String message, String objectType, String objectId) {
+    public Notification createNotification(User user, String message, String objectType, String objectId, String actorUsername) {
         Notification notification = new Notification();
         notification.setUser(user);
         notification.setMessage(message);
         notification.setIsRead(false);
         notification.setObjectType(objectType);
         notification.setObjectId(objectId);
+        notification.setActorUsername(actorUsername);
         return notificationRepository.save(notification);
     }
 
@@ -38,6 +39,7 @@ public class NotificationService {
                     dto.setCreatedAt(n.getCreatedAt());
                     dto.setObjectId(n.getObjectId());
                     dto.setObjectType(n.getObjectType());
+                    dto.setActorUsername(n.getActorUsername());
                     return dto;
                 })
                 .toList();
