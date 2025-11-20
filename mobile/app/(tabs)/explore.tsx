@@ -352,10 +352,10 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
       else setLoading(true);
 
       const query = isGuestUser
-        ? '/api/posts/mostLiked?size=10'
+        ? '/api/posts/mostLiked?size=15'
         : loadMore && lastPostId !== null
-          ? `/api/posts?size=5&lastPostId=${lastPostId}`
-          : '/api/posts?size=5';
+          ? `/api/posts?size=15&lastPostId=${lastPostId}`
+          : '/api/posts?size=15';
       
       const res = await apiRequest(query);
       if (!res.ok) throw new Error(`Fetch failed with status ${res.status}`);
@@ -503,7 +503,7 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
       setSearchResults([]);
       setEditingCommentDetails(null); 
       const res = await apiRequest(
-        `/api/forum/search/semantic?query=${encodeURIComponent(q)}&size=5`
+        `/api/forum/search/semantic?query=${encodeURIComponent(q)}&size=15`
       );
       if (!res.ok) throw new Error('Search failed');
       const data = await res.json();
