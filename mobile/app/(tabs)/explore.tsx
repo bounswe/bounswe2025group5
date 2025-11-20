@@ -51,7 +51,9 @@ type Post = {
 
 type NotificationItem = {
   id: number;
-  message: string;
+  message?: string | null;
+  type?: string | null;
+  actorId?: string | null;
   isRead: boolean;
   createdAt: string | Date | null;
   objectId?: string | null;
@@ -130,6 +132,8 @@ export default function ExploreScreen() {
   const notificationCardBackground = colorScheme === 'dark' ? '#1F1F21' : '#FFFFFF';
   const notificationBorderColor = colorScheme === 'dark' ? '#2C2C2E' : '#E5E5EA';
   const notificationUnreadAccent = colorScheme === 'dark' ? '#4ADE80' : '#2E7D32';
+  const notificationAvatarBackground = colorScheme === 'dark' ? '#2F2F31' : '#D9D9D9';
+  const notificationAvatarTextColor = colorScheme === 'dark' ? '#F5F5F7' : '#111111';
   const feedAccentColor = isFriendsFeed ? '#2E7D32' : '#1976D2';
   const feedAccentShadow = isFriendsFeed ? 'rgba(30, 94, 48, 0.2)' : 'rgba(13, 71, 161, 0.2)';
   const resolvedLanguage = (i18n.resolvedLanguage || i18n.language || 'en').toString();
@@ -264,7 +268,8 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
     return uri.startsWith('http') ? uri : apiUrl(uri);
   };
 
-  const deriveActorUsername = (message?: string | null) => {
+  const deriveActorUsername = (actorId?: string | null, message?: string | null) => {
+    if (actorId && `${actorId}`.trim().length) return `${actorId}`.trim();
     if (!message) return null;
     const trimmed = message.trim();
     if (!trimmed.length) return null;
@@ -284,20 +289,82 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
     return null;
   };
 
+  const buildNotificationMessage = (
+    type?: string | null,
+    objectType?: string | null,
+    actorId?: string | null,
+    rawMessage?: string | null
+  ) => {
+    if (rawMessage && `${rawMessage}`.trim().length) {
+      return `${rawMessage}`.trim();
+    }
+
+    const actor = actorId && `${actorId}`.trim().length ? `${actorId}`.trim() : 'Someone';
+    const normalizedType = type?.toLowerCase();
+    const normalizedObject = objectType?.toLowerCase();
+
+    if (normalizedType === 'like' && normalizedObject === 'post') {
+      return `${actor} liked your post`;
+    }
+
+    if (
+      normalizedType === 'comment' ||
+      (normalizedType === 'create' && normalizedObject === 'comment')
+    ) {
+      return `${actor} commented on your post`;
+    }
+
+    if (normalizedType === 'create' && normalizedObject === 'post') {
+      return `${actor} shared a new post`;
+    }
+
+    if (normalizedType === 'follow') {
+      return `${actor} started following you`;
+    }
+
+    if (normalizedType === 'create' && normalizedObject === 'challenge') {
+      return `${actor} created a challenge`;
+    }
+
+    if (normalizedType === 'end' && normalizedObject === 'challenge') {
+      return 'A challenge has ended';
+    }
+
+    return 'You have a new notification.';
+  };
+
   const normalizeNotificationsPayload = (payload: any): NotificationItem[] =>
     Array.isArray(payload)
       ? payload.map((item: any) => {
-          const actorUsername = deriveActorUsername(item.message);
+          const rawType = item?.type ?? item?.notification_type ?? item?.notificationType;
+          const rawObjectType = item?.objectType ?? item?.object_type;
+          const rawObjectId = item?.objectId ?? item?.object_id;
+          const rawActorId = item?.actorId ?? item?.actor_id ?? item?.actorUsername ?? item?.actor;
+          const typeValue = rawType != null ? String(rawType) : null;
+          const objectTypeValue = rawObjectType != null ? String(rawObjectType) : null;
+          const actorIdValue = rawActorId != null ? String(rawActorId) : null;
+          const actorUsername = deriveActorUsername(
+            actorIdValue,
+            item?.message
+          );
+          const friendlyMessage = buildNotificationMessage(
+            typeValue,
+            objectTypeValue,
+            actorIdValue,
+            item?.message ?? null
+          );
           return {
             id:
-              typeof item.id === 'number'
+              typeof item?.id === 'number'
                 ? item.id
-                : Number(item.id ?? item.notificationId) || Date.now() + Math.random(),
-            message: item.message ?? '',
-            isRead: Boolean(item.isRead),
-            createdAt: item.createdAt ?? null,
-            objectId: item.objectId ?? null,
-            objectType: item.objectType ?? null,
+                : Number(item?.id ?? item?.notificationId) || Date.now() + Math.random(),
+            message: friendlyMessage,
+            type: typeValue,
+            actorId: actorIdValue,
+            isRead: Boolean(item?.isRead),
+            createdAt: item?.createdAt ?? null,
+            objectId: rawObjectId != null ? String(rawObjectId) : null,
+            objectType: objectTypeValue,
             actorUsername,
             actorAvatarUrl: null,
           };
@@ -381,7 +448,7 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
   }, [fetchNotifications]);
 
   const getNotificationInitial = (notif: NotificationItem) => {
-    const source = notif.actorUsername ?? notif.message ?? '';
+    const source = notif.actorUsername ?? notif.actorId ?? notif.message ?? '';
     const trimmed = source.trim();
     if (!trimmed.length) return '?';
     return trimmed.charAt(0).toUpperCase();
