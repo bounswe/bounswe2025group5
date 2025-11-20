@@ -50,7 +50,7 @@ public class CommentService {
         activityLogger.logAction(
                 "Create",
                 "User", user.getUsername(),
-                "Comment", savedComment.getCommentId(),
+                "Comment", postId,
                 "User", post.getUser().getUsername()
         );
 
