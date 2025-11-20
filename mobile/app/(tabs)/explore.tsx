@@ -102,6 +102,8 @@ export default function ExploreScreen() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
   const [notificationsError, setNotificationsError] = useState<string | null>(null);
+  const [selectedNotificationPostId, setSelectedNotificationPostId] = useState<number | null>(null);
+  const [isPostPreviewVisible, setPostPreviewVisible] = useState(false);
   const hasLoadedPostsRef = useRef(false);
   const scrollViewRef = useRef<ScrollView | null>(null);
   const lastScrollOffsetRef = useRef(0);
@@ -385,6 +387,19 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
     return trimmed.charAt(0).toUpperCase();
   };
 
+  const handleNotificationPress = (notif: NotificationItem) => {
+    if (notif.objectType?.toLowerCase() === 'post' && notif.objectId) {
+      const parsedId = Number(notif.objectId);
+      if (!Number.isNaN(parsedId)) {
+        setSelectedNotificationPostId(parsedId);
+        setPostPreviewVisible(true);
+        return;
+      }
+    }
+    setSelectedNotificationPostId(null);
+    setPostPreviewVisible(false);
+  };
+
   useEffect(() => {
     if (isNotificationsVisible && userType === 'user') {
       fetchNotifications();
@@ -591,7 +606,11 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
   };
 
   const openNotifications = () => setNotificationsVisible(true);
-  const closeNotifications = () => setNotificationsVisible(false);
+  const closeNotifications = () => {
+    setNotificationsVisible(false);
+    setPostPreviewVisible(false);
+    setSelectedNotificationPostId(null);
+  };
 
   const handleLikeToggle = async (postId: number, currentlyLiked: boolean) => {
     if (userType === 'guest' || !username) {
@@ -1187,7 +1206,7 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
                   const avatarInitial = getNotificationInitial(notif);
                   const resolvedAvatarUri = resolveAvatarUri(notif.actorAvatarUrl);
                   return (
-                    <View
+                    <TouchableOpacity
                       key={`${notif.id}-${notif.createdAt ?? 'timestamp'}`}
                       style={[
                         styles.notificationItem,
@@ -1196,6 +1215,10 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
                           borderColor: notif.isRead ? notificationBorderColor : notificationUnreadAccent,
                         },
                       ]}
+                      activeOpacity={0.8}
+                      onPress={() => handleNotificationPress(notif)}
+                      accessibilityRole="button"
+                      accessibilityLabel={t('notificationsTitle', { defaultValue: 'Notifications' })}
                     >
                       <View style={styles.notificationBody}>
                         {resolvedAvatarUri ? (
@@ -1242,11 +1265,52 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
                           ) : null}
                         </View>
                       </View>
-                    </View>
+                    </TouchableOpacity>
                   );
                 })}
               </ScrollView>
             )}
+          </View>
+        </View>
+      </Modal>
+      <Modal
+        visible={isPostPreviewVisible && selectedNotificationPostId !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => {
+          setPostPreviewVisible(false);
+          setSelectedNotificationPostId(null);
+        }}
+      >
+        <View style={styles.notificationPreviewBackdrop}>
+          <View style={styles.notificationPreviewCard}>
+            <AccessibleText style={styles.notificationPreviewTitle} backgroundColor="#FFFFFF">
+              {t('notificationsTitle', { defaultValue: 'Notifications' })}
+            </AccessibleText>
+            <AccessibleText style={styles.notificationPreviewText} backgroundColor="#FFFFFF">
+              {selectedNotificationPostId !== null
+                ? t('notificationPostPreview', {
+                    defaultValue: 'Post ID: {{id}}',
+                    id: selectedNotificationPostId,
+                  })
+                : ''}
+            </AccessibleText>
+            <TouchableOpacity
+              style={styles.notificationPreviewCloseButton}
+              onPress={() => {
+                setPostPreviewVisible(false);
+                setSelectedNotificationPostId(null);
+              }}
+              accessibilityRole="button"
+              accessibilityLabel={t('close', { defaultValue: 'Close' })}
+            >
+              <AccessibleText
+                backgroundColor="#007AFF"
+                style={styles.notificationPreviewCloseText}
+              >
+                {t('close', { defaultValue: 'Close' })}
+              </AccessibleText>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -1397,4 +1461,27 @@ const styles = StyleSheet.create({
   },
   notificationAvatarImage: { width: 48, height: 48, borderRadius: 24 },
   notificationAvatarInitial: { fontSize: 18, fontWeight: '700' },
+  notificationPreviewBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  notificationPreviewCard: {
+    width: '100%',
+    borderRadius: 20,
+    padding: 20,
+    backgroundColor: '#FFFFFF',
+  },
+  notificationPreviewTitle: { fontSize: 18, fontWeight: '700', marginBottom: 12 },
+  notificationPreviewText: { fontSize: 16, marginBottom: 20 },
+  notificationPreviewCloseButton: {
+    alignSelf: 'flex-end',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    backgroundColor: '#007AFF',
+  },
+  notificationPreviewCloseText: { color: '#FFFFFF', fontWeight: '600' },
 });
