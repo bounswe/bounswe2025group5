@@ -1,5 +1,5 @@
 //app/(tabs)/explore.tsx
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -48,10 +48,21 @@ type Post = {
   authorAvatarUrl?: string | null;
 };
 
+type NotificationItem = {
+  id: number;
+  message: string;
+  isRead: boolean;
+  createdAt: string | Date | null;
+  objectId?: string | null;
+  objectType?: string | null;
+};
+
+type NotificationFetchError = Error & { status?: number };
+
 export default function ExploreScreen() {
   const navigation = useNavigation();
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const authContext = useContext(AuthContext);
   const userType = authContext?.userType;
@@ -85,6 +96,9 @@ export default function ExploreScreen() {
   const [isSubmittingCommentEdit, setIsSubmittingCommentEdit] = useState(false);
   const [userAvatars, setUserAvatars] = useState<{ [username: string]: string | null }>({});
   const [isNotificationsVisible, setNotificationsVisible] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [notificationsLoading, setNotificationsLoading] = useState(false);
+  const [notificationsError, setNotificationsError] = useState<string | null>(null);
   const hasLoadedPostsRef = useRef(false);
   const scrollViewRef = useRef<ScrollView | null>(null);
   const lastScrollOffsetRef = useRef(0);
@@ -106,11 +120,14 @@ export default function ExploreScreen() {
   const themedNoMoreBoxBackgroundColor = colorScheme === 'dark' ? '#1A3A4A' : '#e0f7fa';
   const themedNoMoreBoxTextColor = colorScheme === 'dark' ? '#9EE8FF' : '#00796b';
   const activityIndicatorColor = colorScheme === 'dark' ? '#FFFFFF' : '#000000';
-  const refreshControlColors = colorScheme === 'dark' ? { tintColor: '#FFFFFF', titleColor: '#FFFFFF'} : { tintColor: '#000000', titleColor: '#000000'};
   const notificationButtonBackground = colorScheme === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)';
   const notificationIconColor = colorScheme === 'dark' ? '#FFFFFF' : '#1C1C1E';
+  const notificationCardBackground = colorScheme === 'dark' ? '#1F1F21' : '#FFFFFF';
+  const notificationBorderColor = colorScheme === 'dark' ? '#2C2C2E' : '#E5E5EA';
+  const notificationUnreadAccent = colorScheme === 'dark' ? '#4ADE80' : '#2E7D32';
   const feedAccentColor = isFriendsFeed ? '#2E7D32' : '#1976D2';
   const feedAccentShadow = isFriendsFeed ? 'rgba(30, 94, 48, 0.2)' : 'rgba(13, 71, 161, 0.2)';
+  const resolvedLanguage = (i18n.resolvedLanguage || i18n.language || 'en').toString();
   
 
   useEffect(() => {
@@ -210,6 +227,115 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
     }));
   };
         
+  const formatNotificationTimestamp = useCallback(
+    (value: string | Date | null | undefined) => {
+      if (!value) return '';
+      const dateInstance = value instanceof Date ? value : new Date(value);
+      if (Number.isNaN(dateInstance.getTime())) return '';
+      try {
+        return dateInstance.toLocaleString(resolvedLanguage, { dateStyle: 'medium', timeStyle: 'short' });
+      } catch {
+        return dateInstance.toISOString();
+      }
+    },
+    [resolvedLanguage]
+  );
+
+  const normalizeNotificationsPayload = (payload: any): NotificationItem[] =>
+    Array.isArray(payload)
+      ? payload.map((item: any) => ({
+          id:
+            typeof item.id === 'number'
+              ? item.id
+              : Number(item.id ?? item.notificationId) || Date.now() + Math.random(),
+          message: item.message ?? '',
+          isRead: Boolean(item.isRead),
+          createdAt: item.createdAt ?? null,
+          objectId: item.objectId ?? null,
+          objectType: item.objectType ?? null,
+        }))
+      : [];
+
+  const fetchNotificationsFromEndpoint = async (path: string): Promise<NotificationItem[]> => {
+    const response = await apiRequest(path);
+    if (!response.ok) {
+      const responseText = await response.text();
+      const error: NotificationFetchError = new Error(
+        responseText || `Failed to fetch notifications (${response.status})`
+      );
+      error.status = response.status;
+      throw error;
+    }
+    const data = await response.json();
+    return normalizeNotificationsPayload(data);
+  };
+
+  const fetchNotifications = useCallback(async () => {
+    if (userType !== 'user') {
+      setNotifications([]);
+      setNotificationsLoading(false);
+      setNotificationsError(null);
+      return;
+    }
+    setNotificationsLoading(true);
+    setNotificationsError(null);
+    try {
+      const encodedUsername = username ? encodeURIComponent(username) : null;
+      const endpoints: string[] = ['/api/notifications/me'];
+      if (encodedUsername) {
+        endpoints.push(`/api/notifications/${encodedUsername}`);
+        endpoints.push(`/api/notifications?username=${encodedUsername}`);
+      }
+      let fetched: NotificationItem[] | null = null;
+      let lastError: NotificationFetchError | null = null;
+      for (const path of endpoints) {
+        try {
+          fetched = await fetchNotificationsFromEndpoint(path);
+          break;
+        } catch (error: any) {
+          lastError = error as NotificationFetchError;
+          const status = lastError?.status;
+          const shouldFallback =
+            status === 404 || status === 405 || status === 400 || status === 403;
+          if (!shouldFallback) {
+            break;
+          }
+        }
+      }
+      if (fetched) {
+        setNotifications(fetched);
+        return;
+      }
+      throw lastError ?? new Error('Failed to fetch notifications.');
+    } catch (err: any) {
+      console.error('Failed to fetch notifications:', err);
+      setNotifications([]);
+      const status = (err as NotificationFetchError)?.status;
+      if (status === 401 || status === 403) {
+        setNotificationsError(
+          t('notificationsAuthError', {
+            defaultValue: 'Please sign in again to view notifications.',
+          })
+        );
+      } else {
+        setNotificationsError(
+          err?.message || t('notificationsLoadError', { defaultValue: 'Unable to load notifications.' })
+        );
+      }
+    } finally {
+      setNotificationsLoading(false);
+    }
+  }, [username, userType, t]);
+
+  const handleNotificationsRefresh = useCallback(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  useEffect(() => {
+    if (isNotificationsVisible && userType === 'user') {
+      fetchNotifications();
+    }
+  }, [isNotificationsVisible, userType, fetchNotifications]);
 
   const fetchPosts = async (loadMore = false, options?: { preserveExisting?: boolean }) => {
     const preserveExisting = Boolean(options?.preserveExisting);
@@ -932,12 +1058,118 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
             <AccessibleText backgroundColor={screenBackgroundColor} style={[styles.notificationsTitle, { color: generalTextColor }]}>
               {t('notificationsTitle', { defaultValue: 'Notifications' })}
             </AccessibleText>
-            <View style={{ width: 32 }} />
+            {userType === 'user' && username ? (
+              <TouchableOpacity
+                onPress={handleNotificationsRefresh}
+                accessibilityRole="button"
+                accessibilityLabel={t('refresh', { defaultValue: 'Refresh' })}
+                style={styles.notificationsRefreshButton}
+                disabled={notificationsLoading}
+              >
+                <Ionicons
+                  name="refresh"
+                  size={22}
+                  color={generalTextColor}
+                  style={notificationsLoading ? { opacity: 0.5 } : undefined}
+                />
+              </TouchableOpacity>
+            ) : (
+              <View style={{ width: 32 }} />
+            )}
           </View>
           <View style={styles.notificationsContent}>
-            <AccessibleText backgroundColor={screenBackgroundColor} style={[styles.notificationsEmptyText, { color: iconColor }]}>
-              {t('notificationsEmpty', { defaultValue: "You're all caught up!" })}
-            </AccessibleText>
+            {userType !== 'user' ? (
+              <View style={styles.notificationsEmptyState}>
+                <AccessibleText backgroundColor={screenBackgroundColor} style={[styles.notificationsEmptyText, { color: generalTextColor }]}>
+                  {t('loginRequired', { defaultValue: 'Please log in to view notifications.' })}
+                </AccessibleText>
+              </View>
+            ) : notificationsLoading ? (
+              <ActivityIndicator size="large" color={activityIndicatorColor} style={styles.notificationsSpinner} />
+            ) : notificationsError ? (
+              <View style={styles.notificationsEmptyState}>
+                <AccessibleText backgroundColor={screenBackgroundColor} style={[styles.notificationsEmptyText, { color: themedErrorBoxTextColor }]}>
+                  {notificationsError}
+                </AccessibleText>
+                <TouchableOpacity
+                  onPress={handleNotificationsRefresh}
+                  style={[styles.notificationsActionButton, { borderColor: notificationUnreadAccent }]}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('refresh', { defaultValue: 'Refresh' })}
+                >
+                  <AccessibleText backgroundColor={screenBackgroundColor} style={[styles.notificationsActionButtonText, { color: notificationUnreadAccent }]}>
+                    {t('tryAgain', { defaultValue: 'Try again' })}
+                  </AccessibleText>
+                </TouchableOpacity>
+              </View>
+            ) : notifications.length === 0 ? (
+              <View style={styles.notificationsEmptyState}>
+                <AccessibleText backgroundColor={screenBackgroundColor} style={[styles.notificationsEmptyText, { color: iconColor }]}>
+                  {t('notificationsEmpty', { defaultValue: "You're all caught up!" })}
+                </AccessibleText>
+                <TouchableOpacity
+                  onPress={handleNotificationsRefresh}
+                  style={[styles.notificationsActionButton, { borderColor: iconColor }]}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('refresh', { defaultValue: 'Refresh' })}
+                >
+                  <AccessibleText backgroundColor={screenBackgroundColor} style={[styles.notificationsActionButtonText, { color: iconColor }]}>
+                    {t('refresh', { defaultValue: 'Refresh' })}
+                  </AccessibleText>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <ScrollView
+                style={styles.notificationsList}
+                contentContainerStyle={styles.notificationsListContent}
+                showsVerticalScrollIndicator={false}
+              >
+                {notifications.map((notif) => {
+                  const timestamp = formatNotificationTimestamp(notif.createdAt);
+                  const messageText =
+                    notif.message?.trim()?.length
+                      ? notif.message
+                      : t('notificationFallbackMessage', { defaultValue: 'You have a new notification.' });
+                  return (
+                    <View
+                      key={`${notif.id}-${notif.createdAt ?? 'timestamp'}`}
+                      style={[
+                        styles.notificationItem,
+                        {
+                          backgroundColor: notificationCardBackground,
+                          borderColor: notif.isRead ? notificationBorderColor : notificationUnreadAccent,
+                        },
+                      ]}
+                    >
+                      <View style={styles.notificationItemHeader}>
+                        {!notif.isRead && (
+                          <View
+                            style={[
+                              styles.notificationUnreadDot,
+                              { backgroundColor: notificationUnreadAccent },
+                            ]}
+                          />
+                        )}
+                        <AccessibleText
+                          backgroundColor={notificationCardBackground}
+                          style={[styles.notificationMessage, { color: generalTextColor }]}
+                        >
+                          {messageText}
+                        </AccessibleText>
+                      </View>
+                      {timestamp ? (
+                        <AccessibleText
+                          backgroundColor={notificationCardBackground}
+                          style={[styles.notificationTimestamp, { color: iconColor }]}
+                        >
+                          {timestamp}
+                        </AccessibleText>
+                      ) : null}
+                    </View>
+                  );
+                })}
+              </ScrollView>
+            )}
           </View>
         </View>
       </Modal>
@@ -1051,8 +1283,30 @@ const styles = StyleSheet.create({
   notificationsTitle: { fontSize: 20, fontWeight: '700' },
   notificationsContent: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    alignSelf: 'stretch',
   },
+  notificationsEmptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 },
   notificationsEmptyText: { fontSize: 16, textAlign: 'center', lineHeight: 22 },
+  notificationsSpinner: { marginTop: 32 },
+  notificationsActionButton: {
+    marginTop: 16,
+    paddingHorizontal: 18,
+    paddingVertical: 8,
+    borderRadius: 18,
+    borderWidth: 1,
+  },
+  notificationsActionButtonText: { fontSize: 14, fontWeight: '600' },
+  notificationsRefreshButton: { padding: 6 },
+  notificationsList: { flex: 1 },
+  notificationsListContent: { paddingBottom: 20 },
+  notificationItem: {
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+  },
+  notificationItemHeader: { flexDirection: 'row', alignItems: 'center' },
+  notificationUnreadDot: { width: 10, height: 10, borderRadius: 5, marginRight: 10 },
+  notificationMessage: { fontSize: 15, flexShrink: 1, fontWeight: '500' },
+  notificationTimestamp: { fontSize: 12, marginTop: 8 },
 });

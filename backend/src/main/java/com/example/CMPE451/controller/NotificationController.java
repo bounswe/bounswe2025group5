@@ -1,6 +1,5 @@
 package com.example.CMPE451.controller;
 
-import com.example.CMPE451.model.Notification;
 import com.example.CMPE451.model.User;
 import com.example.CMPE451.model.response.NotificationResponse;
 import com.example.CMPE451.repository.UserRepository;
@@ -8,7 +7,9 @@ import com.example.CMPE451.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,17 @@ public class NotificationController {
         }
 
         return ResponseEntity.ok(Map.of("success", true));
+    }
+
+    @GetMapping("/me")
+    public List<NotificationResponse> getCurrentUserNotifications(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required");
+        }
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + email));
+        return notificationService.getNotifications(user);
     }
 
 }
