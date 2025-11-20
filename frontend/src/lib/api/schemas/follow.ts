@@ -21,3 +21,9 @@ export const FollowStatsSchema = z.object({
 });
 
 export type FollowStats = z.infer<typeof FollowStatsSchema>;
+
+export const IsFollowingResponseSchema = z.object({
+  follow: z.boolean(),
+});
+
+export type IsFollowingResponse = z.infer<typeof IsFollowingResponseSchema>;

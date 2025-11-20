@@ -6,6 +6,8 @@ import {
   type FollowUserItem,
   FollowStatsSchema,
   type FollowStats,
+  IsFollowingResponseSchema,
+  type IsFollowingResponse,
 } from './schemas/follow';
 
 export const FollowApi = {
@@ -45,5 +47,12 @@ export const FollowApi = {
       `/api/users/${encodeURIComponent(username)}/follow-stats`,
     );
     return FollowStatsSchema.parse(data);
+  },
+
+  isFollowing: async (followerUsername: string, followingUsername: string): Promise<boolean> => {
+    const data = await ApiClient.get<IsFollowingResponse>(
+      `/api/users/${encodeURIComponent(followerUsername)}/is-following/${encodeURIComponent(followingUsername)}`,
+    );
+    return IsFollowingResponseSchema.parse(data).follow;
   },
 };
