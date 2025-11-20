@@ -295,7 +295,8 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
     actorId?: string | null,
     rawMessage?: string | null,
     objectId?: string | null,
-    currentUsername?: string | null
+    currentUsername?: string | null,
+    rawPayload?: any
   ) => {
     if (rawMessage && `${rawMessage}`.trim().length) {
       return `${rawMessage}`.trim();
@@ -308,7 +309,7 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
 
     if (normalizedType === 'like') {
       if (normalizedObject === 'post') {
-        return `${actor} liked your post${objectId ? ` (#${objectId})` : ''}`;
+        return `${actor} liked your post`;
       }
       return `${actor} liked your content`;
     }
@@ -317,11 +318,11 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
       normalizedType === 'comment' ||
       (normalizedType === 'create' && normalizedObject === 'comment')
     ) {
-      return `${actor} commented on your post${objectId ? ` (#${objectId})` : ''}`;
+      return `${actor} commented on your post`;
     }
 
     if (normalizedType === 'create' && normalizedObject === 'post') {
-      return `${actor} created a new post${objectId ? ` (#${objectId})` : ''}`;
+      return `${actor} created a new post`;
     }
 
     if (normalizedType === 'follow') {
@@ -330,14 +331,18 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
     }
 
     if (normalizedType === 'create' && normalizedObject === 'challenge') {
-      return `${actor} created a challenge${objectId ? ` (#${objectId})` : ''}`;
+      return `${actor} created a challenge`;
     }
 
     if (normalizedType === 'end' && normalizedObject === 'challenge') {
-      return `Challenge${objectId ? ` #${objectId}` : ''} has ended`;
+      return 'Challenge has ended';
     }
 
-    return `${actor} sent you a notification`;
+    try {
+      return JSON.stringify(rawPayload ?? { type, objectType, actorId, objectId });
+    } catch {
+      return 'Notification payload unavailable';
+    }
   };
 
   const normalizeNotificationsPayload = (payload: any): NotificationItem[] =>
@@ -360,7 +365,8 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
             actorIdValue,
             item?.message ?? null,
             rawObjectId != null ? String(rawObjectId) : null,
-            username ?? null
+            username ?? null,
+            item
           );
           return {
             id:
