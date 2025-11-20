@@ -108,6 +108,9 @@ export default function ChallengesScreen() {
   const [logsLoading, setLogsLoading] = useState(false);
   const [logsError, setLogsError] = useState("");
 
+  // Track current challenge type for modals
+  const [currentChallengeType, setCurrentChallengeType] = useState<string>("");
+
   const fetchData = async () => {
     setLoading(true);
     setError({ key: null, message: null });
@@ -193,6 +196,8 @@ export default function ChallengesScreen() {
   const handleViewLeaderboard = async (challengeId: number) => {
     setLbLoading(true);
     setLbError({ key: null, message: null });
+    const challenge = challenges.find((ch) => ch.challengeId === challengeId);
+    setCurrentChallengeType(challenge?.type || "");
     try {
       const res = await apiRequest(
         `/api/challenges/${challengeId}/leaderboard`
@@ -359,6 +364,8 @@ export default function ChallengesScreen() {
       return;
     }
 
+    const challenge = challenges.find((ch) => ch.challengeId === challengeId);
+    setCurrentChallengeType(challenge?.type || "");
     setLogsLoading(true);
     setLogsError("");
 
@@ -528,7 +535,10 @@ export default function ChallengesScreen() {
                 <ThemedText type="default" style={styles.cardDescription}>
                   {item.description}
                 </ThemedText>
-                <ThemedText type="default" style={styles.cardInfo}>
+                <ThemedText
+                  type="default"
+                  style={[styles.progressText, { color: colors.textSecondary }]}
+                >
                   {t("challengeAmountAndType", {
                     amount: item.amount,
                     wasteType: item.type,
@@ -546,7 +556,7 @@ export default function ChallengesScreen() {
                       ]}
                     >
                       {t("progressText")}: {item.currentAmount?.toFixed(1) || 0}{" "}
-                      / {item.amount} kg
+                      / {item.amount}
                     </ThemedText>
                     <ThemedText
                       type="default"
@@ -779,13 +789,15 @@ export default function ChallengesScreen() {
                         {index + 1}. {item.username}
                       </ThemedText>
                       <ThemedText type="default" style={styles.lbCell}>
-                        {item.logAmount} kg
+                        {item.logAmount}
                       </ThemedText>
                     </View>
                   )}
                   ListEmptyComponent={
                     <View style={styles.emptyListContainer}>
-                      <ThemedText>{t("leaderboardEmpty")}</ThemedText>
+                      <ThemedText style={{ color: colors.textSecondary }}>
+                        {t("leaderboardEmpty")}
+                      </ThemedText>
                     </View>
                   }
                 />
@@ -989,9 +1001,7 @@ export default function ChallengesScreen() {
               </ThemedText>
             )}
 
-            <ThemedText style={styles.inputLabel}>
-              {t("amountKgLabel")}
-            </ThemedText>
+            <ThemedText style={styles.inputLabel}>{t("amount")}</ThemedText>
             <TextInput
               style={[
                 styles.input,
@@ -1081,7 +1091,7 @@ export default function ChallengesScreen() {
                       <ThemedText
                         style={[styles.logAmount, { color: colors.text }]}
                       >
-                        {item.amount} kg
+                        {item.amount} {currentChallengeType}
                       </ThemedText>
                       <ThemedText
                         style={[
@@ -1171,10 +1181,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginVertical: 6,
     elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
+    boxShadow: "0px 1px 2px rgba(0, 0, 0, 0.2)",
   },
   cardHeader: { marginBottom: 8 },
   cardTitle: { fontSize: 18, fontWeight: "600" },
@@ -1212,10 +1219,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 80,
     marginBottom: 24,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
+    boxShadow: "0px 1px 2px rgba(0, 0, 0, 0.2)",
     elevation: 2,
   },
   lbOverlay: {
