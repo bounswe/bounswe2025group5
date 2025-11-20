@@ -35,7 +35,7 @@ export default function Navbar({ className }: NavbarProps) {
   );
 
   return (
-    <nav className={`bg-[#b07f5a]/90 backdrop-blur-sm text-white px-3 py-2 flex items-center gap-2 h-16 rounded-full shadow-lg border border-white/20 max-w-4xl mx-auto ${className || ''}`}>
+    <nav className={`bg-[#b07f5a]/90 backdrop-blur-sm text-white px-3 py-2 flex items-center gap-2 h-16 rounded-full shadow-lg border border-white/20 max-w-4xl mx-auto min-w-[660px] ${className || ''}`}>
       {/* Logo and Title */}
       <div className="flex items-center shrink-0">
         <img
@@ -73,8 +73,10 @@ export default function Navbar({ className }: NavbarProps) {
             {t('login.signup')}
           </Button>
         )}
-        <LogoutButton />
-        {isAuthed && <NotificationIcon />}
+        <div className="flex items-center gap-1 shrink-0">
+          <LogoutButton />
+          {isAuthed && <NotificationIcon />}
+        </div>
       </div>
     </nav>
   );
