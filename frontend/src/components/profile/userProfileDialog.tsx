@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import { UsersApi } from '@/lib/api/users';
 import { FollowApi } from '@/lib/api/follow';
 import type { ProfileResponse } from '@/lib/api/schemas/profile';
@@ -154,83 +155,77 @@ export default function UserProfileDialog({ username, open, onOpenChange }: User
           </div>
         ) : (
           <div className="flex flex-col gap-4 overflow-y-auto pr-1">
-            <div className="flex flex-col items-center text-center gap-3">
-              <Avatar className="w-16 h-16">
-                <AvatarImage
-                  src={userAvatar}
-                  alt={avatarUsername
-                    ? t('profile.photoAlt', {
-                        username: avatarUsername,
-                        defaultValue: `${avatarUsername}'s profile photo`,
-                      })
-                    : t('profile.photoAltAnon', 'Profile photo')}
-                />
-                <AvatarFallback className="bg-primary text-primary-foreground text-lg">
-                  {avatarUsername.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="font-semibold text-lg">{profile.username}</p>
-                {profile.biography && (
-                  <p className="text-sm text-muted-foreground mt-1 whitespace-pre-line">
-                    {profile.biography}
-                  </p>
+            <div className="flex gap-6 items-start">
+              <div className="flex flex-col items-start gap-3 flex-1">
+                <Avatar className="w-16 h-16">
+                  <AvatarImage
+                    src={userAvatar}
+                    alt={avatarUsername
+                      ? t('profile.photoAlt', {
+                          username: avatarUsername,
+                          defaultValue: `${avatarUsername}'s profile photo`,
+                        })
+                      : t('profile.photoAltAnon', 'Profile photo')}
+                  />
+                  <AvatarFallback className="bg-primary text-primary-foreground text-lg">
+                    {avatarUsername.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-semibold text-lg">{profile.username}</p>
+                  {profile.biography && (
+                    <p className="text-sm text-muted-foreground mt-1 whitespace-pre-line">
+                      {profile.biography}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex flex-col items-center gap-4">
+                <div className="flex gap-6">
+                  <div className="flex flex-col items-center">
+                    <span className="font-semibold text-2xl text-foreground">
+                      {profile.followerCount ?? 0}
+                    </span>
+                    <Label className="text-sm text-muted-foreground">
+                      {t('profile.followers.button', 'Followers')}
+                    </Label>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <span className="font-semibold text-2xl text-foreground">
+                      {profile.followingCount ?? 0}
+                    </span>
+                    <Label className="text-sm text-muted-foreground">
+                      {t('profile.following.button', 'Following')}
+                    </Label>
+                  </div>
+                </div>
+                {!isOwnProfile && (
+                  <Button
+                    type="button"
+                    variant={isFollowing ? 'destructive' : 'default'}
+                    size="default"
+                    onClick={handleFollowToggle}
+                    disabled={isFollowLoading || isFollowActionLoading}
+                    className="w-full transition-colors"
+                  >
+                    {isFollowActionLoading ? (
+                      <Spinner className="h-4 w-4" />
+                    ) : isFollowing ? (
+                      t('profile.unfollow', 'Unfollow')
+                    ) : (
+                      t('profile.follow', 'Follow')
+                    )}
+                  </Button>
                 )}
               </div>
-            </div>
-
-            <div className="flex justify-center gap-3 mb-4">
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                className="flex flex-col items-center justify-center px-6 h-auto min-h-[4rem] gap-1.5 border-border bg-muted/20 hover:bg-muted/50 transition-colors"
-              >
-                <span className="font-semibold text-lg text-foreground">
-                  {profile.followerCount ?? 0}
-                </span>
-                <span className="text-xs text-muted-foreground leading-tight">
-                  {t('profile.followers.button', 'Followers')}
-                </span>
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                className="flex flex-col items-center justify-center px-6 h-auto min-h-[4rem] gap-1.5 border-border bg-muted/20 hover:bg-muted/50 transition-colors"
-              >
-                <span className="font-semibold text-lg text-foreground">
-                  {profile.followingCount ?? 0}
-                </span>
-                <span className="text-xs text-muted-foreground leading-tight">
-                  {t('profile.following.button', 'Following')}
-                </span>
-              </Button>
-              {!isOwnProfile && (
-                <Button
-                  type="button"
-                  variant={isFollowing ? 'destructive' : 'default'}
-                  size="lg"
-                  onClick={handleFollowToggle}
-                  disabled={isFollowLoading || isFollowActionLoading}
-                  className="flex items-center justify-center h-auto min-h-[4rem] min-w-[6.6rem]"
-                >
-                  {isFollowActionLoading ? (
-                    <Spinner className="h-4 w-4" />
-                  ) : isFollowing ? (
-                    t('profile.unfollow', 'Unfollow')
-                  ) : (
-                    t('profile.follow', 'Follow')
-                  )}
-                </Button>
-              )}
             </div>
 
             <ScrollPanel
               title={t('profile.postsTitle', 'Posts')}
               description={t('profile.postsDesc', 'Posts created by this user')}
               className="bg-background border-border"
-              contentClassName="max-h-[50vh]"
+              contentClassName="max-h-[43vh]"
             >
               {isPostsLoading ? (
                 <div className="flex justify-center py-4">
