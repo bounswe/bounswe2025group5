@@ -280,6 +280,13 @@
             "minutes": "{{count}}m",
             "hours": "{{count}}h",
             "days": "{{count}}d"
+        },
+        "types": {
+            "like": "{{actor}} liked your {{objectType}}",
+            "comment": "{{actor}} commented on your {{objectType}}",
+            "follow": "{{actor}} started following you",
+            "mention": "{{actor}} mentioned you in a {{objectType}}",
+            "default": "{{actor}} {{type}}"
         }
     }
 }

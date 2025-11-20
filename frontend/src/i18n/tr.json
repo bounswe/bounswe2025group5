@@ -266,6 +266,13 @@
             "minutes": "{{count}}dk",
             "hours": "{{count}}sa",
             "days": "{{count}}g"
+        },
+        "types": {
+            "like": "{{actor}} {{objectType}} beğendi",
+            "comment": "{{actor}} {{objectType}} yorum yaptı",
+            "follow": "{{actor}} sizi takip etmeye başladı",
+            "mention": "{{actor}} sizi bir {{objectType}} bahsetti",
+            "default": "{{actor}} {{type}}"
         }
     }
 }

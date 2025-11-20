@@ -2,11 +2,12 @@ import { z } from 'zod';
 
 export const NotificationSchema = z.object({
   id: z.number().int(),
-  message: z.string(),
+  type: z.string(),
+  actorId: z.string().nullable(),
   isRead: z.boolean(),
   createdAt: z.string(), // ISO timestamp string
-  objectId: z.string().nullable().optional(),
-  objectType: z.string().nullable().optional(),
+  objectId: z.string().nullable(),
+  objectType: z.string().nullable(),
 }).passthrough();
 
 export type Notification = z.infer<typeof NotificationSchema>;
