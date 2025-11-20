@@ -88,9 +88,11 @@
             "empty": "Henüz takipçi yok"
         },
         "following": {
-            "button": "Takip edilenler",
-            "empty": "Henüz kimseyi takip etmiyor"
-        }
+            "button": "Takip Edilenler",
+            "empty": "Henüz kimse takip edilmiyor"
+        },
+        "follow": "Takip Et",
+        "unfollow": "Takibi Bırak"
     },
     "main" : {
         "navbar": "Ana Sayfa"

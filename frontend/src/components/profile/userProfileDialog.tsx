@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { UsersApi } from '@/lib/api/users';
+import { FollowApi } from '@/lib/api/follow';
 import type { ProfileResponse } from '@/lib/api/schemas/profile';
 import type { PostItem } from '@/lib/api/schemas/posts';
 import PostCard from '@/components/feedpage/post-card';
@@ -24,9 +25,15 @@ export default function UserProfileDialog({ username, open, onOpenChange }: User
   const [profileError, setProfileError] = useState<string | null>(null);
   const [posts, setPosts] = useState<PostItem[]>([]);
   const [isPostsLoading, setIsPostsLoading] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [isFollowLoading, setIsFollowLoading] = useState(false);
+  const [isFollowActionLoading, setIsFollowActionLoading] = useState(false);
+
+  const currentUser = typeof window !== 'undefined' ? localStorage.getItem('username') : null;
+  const isOwnProfile = currentUser === username;
 
   useEffect(() => {
-    if (!open || !username) return;
+    if (!open || !username || !currentUser) return;
 
     let cancelled = false;
     setIsProfileLoading(true);
@@ -62,10 +69,27 @@ export default function UserProfileDialog({ username, open, onOpenChange }: User
         setIsPostsLoading(false);
       });
 
+    if (!isOwnProfile) {
+      setIsFollowLoading(true);
+      FollowApi.isFollowing(currentUser, username)
+        .then((following) => {
+          if (cancelled) return;
+          setIsFollowing(following);
+        })
+        .catch((error: unknown) => {
+          if (cancelled) return;
+          console.error('Error checking follow status:', error);
+        })
+        .finally(() => {
+          if (cancelled) return;
+          setIsFollowLoading(false);
+        });
+    }
+
     return () => {
       cancelled = true;
     };
-  }, [open, username, t]);
+  }, [open, username, currentUser, isOwnProfile, t]);
 
   useEffect(() => {
     if (!open) {
@@ -73,8 +97,33 @@ export default function UserProfileDialog({ username, open, onOpenChange }: User
       setProfileError(null);
       setPosts([]);
       setIsPostsLoading(false);
+      setIsFollowing(false);
+      setIsFollowLoading(false);
     }
   }, [open]);
+
+  const handleFollowToggle = async () => {
+    if (!currentUser || !username || isFollowActionLoading) return;
+
+    setIsFollowActionLoading(true);
+    try {
+      if (isFollowing) {
+        await FollowApi.unfollowUser(currentUser, username);
+        setIsFollowing(false);
+        setProfile((prev) =>
+          prev ? { ...prev, followerCount: Math.max(0, (prev.followerCount ?? 0) - 1) } : prev
+        );
+      } else {
+        await FollowApi.followUser(currentUser, username);
+        setIsFollowing(true);
+        setProfile((prev) => (prev ? { ...prev, followerCount: (prev.followerCount ?? 0) + 1 } : prev));
+      }
+    } catch (error: unknown) {
+      console.error('Error toggling follow:', error);
+    } finally {
+      setIsFollowActionLoading(false);
+    }
+  };
 
   const handleOpenChange = (next: boolean) => {
     onOpenChange(next);
@@ -157,6 +206,24 @@ export default function UserProfileDialog({ username, open, onOpenChange }: User
                   {t('profile.following.button', 'Following')}
                 </span>
               </Button>
+              {!isOwnProfile && (
+                <Button
+                  type="button"
+                  variant={isFollowing ? 'destructive' : 'default'}
+                  size="lg"
+                  onClick={handleFollowToggle}
+                  disabled={isFollowLoading || isFollowActionLoading}
+                  className="flex items-center justify-center h-auto min-h-[4rem] min-w-[6.6rem]"
+                >
+                  {isFollowActionLoading ? (
+                    <Spinner className="h-4 w-4" />
+                  ) : isFollowing ? (
+                    t('profile.unfollow', 'Unfollow')
+                  ) : (
+                    t('profile.follow', 'Follow')
+                  )}
+                </Button>
+              )}
             </div>
 
             <ScrollPanel

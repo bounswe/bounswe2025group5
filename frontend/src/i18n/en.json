@@ -90,7 +90,9 @@
         "following": {
             "button": "Following",
             "empty": "Not following anyone yet"
-        }
+        },
+        "follow": "Follow",
+        "unfollow": "Unfollow"
     },
     "main": {
         "navbar": "Main"
