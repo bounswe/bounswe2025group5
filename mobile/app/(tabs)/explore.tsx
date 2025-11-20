@@ -302,40 +302,71 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
       return `${rawMessage}`.trim();
     }
 
-    const actor = actorId && `${actorId}`.trim().length ? `${actorId}`.trim() : 'Someone';
+    const actor =
+      actorId && `${actorId}`.trim().length
+        ? `${actorId}`.trim()
+        : t('notificationUnknownActor', { defaultValue: 'Someone' });
     const normalizedType = type?.toLowerCase();
     const normalizedObject = objectType?.toLowerCase();
     const targetIsSelf = currentUsername && objectId && currentUsername === objectId;
+    const defaultTarget = t('notificationTargetYou', { defaultValue: 'you' });
+    const target = objectId && `${objectId}`.trim().length ? `${objectId}`.trim() : defaultTarget;
 
     if (normalizedType === 'like') {
       if (normalizedObject === 'post') {
-        return `${actor} liked your post`;
+        return t('notificationLikePost', {
+          actor,
+          defaultValue: `${actor} liked your post`,
+        });
       }
-      return `${actor} liked your content`;
+      return t('notificationLikeContent', {
+        actor,
+        defaultValue: `${actor} liked your content`,
+      });
     }
 
     if (
       normalizedType === 'comment' ||
       (normalizedType === 'create' && normalizedObject === 'comment')
     ) {
-      return `${actor} commented on your post`;
+      return t('notificationComment', {
+        actor,
+        defaultValue: `${actor} commented on your post`,
+      });
     }
 
     if (normalizedType === 'create' && normalizedObject === 'post') {
-      return `${actor} created a new post`;
+      return t('notificationCreatePost', {
+        actor,
+        defaultValue: `${actor} created a new post`,
+      });
     }
 
     if (normalizedType === 'follow') {
-      const target = targetIsSelf ? 'you' : objectId || 'you';
-      return `${actor} started following ${target}`;
+      if (targetIsSelf) {
+        return t('notificationFollowYou', {
+          actor,
+          defaultValue: `${actor} started following you`,
+        });
+      }
+      return t('notificationFollowUser', {
+        actor,
+        target,
+        defaultValue: `${actor} started following ${target}`,
+      });
     }
 
     if (normalizedType === 'create' && normalizedObject === 'challenge') {
-      return `${actor} created a challenge`;
+      return t('notificationCreateChallenge', {
+        actor,
+        defaultValue: `${actor} created a challenge`,
+      });
     }
 
     if (normalizedType === 'end' && normalizedObject === 'challenge') {
-      return 'Challenge has ended';
+      return t('notificationChallengeEnded', {
+        defaultValue: 'Challenge has ended',
+      });
     }
 
     try {
