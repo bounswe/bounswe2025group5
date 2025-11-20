@@ -24,6 +24,7 @@ public class FollowService {
 
     private final UserRepository userRepository;
     private final FollowRepository followRepository;
+    private final ActivityLogger activityLogger;
 
 
     private User findUserByUsername(String username) {
@@ -45,6 +46,14 @@ public class FollowService {
         Follow follow = new Follow(follower, following);
         followRepository.saveAndFlush(follow);
         Integer newFollowerCount = followRepository.countByFollowing(following);
+
+        activityLogger.logAction(
+                "Follow",
+                "User", follower.getUsername(),
+                "User", follower.getUsername(),
+                "User", following.getUsername()
+        );
+
         return new FollowingFeatureResponse(followerUser,followingUser,newFollowerCount);
     }
 
@@ -88,5 +97,12 @@ public class FollowService {
         Integer followingCount = followRepository.countByFollower(user);
 
         return new FollowStatsResponse(followersCount, followingCount);
+    }
+
+    public boolean isFollowing(String followerUsername, String followingUsername) {
+        User follower = findUserByUsername(followerUsername);
+        User following = findUserByUsername(followingUsername);
+
+        return followRepository.existsByFollowerAndFollowing(follower, following);
     }
 }
