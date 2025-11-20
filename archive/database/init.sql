@@ -166,9 +166,6 @@ CREATE TABLE IF NOT EXISTS  `notifications` (
   `message` varchar(255) NOT NULL,
   `is_read` tinyint(1) DEFAULT '0',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `object_type` varchar(50) DEFAULT NULL,
-  `object_id` varchar(255) DEFAULT NULL,
-  `actor_username` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`notification_id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE

@@ -30,13 +30,10 @@ public class Notification {
     @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;
 
-    @Column(name = "object_type")
+    @Column(name = "object_type", nullable = false)
     private String objectType;
 
-    @Column(name = "object_id")
+    @Column(name = "object_id", nullable = false)
     private String objectId;
-
-    @Column(name = "actor_username")
-    private String actorUsername;
 
 }

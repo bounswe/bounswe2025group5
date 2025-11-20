@@ -48,15 +48,13 @@ public class ActivityLogger {
             String json = mapper.writeValueAsString(activity);
             log.info(json);
 
-            String actorUsername = actorId != null ? actorId.toString() : null;
-
             // A post has been liked. Notify the owner of the post
             if ("Like".equals(type)) {
                 User targetUser = userRepository.findByUsername((String) targetId)
                         .orElse(null);
 
                 String message = actorId + " liked your post with id " + objectId;
-                notificationService.createNotification(targetUser, message, "Post", objectId.toString(), actorUsername);
+                notificationService.createNotification(targetUser, message, "Post", objectId.toString());
             }
 
             else if ("End".equals(type)) {
@@ -72,7 +70,7 @@ public class ActivityLogger {
 
                     targetUsers.forEach(user -> {
                         String message = "A challenge has ended";
-                        notificationService.createNotification(user, message, "Challenge", objectId.toString(), null);
+                        notificationService.createNotification(user, message, "Challenge", objectId.toString());
                     });
                 }
             }
@@ -82,7 +80,7 @@ public class ActivityLogger {
                         .orElse(null);
 
                 String message = "User " + actorId + " left a comment on your post";
-                notificationService.createNotification(targetUser, message, "Comment", objectId.toString(), actorUsername);
+                notificationService.createNotification(targetUser, message, "Comment", objectId.toString());
             }
 
             else if ("Create".equals(type)) {
@@ -97,7 +95,7 @@ public class ActivityLogger {
 
                     targetUsers.forEach(user -> {
                         String message = "User " + actorId + " has created a post";
-                        notificationService.createNotification(user, message, "Post", objectId.toString(), actorUsername);
+                        notificationService.createNotification(user, message, "Post", objectId.toString());
                     });
                 }
             }
@@ -108,7 +106,7 @@ public class ActivityLogger {
                         .orElse(null);
 
                 String message = "User " + actorId + " started following you";
-                notificationService.createNotification(targetUser, message, "User", (String)objectId, actorUsername);
+                notificationService.createNotification(targetUser, message, "User", (String)objectId);
             }
 
 

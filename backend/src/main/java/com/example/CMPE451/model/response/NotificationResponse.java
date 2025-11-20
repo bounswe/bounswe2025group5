@@ -12,5 +12,4 @@ public class NotificationResponse {
     private Timestamp createdAt;
     private String objectId;
     private String objectType;
-    private String actorUsername;
 }

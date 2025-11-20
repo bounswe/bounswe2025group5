@@ -24,6 +24,7 @@ import AccessibleText from '@/components/AccessibleText';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../_layout';
 import { apiRequest } from '../services/apiClient';
+import { apiUrl } from '../apiConfig';
 import PostItem from '../components/PostItem';
 import { useTranslation } from 'react-i18next';
 
@@ -245,21 +246,44 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
     [resolvedLanguage]
   );
 
+  const deriveActorUsername = (message?: string | null) => {
+    if (!message) return null;
+    const trimmed = message.trim();
+    if (!trimmed) return null;
+
+    const likeMatch = trimmed.match(/^(.+?)\s+liked your post/i);
+    if (likeMatch) return likeMatch[1].trim();
+
+    const commentMatch = trimmed.match(/^User\s+(.+?)\s+left a comment/i);
+    if (commentMatch) return commentMatch[1].trim();
+
+    const createdMatch = trimmed.match(/^User\s+(.+?)\s+has created a post/i);
+    if (createdMatch) return createdMatch[1].trim();
+
+    const followMatch = trimmed.match(/^User\s+(.+?)\s+started following/i);
+    if (followMatch) return followMatch[1].trim();
+
+    return null;
+  };
+
   const normalizeNotificationsPayload = (payload: any): NotificationItem[] =>
     Array.isArray(payload)
-      ? payload.map((item: any) => ({
-          id:
-            typeof item.id === 'number'
-              ? item.id
-              : Number(item.id ?? item.notificationId) || Date.now() + Math.random(),
-          message: item.message ?? '',
-          isRead: Boolean(item.isRead),
-          createdAt: item.createdAt ?? null,
-          objectId: item.objectId ?? null,
-          objectType: item.objectType ?? null,
-          actorUsername: item.actorUsername ?? null,
-          actorAvatarUrl: null,
-        }))
+      ? payload.map((item: any) => {
+          const actorFromMessage = deriveActorUsername(item.message);
+          return {
+            id:
+              typeof item.id === 'number'
+                ? item.id
+                : Number(item.id ?? item.notificationId) || Date.now() + Math.random(),
+            message: item.message ?? '',
+            isRead: Boolean(item.isRead),
+            createdAt: item.createdAt ?? null,
+            objectId: item.objectId ?? null,
+            objectType: item.objectType ?? null,
+            actorUsername: actorFromMessage,
+            actorAvatarUrl: null,
+          };
+        })
       : [];
 
   const attachAvatarsToNotifications = async (items: NotificationItem[]): Promise<NotificationItem[]> => {
@@ -356,6 +380,11 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
     const trimmed = source.trim();
     if (!trimmed.length) return '?';
     return trimmed.charAt(0).toUpperCase();
+  };
+
+  const resolveNotificationAvatarUri = (uri?: string | null) => {
+    if (!uri) return null;
+    return uri.startsWith('http') ? uri : apiUrl(uri);
   };
 
   useEffect(() => {
@@ -1158,6 +1187,7 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
                       ? notif.message
                       : t('notificationFallbackMessage', { defaultValue: 'You have a new notification.' });
                   const avatarInitial = getNotificationInitial(notif);
+                  const resolvedAvatarUri = resolveNotificationAvatarUri(notif.actorAvatarUrl);
                   return (
                     <View
                       key={`${notif.id}-${notif.createdAt ?? 'timestamp'}`}
@@ -1170,9 +1200,9 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
                       ]}
                     >
                       <View style={styles.notificationBody}>
-                        {notif.actorAvatarUrl ? (
+                        {resolvedAvatarUri ? (
                           <Image
-                            source={{ uri: notif.actorAvatarUrl }}
+                            source={{ uri: resolvedAvatarUri }}
                             style={styles.notificationAvatarImage}
                           />
                         ) : (
