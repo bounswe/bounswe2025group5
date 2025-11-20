@@ -293,7 +293,9 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
     type?: string | null,
     objectType?: string | null,
     actorId?: string | null,
-    rawMessage?: string | null
+    rawMessage?: string | null,
+    objectId?: string | null,
+    currentUsername?: string | null
   ) => {
     if (rawMessage && `${rawMessage}`.trim().length) {
       return `${rawMessage}`.trim();
@@ -302,35 +304,40 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
     const actor = actorId && `${actorId}`.trim().length ? `${actorId}`.trim() : 'Someone';
     const normalizedType = type?.toLowerCase();
     const normalizedObject = objectType?.toLowerCase();
+    const targetIsSelf = currentUsername && objectId && currentUsername === objectId;
 
-    if (normalizedType === 'like' && normalizedObject === 'post') {
-      return `${actor} liked your post`;
+    if (normalizedType === 'like') {
+      if (normalizedObject === 'post') {
+        return `${actor} liked your post${objectId ? ` (#${objectId})` : ''}`;
+      }
+      return `${actor} liked your content`;
     }
 
     if (
       normalizedType === 'comment' ||
       (normalizedType === 'create' && normalizedObject === 'comment')
     ) {
-      return `${actor} commented on your post`;
+      return `${actor} commented on your post${objectId ? ` (#${objectId})` : ''}`;
     }
 
     if (normalizedType === 'create' && normalizedObject === 'post') {
-      return `${actor} shared a new post`;
+      return `${actor} created a new post${objectId ? ` (#${objectId})` : ''}`;
     }
 
     if (normalizedType === 'follow') {
-      return `${actor} started following you`;
+      const target = targetIsSelf ? 'you' : objectId || 'you';
+      return `${actor} started following ${target}`;
     }
 
     if (normalizedType === 'create' && normalizedObject === 'challenge') {
-      return `${actor} created a challenge`;
+      return `${actor} created a challenge${objectId ? ` (#${objectId})` : ''}`;
     }
 
     if (normalizedType === 'end' && normalizedObject === 'challenge') {
-      return 'A challenge has ended';
+      return `Challenge${objectId ? ` #${objectId}` : ''} has ended`;
     }
 
-    return 'You have a new notification.';
+    return `${actor} sent you a notification`;
   };
 
   const normalizeNotificationsPayload = (payload: any): NotificationItem[] =>
@@ -351,7 +358,9 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
             typeValue,
             objectTypeValue,
             actorIdValue,
-            item?.message ?? null
+            item?.message ?? null,
+            rawObjectId != null ? String(rawObjectId) : null,
+            username ?? null
           );
           return {
             id:
