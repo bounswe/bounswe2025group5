@@ -7,3 +7,4 @@ node_modules
 backend/src/main/resources/application.properties
 copilot-instructions.md
 mobile.apk
+.env

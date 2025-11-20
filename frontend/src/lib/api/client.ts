@@ -83,7 +83,10 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
       }
       clearTokens();
       localStorage.removeItem('username');
-      window.location.href = '/auth/login';
+      if (!window.location.pathname.startsWith('/auth')) {
+        console.log('Redirecting to login due to unauthorized API response');
+        window.location.href = '/auth/login';
+      }
     }
     throw new Error(`API Error: ${response.status} ${response.statusText}`);
   }
