@@ -106,6 +106,10 @@ export default function ExploreScreen() {
   const [notificationsError, setNotificationsError] = useState<string | null>(null);
   const [selectedNotificationPostId, setSelectedNotificationPostId] = useState<number | null>(null);
   const [isPostPreviewVisible, setPostPreviewVisible] = useState(false);
+  const [previewPost, setPreviewPost] = useState<Post | null>(null);
+  const [previewComments, setPreviewComments] = useState<CommentData[]>([]);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
   const hasLoadedPostsRef = useRef(false);
   const scrollViewRef = useRef<ScrollView | null>(null);
   const lastScrollOffsetRef = useRef(0);
@@ -137,6 +141,12 @@ export default function ExploreScreen() {
   const feedAccentColor = isFriendsFeed ? '#2E7D32' : '#1976D2';
   const feedAccentShadow = isFriendsFeed ? 'rgba(30, 94, 48, 0.2)' : 'rgba(13, 71, 161, 0.2)';
   const resolvedLanguage = (i18n.resolvedLanguage || i18n.language || 'en').toString();
+  const resolvedPreviewImageUri =
+    previewPost?.photoUrl
+      ? previewPost.photoUrl.startsWith('http')
+        ? previewPost.photoUrl
+        : apiUrl(previewPost.photoUrl)
+      : null;
   
 
   useEffect(() => {
@@ -500,17 +510,110 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
     return trimmed.charAt(0).toUpperCase();
   };
 
+  const closePostPreview = () => {
+    setPostPreviewVisible(false);
+    setSelectedNotificationPostId(null);
+    setPreviewPost(null);
+    setPreviewComments([]);
+    setPreviewError(null);
+    setPreviewLoading(false);
+  };
+
+  const fetchPreviewComments = async (postId: number): Promise<CommentData[]> => {
+    const response = await apiRequest(`/api/posts/${postId}/comments`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch comments: ${response.status}`);
+    }
+    const apiResponse = await response.json();
+    const apiComments = apiResponse?.comments ?? (Array.isArray(apiResponse) ? apiResponse : []);
+    const usernamesNeedingAvatars = apiComments.map((apiComment: any) => apiComment?.creatorUsername).filter(Boolean);
+    const newlyFetchedAvatars = await ensureAvatarsForUsernames(usernamesNeedingAvatars);
+    const avatarLookup = { ...userAvatars, ...newlyFetchedAvatars };
+    return apiComments.map((apiComment: any) => ({
+      commentId: apiComment?.commentId,
+      content: apiComment?.content,
+      createdAt: apiComment?.createdAt,
+      username: apiComment?.creatorUsername,
+      avatarUrl: apiComment?.creatorUsername ? avatarLookup[apiComment.creatorUsername] ?? null : null,
+    }));
+  };
+
+  const fetchPostByIdForPreview = async (postId: number): Promise<Post | null> => {
+    try {
+      const response = await apiRequest(`/api/posts/${postId}`);
+      if (!response.ok) {
+        throw new Error(`Post fetch failed: ${response.status}`);
+      }
+      const data = await response.json();
+      const payloadArray = Array.isArray(data) ? data : [data];
+      if (!payloadArray.length) return null;
+      let mapped = payloadArray.map(mapApiItemToPost);
+      if (mapped.length > 0) {
+        mapped = await attachAvatarsToPosts(mapped);
+        if (username && userType === 'user') {
+          mapped = await fetchLikeStatusesForPosts(mapped, username);
+          mapped = await fetchSavedStatusesForPosts(mapped, username);
+        }
+      }
+      return mapped[0] ?? null;
+    } catch (error) {
+      console.error('Failed to fetch preview post:', error);
+      return null;
+    }
+  };
+
+  const loadNotificationPostPreview = useCallback(
+    async (postId: number) => {
+      setPreviewLoading(true);
+      setPreviewError(null);
+      setPreviewComments([]);
+      setPreviewPost(null);
+      try {
+        const fromExisting =
+          posts.find((p) => p.id === postId) ||
+          searchResults.find((p) => p.id === postId) ||
+          null;
+        const fetchedPost = await fetchPostByIdForPreview(postId);
+        const resolvedPost =
+          fetchedPost || fromExisting || null;
+        if (!resolvedPost) {
+          throw new Error(
+            t('notificationPostPreviewError', { defaultValue: 'Unable to load the post.' })
+          );
+        }
+        setPreviewPost(resolvedPost);
+        try {
+          const comments = await fetchPreviewComments(postId);
+          setPreviewComments(comments);
+        } catch (commentsErr) {
+          console.error('Failed to fetch preview comments:', commentsErr);
+        }
+      } catch (err: any) {
+        const message =
+          err?.message ||
+          t('notificationPostPreviewError', { defaultValue: 'Unable to load the post.' });
+        setPreviewError(message);
+      } finally {
+        setPreviewLoading(false);
+      }
+    },
+    [posts, searchResults, t, userType, username, userAvatars]
+  );
+
   const handleNotificationPress = (notif: NotificationItem) => {
     if (notif.objectType?.toLowerCase() === 'post' && notif.objectId) {
       const parsedId = Number(notif.objectId);
       if (!Number.isNaN(parsedId)) {
+        setPreviewPost(null);
+        setPreviewComments([]);
+        setPreviewError(null);
+        setPreviewLoading(true);
         setSelectedNotificationPostId(parsedId);
         setPostPreviewVisible(true);
         return;
       }
     }
-    setSelectedNotificationPostId(null);
-    setPostPreviewVisible(false);
+    closePostPreview();
   };
 
   useEffect(() => {
@@ -518,6 +621,12 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
       fetchNotifications();
     }
   }, [isNotificationsVisible, userType, fetchNotifications]);
+
+  useEffect(() => {
+    if (isPostPreviewVisible && selectedNotificationPostId !== null) {
+      loadNotificationPostPreview(selectedNotificationPostId);
+    }
+  }, [isPostPreviewVisible, selectedNotificationPostId, loadNotificationPostPreview]);
 
   const fetchPosts = async (loadMore = false, options?: { preserveExisting?: boolean }) => {
     const preserveExisting = Boolean(options?.preserveExisting);
@@ -721,8 +830,7 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
   const openNotifications = () => setNotificationsVisible(true);
   const closeNotifications = () => {
     setNotificationsVisible(false);
-    setPostPreviewVisible(false);
-    setSelectedNotificationPostId(null);
+    closePostPreview();
   };
 
   const handleLikeToggle = async (postId: number, currentlyLiked: boolean) => {
@@ -1391,28 +1499,108 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
         transparent
         animationType="fade"
         onRequestClose={() => {
-          setPostPreviewVisible(false);
-          setSelectedNotificationPostId(null);
+          closePostPreview();
         }}
       >
         <View style={styles.notificationPreviewBackdrop}>
           <View style={styles.notificationPreviewCard}>
             <AccessibleText style={styles.notificationPreviewTitle} backgroundColor="#FFFFFF">
-              {t('notificationsTitle', { defaultValue: 'Notifications' })}
+              {t('notificationPostPreviewHeader', { defaultValue: 'Post preview' })}
             </AccessibleText>
-            <AccessibleText style={styles.notificationPreviewText} backgroundColor="#FFFFFF">
-              {selectedNotificationPostId !== null
-                ? t('notificationPostPreview', {
-                    defaultValue: 'Post ID: {{id}}',
-                    id: selectedNotificationPostId,
-                  })
-                : ''}
-            </AccessibleText>
+            {previewLoading ? (
+              <View style={styles.notificationPreviewLoading}>
+                <ActivityIndicator size="large" color="#007AFF" />
+                <AccessibleText
+                  style={styles.notificationPreviewMuted}
+                  backgroundColor="#FFFFFF"
+                >
+                  {t('notificationPostPreviewLoading', { defaultValue: 'Loading post...' })}
+                </AccessibleText>
+              </View>
+            ) : previewError ? (
+              <AccessibleText
+                style={[styles.notificationPreviewText, { color: themedErrorBoxTextColor }]}
+                backgroundColor="#FFFFFF"
+              >
+                {previewError}
+              </AccessibleText>
+            ) : previewPost ? (
+              <ScrollView
+                style={styles.notificationPreviewScroll}
+                showsVerticalScrollIndicator={false}
+              >
+                {resolvedPreviewImageUri ? (
+                  <Image source={{ uri: resolvedPreviewImageUri }} style={styles.notificationPreviewImage} />
+                ) : null}
+                <AccessibleText style={styles.notificationPreviewPostAuthor} backgroundColor="#FFFFFF">
+                  {previewPost.title || t('notificationUnknownActor', { defaultValue: 'Someone' })}
+                </AccessibleText>
+                {previewPost.createdAt ? (
+                  <AccessibleText style={styles.notificationPreviewMetaText} backgroundColor="#FFFFFF">
+                    {formatNotificationTimestamp(previewPost.createdAt)}
+                  </AccessibleText>
+                ) : null}
+                {previewPost.content ? (
+                  <AccessibleText style={styles.notificationPreviewText} backgroundColor="#FFFFFF">
+                    {previewPost.content}
+                  </AccessibleText>
+                ) : (
+                  <AccessibleText style={styles.notificationPreviewMuted} backgroundColor="#FFFFFF">
+                    {t('notificationPostPreviewNoContent', { defaultValue: 'No content available.' })}
+                  </AccessibleText>
+                )}
+                <View style={styles.notificationPreviewMetaRow}>
+                  <View style={styles.notificationPreviewMetaItem}>
+                    <Ionicons name="heart" size={16} color="#d32f2f" style={styles.notificationPreviewMetaIcon} />
+                    <AccessibleText style={styles.notificationPreviewMetaValue} backgroundColor="#FFFFFF">
+                      {previewPost.likes}
+                    </AccessibleText>
+                  </View>
+                  <View style={styles.notificationPreviewMetaItem}>
+                    <Ionicons name="chatbubble-ellipses" size={16} color={iconColor} style={styles.notificationPreviewMetaIcon} />
+                    <AccessibleText style={styles.notificationPreviewMetaValue} backgroundColor="#FFFFFF">
+                      {previewPost.comments}
+                    </AccessibleText>
+                  </View>
+                </View>
+                <AccessibleText style={styles.notificationPreviewCommentsTitle} backgroundColor="#FFFFFF">
+                  {t('notificationPostPreviewComments', { defaultValue: 'Comments' })}
+                </AccessibleText>
+                {previewComments.length > 0 ? (
+                  previewComments.map((comment) => (
+                    <View
+                      key={`${comment.commentId}-${comment.createdAt}`}
+                      style={styles.notificationPreviewComment}
+                    >
+                      <AccessibleText
+                        style={styles.notificationPreviewCommentAuthor}
+                        backgroundColor="#FFFFFF"
+                      >
+                        {comment.username || t('notificationUnknownActor', { defaultValue: 'Someone' })}
+                      </AccessibleText>
+                      <AccessibleText
+                        style={styles.notificationPreviewCommentBody}
+                        backgroundColor="#FFFFFF"
+                      >
+                        {comment.content}
+                      </AccessibleText>
+                    </View>
+                  ))
+                ) : (
+                  <AccessibleText style={styles.notificationPreviewMuted} backgroundColor="#FFFFFF">
+                    {t('notificationPostPreviewNoComments', { defaultValue: 'No comments yet.' })}
+                  </AccessibleText>
+                )}
+              </ScrollView>
+            ) : (
+              <AccessibleText style={styles.notificationPreviewText} backgroundColor="#FFFFFF">
+                {t('notificationPostPreviewLoading', { defaultValue: 'Loading post...' })}
+              </AccessibleText>
+            )}
             <TouchableOpacity
               style={styles.notificationPreviewCloseButton}
               onPress={() => {
-                setPostPreviewVisible(false);
-                setSelectedNotificationPostId(null);
+                closePostPreview();
               }}
               accessibilityRole="button"
               accessibilityLabel={t('close', { defaultValue: 'Close' })}
@@ -1586,9 +1774,24 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     backgroundColor: '#FFFFFF',
+    maxHeight: '80%',
   },
   notificationPreviewTitle: { fontSize: 18, fontWeight: '700', marginBottom: 12 },
-  notificationPreviewText: { fontSize: 16, marginBottom: 20 },
+  notificationPreviewText: { fontSize: 16, marginBottom: 16 },
+  notificationPreviewScroll: { maxHeight: 420 },
+  notificationPreviewImage: { width: '100%', aspectRatio: 16/9, borderRadius: 12, marginBottom: 12, backgroundColor: '#f2f2f2' },
+  notificationPreviewPostAuthor: { fontSize: 16, fontWeight: '700', marginBottom: 4 },
+  notificationPreviewMetaText: { fontSize: 12, color: '#666666', marginBottom: 8 },
+  notificationPreviewMetaRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 8 },
+  notificationPreviewMetaItem: { flexDirection: 'row', alignItems: 'center', marginRight: 16 },
+  notificationPreviewMetaIcon: { marginRight: 6 },
+  notificationPreviewMetaValue: { fontSize: 14, fontWeight: '600' },
+  notificationPreviewCommentsTitle: { fontSize: 15, fontWeight: '600', marginTop: 10, marginBottom: 6 },
+  notificationPreviewComment: { paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#e8e8e8' },
+  notificationPreviewCommentAuthor: { fontWeight: '700', marginBottom: 4 },
+  notificationPreviewCommentBody: { fontSize: 14, lineHeight: 18 },
+  notificationPreviewLoading: { alignItems: 'center', marginVertical: 12 },
+  notificationPreviewMuted: { fontSize: 14, color: '#777777', marginBottom: 8 },
   notificationPreviewCloseButton: {
     alignSelf: 'flex-end',
     paddingVertical: 8,

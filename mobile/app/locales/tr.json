@@ -277,6 +277,13 @@
     "notificationFollowUser": "{{actor}} {{target}} kullanıcısını takip etmeye başladı",
     "notificationCreateChallenge": "{{actor}} bir mücadele oluşturdu",
     "notificationChallengeEnded": "Mücadele sona erdi",
+
+    "notificationPostPreviewHeader": "Gönderi önizlemesi",
+    "notificationPostPreviewError": "Gönderi yüklenemedi.",
+    "notificationPostPreviewComments": "Yorumlar",
+    "notificationPostPreviewNoContent": "İçerik bulunamadı.",
+    "notificationPostPreviewNoComments": "Henüz yorum yok.",
+    "notificationPostPreviewLoading": "Gönderi yükleniyor...",
     "report": "Bildir",
     "reportPost": "Gönderiyi Bildir",
     "reportThisPostHint": "Bu gönderiyi moderatörlere bildirin.",
