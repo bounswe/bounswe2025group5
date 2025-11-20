@@ -134,26 +134,26 @@ export default function UserProfileDialog({ username, open, onOpenChange }: User
               <Button
                 type="button"
                 variant="outline"
-                size="sm"
-                className="opacity-70 flex flex-col items-center px-4 py-2 text-xs sm:text-sm"
+                size="lg"
+                className="flex flex-col items-center justify-center px-6 h-auto min-h-[4rem] gap-1.5 border-border bg-muted/20 hover:bg-muted/50 transition-colors"
               >
-                <span className="font-semibold text-base">
+                <span className="font-semibold text-lg text-foreground">
                   {profile.followerCount ?? 0}
                 </span>
-                <span className="leading-tight">
+                <span className="text-xs text-muted-foreground leading-tight">
                   {t('profile.followers.button', 'Followers')}
                 </span>
               </Button>
               <Button
                 type="button"
                 variant="outline"
-                size="sm"
-                className="opacity-70 flex flex-col items-center px-4 py-2 text-xs sm:text-sm"
+                size="lg"
+                className="flex flex-col items-center justify-center px-6 h-auto min-h-[4rem] gap-1.5 border-border bg-muted/20 hover:bg-muted/50 transition-colors"
               >
-                <span className="font-semibold text-base">
+                <span className="font-semibold text-lg text-foreground">
                   {profile.followingCount ?? 0}
                 </span>
-                <span className="leading-tight">
+                <span className="text-xs text-muted-foreground leading-tight">
                   {t('profile.following.button', 'Following')}
                 </span>
               </Button>
