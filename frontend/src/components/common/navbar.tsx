@@ -2,6 +2,7 @@ import logo from '@/assets/logo2.png';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import LogoutButton from '@/components/common/LogoutButton';
+import NotificationIcon from '@/components/common/NotificationIcon';
 import { useTranslation } from 'react-i18next';
 
 interface NavbarProps {
@@ -73,6 +74,7 @@ export default function Navbar({ className }: NavbarProps) {
           </Button>
         )}
         <LogoutButton />
+        {isAuthed && <NotificationIcon />}
       </div>
     </nav>
   );

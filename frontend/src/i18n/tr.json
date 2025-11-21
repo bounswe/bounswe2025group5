@@ -252,5 +252,20 @@
         "noResults": "Aramanıza uygun gönderi bulunamadı.",
         "loading": "Aranıyor...",
         "error": "Gönderi arama başarısız. Lütfen tekrar deneyin."
+    },
+    "notifications": {
+        "title": "Bildirimler",
+        "unread": "Yeni",
+        "markAsRead": "Okundu olarak işaretle",
+        "markAllRead": "Tümünü okundu işaretle",
+        "noNotifications": "Henüz bildirim yok",
+        "loading": "Bildirimler yükleniyor...",
+        "error": "Bildirimler yüklenemedi",
+        "timeAgo": {
+            "seconds": "{{count}}sn",
+            "minutes": "{{count}}dk",
+            "hours": "{{count}}sa",
+            "days": "{{count}}g"
+        }
     }
 }
