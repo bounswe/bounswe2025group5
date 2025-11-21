@@ -105,6 +105,7 @@ export default function ExploreScreen() {
   const [notificationsLoading, setNotificationsLoading] = useState(false);
   const [notificationsError, setNotificationsError] = useState<string | null>(null);
   const [selectedNotificationPostId, setSelectedNotificationPostId] = useState<number | null>(null);
+  const [selectedNotificationActor, setSelectedNotificationActor] = useState<string | null>(null);
   const [isPostPreviewVisible, setPostPreviewVisible] = useState(false);
   const [previewPost, setPreviewPost] = useState<Post | null>(null);
   const [previewComments, setPreviewComments] = useState<CommentData[]>([]);
@@ -134,8 +135,9 @@ export default function ExploreScreen() {
   const notificationButtonBackground = colorScheme === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)';
   const notificationIconColor = colorScheme === 'dark' ? '#FFFFFF' : '#1C1C1E';
   const notificationCardBackground = colorScheme === 'dark' ? '#1F1F21' : '#FFFFFF';
-  const notificationBorderColor = colorScheme === 'dark' ? '#2C2C2E' : '#E5E5EA';
   const notificationUnreadAccent = colorScheme === 'dark' ? '#4ADE80' : '#2E7D32';
+  const notificationReadBorderColor = colorScheme === 'dark' ? '#3A3A3C' : '#C7C7CC';
+  const notificationReadDotColor = colorScheme === 'dark' ? '#5A5A5F' : '#B8B8BF';
   const notificationAvatarBackground = colorScheme === 'dark' ? '#2F2F31' : '#D9D9D9';
   const notificationAvatarTextColor = colorScheme === 'dark' ? '#F5F5F7' : '#111111';
   const feedAccentColor = isFriendsFeed ? '#2E7D32' : '#1976D2';
@@ -417,6 +419,17 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
     }
   };
 
+  const coerceNotificationBoolean = (value: any): boolean => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'number') return value !== 0;
+    if (typeof value === 'string') {
+      const normalized = value.trim().toLowerCase();
+      if (normalized === 'true' || normalized === '1') return true;
+      if (normalized === 'false' || normalized === '0') return false;
+    }
+    return false;
+  };
+
   const normalizeNotificationsPayload = (payload: any): NotificationItem[] =>
     Array.isArray(payload)
       ? payload.map((item: any) => {
@@ -448,7 +461,7 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
             message: friendlyMessage,
             type: typeValue,
             actorId: actorIdValue,
-            isRead: Boolean(item?.isRead),
+            isRead: coerceNotificationBoolean(item?.isRead ?? item?.is_read),
             createdAt: item?.createdAt ?? null,
             objectId: rawObjectId != null ? String(rawObjectId) : null,
             objectType: objectTypeValue,
@@ -541,6 +554,23 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
     return trimmed.charAt(0).toUpperCase();
   };
 
+  const deriveNotificationPostId = (notif: NotificationItem): number | null => {
+    const rawId = notif.objectId && `${notif.objectId}`.trim();
+    if (rawId && !Number.isNaN(Number(rawId))) {
+      return Number(rawId);
+    }
+    const message = notif.message?.trim();
+    if (!message) return null;
+    const idMatch = message.match(/post(?:\s+with\s+id)?\s+(\d+)/i);
+    if (idMatch) {
+      const parsed = Number(idMatch[1]);
+      if (!Number.isNaN(parsed)) {
+        return parsed;
+      }
+    }
+    return null;
+  };
+
   const shouldDisplayNotificationAvatar = (notif: NotificationItem) => {
     const normalizedType = notif.type?.toLowerCase();
     const normalizedObject = notif.objectType?.toLowerCase();
@@ -550,6 +580,7 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
   const closePostPreview = () => {
     setPostPreviewVisible(false);
     setSelectedNotificationPostId(null);
+    setSelectedNotificationActor(null);
     setPreviewPost(null);
     setPreviewComments([]);
     setPreviewError(null);
@@ -575,13 +606,15 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
     }));
   };
 
-  const fetchPostFromCurrentUserPosts = async (postId: number): Promise<Post | null> => {
-    if (!username) return null;
+  const fetchPostFromUserPosts = async (postId: number, ownerUsername?: string | null): Promise<Post | null> => {
+    const normalizedUsername =
+      ownerUsername && ownerUsername.trim().length ? ownerUsername.trim() : null;
+    if (!normalizedUsername) return null;
     try {
-      const encodedUsername = encodeURIComponent(username);
+      const encodedUsername = encodeURIComponent(normalizedUsername);
       const response = await apiRequest(`/api/users/${encodedUsername}/posts`);
       if (!response.ok) {
-        throw new Error(`User posts fetch failed: ${response.status}`);
+        throw new Error(`User posts fetch failed (${normalizedUsername}): ${response.status}`);
       }
       const rawPosts = await response.json();
       if (!Array.isArray(rawPosts)) return null;
@@ -590,7 +623,7 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
       const hydrated = await hydratePostsForPreview([mapApiItemToPost(matchedPost)]);
       return hydrated[0] ?? null;
     } catch (error) {
-      console.error('Failed to fetch preview post from user posts:', error);
+      console.error(`Failed to fetch preview post from user (${normalizedUsername}) posts:`, error);
       return null;
     }
   };
@@ -612,16 +645,31 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
     }
   };
 
-  const fetchPostByIdForPreview = async (postId: number): Promise<Post | null> => {
-    const resolvers: Array<() => Promise<Post | null>> = [
-      () => fetchPostFromCurrentUserPosts(postId),
-      () => fetchPostFromRecentFeed(postId),
-    ];
-    for (const resolvePost of resolvers) {
-      const result = await resolvePost();
-      if (result) return result;
+  const fetchPostByIdForPreview = async (
+    postId: number,
+    ownerCandidates: (string | null | undefined)[] = []
+  ): Promise<Post | null> => {
+    const normalizedCandidates = ownerCandidates
+      .map((candidate) => (candidate && candidate.trim().length ? candidate.trim() : null))
+      .filter((candidate): candidate is string => Boolean(candidate));
+    const seen = new Set<string>();
+    const fetchPromises = normalizedCandidates
+      .filter((candidate) => {
+        const key = candidate.toLowerCase();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .map((candidate) => fetchPostFromUserPosts(postId, candidate));
+
+    if (fetchPromises.length) {
+      const results = await Promise.all(fetchPromises);
+      for (const result of results) {
+        if (result) return result;
+      }
     }
-    return null;
+
+    return fetchPostFromRecentFeed(postId);
   };
 
   const loadNotificationPostPreview = useCallback(
@@ -635,8 +683,9 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
           posts.find((p) => p.id === postId) ||
           searchResults.find((p) => p.id === postId) ||
           null;
+        const ownerCandidates = [username ?? null, selectedNotificationActor ?? null];
         const resolvedPost =
-          fromExisting || (await fetchPostByIdForPreview(postId));
+          fromExisting || (await fetchPostByIdForPreview(postId, ownerCandidates));
         if (!resolvedPost) {
           throw new Error(
             t('notificationPostPreviewError', { defaultValue: 'Unable to load the post.' })
@@ -658,21 +707,25 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
         setPreviewLoading(false);
       }
     },
-    [posts, searchResults, t, userType, username, userAvatars]
+    [posts, searchResults, t, userType, username, userAvatars, selectedNotificationActor]
   );
 
   const handleNotificationPress = (notif: NotificationItem) => {
-    if (notif.objectType?.toLowerCase() === 'post' && notif.objectId) {
-      const parsedId = Number(notif.objectId);
-      if (!Number.isNaN(parsedId)) {
-        setPreviewPost(null);
-        setPreviewComments([]);
-        setPreviewError(null);
-        setPreviewLoading(true);
-        setSelectedNotificationPostId(parsedId);
-        setPostPreviewVisible(true);
-        return;
-      }
+    const normalizedObjectType = notif.objectType?.toLowerCase();
+    const derivedPostId = deriveNotificationPostId(notif);
+    const allowsPreview =
+      normalizedObjectType === 'post' ||
+      normalizedObjectType === 'comment' ||
+      derivedPostId !== null;
+    if (allowsPreview && derivedPostId !== null) {
+      setPreviewPost(null);
+      setPreviewComments([]);
+      setPreviewError(null);
+      setPreviewLoading(true);
+      setSelectedNotificationActor(notif.actorUsername ?? null);
+      setSelectedNotificationPostId(derivedPostId);
+      setPostPreviewVisible(true);
+      return;
     }
     closePostPreview();
   };
@@ -1516,7 +1569,7 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
                         styles.notificationItem,
                         {
                           backgroundColor: notificationCardBackground,
-                          borderColor: notif.isRead ? notificationBorderColor : notificationUnreadAccent,
+                          borderColor: notif.isRead ? notificationReadBorderColor : notificationUnreadAccent,
                         },
                       ]}
                       activeOpacity={0.8}
@@ -1533,14 +1586,17 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
                           ]}
                         >
                           <View style={styles.notificationItemHeader}>
-                            {!notif.isRead && (
-                              <View
-                                style={[
-                                  styles.notificationUnreadDot,
-                                  { backgroundColor: notificationUnreadAccent },
-                                ]}
-                              />
-                            )}
+                            <View
+                              style={[
+                                styles.notificationStatusDot,
+                                {
+                                  backgroundColor: notif.isRead
+                                    ? notificationReadDotColor
+                                    : notificationUnreadAccent,
+                                  opacity: notif.isRead ? 0.7 : 1,
+                                },
+                              ]}
+                            />
                             <AccessibleText
                               backgroundColor={notificationCardBackground}
                               style={[styles.notificationMessage, { color: generalTextColor }]}
@@ -1823,7 +1879,7 @@ const styles = StyleSheet.create({
   notificationTextGroup: { flex: 1, marginLeft: 12 },
   notificationTextGroupFullWidth: { marginLeft: 0 },
   notificationItemHeader: { flexDirection: 'row', alignItems: 'center' },
-  notificationUnreadDot: { width: 10, height: 10, borderRadius: 5, marginRight: 10 },
+  notificationStatusDot: { width: 10, height: 10, borderRadius: 5, marginRight: 10 },
   notificationMessage: { fontSize: 15, flexShrink: 1, fontWeight: '500' },
   notificationTimestamp: { fontSize: 12, marginTop: 8 },
   notificationAvatarFallback: {
