@@ -41,10 +41,12 @@ export default function NotificationDetailDialog({
       try {
         // Handle different object types
         if (notification.objectType?.toLowerCase() === 'post' && notification.objectId) {
-          // Fetch posts and find the one with matching ID
+          // Fetch the specific post by ID
           const username = localStorage.getItem('username');
-          const posts = await PostsApi.list({ size: 100, username: username || undefined });
-          const foundPost = posts.find(p => p.postId === parseInt(notification.objectId || '0'));
+          const foundPost = await PostsApi.getById(
+            parseInt(notification.objectId),
+            username || undefined
+          );
           
           if (foundPost) {
             setPost(foundPost);
@@ -56,8 +58,10 @@ export default function NotificationDetailDialog({
           // This would require the post ID to be in objectId
           if (notification.objectId) {
             const username = localStorage.getItem('username');
-            const posts = await PostsApi.list({ size: 100, username: username || undefined });
-            const foundPost = posts.find(p => p.postId === parseInt(notification.objectId || '0'));
+            const foundPost = await PostsApi.getById(
+              parseInt(notification.objectId),
+              username || undefined
+            );
             
             if (foundPost) {
               setPost(foundPost);
