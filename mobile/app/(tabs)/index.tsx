@@ -651,16 +651,7 @@ export default function HomeScreen() {
                 ]}
               >
                 <Text style={[styles.factText, { color: themeColors.text }]}>
-                  {sustainabilityFact.tr}
-                </Text>
-                <Text
-                  style={[
-                    styles.factText,
-                    styles.factTextEn,
-                    { color: themeColors.textSecondary ?? themeColors.text },
-                  ]}
-                >
-                  {sustainabilityFact.en}
+                  {isTurkish ? sustainabilityFact.tr : sustainabilityFact.en}
                 </Text>
                 <Text
                   style={[
@@ -929,6 +920,5 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   factText: { fontSize: 14, lineHeight: 19 },
-  factTextEn: { marginTop: 2, fontSize: 13, lineHeight: 18 },
   factSource: { marginTop: 6, fontSize: 12, lineHeight: 16, fontStyle: "italic" },
 });
