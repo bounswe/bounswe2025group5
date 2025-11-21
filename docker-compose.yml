@@ -2,11 +2,20 @@ services:
   backend:
     build: backend
     environment:
+      # Database Connection
       - DB_HOST=${DB_HOST}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
+
+      # DigitalOcean Spaces Config
       - DO_SPACES_ACCESS_KEY=${DO_SPACES_ACCESS_KEY}
       - DO_SPACES_SECRET_KEY=${DO_SPACES_SECRET_KEY}
+      - DO_SPACES_BUCKET_NAME=${DO_SPACES_BUCKET_NAME}
+      - DO_SPACES_REGION=${DO_SPACES_REGION}
+      - DO_SPACES_PHOTO_FOLDER=${DO_SPACES_PHOTO_FOLDER}
+      - DO_SPACES_POST_PHOTO_FOLDER=${DO_SPACES_POST_PHOTO_FOLDER}
+
+      # Qdrant Config
       - QDRANT_HOST=${QDRANT_HOST}
     networks:
       - appnet
@@ -36,6 +45,7 @@ services:
       - qdrant_storage:/qdrant/storage
     ports:
       - "6333:6333"
+
 networks:
   appnet:
     driver: bridge
