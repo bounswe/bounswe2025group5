@@ -1,7 +1,7 @@
 package com.example.CMPE451.controller;
 
 import com.example.CMPE451.exception.InvalidCredentialsException;
-import com.example.CMPE451.model.request.DeletePostRequest;
+import com.example.CMPE451.model.request.DeleteUserRequest;
 import com.example.CMPE451.model.response.*;
 import com.example.CMPE451.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +50,7 @@ public class UserController {
     @DeleteMapping("/{username}")
     public ResponseEntity<UserDeleteResponse> deleteUser(
             @PathVariable String username,
-            @RequestBody DeletePostRequest request) {
+            @RequestBody DeleteUserRequest request) {
 
         try {
             UserDeleteResponse response = userService.deleteUser(username, request);
