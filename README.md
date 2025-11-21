@@ -12,7 +12,7 @@ Make sure you have **Docker** and **Docker Compose** installed on your computer.
     sudo apt-get update
     sudo apt-get install ca-certificates curl -y
     ```
-    * create a directory called  keyringsto store security keys.
+    * create a directory called  keyrings to store security keys.
     * downloads Docker's official GPG key (digital signature) from their website and saves it to your computer. 
     * change permissions so that "all" users  can "read" this key
     ```bash
