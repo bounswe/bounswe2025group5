@@ -20,8 +20,9 @@ Make sure you have **Docker** and **Docker Compose** installed on your computer.
     sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
     sudo chmod a+r /etc/apt/keyrings/docker.asc
     ```
+    add Docker's download server to your computer's "Address Book" of software.
+
     ```bash
-    * adds Docker's download server to your computer's "Address Book" of software.
     echo \
     "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
     $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
