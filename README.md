@@ -2,7 +2,8 @@
 
 Follow these steps to build and run the application using Docker.
 
-## Prerequisites
+
+## Prerequisites (This part is for Ubuntu, steps might change for other Operating Systems)
 
 Make sure you have **Docker** and **Docker Compose** installed on your computer.
 - Install them with :
@@ -53,8 +54,8 @@ Make sure you have **Docker** and **Docker Compose** installed on your computer.
     nano init.sql
     ```
 
-3.  ** Configuration Files**
-    * the application uses space object for the photos of profiles and posts, our suggesstion is creation of space object on digital ocean website *https://www.digitalocean.com/* , if you do not want to deal with it, please reach us and request the credentials.
+3.  **Configuration Files**
+    * the application uses space object for the photos of profiles and posts, our suggesstion is creation of space object on digital ocean [website](https://www.digitalocean.com/products/spaces) , if you do not want to deal with it, please reach us and request the credentials.
     * The **application.properties** file works with the .env file in the root directory. You need to assign values to these variables: 
     ```bash
     nano .env   # at bounswe2025group5 directory
