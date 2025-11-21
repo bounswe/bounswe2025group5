@@ -312,15 +312,36 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
       return `${rawMessage}`.trim();
     }
 
+    const normalizedActorId =
+      actorId && `${actorId}`.trim().length ? `${actorId}`.trim() : null;
     const actor =
-      actorId && `${actorId}`.trim().length
-        ? `${actorId}`.trim()
-        : t('notificationUnknownActor', { defaultValue: 'Someone' });
+      normalizedActorId ?? t('notificationUnknownActor', { defaultValue: 'Someone' });
     const normalizedType = type?.toLowerCase();
     const normalizedObject = objectType?.toLowerCase();
-    const targetIsSelf = currentUsername && objectId && currentUsername === objectId;
     const defaultTarget = t('notificationTargetYou', { defaultValue: 'you' });
-    const target = objectId && `${objectId}`.trim().length ? `${objectId}`.trim() : defaultTarget;
+    const normalizedCurrentUsername =
+      currentUsername && `${currentUsername}`.trim().length ? `${currentUsername}`.trim() : null;
+    const trimmedObjectId =
+      objectId && `${objectId}`.trim().length ? `${objectId}`.trim() : null;
+    const target = trimmedObjectId ?? defaultTarget;
+    const normalizedActorLower = normalizedActorId?.toLowerCase();
+    const normalizedCurrentUsernameLower = normalizedCurrentUsername?.toLowerCase();
+    const trimmedObjectIdLower = trimmedObjectId?.toLowerCase();
+    const targetMatchesActor =
+      Boolean(
+        normalizedActorLower && trimmedObjectIdLower && normalizedActorLower === trimmedObjectIdLower
+      );
+    const targetMatchesCurrentUser =
+      Boolean(
+        normalizedCurrentUsernameLower &&
+          trimmedObjectIdLower &&
+          normalizedCurrentUsernameLower === trimmedObjectIdLower
+      );
+    const followTargetsCurrentUser =
+      targetMatchesActor ||
+      Boolean(
+        (normalizedCurrentUsernameLower && !trimmedObjectIdLower) || targetMatchesCurrentUser
+      );
 
     if (normalizedType === 'like') {
       if (normalizedObject === 'post') {
@@ -353,7 +374,7 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
     }
 
     if (normalizedType === 'follow') {
-      if (targetIsSelf) {
+      if (followTargetsCurrentUser) {
         return t('notificationFollowYou', {
           actor,
           defaultValue: `${actor} started following you`,
@@ -508,6 +529,12 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
     const trimmed = source.trim();
     if (!trimmed.length) return '?';
     return trimmed.charAt(0).toUpperCase();
+  };
+
+  const shouldDisplayNotificationAvatar = (notif: NotificationItem) => {
+    const normalizedType = notif.type?.toLowerCase();
+    const normalizedObject = notif.objectType?.toLowerCase();
+    return !(normalizedType === 'end' && normalizedObject === 'challenge');
   };
 
   const closePostPreview = () => {
@@ -1424,8 +1451,30 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
                     notif.message?.trim()?.length
                       ? notif.message
                       : t('notificationFallbackMessage', { defaultValue: 'You have a new notification.' });
-                  const avatarInitial = getNotificationInitial(notif);
-                  const resolvedAvatarUri = resolveAvatarUri(notif.actorAvatarUrl);
+                  const showAvatar = shouldDisplayNotificationAvatar(notif);
+                  const avatarInitial = showAvatar ? getNotificationInitial(notif) : null;
+                  const resolvedAvatarUri = showAvatar ? resolveAvatarUri(notif.actorAvatarUrl) : null;
+                  const avatarContent = showAvatar
+                    ? resolvedAvatarUri
+                      ? (
+                        <Image source={{ uri: resolvedAvatarUri }} style={styles.notificationAvatarImage} />
+                      )
+                      : (
+                        <View
+                          style={[
+                            styles.notificationAvatarFallback,
+                            { backgroundColor: notificationAvatarBackground },
+                          ]}
+                        >
+                          <AccessibleText
+                            backgroundColor={notificationAvatarBackground}
+                            style={[styles.notificationAvatarInitial, { color: notificationAvatarTextColor }]}
+                          >
+                            {avatarInitial}
+                          </AccessibleText>
+                        </View>
+                      )
+                    : null;
                   return (
                     <TouchableOpacity
                       key={`${notif.id}-${notif.createdAt ?? 'timestamp'}`}
@@ -1442,24 +1491,13 @@ const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
                       accessibilityLabel={t('notificationsTitle', { defaultValue: 'Notifications' })}
                     >
                       <View style={styles.notificationBody}>
-                        {resolvedAvatarUri ? (
-                          <Image source={{ uri: resolvedAvatarUri }} style={styles.notificationAvatarImage} />
-                        ) : (
-                          <View
-                            style={[
-                              styles.notificationAvatarFallback,
-                              { backgroundColor: notificationAvatarBackground },
-                            ]}
-                          >
-                            <AccessibleText
-                              backgroundColor={notificationAvatarBackground}
-                              style={[styles.notificationAvatarInitial, { color: notificationAvatarTextColor }]}
-                            >
-                              {avatarInitial}
-                            </AccessibleText>
-                          </View>
-                        )}
-                        <View style={styles.notificationTextGroup}>
+                        {avatarContent}
+                        <View
+                          style={[
+                            styles.notificationTextGroup,
+                            !showAvatar && styles.notificationTextGroupFullWidth,
+                          ]}
+                        >
                           <View style={styles.notificationItemHeader}>
                             {!notif.isRead && (
                               <View
@@ -1749,6 +1787,7 @@ const styles = StyleSheet.create({
   },
   notificationBody: { flexDirection: 'row', alignItems: 'center' },
   notificationTextGroup: { flex: 1, marginLeft: 12 },
+  notificationTextGroupFullWidth: { marginLeft: 0 },
   notificationItemHeader: { flexDirection: 'row', alignItems: 'center' },
   notificationUnreadDot: { width: 10, height: 10, borderRadius: 5, marginRight: 10 },
   notificationMessage: { fontSize: 15, flexShrink: 1, fontWeight: '500' },
