@@ -259,6 +259,16 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
     }));
   };
 
+  const hydratePostsForPreview = async (postsToProcess: Post[]): Promise<Post[]> => {
+    if (!postsToProcess.length) return postsToProcess;
+    let hydrated = await attachAvatarsToPosts(postsToProcess);
+    if (username && userType === 'user') {
+      hydrated = await fetchLikeStatusesForPosts(hydrated, username);
+      hydrated = await fetchSavedStatusesForPosts(hydrated, username);
+    }
+    return hydrated;
+  };
+
   const formatNotificationTimestamp = useCallback(
     (value: string | Date | null | undefined) => {
       if (!value) return '';
@@ -565,28 +575,53 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
     }));
   };
 
-  const fetchPostByIdForPreview = async (postId: number): Promise<Post | null> => {
+  const fetchPostFromCurrentUserPosts = async (postId: number): Promise<Post | null> => {
+    if (!username) return null;
     try {
-      const response = await apiRequest(`/api/posts/${postId}`);
+      const encodedUsername = encodeURIComponent(username);
+      const response = await apiRequest(`/api/users/${encodedUsername}/posts`);
       if (!response.ok) {
-        throw new Error(`Post fetch failed: ${response.status}`);
+        throw new Error(`User posts fetch failed: ${response.status}`);
       }
-      const data = await response.json();
-      const payloadArray = Array.isArray(data) ? data : [data];
-      if (!payloadArray.length) return null;
-      let mapped = payloadArray.map(mapApiItemToPost);
-      if (mapped.length > 0) {
-        mapped = await attachAvatarsToPosts(mapped);
-        if (username && userType === 'user') {
-          mapped = await fetchLikeStatusesForPosts(mapped, username);
-          mapped = await fetchSavedStatusesForPosts(mapped, username);
-        }
-      }
-      return mapped[0] ?? null;
+      const rawPosts = await response.json();
+      if (!Array.isArray(rawPosts)) return null;
+      const matchedPost = rawPosts.find((item: any) => Number(item?.postId) === postId);
+      if (!matchedPost) return null;
+      const hydrated = await hydratePostsForPreview([mapApiItemToPost(matchedPost)]);
+      return hydrated[0] ?? null;
     } catch (error) {
-      console.error('Failed to fetch preview post:', error);
+      console.error('Failed to fetch preview post from user posts:', error);
       return null;
     }
+  };
+
+  const fetchPostFromRecentFeed = async (postId: number): Promise<Post | null> => {
+    if (userType !== 'user') return null;
+    try {
+      const response = await apiRequest('/api/posts?size=30');
+      if (!response.ok) {
+        throw new Error(`Feed fetch failed: ${response.status}`);
+      }
+      const data = await response.json();
+      if (!Array.isArray(data)) return null;
+      const hydrated = await hydratePostsForPreview(data.map(mapApiItemToPost));
+      return hydrated.find((post) => post.id === postId) ?? null;
+    } catch (error) {
+      console.error('Failed to fetch preview post from feed:', error);
+      return null;
+    }
+  };
+
+  const fetchPostByIdForPreview = async (postId: number): Promise<Post | null> => {
+    const resolvers: Array<() => Promise<Post | null>> = [
+      () => fetchPostFromCurrentUserPosts(postId),
+      () => fetchPostFromRecentFeed(postId),
+    ];
+    for (const resolvePost of resolvers) {
+      const result = await resolvePost();
+      if (result) return result;
+    }
+    return null;
   };
 
   const loadNotificationPostPreview = useCallback(
@@ -600,9 +635,8 @@ const fetchSavedStatusesForPosts = async (currentPostsToUpdate: Post[], currentU
           posts.find((p) => p.id === postId) ||
           searchResults.find((p) => p.id === postId) ||
           null;
-        const fetchedPost = await fetchPostByIdForPreview(postId);
         const resolvedPost =
-          fetchedPost || fromExisting || null;
+          fromExisting || (await fetchPostByIdForPreview(postId));
         if (!resolvedPost) {
           throw new Error(
             t('notificationPostPreviewError', { defaultValue: 'Unable to load the post.' })
