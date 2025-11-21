@@ -275,8 +275,8 @@
     "notificationCreatePost": "{{actor}} yeni bir gönderi paylaştı",
     "notificationFollowYou": "{{actor}} seni takip etmeye başladı",
     "notificationFollowUser": "{{actor}} {{target}} kullanıcısını takip etmeye başladı",
-    "notificationCreateChallenge": "{{actor}} bir mücadele oluşturdu",
-    "notificationChallengeEnded": "Mücadele sona erdi",
+    "notificationCreateChallenge": "{{actor}} bir etkinlik oluşturdu",
+    "notificationChallengeEnded": "Etkinlik sona erdi",
 
     "notificationPostPreviewHeader": "Gönderi önizlemesi",
     "notificationPostPreviewError": "Gönderi yüklenemedi.",
