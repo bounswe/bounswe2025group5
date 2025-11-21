@@ -19,7 +19,9 @@ import {
   Modal,
   Alert,
   Keyboard,
+  Dimensions,
 } from "react-native";
+import { BarChart } from "react-native-chart-kit";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import AccessibleText from "@/components/AccessibleText";
 import {
@@ -54,11 +56,6 @@ type Post = {
 };
 
 const WASTE_TYPES = ["Plastic", "Paper", "Glass", "Metal", "Organic"] as const;
-
-const formatChartValue = (value: number) => {
-  if (!Number.isFinite(value)) return "0";
-  return Number.isInteger(value) ? value.toString() : value.toFixed(1);
-};
 
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
@@ -216,15 +213,6 @@ export default function ProfileScreen() {
     () => impactData.reduce((acc, curr) => acc + curr.totalWeight, 0),
     [impactData]
   );
-
-  const chartBarHeights = useMemo(() => {
-    if (chartValues.length === 0) return [];
-    const maxValue = Math.max(...chartValues, 1);
-    return chartValues.map((value) => {
-      const normalized = maxValue ? value / maxValue : 0;
-      return Math.max(20, normalized * 220);
-    });
-  }, [chartValues]);
 
   const handleLogout = async () => {
     await clearSession();
@@ -1221,8 +1209,8 @@ export default function ProfileScreen() {
                   style={{ marginVertical: 40 }}
                 />
               ) : (
-                <View style={[styles.chartAxes, { borderColor: iconColor }]}>
-                  {chartBarHeights.length === 0 ? (
+                <View>
+                  {chartValues.length === 0 ? (
                     <AccessibleText
                       backgroundColor={cardBackgroundColor}
                       style={[styles.chartEmptyText, { color: iconColor }]}
@@ -1230,34 +1218,44 @@ export default function ProfileScreen() {
                       {t("noData", { defaultValue: "No data available" })}
                     </AccessibleText>
                   ) : (
-                    <View style={styles.chartBarsContainer}>
-                      {chartBarHeights.map((height, index) => (
-                        <View
-                          key={`chart-bar-${index}`}
-                          style={styles.chartBarWrapper}
-                        >
-                          <AccessibleText
-                            backgroundColor={cardBackgroundColor}
-                            style={[
-                              styles.chartValueLabel,
-                              { color: iconColor },
-                            ]}
-                          >
-                            {formatChartValue(chartValues[index])}
-                          </AccessibleText>
-                          <View style={[styles.chartBar, { height }]} />
-                          <AccessibleText
-                            backgroundColor={cardBackgroundColor}
-                            style={[
-                              styles.chartXAxisLabel,
-                              { color: iconColor },
-                            ]}
-                          >
-                            {chartLabels[index]}
-                          </AccessibleText>
-                        </View>
-                      ))}
-                    </View>
+                    <BarChart
+                      data={{
+                        labels: chartLabels,
+                        datasets: [
+                          {
+                            data: chartValues,
+                          },
+                        ],
+                      }}
+                      width={
+                        Math.min(Dimensions.get("window").width * 0.9, 360) - 40
+                      }
+                      height={220}
+                      yAxisLabel=""
+                      yAxisSuffix=""
+                      withHorizontalLabels={false}
+                      withInnerLines={false}
+                      fromZero
+                      chartConfig={{
+                        backgroundColor: cardBackgroundColor,
+                        backgroundGradientFrom: cardBackgroundColor,
+                        backgroundGradientTo: cardBackgroundColor,
+                        decimalPlaces: 1,
+                        color: (opacity = 1) => `rgba(76, 175, 80, ${opacity})`,
+                        labelColor: (opacity = 1) => iconColor,
+                        style: {
+                          borderRadius: 16,
+                        },
+                        barPercentage: 0.7,
+                      }}
+                      style={{
+                        marginVertical: 8,
+                        borderRadius: 16,
+                        alignSelf: "center",
+                        paddingRight: 0,
+                      }}
+                      showValuesOnTopOfBars
+                    />
                   )}
                 </View>
               )}
@@ -1493,31 +1491,13 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   progressModalCloseButton: { padding: 8, marginLeft: 12 },
-  chartArea: { marginTop: 8 },
-  chartAxes: {
-    height: 300,
-    borderLeftWidth: 2,
-    borderBottomWidth: 2,
-    paddingLeft: 16,
-    paddingBottom: 12,
-    justifyContent: "flex-end",
+  chartArea: { marginTop: 8, alignItems: "center" },
+  chartYAxisLabel: {
+    marginTop: 12,
+    fontSize: 12,
+    textAlign: "right",
+    width: "100%",
   },
-  chartBarsContainer: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "space-around",
-    height: 260,
-    paddingHorizontal: 8,
-  },
-  chartBarWrapper: {
-    alignItems: "center",
-    justifyContent: "flex-end",
-    minWidth: 60,
-  },
-  chartValueLabel: { fontSize: 12, marginBottom: 6 },
-  chartBar: { width: 40, borderRadius: 6, backgroundColor: "#4CAF50" },
-  chartXAxisLabel: { marginTop: 6, fontSize: 12 },
-  chartYAxisLabel: { marginTop: 12, fontSize: 12, textAlign: "right" },
   chartEmptyText: { alignSelf: "center", marginTop: 32, fontSize: 14 },
   wasteTypeSelector: { marginTop: 20 },
   wasteTypeLabel: { fontSize: 14, fontWeight: "600", marginBottom: 12 },
