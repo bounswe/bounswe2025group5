@@ -80,6 +80,7 @@ export default function EditProfileScreen() {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   const [errState, setErrState] = useState<ErrorState>({
     key: null,
@@ -295,16 +296,25 @@ export default function EditProfileScreen() {
     setDeletePassword("");
     setDeleteModalVisible(true);
     setErrState({ key: null, message: null, resolved: null });
+    setDeleteError(null);
+    setIsDeletingAccount(false);
   };
 
   const handleCancelDelete = () => {
     setDeleteModalVisible(false);
     setDeletePassword("");
     setErrState({ key: null, message: null, resolved: null });
+    setDeleteError(null);
+    setIsDeletingAccount(false);
   };
 
   const handleConfirmDelete = async () => {
     setDeleteError(null);
+    if (!username) {
+      setDeleteError(t("errorUserNotIdentified"));
+      return;
+    }
+    setIsDeletingAccount(true);
     try {
       const encodedUsername = encodeURIComponent(username);
       const response = await apiRequest(`/api/users/${encodedUsername}`, {
@@ -323,6 +333,8 @@ export default function EditProfileScreen() {
       }
     } catch (error) {
       setDeleteError(t("deleteAccountGenericError"));
+    } finally {
+      setIsDeletingAccount(false);
     }
   };
 
@@ -465,29 +477,42 @@ export default function EditProfileScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Delete Account Button - moved inside ScrollView */}
-        <View style={styles.deleteButtonContainer}>
+        <View
+          style={[
+            styles.deleteSection,
+            {
+              backgroundColor: isDarkMode ? "#1F1F22" : "#FFFFFF",
+              borderColor: isDarkMode ? "#3A3A3C" : "#E0E0E0",
+            },
+          ]}
+        >
+          <Text
+            style={[
+              styles.deleteSectionTitle,
+              { color: isDarkMode ? "#F5F5F7" : "#1C1C1E" },
+            ]}
+          >
+            {t("deleteAccount")}
+          </Text>
+          <Text
+            style={[
+              styles.deleteSectionSubtitle,
+              { color: isDarkMode ? "#C8C8CC" : "#4B4B4F" },
+            ]}
+          >
+            {t("deleteAccountWarning", {
+              defaultValue: "This will permanently delete your account.",
+            })}
+          </Text>
           <TouchableOpacity
             style={[
-              styles.btn,
-              styles.delete,
-              {
-                backgroundColor: isDarkMode ? "#C72C1C" : Colors[theme].error,
-                width: "100%",
-                maxWidth: 200,
-              },
+              styles.deleteSectionButton,
+              { backgroundColor: isDarkMode ? "#C72C1C" : Colors[theme].error },
             ]}
             onPress={handleDeleteAccountButton}
             disabled={savingBio || uploadingPhoto}
           >
-            <Text
-              style={[
-                styles.btnText,
-                { color: isDarkMode ? "#FFF5F5" : "#FFFFFF" },
-              ]}
-            >
-              {t("deleteAccount")}
-            </Text>
+            <Text style={styles.deleteSectionButtonText}>{t("deleteAccount")}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -496,7 +521,7 @@ export default function EditProfileScreen() {
       <Modal
         visible={deleteModalVisible}
         transparent
-        animationType="slide"
+        animationType="fade"
         onRequestClose={handleCancelDelete}
       >
         <View
@@ -504,26 +529,38 @@ export default function EditProfileScreen() {
             flex: 1,
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: "rgba(0,0,0,0.5)",
+            backgroundColor: "rgba(0,0,0,0.55)",
+            padding: 24,
           }}
         >
           <View
             style={{
               backgroundColor: isDarkMode ? "#1E1E1E" : "#fff",
               padding: 24,
-              borderRadius: 12,
-              width: "80%",
+              borderRadius: 16,
+              width: "100%",
             }}
           >
             <Text
               style={{
                 fontSize: 18,
                 fontWeight: "bold",
-                marginBottom: 12,
+                marginBottom: 8,
                 color: isDarkMode ? "#FFF" : "#000",
               }}
             >
               {t("deleteAccountModalTitle")}
+            </Text>
+            <Text
+              style={{
+                fontSize: 14,
+                marginBottom: 16,
+                color: isDarkMode ? "#D1D1D6" : "#4A4A4A",
+              }}
+            >
+              {t("deleteAccountWarning", {
+                defaultValue: "This will permanently delete your account.",
+              })}
             </Text>
             <TextInput
               style={{
@@ -531,34 +568,61 @@ export default function EditProfileScreen() {
                 borderColor: isDarkMode ? "#444" : "#CCC",
                 backgroundColor: isDarkMode ? "#2A2A2A" : "#FFF",
                 color: isDarkMode ? "#FFF" : "#000",
-                borderRadius: 6,
+                borderRadius: 8,
                 padding: 12,
-                marginBottom: 16,
+                marginBottom: 12,
               }}
               value={deletePassword}
               onChangeText={setDeletePassword}
-              placeholder={t("password")}
+              placeholder={t("deleteAccountPasswordPlaceholder", {
+                defaultValue: "Enter your password",
+              })}
               placeholderTextColor={isDarkMode ? "#AAA" : "#888"}
               secureTextEntry
             />
             {deleteError && (
-              <Text style={{ color: Colors[theme].error, marginBottom: 8 }}>
-                {t("error")}
+              <Text style={{ color: Colors[theme].error, marginBottom: 12 }}>
+                {deleteError}
               </Text>
             )}
-            <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               <TouchableOpacity
                 onPress={handleCancelDelete}
-                style={{ marginRight: 12 }}
+                disabled={isDeletingAccount}
               >
                 <Text style={{ color: Colors[theme].tint, fontWeight: "bold" }}>
                   {t("cancel")}
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleConfirmDelete}>
-                <Text style={{ color: Colors[theme].error, fontWeight: "bold" }}>
-                  {t("delete")}
-                </Text>
+              <TouchableOpacity
+                onPress={handleConfirmDelete}
+                disabled={isDeletingAccount || !deletePassword.trim()}
+                style={{
+                  paddingHorizontal: 16,
+                  paddingVertical: 10,
+                  borderRadius: 8,
+                  backgroundColor: Colors[theme].error,
+                  opacity:
+                    isDeletingAccount || !deletePassword.trim() ? 0.6 : 1,
+                  minWidth: 160,
+                  alignItems: "center",
+                }}
+              >
+                {isDeletingAccount ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Text style={{ color: "#FFFFFF", fontWeight: "bold" }}>
+                    {t("deleteAccountConfirmButton", {
+                      defaultValue: "Yes, delete account",
+                    })}
+                  </Text>
+                )}
               </TouchableOpacity>
             </View>
           </View>
@@ -659,12 +723,30 @@ const styles = StyleSheet.create({
   disabledButton: {
     opacity: 0.6,
   },
-  delete: {
-    // You can add custom styles here if needed
+  deleteSection: {
+    marginTop: 32,
+    padding: 16,
+    borderWidth: 1,
+    borderRadius: 12,
   },
-  deleteButtonContainer: {
-    marginTop: 40,
-    marginBottom: 24,
+  deleteSectionTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+  },
+  deleteSectionSubtitle: {
+    fontSize: 13,
+    marginTop: 4,
+    marginBottom: 16,
+    lineHeight: 18,
+  },
+  deleteSectionButton: {
+    paddingVertical: 12,
+    borderRadius: 10,
     alignItems: "center",
+  },
+  deleteSectionButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "600",
+    fontSize: 15,
   },
 });

@@ -269,6 +269,25 @@
     "openNotifications": "Open notifications",
     "report": "Report",
     "reportPost": "Report Post",
-    "reportThisPostHint": "Report this post to the moderators."
+    "reportThisPostHint": "Report this post to the moderators.",
+    "reportReasonSpam": "Spam",
+    "reportReasonHate": "Hate Speech",
+    "reportReasonHarm": "Harm / Violence",
+    "reportReasonOther": "Other",
+    "reportReasonLabel": "Why are you reporting this?",
+    "reportDetailsLabel": "Add extra details (optional)",
+    "reportDetailsPlaceholder": "Describe the issue or share useful context...",
+    "reportDetailsInputLabel": "Details about what happened",
+    "reportSentTitle": "Report submitted",
+    "reportSentMessage": "Thank you for letting us know. Our moderators will review it shortly.",
+    "reportCommentTitle": "Report Comment",
+    "reportPostTitle": "Report Post",
+    "reportingCommentBy": "Comment by {{username}}",
+    "reportingPost": "Post: {{title}}",
+    "unknownUser": "unknown user",
+    "untitledPost": "Untitled post",
+    "sendReport": "Send Report",
+    "closeModal": "Close modal",
+    "submitReport": "Submit report"
   }
 }
