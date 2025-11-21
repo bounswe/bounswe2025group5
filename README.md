@@ -10,7 +10,7 @@ Make sure you have **Docker** and **Docker Compose** installed on your computer.
     * install curl and ca-certificates to be able to install docker from the Internet
     ```bash
     sudo apt-get update
-    sudo apt-get install ca-certificates curl
+    sudo apt-get install ca-certificates curl -y
     ```
     * create a directory called  keyringsto store security keys.
     * downloads Docker's official GPG key (digital signature) from their website and saves it to your computer. 
