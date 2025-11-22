@@ -94,14 +94,12 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
       if (isDeleteAccount) {
         throw new Error('Incorrect password');
       }
-      // Only redirect if it's not a registration/login endpoint
-      if (!endpoint.startsWith('/api/users') && !endpoint.startsWith('/api/sessions')) {
-        clearTokens();
-        localStorage.removeItem('username');
-        if (!window.location.pathname.startsWith('/auth')) {
-          console.log('Redirecting to login due to unauthorized API response');
-          window.location.href = '/auth/login';
-        }
+
+      clearTokens();
+      localStorage.removeItem('username');
+      if (!window.location.pathname.startsWith('/auth')) {
+        console.log('Redirecting to login due to unauthorized API response');
+        window.location.href = '/auth/login';
       }
     }
     throw new Error(errorMessage);
