@@ -289,11 +289,17 @@
     "sendReport": "Send Report",
     "closeModal": "Close modal",
     "submitReport": "Submit report",
-    "impactTitle": "Impact",
+    "impactTitle": "My Impact on the Planet",
     "impactDescription_0": "Recycling plays a crucial role in preserving our environment. By reducing waste and conserving resources, you are helping to build a sustainable future for our planet.",
     "impactDescription_1": "Every small step counts! Your efforts in tracking and reducing waste contribute directly to a cleaner, healthier Earth for future generations.",
     "impactDescription_2": "Did you know? Reducing waste saves energy, reduces greenhouse gas emissions, and helps conserve our natural resources. Keep up the great work!",
     "totalImpact": "Total Impact: {{amount}} kg",
-    "timeAxisLabel": "Time axis"
+    "timeAxisLabel": "Time axis",
+    "impactExplanation_Paper": "By recycling {{amount}} kg of paper, you saved {{trees}} trees.",
+    "impactExplanation_Plastic": "By recycling {{amount}} kg of plastic, you saved {{barrels}} barrels of oil.",
+    "impactExplanation_Glass": "By recycling {{amount}} kg of glass, you saved {{energy}} kWh of energy.",
+    "impactExplanation_Metal": "By recycling {{amount}} kg of metal, you saved {{ore}} kg of iron ore.",
+    "impactExplanation_Organic": "By composting {{amount}} kg of organic waste, you produced {{compost}} kg of nutrient-rich compost.",
+    "impactExplanation_Default": "By recycling {{amount}} kg of waste, you contributed to a cleaner planet."
   }
 }

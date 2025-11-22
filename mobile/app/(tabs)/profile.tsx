@@ -58,6 +58,14 @@ type Post = {
 
 const WASTE_TYPES = ["Plastic", "Paper", "Glass", "Metal", "Organic"] as const;
 
+const IMPACT_CONVERSION_RATES: Record<string, { factor: number; unitKey: string }> = {
+  Paper: { factor: 0.017, unitKey: "trees" }, // 1000kg = 17 trees -> 1kg = 0.017 trees
+  Plastic: { factor: 0.0163, unitKey: "barrels" }, // 1000kg = 16.3 barrels -> 1kg = 0.0163 barrels
+  Glass: { factor: 0.042, unitKey: "energy" }, // Placeholder
+  Metal: { factor: 1.5, unitKey: "ore" }, // Placeholder
+  Organic: { factor: 0.5, unitKey: "compost" }, // Placeholder
+};
+
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
@@ -217,6 +225,18 @@ export default function ProfileScreen() {
     () => impactData.reduce((acc, curr) => acc + curr.totalWeight, 0) / 1000,
     [impactData]
   );
+
+  const impactExplanation = useMemo(() => {
+    const rate = IMPACT_CONVERSION_RATES[selectedWasteType];
+    if (!rate) {
+      return t("impactExplanation_Default", { amount: totalImpact.toFixed(1) });
+    }
+    const calculatedValue = (totalImpact * rate.factor).toFixed(2);
+    return t(`impactExplanation_${selectedWasteType}`, {
+      amount: totalImpact.toFixed(1),
+      [rate.unitKey]: calculatedValue,
+    });
+  }, [selectedWasteType, totalImpact, t]);
 
   const handleLogout = async () => {
     await clearSession();
@@ -1270,6 +1290,15 @@ export default function ProfileScreen() {
                   )}
                 </View>
               )}
+              <AccessibleText
+                backgroundColor={cardBackgroundColor}
+                style={[
+                  styles.impactExplanationText,
+                  { color: generalTextColor },
+                ]}
+              >
+                {impactExplanation}
+              </AccessibleText>
             </View>
 
             <View style={styles.wasteTypeSelector}>
@@ -1498,6 +1527,13 @@ const styles = StyleSheet.create({
   progressModalCloseButton: { padding: 8, marginLeft: 12 },
   chartArea: { marginTop: 8, alignItems: "center" },
   chartEmptyText: { alignSelf: "center", marginTop: 32, fontSize: 14 },
+  impactExplanationText: {
+    marginTop: 16,
+    fontSize: 14,
+    textAlign: "center",
+    fontStyle: "italic",
+    paddingHorizontal: 8,
+  },
   wasteTypeSelector: { marginTop: 20 },
   wasteTypeLabel: { fontSize: 14, fontWeight: "600", marginBottom: 12 },
   wasteTypeChips: { flexDirection: "row", flexWrap: "wrap" },
