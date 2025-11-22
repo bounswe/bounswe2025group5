@@ -11,11 +11,7 @@ import com.example.CMPE451.model.User;
 import com.example.CMPE451.model.request.CommentRequest;
 import com.example.CMPE451.model.request.CreatePostRequest;
 import com.example.CMPE451.model.request.SavePostRequest;
-import com.example.CMPE451.model.response.CreateOrEditPostResponse;
-import com.example.CMPE451.model.response.GetPostResponse;
-import com.example.CMPE451.model.response.CommentResponse;
-import com.example.CMPE451.model.response.GetSavedPostResponse;
-import com.example.CMPE451.model.response.SavePostResponse;
+import com.example.CMPE451.model.response.*;
 import com.example.CMPE451.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,8 +41,11 @@ public class PostService {
     private final UserRepository userRepository;
     private final SavedPostRepository savedPostRepository;
 
+    private final ActivityLogger activityLogger;
+
     private final EmbeddingService embeddingService;
     private final VectorDBService vectorDBService;
+    private final FollowService followService;
 
     private final S3Client s3Client;
 
@@ -85,7 +84,7 @@ public class PostService {
     }
 
     @Transactional
-    public CreateOrEditPostResponse createPost(String content ,String username, MultipartFile photoFile) {
+    public CreateOrEditPostResponse createPost(String content, String username, MultipartFile photoFile) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException("User not found: " + username));
 
@@ -102,16 +101,27 @@ public class PostService {
                 0
         );
         post.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-        Post savedPost= postRepository.saveAndFlush(post);
+        Post savedPost = postRepository.saveAndFlush(post);
 
         try {
             float[] vector = embeddingService.createEmbedding(savedPost.getContent());
-
             vectorDBService.upsertVector(savedPost.getPostId(), vector);
-
         } catch (Exception e) {
             System.err.println("Failed to create embedding for post " + savedPost.getPostId() + ": " + e.getMessage());
         }
+
+        List<String> followerUsernames = followService.getFollowers(username)
+                .stream()
+                .map(GetFollowersResponse::getUsername)
+                .toList();
+
+        activityLogger.logAction(
+                "Create",
+                "User", user.getUsername(),
+                "Post", savedPost.getPostId(),
+                "Users", followerUsernames
+        );
+
         return new CreateOrEditPostResponse(
                 post.getPostId(),
                 post.getContent(),
@@ -121,6 +131,25 @@ public class PostService {
         );
     }
 
+    public GetPostResponse getPost(Integer postId, String username) {
+        Optional<Post> existingPostOpt = postRepository.findById(postId);
+        if (existingPostOpt.isEmpty()) {
+            throw new NotFoundException("Post not found: " + postId);
+        }
+        Post post = existingPostOpt.get();
+
+
+        Integer requestingUserId = null;
+        if (username != null) {
+            User requestingUser = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new NotFoundException("User not found: " + username));
+            requestingUserId = requestingUser.getId();
+        }
+
+
+        return convertToGetPostResponse(post, requestingUserId);
+
+    }
 
     @Transactional
     public CreateOrEditPostResponse editPost(Integer postId,String content,String username, MultipartFile photoFile ) {
@@ -172,6 +201,8 @@ public class PostService {
         postRepository.deleteById(postId);
 
     }
+
+
 
     public List<GetPostResponse> getMostLikedPosts(Integer size, String username) {
         Integer userId = null;
@@ -259,6 +290,38 @@ public class PostService {
                 })
                 .collect(Collectors.toList());
     }
+
+    private GetPostResponse convertToGetPostResponse(Post post, Integer requestingUserId) {
+
+        GetPostResponse postResponse = new GetPostResponse();
+
+        Set<Integer> likedPostIds;
+        Set<Integer> savedPostIds;
+
+        if (requestingUserId != null) {
+            likedPostIds = postLikeRepository
+                    .findLikedPostIdsByUserIdAndPostIdIn(requestingUserId, Collections.singletonList(post.getPostId()));
+
+            savedPostIds = savedPostRepository
+                    .findSavedPostIdsByUserIdAndPostIdIn(requestingUserId, Collections.singletonList(post.getPostId()));
+        } else {
+            likedPostIds = Collections.emptySet();
+            savedPostIds = Collections.emptySet();
+        }
+
+        postResponse.setPostId(post.getPostId());
+        postResponse.setContent(post.getContent());
+        postResponse.setCreatedAt(post.getCreatedAt());
+        postResponse.setLikes(post.getLikes());
+        postResponse.setCreatorUsername(post.getUser().getUsername());
+        postResponse.setComments(post.getComments());
+        postResponse.setPhotoUrl(post.getPhotoUrl());
+        postResponse.setLiked(likedPostIds.contains(post.getPostId()));
+        postResponse.setSaved(savedPostIds.contains(post.getPostId()));
+
+        return postResponse;
+    }
+
 
     private String uploadFileToSpaces(MultipartFile file, String folder) {
         if (file.isEmpty()) {

@@ -9,4 +9,6 @@ public class ProfileResponse {
     private String username;
     private String biography;
     private String photoUrl;
+    private Integer followerCount;
+    private Integer followingCount;
 }
