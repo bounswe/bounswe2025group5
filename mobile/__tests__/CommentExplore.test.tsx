@@ -347,12 +347,7 @@ describe('ExploreScreen Comment Functionalities', () => {
 
     await waitFor(() => expect(getByText('First comment')).toBeTruthy());
 
-    // 'First comment' is by 'commenter1', current user is 'testuser'. So report button should be visible.
-    // In CommentItemDisplay, report button has accessibilityLabel="Report comment"
-    // There might be multiple comments, so we use getAllByLabelText and pick the first one (which corresponds to 'First comment' if rendered first)
-    // Actually mockComments order: 101 (commenter1), 102 (testuser).
-    // 102 is owner, so no report button. 101 is not owner, so report button.
-    // So there should be only one "Report comment" button.
+    // Only non-owner comments should have a report button.
     const reportButtons = getAllByLabelText('Report comment');
     expect(reportButtons.length).toBeGreaterThan(0);
     fireEvent.press(reportButtons[0]);
