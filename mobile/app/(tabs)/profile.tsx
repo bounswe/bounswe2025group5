@@ -206,23 +206,10 @@ export default function ProfileScreen() {
   const chartLabels = useMemo(
     () =>
       processedChartData.map((d) => {
-        const months = [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ];
-        return `${months[d.month - 1]} '${d.year.toString().slice(2)}`;
+        const monthName = t(`month_${d.month}`);
+        return `${monthName} '${d.year.toString().slice(2)}`;
       }),
-    [processedChartData]
+    [processedChartData, t]
   );
 
   const totalImpact = useMemo(
@@ -1078,7 +1065,7 @@ export default function ProfileScreen() {
             onPress={() => setProgressModalVisible(true)}
           >
             <Text style={[styles.actionText, { color: buttonTextColor }]}>
-              {t("showMyImpact", { defaultValue: "Show My Impact" })}
+              {t("showMyImpact")}
             </Text>
           </TouchableOpacity>
 
