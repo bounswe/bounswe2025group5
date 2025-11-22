@@ -25,6 +25,14 @@ export default function NotificationIcon() {
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
+  // Sort notifications: unread first, then by timestamp (newest first)
+  const sortedNotifications = [...notifications].sort((a, b) => {
+    if (a.isRead !== b.isRead) {
+      return a.isRead ? 1 : -1; // Unread (false) comes before read (true)
+    }
+    return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+  });
+
   const fetchNotifications = async (isBackgroundRefresh = false) => {
     if (!username) return;
     
@@ -113,7 +121,7 @@ export default function NotificationIcon() {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 max-h-[32rem] bg-[#68656015] backdrop-blur-md overflow-y-auto p-0 rounded-xl [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-2 [&::-webkit-scrollbar-thumb]:border-transparent dark:[&::-webkit-scrollbar-thumb]:bg-gray-600 hover:[&::-webkit-scrollbar-thumb]:bg-gray-400 dark:hover:[&::-webkit-scrollbar-thumb]:bg-gray-500" align="end">
+      <PopoverContent variant="glass" scrollable align="end">
         <div className="flex items-center justify-between p-4 border-b">
           <h3 className="font-semibold text-lg">{t('notifications.title')}</h3>
         </div>
@@ -133,7 +141,7 @@ export default function NotificationIcon() {
           )}
           {!isLoading && !error && notifications.length > 0 && (
             <>
-              {notifications.map(notification => (
+              {sortedNotifications.map(notification => (
                 <NotificationCard
                   key={notification.id}
                   notification={notification}
