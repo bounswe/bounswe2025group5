@@ -22,6 +22,7 @@ import {
   Dimensions,
 } from "react-native";
 import { BarChart } from "react-native-chart-kit";
+import { TSpan } from "react-native-svg";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import AccessibleText from "@/components/AccessibleText";
 import {
@@ -183,7 +184,10 @@ export default function ProfileScreen() {
   }, [impactData]);
 
   const chartValues = useMemo(
-    () => processedChartData.map((d) => d.totalWeight),
+    () =>
+      processedChartData.map((d) =>
+        parseFloat((d.totalWeight / 1000).toFixed(1))
+      ),
     [processedChartData]
   );
 
@@ -210,7 +214,7 @@ export default function ProfileScreen() {
   );
 
   const totalImpact = useMemo(
-    () => impactData.reduce((acc, curr) => acc + curr.totalWeight, 0),
+    () => impactData.reduce((acc, curr) => acc + curr.totalWeight, 0) / 1000,
     [impactData]
   );
 
@@ -1241,12 +1245,19 @@ export default function ProfileScreen() {
                         backgroundGradientFrom: cardBackgroundColor,
                         backgroundGradientTo: cardBackgroundColor,
                         decimalPlaces: 1,
-                        color: (opacity = 1) => `rgba(76, 175, 80, ${opacity})`,
+                        color: (opacity = 1) => `rgba(76, 175, 80, 1)`,
                         labelColor: (opacity = 1) => iconColor,
                         style: {
                           borderRadius: 16,
                         },
                         barPercentage: 0.7,
+                        fillShadowGradient: "#4CAF50",
+                        fillShadowGradientOpacity: 1,
+                        formatTopBarValue: ((value: number) => (
+                          <TSpan fontSize="14" fontWeight="bold" dy="-5">
+                            {value}
+                          </TSpan>
+                        )) as any,
                       }}
                       style={{
                         marginVertical: 8,
@@ -1259,12 +1270,6 @@ export default function ProfileScreen() {
                   )}
                 </View>
               )}
-              <AccessibleText
-                backgroundColor={cardBackgroundColor}
-                style={[styles.chartYAxisLabel, { color: iconColor }]}
-              >
-                {t("timeAxisLabel")}
-              </AccessibleText>
             </View>
 
             <View style={styles.wasteTypeSelector}>
@@ -1492,12 +1497,6 @@ const styles = StyleSheet.create({
   },
   progressModalCloseButton: { padding: 8, marginLeft: 12 },
   chartArea: { marginTop: 8, alignItems: "center" },
-  chartYAxisLabel: {
-    marginTop: 12,
-    fontSize: 12,
-    textAlign: "right",
-    width: "100%",
-  },
   chartEmptyText: { alignSelf: "center", marginTop: 32, fontSize: 14 },
   wasteTypeSelector: { marginTop: 20 },
   wasteTypeLabel: { fontSize: 14, fontWeight: "600", marginBottom: 12 },

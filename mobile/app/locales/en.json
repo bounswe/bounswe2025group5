@@ -293,7 +293,7 @@
     "impactDescription_0": "Recycling plays a crucial role in preserving our environment. By reducing waste and conserving resources, you are helping to build a sustainable future for our planet.",
     "impactDescription_1": "Every small step counts! Your efforts in tracking and reducing waste contribute directly to a cleaner, healthier Earth for future generations.",
     "impactDescription_2": "Did you know? Reducing waste saves energy, reduces greenhouse gas emissions, and helps conserve our natural resources. Keep up the great work!",
-    "totalImpact": "Total Impact: {{amount}}",
+    "totalImpact": "Total Impact: {{amount}} kg",
     "timeAxisLabel": "Time axis"
   }
 }
