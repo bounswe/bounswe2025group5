@@ -72,7 +72,7 @@
   --tertiary: oklch(63.147% 0.17226 282.58);   /* #8B7FCF soft purple */
   --tertiary-foreground: oklch(0.985 0 0);
 
-  --accent: oklch(84.284% 0.16689 83.545);      /* #F8B82A golden yellow */
+  --accent: oklch(82.89% 0.16631 82.882);      /* #F8B82A golden yellow */
   --accent-foreground: oklch(0.22 0 0);
 
   --muted: oklch(0.92 0.02 95);
@@ -84,8 +84,8 @@
   /* Borders / Inputs / Rings */
   --border: oklch(0.9 0 0);
   --input: oklch(0.9 0 0);
-  --ring: oklch(0.58 0.17 148);
-
+  /*--ring: oklch(0.58 0.17 148);*/
+  --ring: var(--tertiary);  /* Deep green matching primary color */
   /* Sidebar */
   --sidebar: oklch(0.985 0.02 95);
   --sidebar-foreground: oklch(0.22 0 0);

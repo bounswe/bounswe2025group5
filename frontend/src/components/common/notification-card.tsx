@@ -76,14 +76,25 @@ export default function NotificationCard({
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
+
   return (
     <Card
       className={cn(
-        'cursor-pointer transition-all hover:shadow-md py-2',
+        'cursor-pointer transition-all hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset py-2',
         !notification.isRead && 'bg-[#f0c647]',
         className
       )}
       onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      role="button"
+      aria-label={`${getNotificationMessage().actor} ${getNotificationMessage().text}. ${formatTimeAgo(notification.createdAt)}. ${!notification.isRead ? t('notifications.unread') : ''}`}
     >
       <CardContent className="p-3 py-2 relative">
         <div className="flex items-start gap-2">
