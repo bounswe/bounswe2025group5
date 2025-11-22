@@ -349,6 +349,7 @@ export default function FeedPage() {
               setSelectedUsername(null);
             }
           }}
+          onUsernameClick={handleUsernameClick}
         />
       )}
     </div>

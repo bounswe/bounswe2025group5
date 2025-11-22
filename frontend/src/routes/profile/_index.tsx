@@ -370,6 +370,7 @@ export default function ProfileIndex() {
         username={selectedUsername}
         open={isProfileDialogOpen}
         onOpenChange={setIsProfileDialogOpen}
+        onUsernameClick={handleUsernameClick}
       />
     </div>
   );

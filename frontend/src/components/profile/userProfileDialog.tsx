@@ -5,21 +5,22 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { UsersApi } from '@/lib/api/users';
 import { FollowApi } from '@/lib/api/follow';
 import type { ProfileResponse } from '@/lib/api/schemas/profile';
 import type { PostItem } from '@/lib/api/schemas/posts';
 import PostCard from '@/components/feedpage/post-card';
-import ScrollPanel from '@/components/mainpage/ScrollPanel';
 import userAvatar from '@/assets/user.png';
 
 interface UserProfileDialogProps {
   username: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onUsernameClick?: (username: string) => void;
 }
 
-export default function UserProfileDialog({ username, open, onOpenChange }: UserProfileDialogProps) {
+export default function UserProfileDialog({ username, open, onOpenChange, onUsernameClick }: UserProfileDialogProps) {
   const { t } = useTranslation();
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
@@ -134,7 +135,7 @@ export default function UserProfileDialog({ username, open, onOpenChange }: User
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-4xl max-h-[85vh] flex flex-col">
+      <DialogContent className="sm:max-w-4xl flex flex-col">
         <DialogHeader>
           <DialogTitle>
             {username ? t('profile.userProfileTitle', { username }) : t('profile.userProfile')}
@@ -154,7 +155,7 @@ export default function UserProfileDialog({ username, open, onOpenChange }: User
             {t('profile.notFound')}
           </div>
         ) : (
-          <div className="flex flex-col gap-4 overflow-y-auto pr-1">
+          <div className="flex flex-col gap-4">
             <div className="flex items-start gap-8">
               <div className="flex-[2]"></div>
               <div className="flex flex-col items-center gap-3 flex-[2]">
@@ -223,32 +224,38 @@ export default function UserProfileDialog({ username, open, onOpenChange }: User
               <div className="flex-[2]"></div>
             </div>
 
-            <ScrollPanel
-              title={t('profile.postsTitle', 'Posts')}
-              description={t('profile.postsDesc', 'Posts created by this user')}
-              className="bg-background border-border"
-              contentClassName="max-h-[43vh]"
-            >
-              {isPostsLoading ? (
-                <div className="flex justify-center py-4">
-                  <Spinner className="h-4 w-4" />
-                </div>
-              ) : posts.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  {t('profile.noPosts', 'No posts yet')}
-                </p>
-              ) : (
-                <div className="space-y-4 grid gap-4 sm:grid-cols-2">
-                  {posts.map((post) => (
-                    <div key={post.postId} className="max-h-[400px] overflow-hidden flex flex-col-reverse">
-                      <PostCard
-                        post={post}
-                      />
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="posts" className="border rounded-md px-4">
+                <AccordionTrigger className="hover:no-underline">
+                  <div className="flex flex-col items-start gap-1">
+                    <span className="font-semibold text-base">{t('profile.postsTitle', 'Posts')}</span>
+                    <span className="text-xs text-muted-foreground font-normal">{t('profile.postsDesc', 'Posts created by this user')}</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  {isPostsLoading ? (
+                    <div className="flex justify-center py-4">
+                      <Spinner className="h-4 w-4" />
                     </div>
-                  ))}
-                </div>
-              )}
-            </ScrollPanel>
+                  ) : posts.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      {t('profile.noPosts', 'No posts yet')}
+                    </p>
+                  ) : (
+                    <div className="space-y-4 grid gap-4 sm:grid-cols-2 justify-items-center max-h-[50vh] overflow-y-auto pr-2">
+                      {posts.map((post) => (
+                        <div key={post.postId} className="max-w-xs w-full">
+                          <PostCard
+                            post={post}
+                            onUsernameClick={onUsernameClick}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </div>
         )}
       </DialogContent>

@@ -134,6 +134,7 @@ export default function MainpageIndex() {
               setSelectedUsername(null);
             }
           }}
+          onUsernameClick={handleUsernameClick}
         />
       )}
     </div>
