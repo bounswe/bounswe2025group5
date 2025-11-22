@@ -10,6 +10,7 @@ import { LikesApi } from '@/lib/api/likes';
 import { PostsApi } from '@/lib/api/posts';
 import CommentSection from './comment-section';
 import EditPostDialog from './edit-post-dialog';
+import ImageDialog from './image-dialog';
 import {
   Dialog,
   DialogContent,
@@ -41,6 +42,9 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, className }
   // Delete dialog state
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Image dialog state
+  const [showImageDialog, setShowImageDialog] = useState(false);
 
   const currentUser = typeof window !== 'undefined' ? localStorage.getItem('username') : null;
 
@@ -163,7 +167,18 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, className }
     )}>
       {/* Post Image */}
       {post.photoUrl && (
-        <div className="w-full aspect-square relative overflow-hidden">
+        <div 
+          className="w-full aspect-square relative overflow-hidden cursor-pointer hover:opacity-95 transition-opacity"
+          onClick={() => setShowImageDialog(true)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setShowImageDialog(true);
+            }
+          }}
+        >
           <img
             src={post.photoUrl}
             alt={t('post.imageAlt', { username: post.creatorUsername, defaultValue: `${post.creatorUsername}'s post image` })}
@@ -328,6 +343,17 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, className }
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Image Dialog */}
+      {post.photoUrl && (
+        <ImageDialog
+          open={showImageDialog}
+          onOpenChange={setShowImageDialog}
+          imageUrl={post.photoUrl}
+          altText={t('post.imageAlt', { username: post.creatorUsername, defaultValue: `${post.creatorUsername}'s post image` })}
+          username={post.creatorUsername}
+        />
+      )}
     </Card>
   );
 }
