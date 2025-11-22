@@ -21,6 +21,7 @@
     "errorRegistrationFailed": "Registration failed. Please try again.",
     "registrationSuccess": "Registered! Please log in.",
     "explore": "Explore",
+    "exploreGlobal": "Explore Global",
     "goToLogin": "Go to Login",
     "searchPlaceholder": "Search for posts…",
     "endOfFeed": "You've reached the end!",

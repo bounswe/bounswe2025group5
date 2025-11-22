@@ -120,7 +120,6 @@ export default function WasteGoalScreen() {
 
   const { t, i18n } = useTranslation();
   const isTurkish = (i18n.resolvedLanguage || i18n.language || '').toLowerCase().startsWith('tr');
-  const toggleLanguage = (value: boolean) => i18n.changeLanguage(value ? 'tr-TR' : 'en-US');
 
   const { username, userType } = useContext(AuthContext);
   const colorScheme = useColorScheme();
@@ -667,18 +666,6 @@ export default function WasteGoalScreen() {
           <AccessibleText type="title" backgroundColor={screenBackgroundColor}>
             {t('wasteGoalsTitle')}
           </AccessibleText>
-        </View>
-
-        <View style={styles.languageToggleContainer}>
-          <Text style={styles.languageLabel}>EN</Text>
-          <Switch
-              trackColor={{ false: '#767577', true: '#81b0ff' }}
-              thumbColor={isDarkMode ? (isTurkish ? '#f5dd4b' : '#f4f4f4') : (isTurkish ? '#f5dd4b' : '#f4f4f4')}
-              ios_backgroundColor="#3e3e3e"
-              onValueChange={value => { toggleLanguage(value); }}
-              value={isTurkish}
-          />
-          <Text style={styles.languageLabel}>TR</Text>
         </View>
       </View>
 
