@@ -142,6 +142,38 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    
+    /* Global slim scrollbar styling */
+    scrollbar-width: thin;
+    scrollbar-color: oklch(22.645% 0.00003 271.152 / 0.209) transparent;
+  }
+  
+  /* Webkit scrollbar styling for Chrome/Safari/Edge */
+  *::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  *::-webkit-scrollbar-thumb {  
+    background: oklch(59.987% 0.00007 271.152 / 0.209);
+    border-radius: 9999px;
+  }
+  
+  *::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.5 0 0 / 0.5);
+  }
+  
+  /* Dark mode scrollbar */
+  .dark *::-webkit-scrollbar-thumb {
+    background: oklch(0.7 0 0 / 0.3);
+  }
+  
+  .dark *::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.6 0 0 / 0.5);
   }
   
   html {

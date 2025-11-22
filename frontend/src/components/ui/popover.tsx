@@ -25,7 +25,7 @@ const popoverContentVariants = cva(
         glass: "bg-[#68656015] backdrop-blur-md rounded-xl p-0 w-80",
       },
       scrollable: {
-        true: "overflow-y-auto max-h-[32rem] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-2 [&::-webkit-scrollbar-thumb]:border-transparent dark:[&::-webkit-scrollbar-thumb]:bg-gray-600 hover:[&::-webkit-scrollbar-thumb]:bg-gray-400 dark:hover:[&::-webkit-scrollbar-thumb]:bg-gray-500",
+        true: "overflow-y-auto max-h-[32rem] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300/50 [&::-webkit-scrollbar-thumb]:rounded-full dark:[&::-webkit-scrollbar-thumb]:bg-gray-600/50 hover:[&::-webkit-scrollbar-thumb]:bg-gray-400/70 dark:hover:[&::-webkit-scrollbar-thumb]:bg-gray-500/70",
         false: "",
       },
     },

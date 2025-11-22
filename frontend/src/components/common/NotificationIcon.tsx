@@ -30,7 +30,7 @@ export default function NotificationIcon() {
     if (a.isRead !== b.isRead) {
       return a.isRead ? 1 : -1; // Unread (false) comes before read (true)
     }
-    return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+    return new Date(b.timestamp as string).getTime() - new Date(a.timestamp as string).getTime();
   });
 
   const fetchNotifications = async (isBackgroundRefresh = false) => {
