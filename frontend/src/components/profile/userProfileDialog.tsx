@@ -155,8 +155,9 @@ export default function UserProfileDialog({ username, open, onOpenChange }: User
           </div>
         ) : (
           <div className="flex flex-col gap-4 overflow-y-auto pr-1">
-            <div className="flex gap-6 items-start">
-              <div className="flex flex-col items-start gap-3 flex-1">
+            <div className="flex items-start gap-8">
+              <div className="flex-[2]"></div>
+              <div className="flex flex-col items-center gap-3 flex-[2]">
                 <Avatar className="w-16 h-16">
                   <AvatarImage
                     src={userAvatar}
@@ -171,7 +172,7 @@ export default function UserProfileDialog({ username, open, onOpenChange }: User
                     {avatarUsername.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <div>
+                <div className="text-center">
                   <p className="font-semibold text-lg">{profile.username}</p>
                   {profile.biography && (
                     <p className="text-sm text-muted-foreground mt-1 whitespace-pre-line">
@@ -180,8 +181,8 @@ export default function UserProfileDialog({ username, open, onOpenChange }: User
                   )}
                 </div>
               </div>
-
-              <div className="flex flex-col items-center gap-4">
+              <div className="flex-[1]"></div>
+              <div className="flex flex-col items-center gap-4 flex-[2]">
                 <div className="flex gap-6">
                   <div className="flex flex-col items-center">
                     <span className="font-semibold text-2xl text-foreground">
@@ -219,6 +220,7 @@ export default function UserProfileDialog({ username, open, onOpenChange }: User
                   </Button>
                 )}
               </div>
+              <div className="flex-[2]"></div>
             </div>
 
             <ScrollPanel
@@ -238,10 +240,11 @@ export default function UserProfileDialog({ username, open, onOpenChange }: User
               ) : (
                 <div className="space-y-4 grid gap-4 sm:grid-cols-2">
                   {posts.map((post) => (
-                    <PostCard
-                      key={post.postId}
-                      post={post}
-                    />
+                    <div key={post.postId} className="max-h-[400px] overflow-hidden flex flex-col-reverse">
+                      <PostCard
+                        post={post}
+                      />
+                    </div>
                   ))}
                 </div>
               )}
