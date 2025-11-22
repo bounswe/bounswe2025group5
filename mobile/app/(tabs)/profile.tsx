@@ -19,7 +19,10 @@ import {
   Modal,
   Alert,
   Keyboard,
+  Dimensions,
 } from "react-native";
+import { BarChart } from "react-native-chart-kit";
+import { TSpan } from "react-native-svg";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import AccessibleText from "@/components/AccessibleText";
 import {
@@ -56,17 +59,15 @@ type Post = {
 
 const WASTE_TYPES = ["Plastic", "Paper", "Glass", "Metal", "Organic"] as const;
 
-const MOCK_WASTE_HISTORY: Record<string, number[]> = {
-  Plastic: [2, 3, 4, 6, 8],
-  Paper: [1, 2, 3, 3, 4],
-  Glass: [1, 1, 2, 4, 5],
-  Metal: [0.5, 1, 1.5, 2, 2.5],
-  Organic: [3, 4, 5, 7, 9],
-};
-
-const formatChartValue = (value: number) => {
-  if (!Number.isFinite(value)) return "0";
-  return Number.isInteger(value) ? value.toString() : value.toFixed(1);
+const IMPACT_CONVERSION_RATES: Record<
+  string,
+  { factor: number; unitKey: string }
+> = {
+  Paper: { factor: 0.017, unitKey: "trees" }, // 1000kg = 17 trees -> 1kg = 0.017 trees
+  Plastic: { factor: 0.0163, unitKey: "barrels" }, // 1000kg = 16.3 barrels -> 1kg = 0.0163 barrels
+  Glass: { factor: 0.042, unitKey: "energy" }, // Placeholder
+  Metal: { factor: 1.5, unitKey: "ore" }, // Placeholder
+  Organic: { factor: 0.5, unitKey: "compost" }, // Placeholder
 };
 
 export default function ProfileScreen() {
@@ -95,6 +96,11 @@ export default function ProfileScreen() {
   const [selectedWasteType, setSelectedWasteType] = useState<string>(
     WASTE_TYPES[0]
   );
+  const [impactData, setImpactData] = useState<
+    { year: number; month: number; totalWeight: number }[]
+  >([]);
+  const [impactLoading, setImpactLoading] = useState(false);
+  const [descriptionIndex, setDescriptionIndex] = useState(0);
   const [posts, setPosts] = useState<Post[]>([]);
   const [postsLoading, setPostsLoading] = useState(false);
   const [postsError, setPostsError] = useState<string | null>(null);
@@ -117,7 +123,7 @@ export default function ProfileScreen() {
     currentText: string;
   } | null>(null);
   const [isSubmittingCommentEdit, setIsSubmittingCommentEdit] = useState(false);
-  const [userAvatars, setUserAvatars] = useState<{
+  const [commenterAvatars, setCommenterAvatars] = useState<{
     [username: string]: string | null;
   }>({});
   const isTurkish = (i18n.resolvedLanguage || i18n.language || "")
@@ -145,18 +151,83 @@ export default function ProfileScreen() {
   const commentInputTextColor = generalTextColor;
   const commentInputPlaceholderColor = iconColor;
   const commentInputBackgroundColor = isDarkMode ? "#2C2C2E" : "#F0F2F5";
-  const chartValues = useMemo(
-    () => MOCK_WASTE_HISTORY[selectedWasteType] ?? [],
-    [selectedWasteType]
-  );
-  const chartBarHeights = useMemo(() => {
-    if (chartValues.length === 0) return [];
-    const maxValue = Math.max(...chartValues, 1);
-    return chartValues.map((value) => {
-      const normalized = maxValue ? value / maxValue : 0;
-      return Math.max(12, normalized * 140);
+
+  const fetchImpactData = useCallback(async () => {
+    if (!username) return;
+    setImpactLoading(true);
+    try {
+      const res = await apiRequest(
+        `/api/logs/${encodeURIComponent(
+          username
+        )}/monthly?wasteType=${selectedWasteType}`
+      );
+      if (res.ok) {
+        const data = await res.json();
+        // Handle both array and object wrapper formats just in case
+        const list = Array.isArray(data) ? data : data.monthlyData || [];
+        setImpactData(list);
+      } else {
+        console.warn("Failed to fetch impact data", res.status);
+        setImpactData([]);
+      }
+    } catch (e) {
+      console.error("Error fetching impact data", e);
+      setImpactData([]);
+    } finally {
+      setImpactLoading(false);
+    }
+  }, [username, selectedWasteType]);
+
+  useEffect(() => {
+    if (isProgressModalVisible) {
+      fetchImpactData();
+      setDescriptionIndex(Math.floor(Math.random() * 3));
+    }
+  }, [isProgressModalVisible, selectedWasteType, fetchImpactData]);
+
+  const processedChartData = useMemo(() => {
+    // Sort by year then month
+    const sorted = [...impactData].sort((a, b) => {
+      if (a.year !== b.year) return a.year - b.year;
+      return a.month - b.month;
     });
-  }, [chartValues]);
+    // Take last 5 entries to fit screen
+    return sorted.slice(-5);
+  }, [impactData]);
+
+  const chartValues = useMemo(
+    () =>
+      processedChartData.map((d) =>
+        parseFloat((d.totalWeight / 1000).toFixed(1))
+      ),
+    [processedChartData]
+  );
+
+  const chartLabels = useMemo(
+    () =>
+      processedChartData.map((d) => {
+        const monthName = t(`month_${d.month}`);
+        return `${monthName} '${d.year.toString().slice(2)}`;
+      }),
+    [processedChartData, t]
+  );
+
+  const totalImpact = useMemo(
+    () => impactData.reduce((acc, curr) => acc + curr.totalWeight, 0) / 1000,
+    [impactData]
+  );
+
+  const impactExplanation = useMemo(() => {
+    const rate = IMPACT_CONVERSION_RATES[selectedWasteType];
+    if (!rate) {
+      return t("impactExplanation_Default", { amount: totalImpact.toFixed(1) });
+    }
+    const calculatedValue = (totalImpact * rate.factor).toFixed(2);
+    return t(`impactExplanation_${selectedWasteType}`, {
+      amount: totalImpact.toFixed(1),
+      [rate.unitKey]: calculatedValue,
+    });
+  }, [selectedWasteType, totalImpact, t]);
 
   const handleLogout = async () => {
     await clearSession();
@@ -184,7 +255,7 @@ export default function ProfileScreen() {
     savedByUser: false,
     createdAt: item.createdAt ?? null,
     authorAvatarUrl: item.creatorUsername
-      ? userAvatars[item.creatorUsername] ?? null
+      ? commenterAvatars[item.creatorUsername] ?? null
       : null,
   });
 
@@ -255,7 +326,7 @@ export default function ProfileScreen() {
   const ensureAvatarsForUsernames = async (usernames: string[]) => {
     const uniqueUsernames = Array.from(new Set(usernames.filter(Boolean)));
     const missing = uniqueUsernames.filter(
-      (name) => userAvatars[name] === undefined
+      (name) => commenterAvatars[name] === undefined
     );
     if (!missing.length) return {};
     const fetchedEntries = await Promise.all(
@@ -266,7 +337,7 @@ export default function ProfileScreen() {
     );
     const newMap = Object.fromEntries(fetchedEntries);
     if (Object.keys(newMap).length > 0) {
-      setUserAvatars((prev) => ({ ...prev, ...newMap }));
+      setCommenterAvatars((prev) => ({ ...prev, ...newMap }));
     }
     return newMap;
   };
@@ -277,7 +348,7 @@ export default function ProfileScreen() {
     if (!postsToDecorate.length) return postsToDecorate;
     const usernames = postsToDecorate.map((post) => post.title).filter(Boolean);
     const fetchedEntries = await ensureAvatarsForUsernames(usernames);
-    const merged = { ...userAvatars, ...fetchedEntries };
+    const merged = { ...commenterAvatars, ...fetchedEntries };
     return postsToDecorate.map((post) => ({
       ...post,
       authorAvatarUrl: post.title
@@ -460,7 +531,7 @@ export default function ProfileScreen() {
         (apiComment: any) => apiComment.creatorUsername
       );
       const newAvatarEntries = await ensureAvatarsForUsernames(usernames);
-      const avatarLookup = { ...userAvatars, ...newAvatarEntries };
+      const avatarLookup = { ...commenterAvatars, ...newAvatarEntries };
       const fetchedComments: CommentData[] = apiComments.map(
         (apiComment: any) => ({
           commentId: apiComment.commentId,
@@ -539,7 +610,7 @@ export default function ProfileScreen() {
       }
       const authorUsername = responseData.creatorUsername || username;
       const avatarEntries = await ensureAvatarsForUsernames([authorUsername]);
-      const avatarLookup = { ...userAvatars, ...avatarEntries };
+      const avatarLookup = { ...commenterAvatars, ...avatarEntries };
       const newComment: CommentData = {
         commentId: responseData.commentId,
         content: responseData.content,
@@ -972,15 +1043,6 @@ export default function ProfileScreen() {
                 >
                   {t("helloUser", { username })}
                 </AccessibleText>
-                <TouchableOpacity
-                  style={styles.progressButton}
-                  onPress={() => setProgressModalVisible(true)}
-                  accessibilityLabel={t("viewProgress", {
-                    defaultValue: "View historical progress",
-                  })}
-                >
-                  <Ionicons name="stats-chart" size={20} color="#FFFFFF" />
-                </TouchableOpacity>
               </View>
               <AccessibleText
                 testID="profile-bio-text"
@@ -993,6 +1055,19 @@ export default function ProfileScreen() {
               </AccessibleText>
             </View>
           </View>
+
+          <TouchableOpacity
+            testID="show-impact-button"
+            style={[
+              styles.actionButton,
+              { backgroundColor: "#4CAF50", marginBottom: 20 },
+            ]}
+            onPress={() => setProgressModalVisible(true)}
+          >
+            <Text style={[styles.actionText, { color: buttonTextColor }]}>
+              {t("showMyImpact")}
+            </Text>
+          </TouchableOpacity>
 
           {/* ERROR MESSAGE INSERTED HERE */}
           {error.key && (
@@ -1142,7 +1217,7 @@ export default function ProfileScreen() {
                 backgroundColor={cardBackgroundColor}
                 style={[styles.progressModalTitle, { color: generalTextColor }]}
               >
-                Historical data
+                {t("impactTitle")}
               </AccessibleText>
               <TouchableOpacity
                 onPress={() => setProgressModalVisible(false)}
@@ -1153,45 +1228,93 @@ export default function ProfileScreen() {
               </TouchableOpacity>
             </View>
 
+            <AccessibleText
+              backgroundColor={cardBackgroundColor}
+              style={[styles.impactDescription, { color: generalTextColor }]}
+            >
+              {t(`impactDescription_${descriptionIndex}`)}
+            </AccessibleText>
+
+            <AccessibleText
+              backgroundColor={cardBackgroundColor}
+              style={[styles.totalImpactText, { color: generalTextColor }]}
+            >
+              {t("totalImpact", { amount: totalImpact.toFixed(1) })}
+            </AccessibleText>
+
             <View style={styles.chartArea}>
-              <View style={[styles.chartAxes, { borderColor: iconColor }]}>
-                {chartBarHeights.length === 0 ? (
-                  <AccessibleText
-                    backgroundColor={cardBackgroundColor}
-                    style={[styles.chartEmptyText, { color: iconColor }]}
-                  >
-                    {t("noData", { defaultValue: "No data available" })}
-                  </AccessibleText>
-                ) : (
-                  <View style={styles.chartBarsContainer}>
-                    {chartBarHeights.map((height, index) => (
-                      <View
-                        key={`chart-bar-${index}`}
-                        style={styles.chartBarWrapper}
-                      >
-                        <AccessibleText
-                          backgroundColor={cardBackgroundColor}
-                          style={[styles.chartValueLabel, { color: iconColor }]}
-                        >
-                          {formatChartValue(chartValues[index])}
-                        </AccessibleText>
-                        <View style={[styles.chartBar, { height }]} />
-                        <AccessibleText
-                          backgroundColor={cardBackgroundColor}
-                          style={[styles.chartXAxisLabel, { color: iconColor }]}
-                        >
-                          {index + 1}
-                        </AccessibleText>
-                      </View>
-                    ))}
-                  </View>
-                )}
-              </View>
+              {impactLoading ? (
+                <ActivityIndicator
+                  size="large"
+                  color={iconColor}
+                  style={{ marginVertical: 40 }}
+                />
+              ) : (
+                <View>
+                  {chartValues.length === 0 ? (
+                    <AccessibleText
+                      backgroundColor={cardBackgroundColor}
+                      style={[styles.chartEmptyText, { color: iconColor }]}
+                    >
+                      {t("noData", { defaultValue: "No data available" })}
+                    </AccessibleText>
+                  ) : (
+                    <BarChart
+                      data={{
+                        labels: chartLabels,
+                        datasets: [
+                          {
+                            data: chartValues,
+                          },
+                        ],
+                      }}
+                      width={
+                        Math.min(Dimensions.get("window").width * 0.9, 360) - 40
+                      }
+                      height={220}
+                      yAxisLabel=""
+                      yAxisSuffix=""
+                      withHorizontalLabels={false}
+                      withInnerLines={false}
+                      fromZero
+                      chartConfig={{
+                        backgroundColor: cardBackgroundColor,
+                        backgroundGradientFrom: cardBackgroundColor,
+                        backgroundGradientTo: cardBackgroundColor,
+                        decimalPlaces: 1,
+                        color: (opacity = 1) => `rgba(76, 175, 80, 1)`,
+                        labelColor: (opacity = 1) => iconColor,
+                        style: {
+                          borderRadius: 16,
+                        },
+                        barPercentage: 0.7,
+                        fillShadowGradient: "#4CAF50",
+                        fillShadowGradientOpacity: 1,
+                        formatTopBarValue: ((value: number) => (
+                          <TSpan fontSize="14" fontWeight="bold" dy="-5">
+                            {value}
+                          </TSpan>
+                        )) as any,
+                      }}
+                      style={{
+                        marginVertical: 8,
+                        borderRadius: 16,
+                        alignSelf: "center",
+                        paddingRight: 0,
+                      }}
+                      showValuesOnTopOfBars
+                    />
+                  )}
+                </View>
+              )}
               <AccessibleText
                 backgroundColor={cardBackgroundColor}
-                style={[styles.chartYAxisLabel, { color: iconColor }]}
+                style={[
+                  styles.impactExplanationText,
+                  { color: generalTextColor },
+                ]}
               >
-                {t("timeAxisLabel", { defaultValue: "Time axis" })}
+                {impactExplanation}
               </AccessibleText>
             </View>
 
@@ -1200,7 +1323,7 @@ export default function ProfileScreen() {
                 backgroundColor={cardBackgroundColor}
                 style={[styles.wasteTypeLabel, { color: generalTextColor }]}
               >
-                {t("wasteTypeLabel", { defaultValue: "Waste Type:" })}
+                {t("wasteTypeLabel")}
               </AccessibleText>
               <View style={styles.wasteTypeChips}>
                 {WASTE_TYPES.map((type) => {
@@ -1406,33 +1529,28 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   progressModalTitle: { fontSize: 20, fontWeight: "700" },
-  progressModalCloseButton: { padding: 8, marginLeft: 12 },
-  chartArea: { marginTop: 8 },
-  chartAxes: {
-    height: 200,
-    borderLeftWidth: 2,
-    borderBottomWidth: 2,
-    paddingLeft: 16,
-    paddingBottom: 12,
-    justifyContent: "flex-end",
+  impactDescription: {
+    fontSize: 14,
+    marginBottom: 12,
+    lineHeight: 20,
+    opacity: 0.8,
   },
-  chartBarsContainer: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "space-around",
-    height: 160,
+  totalImpactText: {
+    fontSize: 16,
+    fontWeight: "700",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  progressModalCloseButton: { padding: 8, marginLeft: 12 },
+  chartArea: { marginTop: 8, alignItems: "center" },
+  chartEmptyText: { alignSelf: "center", marginTop: 32, fontSize: 14 },
+  impactExplanationText: {
+    marginTop: 16,
+    fontSize: 14,
+    textAlign: "center",
+    fontStyle: "italic",
     paddingHorizontal: 8,
   },
-  chartBarWrapper: {
-    alignItems: "center",
-    justifyContent: "flex-end",
-    minWidth: 36,
-  },
-  chartValueLabel: { fontSize: 12, marginBottom: 6 },
-  chartBar: { width: 20, borderRadius: 6, backgroundColor: "#4CAF50" },
-  chartXAxisLabel: { marginTop: 6, fontSize: 12 },
-  chartYAxisLabel: { marginTop: 12, fontSize: 12, textAlign: "right" },
-  chartEmptyText: { alignSelf: "center", marginTop: 32, fontSize: 14 },
   wasteTypeSelector: { marginTop: 20 },
   wasteTypeLabel: { fontSize: 14, fontWeight: "600", marginBottom: 12 },
   wasteTypeChips: { flexDirection: "row", flexWrap: "wrap" },
