@@ -54,6 +54,7 @@ type Post = {
   likedByUser: boolean;
   savedByUser: boolean;
   createdAt?: string | Date | null;
+  authorAvatarUrl?: string | null;
 };
 
 const WASTE_TYPES = ["Plastic", "Paper", "Glass", "Metal", "Organic"] as const;
@@ -258,9 +259,17 @@ export default function ProfileScreen() {
       ? item.comments.length
       : Number(item.comments) || 0,
     photoUrl: item.photoUrl ?? null,
-    likedByUser: false,
+    likedByUser:
+      item.liked ||
+      item.likedByUser ||
+      (Array.isArray(item.likedByUsers) &&
+        item.likedByUsers.some((u: any) => u.username === username)) ||
+      false,
     savedByUser: false,
     createdAt: item.createdAt ?? null,
+    authorAvatarUrl: item.creatorUsername
+      ? commenterAvatars[item.creatorUsername] ?? null
+      : null,
   });
 
   const fetchLikeStatusesForPosts = async (
@@ -346,6 +355,21 @@ export default function ProfileScreen() {
     return newMap;
   };
 
+  const attachAvatarsToPosts = async (
+    postsToDecorate: Post[]
+  ): Promise<Post[]> => {
+    if (!postsToDecorate.length) return postsToDecorate;
+    const usernames = postsToDecorate.map((post) => post.title).filter(Boolean);
+    const fetchedEntries = await ensureAvatarsForUsernames(usernames);
+    const merged = { ...commenterAvatars, ...fetchedEntries };
+    return postsToDecorate.map((post) => ({
+      ...post,
+      authorAvatarUrl: post.title
+        ? merged[post.title] ?? post.authorAvatarUrl ?? null
+        : post.authorAvatarUrl ?? null,
+    }));
+  };
+
   const fetchUserPosts = useCallback(async () => {
     if (!username) {
       setPosts([]);
@@ -369,8 +393,11 @@ export default function ProfileScreen() {
       let mappedPosts: Post[] = Array.isArray(data)
         ? data.map(mapApiItemToPost)
         : [];
+      if (mappedPosts.length > 0) {
+        mappedPosts = await attachAvatarsToPosts(mappedPosts);
+      }
       if (userType === "user") {
-        mappedPosts = await fetchLikeStatusesForPosts(mappedPosts, username);
+        // mappedPosts = await fetchLikeStatusesForPosts(mappedPosts, username);
         mappedPosts = await fetchSavedStatusesForPosts(mappedPosts, username);
       }
       setPosts(mappedPosts);

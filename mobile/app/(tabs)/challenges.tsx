@@ -66,9 +66,6 @@ export default function ChallengesScreen() {
   const isTurkish = (i18n.resolvedLanguage || i18n.language || "")
     .toLowerCase()
     .startsWith("tr");
-  const toggleLanguage = (value: boolean) => {
-    i18n.changeLanguage(value ? "tr-TR" : "en-US");
-  };
 
   const [error, setError] = useState<ErrorState>({ key: null, message: null });
   const [showAttendedOnly, setShowAttendedOnly] = useState(false);
@@ -432,17 +429,6 @@ export default function ChallengesScreen() {
       <View style={styles.headerContainer}>
         <View style={styles.titleContainer}>
           <ThemedText type="title">{t("challengesTitle")}</ThemedText>
-        </View>
-        <View style={styles.languageToggleContainer}>
-          <Text style={styles.languageLabel}>EN</Text>
-          <Switch
-            trackColor={{ false: "#767577", true: "#81b0ff" }}
-            thumbColor={isTurkish ? "#f5dd4b" : "#f4f4f4"}
-            ios_backgroundColor="#3e3e3e"
-            onValueChange={toggleLanguage}
-            value={isTurkish}
-          />
-          <Text style={styles.languageLabel}>TR</Text>
         </View>
       </View>
 

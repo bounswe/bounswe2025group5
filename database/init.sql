@@ -227,7 +227,8 @@ CREATE TABLE `saved_posts` (
 CREATE TABLE IF NOT EXISTS  `notifications` (
   `notification_id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
-  `message` varchar(255) NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `actor_id` varchar(255),
   `is_read` tinyint(1) DEFAULT '0',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`notification_id`),
@@ -498,6 +499,7 @@ BEGIN
     WHERE `challenge_id` = OLD.challenge_id;
 END$$
 DELIMITER ;
+
 
 
 
