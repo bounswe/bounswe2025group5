@@ -118,25 +118,6 @@ describe('CreatePostScreen Functionalities', () => {
     );
 
     const postButton = getByText('Post');
-    // Find the TouchableOpacity parent or check accessibilityState on the element if it has it
-    // In the output, the View wrapping Text has accessibilityState={{ disabled: true }}
-    // We can find the button by text and check its parent or itself
-    
-    // Since we don't have easy access to the parent in this query, let's use getByRole or check the element found
-    // But the Text element is inside the View.
-    // Let's assume the button is the parent of the text.
-    
-    // Actually, let's just check if we can fire the event and nothing happens, 
-    // but checking disabled state is better.
-    
-    // We can try to find the button by accessibility role if it was set, but it's a TouchableOpacity.
-    // Let's use a testID if we could, but we can't edit the source code easily.
-    // We can check if the button is disabled by checking the style or props.
-    
-    // However, the error output showed the View has accessibilityState.
-    // We can use `getByText` to find the text, then traverse up? No.
-    
-    // Let's try to fire press and ensure fetch is NOT called.
     fireEvent.press(postButton);
     expect(global.fetch).not.toHaveBeenCalled();
     expect(Alert.alert).not.toHaveBeenCalled();
