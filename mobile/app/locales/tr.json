@@ -293,7 +293,7 @@
     "impactDescription_0": "Geri dönüşüm, çevremizi korumada hayati bir rol oynar. Atıkları azaltarak ve kaynakları koruyarak, gezegenimiz için sürdürülebilir bir gelecek inşa etmeye yardımcı oluyorsunuz.",
     "impactDescription_1": "Her küçük adım önemlidir! Atıklarınızı takip etme ve azaltma çabalarınız, gelecek nesiller için daha temiz ve sağlıklı bir Dünya'ya doğrudan katkıda bulunur.",
     "impactDescription_2": "Biliyor muydunuz? Atıkları azaltmak enerji tasarrufu sağlar, sera gazı emisyonlarını azaltır ve doğal kaynaklarımızı korumaya yardımcı olur. Harika iş çıkarıyorsunuz!",
-    "totalImpact": "Toplam Etki: {{amount}} kg",
+    "totalImpact": "Toplam Etki: {{amount}}",
     "timeAxisLabel": "Zaman ekseni"
   }
 }
