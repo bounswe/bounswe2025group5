@@ -16,10 +16,11 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
 
-    public Notification createNotification(User user, String message, String objectType, String objectId) {
+    public Notification createNotification(User user, String type, String objectType, String actorId ,String objectId) {
         Notification notification = new Notification();
         notification.setUser(user);
-        notification.setMessage(message);
+        notification.setActorId(actorId);
+        notification.setType(type);
         notification.setIsRead(false);
         notification.setObjectType(objectType);
         notification.setObjectId(objectId);
@@ -33,7 +34,8 @@ public class NotificationService {
                 .map(n -> {
                     NotificationResponse dto = new NotificationResponse();
                     dto.setId(n.getId());
-                    dto.setMessage(n.getMessage());
+                    dto.setType(n.getType());
+                    dto.setActorId(n.getActorId());
                     dto.setIsRead(n.getIsRead());
                     dto.setCreatedAt(n.getCreatedAt());
                     dto.setObjectId(n.getObjectId());
