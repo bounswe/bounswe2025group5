@@ -58,7 +58,10 @@ type Post = {
 
 const WASTE_TYPES = ["Plastic", "Paper", "Glass", "Metal", "Organic"] as const;
 
-const IMPACT_CONVERSION_RATES: Record<string, { factor: number; unitKey: string }> = {
+const IMPACT_CONVERSION_RATES: Record<
+  string,
+  { factor: number; unitKey: string }
+> = {
   Paper: { factor: 0.017, unitKey: "trees" }, // 1000kg = 17 trees -> 1kg = 0.017 trees
   Plastic: { factor: 0.0163, unitKey: "barrels" }, // 1000kg = 16.3 barrels -> 1kg = 0.0163 barrels
   Glass: { factor: 0.042, unitKey: "energy" }, // Placeholder
