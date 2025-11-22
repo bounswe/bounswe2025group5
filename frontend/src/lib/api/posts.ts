@@ -11,6 +11,13 @@ import {
 } from './schemas/posts';
 
 export const PostsApi = {
+  getById: async (postId: number, username?: string) => {
+    const query = new URLSearchParams();
+    if (username) query.set('username', username);
+    const data = await ApiClient.get<PostItem>(`/api/posts/${postId}?${query.toString()}`);
+    return PostItemSchema.parse(data);
+  },
+
   list: async (params: { size: number; username?: string; lastPostId?: number }) => {
     const query = new URLSearchParams();
     query.set('size', String(params.size));
