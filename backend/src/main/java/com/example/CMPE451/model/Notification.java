@@ -20,8 +20,8 @@ public class Notification {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "message", nullable = false)
-    private String message;
+    @Column(name = "type", nullable = false)
+    private String type;
 
     @Column(name = "is_read", nullable = false)
     private Boolean isRead = false;
@@ -35,5 +35,8 @@ public class Notification {
 
     @Column(name = "object_id", nullable = false)
     private String objectId;
+
+    @Column(name = "actor_id", nullable = false)
+    private String actorId;
 
 }

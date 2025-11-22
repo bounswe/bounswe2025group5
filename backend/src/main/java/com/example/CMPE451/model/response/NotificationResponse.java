@@ -7,7 +7,8 @@ import java.sql.Timestamp;
 @Data
 public class NotificationResponse {
     private Integer id;
-    private String message;
+    private String type;
+    private String actorId;
     private Boolean isRead;
     private Timestamp createdAt;
     private String objectId;
