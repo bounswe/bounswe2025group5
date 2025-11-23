@@ -6,6 +6,7 @@ import { UsersApi } from '@/lib/api/users';
 import CreateOrEditGoalDialog from '@/components/profile/CreateOrEditGoalDialog';
 import LogWasteDialog from '@/components/profile/LogWasteDialog';
 import WasteSummaryCard from '@/components/profile/WasteSummaryCard';
+import WasteMonthlyChart from '@/components/profile/WasteMonthlyChart';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
@@ -61,7 +62,10 @@ export default function GoalsIndex() {
       </div>
 
       <div className="flex justify-center pb-8">
-        <WasteSummaryCard className="max-w-6xl" />
+        <div className="grid w-full max-w-6xl gap-6">
+          <WasteSummaryCard />
+          <WasteMonthlyChart username={username ?? undefined} />
+        </div>
       </div>
 
       <div className="flex-1 flex flex-col items-center">
