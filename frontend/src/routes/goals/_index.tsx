@@ -62,9 +62,9 @@ export default function GoalsIndex() {
       </div>
 
       <div className="flex justify-center pb-8">
-        <div className="grid w-full max-w-6xl gap-6">
-          <WasteSummaryCard />
-          <WasteMonthlyChart username={username ?? undefined} />
+        <div className="grid w-full max-w-6xl gap-6 lg:grid-cols-2">
+          <WasteSummaryCard variant="compact" />
+          <WasteMonthlyChart username={username ?? undefined} variant="compact" />
         </div>
       </div>
 

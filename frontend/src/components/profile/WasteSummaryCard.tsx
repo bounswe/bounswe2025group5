@@ -25,9 +25,10 @@ const DEFAULT_FORM: FormState = {
 
 type WasteSummaryCardProps = {
   className?: string;
+  variant?: 'default' | 'compact';
 };
 
-export default function WasteSummaryCard({ className }: WasteSummaryCardProps) {
+export default function WasteSummaryCard({ className, variant = 'default' }: WasteSummaryCardProps) {
   const { t } = useTranslation();
   const [form, setForm] = useState<FormState>(DEFAULT_FORM);
   const [summary, setSummary] = useState<TotalLogResponse | null>(null);
@@ -35,6 +36,7 @@ export default function WasteSummaryCard({ className }: WasteSummaryCardProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const gaugeId = useId();
+  const isCompact = variant === 'compact';
 
   const rangeIsValid = useMemo(() => {
     if (!form.startDate || !form.endDate) return false;
@@ -73,8 +75,8 @@ export default function WasteSummaryCard({ className }: WasteSummaryCardProps) {
   const wasteTypeLabel = summary?.wasteType?.name ?? form.wasteType;
 
   return (
-    <Card className={cn('w-full', className)}>
-      <CardHeader className="space-y-2">
+    <Card className={cn('w-full', isCompact && 'h-full', className)}>
+      <CardHeader className={cn('space-y-2', isCompact && 'space-y-1')}>
         <div className="flex flex-wrap items-center gap-3">
           <CardTitle className="text-2xl font-semibold">{t('goals.summaryTitle', 'Waste impact snapshot')}</CardTitle>
           <Badge variant="secondary" className="uppercase tracking-wide">
@@ -89,9 +91,12 @@ export default function WasteSummaryCard({ className }: WasteSummaryCardProps) {
           )}
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className={cn('space-y-6', isCompact && 'space-y-4')}>
         <form
-          className="grid gap-4 md:grid-cols-[repeat(3,minmax(0,1fr))_auto]"
+          className={cn(
+            'grid gap-4',
+            isCompact ? 'md:grid-cols-[repeat(2,minmax(0,1fr))] lg:grid-cols-[repeat(3,minmax(0,1fr))]' : 'md:grid-cols-[repeat(3,minmax(0,1fr))_auto]'
+          )}
           onSubmit={(event) => {
             event.preventDefault();
             if (!rangeIsValid) return;
@@ -133,7 +138,7 @@ export default function WasteSummaryCard({ className }: WasteSummaryCardProps) {
               ))}
             </datalist>
           </Field>
-          <div className="flex items-end">
+          <div className={cn('flex items-end', isCompact && 'md:col-span-2 lg:col-span-1')}>
             <Button
               type="submit"
               className="w-full"
@@ -157,7 +162,7 @@ export default function WasteSummaryCard({ className }: WasteSummaryCardProps) {
           </Alert>
         )}
 
-        <div className="grid gap-6 lg:grid-cols-[260px,1fr]">
+        <div className={cn('grid gap-6', isCompact ? 'lg:grid-cols-[220px,1fr]' : 'lg:grid-cols-[260px,1fr]')}>
           <div className="flex items-center justify-center">
             {loading && !summary ? (
               <div className="flex min-h-[220px] items-center justify-center">
@@ -170,6 +175,7 @@ export default function WasteSummaryCard({ className }: WasteSummaryCardProps) {
                 label={summary ? formatWeight(summary.totalAmount) : '--'}
                 sublabel={t('goals.summaryTotal', 'Total collected')}
                 scaleLabel={scaleMax > 0 ? `${t('goals.summaryScaleMax', 'Scale max')}: ${formatWeight(scaleMax)}` : undefined}
+                size={isCompact ? 200 : 220}
               />
             )}
           </div>
@@ -238,10 +244,11 @@ type CircularGaugeProps = {
   sublabel: string;
   scaleLabel?: string;
   gradientId: string;
+  size?: number;
 };
 
-function CircularGauge({ percent, label, sublabel, scaleLabel, gradientId }: CircularGaugeProps) {
-  const radius = 80;
+function CircularGauge({ percent, label, sublabel, scaleLabel, gradientId, size = 220 }: CircularGaugeProps) {
+  const radius = 0.36 * size;
   const circumference = 2 * Math.PI * radius;
   const normalizedPercent = Number.isFinite(percent) ? Math.max(0, Math.min(percent, 100)) : 0;
   const dashOffset = circumference * (1 - normalizedPercent / 100);
@@ -251,9 +258,9 @@ function CircularGauge({ percent, label, sublabel, scaleLabel, gradientId }: Cir
       <svg
         role="img"
         aria-label={`${label} (${sublabel})`}
-        width="220"
-        height="220"
-        viewBox="0 0 220 220"
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
       >
         <defs>
           <linearGradient id={`${gradientId}-stroke`} x1="0%" y1="0%" x2="100%" y2="0%">
@@ -262,8 +269,8 @@ function CircularGauge({ percent, label, sublabel, scaleLabel, gradientId }: Cir
           </linearGradient>
         </defs>
         <circle
-          cx="110"
-          cy="110"
+          cx={size / 2}
+          cy={size / 2}
           r={radius}
           fill="transparent"
           stroke="currentColor"
@@ -271,8 +278,8 @@ function CircularGauge({ percent, label, sublabel, scaleLabel, gradientId }: Cir
           className="text-muted-foreground/30"
         />
         <circle
-          cx="110"
-          cy="110"
+          cx={size / 2}
+          cy={size / 2}
           r={radius}
           fill="transparent"
           stroke={`url(#${gradientId}-stroke)`}
@@ -283,13 +290,13 @@ function CircularGauge({ percent, label, sublabel, scaleLabel, gradientId }: Cir
           className="text-primary transition-all duration-500"
           style={{ transform: 'rotate(-90deg)', transformOrigin: '50% 50%' }}
         />
-        <text x="110" y="105" textAnchor="middle" className="fill-foreground text-2xl font-semibold">
+        <text x={size / 2} y={size / 2 - 5} textAnchor="middle" className="fill-foreground text-2xl font-semibold">
           {label}
         </text>
-        <text x="110" y="130" textAnchor="middle" className="fill-muted-foreground text-sm">
+        <text x={size / 2} y={size / 2 + 20} textAnchor="middle" className="fill-muted-foreground text-sm">
           {sublabel}
         </text>
-        <text x="110" y="150" textAnchor="middle" className="fill-muted-foreground text-xs">
+        <text x={size / 2} y={size / 2 + 40} textAnchor="middle" className="fill-muted-foreground text-xs">
           {`${Math.round(normalizedPercent)}%`}
         </text>
       </svg>

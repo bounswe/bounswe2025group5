@@ -14,10 +14,12 @@ import { Spinner } from '@/components/ui/spinner';
 type WasteMonthlyChartProps = {
   username?: string | null;
   className?: string;
+  variant?: 'default' | 'compact';
 };
 
-export default function WasteMonthlyChart({ username, className }: WasteMonthlyChartProps) {
+export default function WasteMonthlyChart({ username, className, variant = 'default' }: WasteMonthlyChartProps) {
   const { t } = useTranslation();
+  const isCompact = variant === 'compact';
   const fallbackUsername = useMemo(() => {
     if (username) return username;
     try {
@@ -88,8 +90,8 @@ export default function WasteMonthlyChart({ username, className }: WasteMonthlyC
   const maxScale = maxValue > 0 ? maxValue : 1000;
 
   return (
-    <Card className={cn('w-full', className)}>
-      <CardHeader className="space-y-2">
+    <Card className={cn('w-full', isCompact && 'h-full', className)}>
+      <CardHeader className={cn('space-y-2', isCompact && 'space-y-1')}>
         <div className="flex flex-wrap items-center gap-3">
           <CardTitle className="text-2xl font-semibold">
             {t('goals.monthlyTitle', '12-month waste trends')}
@@ -106,9 +108,9 @@ export default function WasteMonthlyChart({ username, className }: WasteMonthlyC
           )}
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className={cn('space-y-6', isCompact && 'space-y-4')}>
         <form
-          className="grid gap-4 sm:grid-cols-[1fr_auto]"
+          className={cn('grid gap-4', isCompact ? 'sm:grid-cols-2' : 'sm:grid-cols-[1fr_auto]')}
           onSubmit={(event) => {
             event.preventDefault();
             void loadMonthly();
@@ -149,13 +151,13 @@ export default function WasteMonthlyChart({ username, className }: WasteMonthlyC
           </p>
         )}
 
-        <div className="rounded-2xl border bg-muted/20 p-4">
+        <div className={cn('rounded-2xl border bg-muted/20', isCompact ? 'p-3' : 'p-4')}>
           {loading && monthlyData.length === 0 ? (
-            <div className="flex h-64 items-center justify-center">
+            <div className={cn('flex items-center justify-center', isCompact ? 'h-56' : 'h-64')}>
               <Spinner className="h-10 w-10" />
             </div>
           ) : chartEmpty ? (
-            <div className="flex h-64 flex-col items-center justify-center text-muted-foreground">
+            <div className={cn('flex flex-col items-center justify-center text-muted-foreground', isCompact ? 'h-56' : 'h-64')}>
               {t('goals.monthlyEmpty', 'No logs found for this waste type in the last 12 months.')}
             </div>
           ) : (
@@ -163,11 +165,12 @@ export default function WasteMonthlyChart({ username, className }: WasteMonthlyC
               ariaLabel={chartLabel}
               data={monthlyData}
               maxValue={maxScale}
+              height={isCompact ? 220 : 256}
             />
           )}
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className={cn('grid gap-4', isCompact ? 'sm:grid-cols-2' : 'sm:grid-cols-3')}>
           <Metric
             label={t('goals.monthlyTotal', '12-month total')}
             value={formatWeight(totalCollected)}
@@ -193,11 +196,12 @@ type BarChartProps = {
   data: MonthlyWasteData[];
   maxValue: number;
   ariaLabel: string;
+  height?: number;
 };
 
-function BarChart({ data, maxValue, ariaLabel }: BarChartProps) {
+function BarChart({ data, maxValue, ariaLabel, height = 256 }: BarChartProps) {
   return (
-    <div role="img" aria-label={ariaLabel} className="flex h-64 items-end gap-2">
+    <div role="img" aria-label={ariaLabel} className="flex items-end gap-2" style={{ height }}>
       {data.map((entry) => {
         const percentage = maxValue > 0 ? (entry.totalWeight / maxValue) * 100 : 0;
         const monthLabel = formatMonthLabel(entry.year, entry.month);
