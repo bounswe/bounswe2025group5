@@ -78,12 +78,14 @@ export default function WasteSummaryCard({ className, variant = 'default' }: Was
     <Card className={cn('w-full', isCompact && 'h-full', className)}>
       <CardHeader className={cn('space-y-2', isCompact && 'space-y-1')}>
         <div className="flex flex-wrap items-center gap-3">
-          <CardTitle className="text-2xl font-semibold">{t('goals.summaryTitle', 'Waste impact snapshot')}</CardTitle>
-          <Badge variant="secondary" className="uppercase tracking-wide">
+          <CardTitle className={cn('font-semibold', isCompact ? 'text-xl' : 'text-2xl')}>
+            {t('goals.summaryTitle', 'Waste impact snapshot')}
+          </CardTitle>
+          <Badge variant="secondary" className={cn('uppercase tracking-wide', isCompact && 'text-xs')}>
             {wasteTypeLabel}
           </Badge>
         </div>
-        <CardDescription>
+        <CardDescription className={cn(isCompact ? 'text-xs' : 'text-sm')}>
           {t(
             'goals.summarySubtitle',
             'Aggregated from /api/logs/summary between {{start}} and {{end}}.',
@@ -184,21 +186,25 @@ export default function WasteSummaryCard({ className, variant = 'default' }: Was
               label={t('goals.summaryRange', 'Tracking window')}
               value={`${formatDate(activeRange.startDate)} → ${formatDate(activeRange.endDate)}`}
               helper={durationDays > 0 ? t('goals.summaryDuration', '{{count}} day span', { count: durationDays }) : undefined}
+              variant={isCompact ? 'compact' : 'default'}
             />
             <StatCard
               label={t('goals.summaryAverage', 'Average per day')}
               value={summary ? formatWeight(averagePerDay) : '--'}
               helper={summary ? t('goals.summaryAverageHelper', '~{{grams}} g/day', { grams: formatNumber(averagePerDay) }) : undefined}
+              variant={isCompact ? 'compact' : 'default'}
             />
             <StatCard
               label={t('goals.summaryWasteLabel', 'Selected waste type')}
               value={wasteTypeLabel}
               helper={summary?.wasteType?.id ? `${t('goals.summaryTypeId', 'Type id')}: ${summary.wasteType.id}` : undefined}
+              variant={isCompact ? 'compact' : 'default'}
             />
             <StatCard
               label={t('goals.summaryEndpointLabel', 'Data source')}
               value="/api/logs/summary"
               helper={t('goals.summaryQueryHelper', 'GET with ISO interval filters')}
+              variant={isCompact ? 'compact' : 'default'}
             />
           </div>
         </div>
@@ -226,14 +232,16 @@ type StatCardProps = {
   label: string;
   value: string;
   helper?: string;
+  variant?: 'default' | 'compact';
 };
 
-function StatCard({ label, value, helper }: StatCardProps) {
+function StatCard({ label, value, helper, variant = 'default' }: StatCardProps) {
+  const isCompact = variant === 'compact';
   return (
-    <div className="rounded-2xl border bg-muted/30 p-4">
-      <p className="text-sm text-muted-foreground">{label}</p>
-      <p className="mt-1 text-2xl font-semibold">{value}</p>
-      {helper && <p className="mt-1 text-xs text-muted-foreground">{helper}</p>}
+    <div className={cn('rounded-2xl border bg-muted/30', isCompact ? 'p-3' : 'p-4')}>
+      <p className={cn('text-muted-foreground', isCompact ? 'text-xs' : 'text-sm')}>{label}</p>
+      <p className={cn('mt-1 font-semibold', isCompact ? 'text-lg' : 'text-2xl')}>{value}</p>
+      {helper && <p className={cn('text-muted-foreground', isCompact ? 'mt-0.5 text-[11px]' : 'mt-1 text-xs')}>{helper}</p>}
     </div>
   );
 }
