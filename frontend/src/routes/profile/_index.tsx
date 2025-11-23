@@ -390,7 +390,3 @@ export default function ProfileIndex() {
     </div>
   );
 }
-
-
-
-

@@ -9,6 +9,7 @@ import {
   IsFollowingResponseSchema,
   type IsFollowingResponse,
 } from './schemas/follow';
+import { z } from 'zod';
 
 export const FollowApi = {
   followUser: async (followerUsername: string, followingUsername: string): Promise<FollowActionResponse> => {
@@ -30,16 +31,13 @@ export const FollowApi = {
     const data = await ApiClient.get<FollowUserItem[]>(
       `/api/users/${encodeURIComponent(username)}/followers`,
     );
-    data.forEach((item) => FollowUserItemSchema.parse(item));
-    return data;
+    return z.array(FollowUserItemSchema).parse(data);
   },
-
   getFollowings: async (username: string): Promise<FollowUserItem[]> => {
     const data = await ApiClient.get<FollowUserItem[]>(
       `/api/users/${encodeURIComponent(username)}/followings`,
     );
-    data.forEach((item) => FollowUserItemSchema.parse(item));
-    return data;
+    return z.array(FollowUserItemSchema).parse(data);
   },
 
   getFollowStats: async (username: string): Promise<FollowStats> => {

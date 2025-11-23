@@ -158,7 +158,7 @@ export default function CommentItem({ comment, onUpdate, onDelete, onUsernameCli
               <button
                 type="button"
                 onClick={() => commentUsername && onUsernameClick?.(commentUsername)}
-                className="text-sm font-medium text-gray-900 mb-1 hover:underline text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+                className="block text-sm font-medium text-gray-900 mb-1 hover:underline text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
               >
                 {commentUsername}
               </button>
