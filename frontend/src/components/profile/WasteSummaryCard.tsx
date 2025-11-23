@@ -35,7 +35,9 @@ export default function WasteSummaryCard({ className, variant = 'default' }: Was
   const [activeRange, setActiveRange] = useState<FormState>(DEFAULT_FORM);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
   const gaugeId = useId();
+  const detailSectionId = useId();
   const isCompact = variant === 'compact';
 
   const rangeIsValid = useMemo(() => {
@@ -77,93 +79,38 @@ export default function WasteSummaryCard({ className, variant = 'default' }: Was
   return (
     <Card className={cn('w-full', isCompact && 'h-full', className)}>
       <CardHeader className={cn('space-y-2', isCompact && 'space-y-1')}>
-        <div className="flex flex-wrap items-center gap-3">
-          <CardTitle className={cn('font-semibold', isCompact ? 'text-xl' : 'text-2xl')}>
-            {t('goals.summaryTitle', 'Waste impact snapshot')}
-          </CardTitle>
-          <Badge variant="secondary" className={cn('uppercase tracking-wide', isCompact && 'text-xs')}>
-            {wasteTypeLabel}
-          </Badge>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-3">
+              <CardTitle className={cn('font-semibold', isCompact ? 'text-xl' : 'text-2xl')}>
+                {t('goals.summaryTitle', 'Waste impact snapshot')}
+              </CardTitle>
+              <Badge variant="secondary" className={cn('uppercase tracking-wide', isCompact && 'text-xs')}>
+                {wasteTypeLabel}
+              </Badge>
+            </div>
+            <CardDescription className={cn(isCompact ? 'text-xs' : 'text-sm')}>
+              {t(
+                'goals.summarySubtitle',
+                'Aggregated from /api/logs/summary between {{start}} and {{end}}.',
+                { start: activeRange.startDate, end: activeRange.endDate }
+              )}
+            </CardDescription>
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="ml-auto"
+            onClick={() => setExpanded((prev) => !prev)}
+            aria-expanded={expanded}
+            aria-controls={detailSectionId}
+          >
+            {expanded ? t('goals.hideDetails', 'Hide details') : t('goals.showDetails', 'Show details')}
+          </Button>
         </div>
-        <CardDescription className={cn(isCompact ? 'text-xs' : 'text-sm')}>
-          {t(
-            'goals.summarySubtitle',
-            'Aggregated from /api/logs/summary between {{start}} and {{end}}.',
-            { start: activeRange.startDate, end: activeRange.endDate }
-          )}
-        </CardDescription>
       </CardHeader>
       <CardContent className={cn('space-y-6', isCompact && 'space-y-4')}>
-        <form
-          className={cn(
-            'grid gap-4',
-            isCompact ? 'md:grid-cols-[repeat(2,minmax(0,1fr))] lg:grid-cols-[repeat(3,minmax(0,1fr))]' : 'md:grid-cols-[repeat(3,minmax(0,1fr))_auto]'
-          )}
-          onSubmit={(event) => {
-            event.preventDefault();
-            if (!rangeIsValid) return;
-            void loadSummary(form);
-          }}
-        >
-          <Field label={t('goals.summaryStart', 'Start date')} htmlFor="summary-start">
-            <Input
-              id="summary-start"
-              type="date"
-              value={form.startDate}
-              max={form.endDate}
-              onChange={(event) => setForm((prev) => ({ ...prev, startDate: event.target.value }))}
-              required
-            />
-          </Field>
-          <Field label={t('goals.summaryEnd', 'End date')} htmlFor="summary-end">
-            <Input
-              id="summary-end"
-              type="date"
-              value={form.endDate}
-              min={form.startDate}
-              onChange={(event) => setForm((prev) => ({ ...prev, endDate: event.target.value }))}
-              required
-            />
-          </Field>
-          <Field label={t('goals.summaryWasteType', 'Waste type')} htmlFor="summary-type">
-            <Input
-              id="summary-type"
-              list="waste-type-options"
-              value={form.wasteType}
-              onChange={(event) => setForm((prev) => ({ ...prev, wasteType: event.target.value }))}
-              placeholder={t('goals.summaryTypePlaceholder', 'e.g., PLASTIC')}
-              required
-            />
-            <datalist id="waste-type-options">
-              {WASTE_TYPE_OPTIONS.map((type) => (
-                <option key={type} value={type} />
-              ))}
-            </datalist>
-          </Field>
-          <div className={cn('flex items-end', isCompact && 'md:col-span-2 lg:col-span-1')}>
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={!rangeIsValid || loading}
-            >
-              {loading ? t('goals.summaryFetching', 'Fetching...') : t('goals.summaryFetch', 'Refresh data')}
-            </Button>
-          </div>
-        </form>
-
-        {!rangeIsValid && (
-          <p className="text-sm text-destructive">
-            {t('goals.summaryInvalidRange', 'Start date must be on or before the end date.')}
-          </p>
-        )}
-
-        {error && (
-          <Alert variant="destructive">
-            <AlertTitle>{t('goals.summaryErrorTitle', 'Request failed')}</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
         <div className={cn('grid gap-6', isCompact ? 'lg:grid-cols-[220px,1fr]' : 'lg:grid-cols-[260px,1fr]')}>
           <div className="flex items-center justify-center">
             {loading && !summary ? (
@@ -207,6 +154,82 @@ export default function WasteSummaryCard({ className, variant = 'default' }: Was
               variant={isCompact ? 'compact' : 'default'}
             />
           </div>
+        </div>
+
+        <div
+          id={detailSectionId}
+          className={cn('space-y-4', !expanded && 'hidden')}
+          aria-hidden={!expanded}
+        >
+          <form
+            className={cn(
+              'grid gap-4',
+              isCompact ? 'md:grid-cols-[repeat(2,minmax(0,1fr))] lg:grid-cols-[repeat(3,minmax(0,1fr))]' : 'md:grid-cols-[repeat(3,minmax(0,1fr))_auto]'
+            )}
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (!rangeIsValid) return;
+              void loadSummary(form);
+            }}
+          >
+            <Field label={t('goals.summaryStart', 'Start date')} htmlFor="summary-start">
+              <Input
+                id="summary-start"
+                type="date"
+                value={form.startDate}
+                max={form.endDate}
+                onChange={(event) => setForm((prev) => ({ ...prev, startDate: event.target.value }))}
+                required
+              />
+            </Field>
+            <Field label={t('goals.summaryEnd', 'End date')} htmlFor="summary-end">
+              <Input
+                id="summary-end"
+                type="date"
+                value={form.endDate}
+                min={form.startDate}
+                onChange={(event) => setForm((prev) => ({ ...prev, endDate: event.target.value }))}
+                required
+              />
+            </Field>
+            <Field label={t('goals.summaryWasteType', 'Waste type')} htmlFor="summary-type">
+              <Input
+                id="summary-type"
+                list="waste-type-options"
+                value={form.wasteType}
+                onChange={(event) => setForm((prev) => ({ ...prev, wasteType: event.target.value }))}
+                placeholder={t('goals.summaryTypePlaceholder', 'e.g., PLASTIC')}
+                required
+              />
+              <datalist id="waste-type-options">
+                {WASTE_TYPE_OPTIONS.map((type) => (
+                  <option key={type} value={type} />
+                ))}
+              </datalist>
+            </Field>
+            <div className={cn('flex items-end', isCompact && 'md:col-span-2 lg:col-span-1')}>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={!rangeIsValid || loading}
+              >
+                {loading ? t('goals.summaryFetching', 'Fetching...') : t('goals.summaryFetch', 'Refresh data')}
+              </Button>
+            </div>
+          </form>
+
+          {!rangeIsValid && (
+            <p className="text-sm text-destructive">
+              {t('goals.summaryInvalidRange', 'Start date must be on or before the end date.')}
+            </p>
+          )}
+
+          {error && (
+            <Alert variant="destructive">
+              <AlertTitle>{t('goals.summaryErrorTitle', 'Request failed')}</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
         </div>
       </CardContent>
     </Card>

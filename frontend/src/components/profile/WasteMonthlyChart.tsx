@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { WasteApi, type MonthlyWasteData } from '@/lib/api/waste';
 import { DEFAULT_WASTE_TYPE, WASTE_TYPE_OPTIONS } from '@/lib/api/schemas/goals';
@@ -41,6 +41,8 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
   const [resolvedWasteType, setResolvedWasteType] = useState(DEFAULT_WASTE_TYPE);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
+  const detailSectionId = useId();
 
   const totalCollected = useMemo(
     () => monthlyData.reduce((sum, entry) => sum + entry.totalWeight, 0),
@@ -92,65 +94,38 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
   return (
     <Card className={cn('w-full', isCompact && 'h-full', className)}>
       <CardHeader className={cn('space-y-2', isCompact && 'space-y-1')}>
-        <div className="flex flex-wrap items-center gap-3">
-          <CardTitle className={cn('font-semibold', isCompact ? 'text-xl' : 'text-2xl')}>
-            {t('goals.monthlyTitle', '12-month waste trends')}
-          </CardTitle>
-          <Badge variant="outline" className={cn('uppercase tracking-wide', isCompact && 'text-xs')}>
-            {resolvedWasteType}
-          </Badge>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-3">
+              <CardTitle className={cn('font-semibold', isCompact ? 'text-xl' : 'text-2xl')}>
+                {t('goals.monthlyTitle', '12-month waste trends')}
+              </CardTitle>
+              <Badge variant="outline" className={cn('uppercase tracking-wide', isCompact && 'text-xs')}>
+                {resolvedWasteType}
+              </Badge>
+            </div>
+            <CardDescription className={cn(isCompact ? 'text-xs' : 'text-sm')}>
+              {t(
+                'goals.monthlySubtitle',
+                'Powered by /api/logs/{{username}}/monthly?wasteType={{type}}',
+                { username: fallbackUsername ?? 'username', type: wasteType }
+              )}
+            </CardDescription>
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="ml-auto"
+            onClick={() => setExpanded((prev) => !prev)}
+            aria-expanded={expanded}
+            aria-controls={detailSectionId}
+          >
+            {expanded ? t('goals.hideDetails', 'Hide details') : t('goals.showDetails', 'Show details')}
+          </Button>
         </div>
-        <CardDescription className={cn(isCompact ? 'text-xs' : 'text-sm')}>
-          {t(
-            'goals.monthlySubtitle',
-            'Powered by /api/logs/{{username}}/monthly?wasteType={{type}}',
-            { username: fallbackUsername ?? 'username', type: wasteType }
-          )}
-        </CardDescription>
       </CardHeader>
       <CardContent className={cn('space-y-6', isCompact && 'space-y-4')}>
-        <form
-          className={cn('grid gap-4', isCompact ? 'sm:grid-cols-2' : 'sm:grid-cols-[1fr_auto]')}
-          onSubmit={(event) => {
-            event.preventDefault();
-            void loadMonthly();
-          }}
-        >
-          <div className="grid gap-1">
-            <Label htmlFor="monthly-waste-type">{t('goals.monthlyWasteType', 'Waste type')}</Label>
-            <Input
-              id="monthly-waste-type"
-              list="monthly-waste-type-options"
-              value={wasteType}
-              onChange={(event) => setWasteType(event.target.value)}
-              placeholder={t('goals.summaryTypePlaceholder', 'e.g., PLASTIC')}
-            />
-            <datalist id="monthly-waste-type-options">
-              {WASTE_TYPE_OPTIONS.map((type) => (
-                <option key={type} value={type} />
-              ))}
-            </datalist>
-          </div>
-          <div className="flex items-end">
-            <Button type="submit" className="w-full" disabled={loading || !fallbackUsername}>
-              {loading ? t('goals.monthlyFetching', 'Fetching...') : t('goals.monthlyFetch', 'Refresh data')}
-            </Button>
-          </div>
-        </form>
-
-        {error && (
-          <Alert variant="destructive">
-            <AlertTitle>{t('goals.monthlyErrorTitle', 'Request failed')}</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        {!fallbackUsername && !error && (
-          <p className="text-sm text-muted-foreground">
-            {t('goals.monthlySignIn', 'Sign in to visualize your historical waste logs.')}
-          </p>
-        )}
-
         <div className={cn('rounded-2xl border bg-muted/20', isCompact ? 'p-3' : 'p-4')}>
           {loading && monthlyData.length === 0 ? (
             <div className={cn('flex items-center justify-center', isCompact ? 'h-56' : 'h-64')}>
@@ -189,6 +164,54 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
             helper={t('goals.monthlyQueryHelper', 'GET wasteType={{type}}', { type: resolvedWasteType })}
             variant={isCompact ? 'compact' : 'default'}
           />
+        </div>
+
+        <div
+          id={detailSectionId}
+          className={cn('space-y-4', !expanded && 'hidden')}
+          aria-hidden={!expanded}
+        >
+          <form
+            className={cn('grid gap-4', isCompact ? 'sm:grid-cols-2' : 'sm:grid-cols-[1fr_auto]')}
+            onSubmit={(event) => {
+              event.preventDefault();
+              void loadMonthly();
+            }}
+          >
+            <div className="grid gap-1">
+              <Label htmlFor="monthly-waste-type">{t('goals.monthlyWasteType', 'Waste type')}</Label>
+              <Input
+                id="monthly-waste-type"
+                list="monthly-waste-type-options"
+                value={wasteType}
+                onChange={(event) => setWasteType(event.target.value)}
+                placeholder={t('goals.summaryTypePlaceholder', 'e.g., PLASTIC')}
+              />
+              <datalist id="monthly-waste-type-options">
+                {WASTE_TYPE_OPTIONS.map((type) => (
+                  <option key={type} value={type} />
+                ))}
+              </datalist>
+            </div>
+            <div className="flex items-end">
+              <Button type="submit" className="w-full" disabled={loading || !fallbackUsername}>
+                {loading ? t('goals.monthlyFetching', 'Fetching...') : t('goals.monthlyFetch', 'Refresh data')}
+              </Button>
+            </div>
+          </form>
+
+          {error && (
+            <Alert variant="destructive">
+              <AlertTitle>{t('goals.monthlyErrorTitle', 'Request failed')}</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {!fallbackUsername && !error && (
+            <p className="text-sm text-muted-foreground">
+              {t('goals.monthlySignIn', 'Sign in to visualize your historical waste logs.')}
+            </p>
+          )}
         </div>
       </CardContent>
     </Card>
