@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Spinner } from '@/components/ui/spinner';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import {
   ResponsiveContainer,
   BarChart as RechartsBarChart,
@@ -49,8 +50,7 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
   const [resolvedWasteType, setResolvedWasteType] = useState<string>(DEFAULT_WASTE_TYPE);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [expanded, setExpanded] = useState(false);
-  const detailSectionId = useId();
+  const accordionId = useId();
 
   const totalCollected = useMemo(
     () => monthlyData.reduce((sum, entry) => sum + entry.totalWeight, 0),
@@ -103,33 +103,24 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
   }));
 
   return (
-    <Card className={cn('w-full', isCompact && 'h-full', className)}>
-      <CardHeader className={cn('space-y-2', isCompact ? 'p-4 pb-2' : 'p-5 pb-3')}>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-3">
-              <CardTitle className={cn('font-semibold', isCompact ? 'text-xl' : 'text-2xl')}>
-                {t('goals.monthlyTitle', '12-month waste trends')}
-              </CardTitle>
-              <Badge variant="outline" className={cn('uppercase tracking-wide', isCompact && 'text-xs')}>
-                {t(`wasteTypes.${resolvedWasteType}`, { defaultValue: resolvedWasteType })}
-              </Badge>
+    <Card className={cn('w-full relative min-h-[380px]', className)}>
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value={accordionId} className="border-none">
+          <CardHeader className={cn('space-y-2', isCompact ? 'p-4 pb-2' : 'p-5 pb-3')}>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-3">
+                  <CardTitle className={cn('font-semibold', isCompact ? 'text-xl' : 'text-2xl')}>
+                    {t('goals.monthlyTitle', '12-month waste trends')}
+                  </CardTitle>
+                  <Badge variant="secondary" className={cn('uppercase tracking-wide', isCompact && 'text-xs')}>
+                    {t(`wasteTypes.${resolvedWasteType}`, { defaultValue: resolvedWasteType })}
+                  </Badge>
+                </div>
+              </div>
             </div>
-          </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="ml-auto"
-            onClick={() => setExpanded((prev) => !prev)}
-            aria-expanded={expanded}
-            aria-controls={detailSectionId}
-          >
-            {expanded ? t('goals.hideDetails', 'Hide details') : t('goals.showDetails', 'Show details')}
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent className={cn('space-y-4', isCompact ? 'p-4 pt-0' : 'p-5 pt-0')}>
+          </CardHeader>
+          <CardContent className={cn('space-y-4', isCompact ? 'p-4 pt-0' : 'p-5 pt-0')}>
         <div className={cn('rounded-2xl border bg-muted/20', isCompact ? 'pl-1 pr-3 py-3 h-48' : 'pl-3 pr-4 py-4 h-60')}>
           {loading && monthlyData.length === 0 ? (
             <div className="flex h-full items-center justify-center">
@@ -179,11 +170,13 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
           )}
         </div>
 
-        <div
-          id={detailSectionId}
-          className={cn('space-y-4', !expanded && 'hidden')}
-          aria-hidden={!expanded}
-        >
+        <div className="absolute bottom-2 right-2">
+          <AccordionTrigger className="hover:no-underline p-2 rounded-full hover:bg-accent transition-colors" />
+        </div>
+      </CardContent>
+
+      <AccordionContent>
+        <CardContent className={cn('space-y-4', isCompact ? 'p-4 pt-0' : 'p-5 pt-0')}>
           <div className={cn('grid gap-4', isCompact ? 'sm:grid-cols-2' : 'sm:grid-cols-3')}>
             <Metric
               label={t('goals.monthlyTotal', '12-month total')}
@@ -240,8 +233,10 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
               {t('goals.monthlySignIn', 'Sign in to visualize your historical waste logs.')}
             </p>
           )}
-        </div>
-      </CardContent>
+        </CardContent>
+      </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </Card>
   );
 }

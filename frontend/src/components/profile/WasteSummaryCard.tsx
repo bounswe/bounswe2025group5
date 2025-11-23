@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Spinner } from '@/components/ui/spinner';
 import { Badge } from '@/components/ui/badge';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { DEFAULT_WASTE_TYPE, WASTE_TYPE_OPTIONS } from '@/lib/api/schemas/goals';
 
 type FormState = {
@@ -43,9 +44,8 @@ export default function WasteSummaryCard({ className, variant = 'default' }: Was
   const [activeRange, setActiveRange] = useState<FormState>(DEFAULT_FORM);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [expanded, setExpanded] = useState(false);
   const gaugeId = useId();
-  const detailSectionId = useId();
+  const accordionId = useId();
   const isCompact = variant === 'compact';
 
   const rangeIsValid = useMemo(() => {
@@ -86,17 +86,19 @@ export default function WasteSummaryCard({ className, variant = 'default' }: Was
   const wasteTypeLabel = t(`wasteTypes.${wasteTypeKey}`, { defaultValue: wasteTypeKey });
 
   return (
-    <Card className={cn('w-full', isCompact && 'h-full', className)}>
-      <CardHeader className={cn('space-y-2', isCompact ? 'p-4 pb-2' : 'p-5 pb-3')}>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-3">
-              <CardTitle className={cn('font-semibold', isCompact ? 'text-xl' : 'text-2xl')}>
-                {t('goals.summaryTitle', 'Waste impact snapshot')}
-              </CardTitle>
-              <Badge variant="secondary" className={cn('uppercase tracking-wide', isCompact && 'text-xs')}>
-                {wasteTypeLabel}
-              </Badge>
+    <Card className={cn('w-full relative min-h-[380px]', className)}>
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value={accordionId} className="border-none">
+          <CardHeader className={cn('space-y-2', isCompact ? 'p-4 pb-2' : 'p-5 pb-3')}>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-3">
+                  <CardTitle className={cn('font-semibold', isCompact ? 'text-xl' : 'text-2xl')}>
+                    {t('goals.summaryTitle', 'Waste impact snapshot')}
+                  </CardTitle>
+                  <Badge variant="secondary" className={cn('uppercase tracking-wide', isCompact && 'text-xs')}>
+                    {wasteTypeLabel}
+                  </Badge>
             </div>
             <CardDescription className={cn(isCompact ? 'text-xs' : 'text-sm')}>
               {t(
@@ -105,22 +107,11 @@ export default function WasteSummaryCard({ className, variant = 'default' }: Was
                 { start: activeRange.startDate, end: activeRange.endDate }
               )}
             </CardDescription>
-          </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="ml-auto"
-            onClick={() => setExpanded((prev) => !prev)}
-            aria-expanded={expanded}
-            aria-controls={detailSectionId}
-          >
-            {expanded ? t('goals.hideDetails', 'Hide details') : t('goals.showDetails', 'Show details')}
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent className={cn('space-y-4', isCompact ? 'p-4 pt-0' : 'p-5 pt-0')}>
-        <div className="flex items-center justify-center">
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className={cn('space-y-4', isCompact ? 'p-4 pt-0' : 'p-5 pt-0')}>
+            <div className="flex items-center justify-center">
           {loading && !summary ? (
             <div className="flex h-48 items-center justify-center">
               <Spinner className="h-10 w-10" />
@@ -135,13 +126,15 @@ export default function WasteSummaryCard({ className, variant = 'default' }: Was
               size={isCompact ? 170 : 200}
             />
           )}
-        </div>
+            </div>
 
-        <div
-          id={detailSectionId}
-          className={cn('space-y-3', !expanded && 'hidden')}
-          aria-hidden={!expanded}
-        >
+            <div className="absolute bottom-2 right-2">
+              <AccordionTrigger className="hover:no-underline p-2 rounded-full hover:bg-accent transition-colors" />
+            </div>
+          </CardContent>
+
+          <AccordionContent>
+            <CardContent className={cn('space-y-3', isCompact ? 'p-4 pt-0' : 'p-5 pt-0')}>
           <form
             className={cn(
               'grid gap-4',
@@ -229,8 +222,10 @@ export default function WasteSummaryCard({ className, variant = 'default' }: Was
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-        </div>
-      </CardContent>
+        </CardContent>
+      </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </Card>
   );
 }
