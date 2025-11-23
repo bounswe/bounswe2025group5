@@ -11,7 +11,6 @@ import { FollowApi } from '@/lib/api/follow';
 import type { ProfileResponse } from '@/lib/api/schemas/profile';
 import type { PostItem } from '@/lib/api/schemas/posts';
 import PostCard from '@/components/feedpage/post-card';
-import userAvatar from '@/assets/user.png';
 
 interface UserProfileDialogProps {
   username: string | null;
@@ -161,7 +160,7 @@ export default function UserProfileDialog({ username, open, onOpenChange, onUser
               <div className="flex flex-col items-center gap-3 flex-[2]">
                 <Avatar className="w-16 h-16">
                   <AvatarImage
-                    src={profile.photoUrl || userAvatar}
+                    src={profile.photoUrl || undefined}
                     alt={avatarUsername
                       ? t('profile.photoAlt', {
                           username: avatarUsername,
