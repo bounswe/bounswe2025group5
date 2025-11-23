@@ -161,7 +161,7 @@ export default function UserProfileDialog({ username, open, onOpenChange, onUser
               <div className="flex flex-col items-center gap-3 flex-[2]">
                 <Avatar className="w-16 h-16">
                   <AvatarImage
-                    src={userAvatar}
+                    src={profile.photoUrl || userAvatar}
                     alt={avatarUsername
                       ? t('profile.photoAlt', {
                           username: avatarUsername,
