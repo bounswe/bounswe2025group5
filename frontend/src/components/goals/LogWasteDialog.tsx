@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { UsersApi } from '@/lib/api/users';
 import { WasteApi } from '@/lib/api/waste';
 import type { WasteItem } from '@/lib/api/schemas/goals';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   goalId: number;
@@ -16,6 +17,7 @@ type Props = {
 };
 
 export default function LogWasteDialog({ goalId, username, open, onOpenChange, onLogged }: Props) {
+  const { t } = useTranslation();
   const [items, setItems] = useState<WasteItem[]>([]);
   const [itemId, setItemId] = useState<number | null>(null);
   const [quantity, setQuantity] = useState<number>(1);
@@ -42,12 +44,12 @@ export default function LogWasteDialog({ goalId, username, open, onOpenChange, o
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Log waste</DialogTitle>
-          <DialogDescription>Select an item and quantity to log.</DialogDescription>
+          <DialogTitle>{t('goals.logWaste', 'Log waste')}</DialogTitle>
+          <DialogDescription>{t('goals.logWasteDescription', 'Select an item and quantity to log.')}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-3 py-2">
           <div className="grid gap-1">
-            <Label htmlFor="waste-item">Item</Label>
+            <Label htmlFor="waste-item">{t('goals.item', 'Item')}</Label>
             <select
               id="waste-item"
               className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
@@ -61,12 +63,12 @@ export default function LogWasteDialog({ goalId, username, open, onOpenChange, o
             </select>
           </div>
           <div className="grid gap-1">
-            <Label htmlFor="waste-quantity">Quantity</Label>
+            <Label htmlFor="waste-quantity">{t('goals.quantity', 'Quantity')}</Label>
             <Input id="waste-quantity" type="number" min={1} value={quantity} onChange={(e) => setQuantity(Number(e.target.value))} />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>Cancel</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>{t('goals.cancel', 'Cancel')}</Button>
           <Button
             onClick={async () => {
               if (!canSubmit) return;
@@ -81,12 +83,11 @@ export default function LogWasteDialog({ goalId, username, open, onOpenChange, o
             }}
             disabled={!canSubmit || submitting}
           >
-            Log
+            {t('goals.log', 'Log')}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
-
 

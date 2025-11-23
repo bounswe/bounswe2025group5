@@ -25,8 +25,6 @@ function renderDialog(
 describe('CreateOrEditGoalDialog', () => {
   it('shows provided initial values and copy when dialog opens', () => {
     renderDialog({
-      title: 'Edit Goal',
-      description: 'Update your progress',
       initial: { type: 'PAPER', duration: 21, restrictionAmountGrams: 500 },
     });
 
