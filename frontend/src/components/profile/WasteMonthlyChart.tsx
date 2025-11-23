@@ -145,32 +145,32 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
           )}
         </div>
 
-        <div className={cn('grid gap-4', isCompact ? 'sm:grid-cols-2' : 'sm:grid-cols-3')}>
-          <Metric
-            label={t('goals.monthlyTotal', '12-month total')}
-            value={formatWeight(totalCollected)}
-            helper={t('goals.summaryScaleMax', 'Scale max') + `: ${formatWeight(maxScale)}`}
-            variant={isCompact ? 'compact' : 'default'}
-          />
-          <Metric
-            label={t('goals.monthlyPeak', 'Peak month')}
-            value={peakMonth ? formatMonthLabel(peakMonth.year, peakMonth.month) : '--'}
-            helper={peakMonth ? formatWeight(peakMonth.totalWeight) : t('goals.monthlyPeakEmpty', 'No logs yet')}
-            variant={isCompact ? 'compact' : 'default'}
-          />
-          <Metric
-            label={t('goals.monthlyEndpoint', 'Endpoint')}
-            value="/api/logs/{username}/monthly"
-            helper={t('goals.monthlyQueryHelper', 'GET wasteType={{type}}', { type: resolvedWasteType })}
-            variant={isCompact ? 'compact' : 'default'}
-          />
-        </div>
-
         <div
           id={detailSectionId}
           className={cn('space-y-4', !expanded && 'hidden')}
           aria-hidden={!expanded}
         >
+          <div className={cn('grid gap-4', isCompact ? 'sm:grid-cols-2' : 'sm:grid-cols-3')}>
+            <Metric
+              label={t('goals.monthlyTotal', '12-month total')}
+              value={formatWeight(totalCollected)}
+              helper={t('goals.summaryScaleMax', 'Scale max') + `: ${formatWeight(maxScale)}`}
+              variant={isCompact ? 'compact' : 'default'}
+            />
+            <Metric
+              label={t('goals.monthlyPeak', 'Peak month')}
+              value={peakMonth ? formatMonthLabel(peakMonth.year, peakMonth.month) : '--'}
+              helper={peakMonth ? formatWeight(peakMonth.totalWeight) : t('goals.monthlyPeakEmpty', 'No logs yet')}
+              variant={isCompact ? 'compact' : 'default'}
+            />
+            <Metric
+              label={t('goals.monthlyEndpoint', 'Endpoint')}
+              value="/api/logs/{username}/monthly"
+              helper={t('goals.monthlyQueryHelper', 'GET wasteType={{type}}', { type: resolvedWasteType })}
+              variant={isCompact ? 'compact' : 'default'}
+            />
+          </div>
+
           <form
             className={cn('grid gap-4', isCompact ? 'sm:grid-cols-2' : 'sm:grid-cols-[1fr_auto]')}
             onSubmit={(event) => {

@@ -111,49 +111,21 @@ export default function WasteSummaryCard({ className, variant = 'default' }: Was
         </div>
       </CardHeader>
       <CardContent className={cn('space-y-6', isCompact && 'space-y-4')}>
-        <div className={cn('grid gap-6', isCompact ? 'lg:grid-cols-[220px,1fr]' : 'lg:grid-cols-[260px,1fr]')}>
-          <div className="flex items-center justify-center">
-            {loading && !summary ? (
-              <div className="flex min-h-[220px] items-center justify-center">
-                <Spinner className="h-10 w-10" />
-              </div>
-            ) : (
-              <CircularGauge
-                gradientId={gaugeId}
-                percent={progressValue}
-                label={summary ? formatWeight(summary.totalAmount) : '--'}
-                sublabel={t('goals.summaryTotal', 'Total collected')}
-                scaleLabel={scaleMax > 0 ? `${t('goals.summaryScaleMax', 'Scale max')}: ${formatWeight(scaleMax)}` : undefined}
-                size={isCompact ? 200 : 220}
-              />
-            )}
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <StatCard
-              label={t('goals.summaryRange', 'Tracking window')}
-              value={`${formatDate(activeRange.startDate)} → ${formatDate(activeRange.endDate)}`}
-              helper={durationDays > 0 ? t('goals.summaryDuration', '{{count}} day span', { count: durationDays }) : undefined}
-              variant={isCompact ? 'compact' : 'default'}
+        <div className="flex items-center justify-center">
+          {loading && !summary ? (
+            <div className="flex min-h-[220px] items-center justify-center">
+              <Spinner className="h-10 w-10" />
+            </div>
+          ) : (
+            <CircularGauge
+              gradientId={gaugeId}
+              percent={progressValue}
+              label={summary ? formatWeight(summary.totalAmount) : '--'}
+              sublabel={t('goals.summaryTotal', 'Total collected')}
+              scaleLabel={scaleMax > 0 ? `${t('goals.summaryScaleMax', 'Scale max')}: ${formatWeight(scaleMax)}` : undefined}
+              size={isCompact ? 200 : 220}
             />
-            <StatCard
-              label={t('goals.summaryAverage', 'Average per day')}
-              value={summary ? formatWeight(averagePerDay) : '--'}
-              helper={summary ? t('goals.summaryAverageHelper', '~{{grams}} g/day', { grams: formatNumber(averagePerDay) }) : undefined}
-              variant={isCompact ? 'compact' : 'default'}
-            />
-            <StatCard
-              label={t('goals.summaryWasteLabel', 'Selected waste type')}
-              value={wasteTypeLabel}
-              helper={summary?.wasteType?.id ? `${t('goals.summaryTypeId', 'Type id')}: ${summary.wasteType.id}` : undefined}
-              variant={isCompact ? 'compact' : 'default'}
-            />
-            <StatCard
-              label={t('goals.summaryEndpointLabel', 'Data source')}
-              value="/api/logs/summary"
-              helper={t('goals.summaryQueryHelper', 'GET with ISO interval filters')}
-              variant={isCompact ? 'compact' : 'default'}
-            />
-          </div>
+          )}
         </div>
 
         <div
@@ -217,6 +189,33 @@ export default function WasteSummaryCard({ className, variant = 'default' }: Was
               </Button>
             </div>
           </form>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <StatCard
+              label={t('goals.summaryRange', 'Tracking window')}
+              value={`${formatDate(activeRange.startDate)} → ${formatDate(activeRange.endDate)}`}
+              helper={durationDays > 0 ? t('goals.summaryDuration', '{{count}} day span', { count: durationDays }) : undefined}
+              variant={isCompact ? 'compact' : 'default'}
+            />
+            <StatCard
+              label={t('goals.summaryAverage', 'Average per day')}
+              value={summary ? formatWeight(averagePerDay) : '--'}
+              helper={summary ? t('goals.summaryAverageHelper', '~{{grams}} g/day', { grams: formatNumber(averagePerDay) }) : undefined}
+              variant={isCompact ? 'compact' : 'default'}
+            />
+            <StatCard
+              label={t('goals.summaryWasteLabel', 'Selected waste type')}
+              value={wasteTypeLabel}
+              helper={summary?.wasteType?.id ? `${t('goals.summaryTypeId', 'Type id')}: ${summary.wasteType.id}` : undefined}
+              variant={isCompact ? 'compact' : 'default'}
+            />
+            <StatCard
+              label={t('goals.summaryEndpointLabel', 'Data source')}
+              value="/api/logs/summary"
+              helper={t('goals.summaryQueryHelper', 'GET with ISO interval filters')}
+              variant={isCompact ? 'compact' : 'default'}
+            />
+          </div>
 
           {!rangeIsValid && (
             <p className="text-sm text-destructive">
