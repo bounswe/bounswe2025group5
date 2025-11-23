@@ -341,6 +341,9 @@
             "follow": "{{actor}} started following you",
             "mention": "{{actor}} mentioned you in a {{objectType}}",
             "default": "{{actor}} {{type}}"
-        }
+        },
+        "likedYourPost_suffix": "liked your post",
+        "commentedOnYourPost_suffix": "commented on your post",
+        "startedFollowing_suffix": "started following you"
     }
 }

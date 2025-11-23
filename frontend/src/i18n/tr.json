@@ -335,6 +335,9 @@
             "follow": "{{actor}} sizi takip etmeye başladı",
             "mention": "{{actor}} sizi bir {{objectType}} bahsetti",
             "default": "{{actor}} {{type}}"
-        }
+        },
+        "likedYourPost_suffix": "gönderinizi beğendi",
+        "commentedOnYourPost_suffix": "gönderinize yorum yaptı",
+        "startedFollowing_suffix": "sizi takip etmeye başladı"
     }
 }

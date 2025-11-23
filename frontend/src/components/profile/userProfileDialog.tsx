@@ -135,7 +135,7 @@ export default function UserProfileDialog({ username, open, onOpenChange, onUser
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-4xl flex flex-col">
+      <DialogContent className="sm:max-w-[50rem] flex flex-col">
         <DialogHeader>
           <DialogTitle>
             {username ? t('profile.userProfileTitle', { username }) : t('profile.userProfile')}
