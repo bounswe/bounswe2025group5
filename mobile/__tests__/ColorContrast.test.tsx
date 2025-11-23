@@ -11,6 +11,16 @@ jest.mock('@/hooks/useColorScheme', () => ({
 import { contrastRatio, MIN_CONTRAST_TEXT, MIN_CONTRAST_LARGE } from '@/utils/contrast';
 import { Colors } from '@/constants/Colors';
 
+let consoleErrorSpy: jest.SpyInstance;
+
+beforeAll(() => {
+  consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+
+afterAll(() => {
+  consoleErrorSpy?.mockRestore();
+});
+
 type Failure = {
   file: string;
   text: string | null;
