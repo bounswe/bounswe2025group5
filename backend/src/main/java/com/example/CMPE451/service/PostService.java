@@ -131,7 +131,25 @@ public class PostService {
         );
     }
 
+    public GetPostResponse getPost(Integer postId, String username) {
+        Optional<Post> existingPostOpt = postRepository.findById(postId);
+        if (existingPostOpt.isEmpty()) {
+            throw new NotFoundException("Post not found: " + postId);
+        }
+        Post post = existingPostOpt.get();
 
+
+        Integer requestingUserId = null;
+        if (username != null) {
+            User requestingUser = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new NotFoundException("User not found: " + username));
+            requestingUserId = requestingUser.getId();
+        }
+
+
+        return convertToGetPostResponse(post, requestingUserId);
+
+    }
 
     @Transactional
     public CreateOrEditPostResponse editPost(Integer postId,String content,String username, MultipartFile photoFile ) {
@@ -183,6 +201,8 @@ public class PostService {
         postRepository.deleteById(postId);
 
     }
+
+
 
     public List<GetPostResponse> getMostLikedPosts(Integer size, String username) {
         Integer userId = null;
@@ -270,6 +290,38 @@ public class PostService {
                 })
                 .collect(Collectors.toList());
     }
+
+    private GetPostResponse convertToGetPostResponse(Post post, Integer requestingUserId) {
+
+        GetPostResponse postResponse = new GetPostResponse();
+
+        Set<Integer> likedPostIds;
+        Set<Integer> savedPostIds;
+
+        if (requestingUserId != null) {
+            likedPostIds = postLikeRepository
+                    .findLikedPostIdsByUserIdAndPostIdIn(requestingUserId, Collections.singletonList(post.getPostId()));
+
+            savedPostIds = savedPostRepository
+                    .findSavedPostIdsByUserIdAndPostIdIn(requestingUserId, Collections.singletonList(post.getPostId()));
+        } else {
+            likedPostIds = Collections.emptySet();
+            savedPostIds = Collections.emptySet();
+        }
+
+        postResponse.setPostId(post.getPostId());
+        postResponse.setContent(post.getContent());
+        postResponse.setCreatedAt(post.getCreatedAt());
+        postResponse.setLikes(post.getLikes());
+        postResponse.setCreatorUsername(post.getUser().getUsername());
+        postResponse.setComments(post.getComments());
+        postResponse.setPhotoUrl(post.getPhotoUrl());
+        postResponse.setLiked(likedPostIds.contains(post.getPostId()));
+        postResponse.setSaved(savedPostIds.contains(post.getPostId()));
+
+        return postResponse;
+    }
+
 
     private String uploadFileToSpaces(MultipartFile file, String folder) {
         if (file.isEmpty()) {

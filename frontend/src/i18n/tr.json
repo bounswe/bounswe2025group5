@@ -3,7 +3,15 @@
         "create": "Yarat",
         "submit": "Onayla",
         "cancel": "İptal",
-        "posting": "Paylaşılıyor..."
+        "posting": "Paylaşılıyor...",
+        "passwordStrength": {
+            "label": "Güç",
+            "veryWeak": "Çok zayıf",
+            "weak": "Zayıf",
+            "fair": "Orta",
+            "good": "İyi",
+            "strong": "Çok iyi"
+        }
     },
     "welcome": {
         "welcomeMessage": "Web Sitemize Hoş Geldiniz!",
@@ -44,7 +52,8 @@
         },
         "password": {
             "label": "Şifre",
-            "placeholder": "Güçlü bir şifre seçin"
+            "placeholder": "Güçlü bir şifre seçin",
+            "requirements": "İpucu: Karışık harfler, sayılar ve semboller kullanın, '123456' gibi yaygın desenlerden kaçının, en az 8 karakter"
         },
         "confirmPassword": {
             "label": "Şifreyi Onayla",
@@ -53,7 +62,16 @@
         "registerButton": "Kayıt Ol",
         "loading": "Hesap oluşturuluyor...",
         "haveAccount": "Zaten bir hesabınız var mı? ",
-        "login": "Giriş Yap"
+        "login": "Giriş Yap",
+        "error": {
+            "passwordsDontMatch": "Şifreler eşleşmiyor",
+            "registrationFailed": "Kayıt başarısız",
+            "tooWeak": "Şifre çok zayıf. 'İyi' veya daha yüksek olmalı.",
+            "tooShort": "Şifre en az {{min}} karakter uzunluğunda olmalıdır."
+        },
+        "success": {
+            "accountCreated": "Hesap başarıyla oluşturuldu. Giriş sayfasına yönlendiriliyor..."
+        }
     },
     "profile": {
         "edit": "Profili Düzenle",
@@ -73,7 +91,6 @@
         "photoAlt": "{{username}}'in profil fotoğrafı",
         "photoAltAnon": "Profil fotoğrafı",
         "editImage": "Resmi Düzenle",
-
         "userProfile": "Kullanıcı profili",
         "userProfileTitle": "{{username}}'in profili",
         "error": {
@@ -162,6 +179,8 @@
     },
     "challenges": {
         "title": "Etkinlikler",
+        "leaderboard": "Liderlik Tablosu",
+        "leaderboardEmpty": "Henüz kayıt yok",
         "attendError": "Etkinliğe katılınamadı",
         "leaveError": "Etkinlikten ayrılınamadı",
         "logError": "Etkinlik ilerlemesi kaydedilemedi",

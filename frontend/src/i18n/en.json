@@ -3,7 +3,15 @@
         "create": "Create",
         "submit": "Submit",
         "cancel": "Cancel",
-        "posting": "Posting..."
+        "posting": "Posting...",
+        "passwordStrength": {
+            "label": "Strength",
+            "veryWeak": "Very weak",
+            "weak": "Weak",
+            "fair": "Fair",
+            "good": "Good",
+            "strong": "Strong"
+        }
     },
     "welcome": {
         "welcomeMessage": "Welcome to Our Website!",
@@ -44,7 +52,8 @@
         },
         "password": {
             "label": "Password",
-            "placeholder": "Choose a strong password"
+            "placeholder": "Choose a strong password",
+            "requirements": "Hint: Mix unrelated letters, numbers, and symbols, avoid common patterns like \"123456\", at least 8 characters"
         },
         "confirmPassword": {
             "label": "Confirm Password",
@@ -53,7 +62,16 @@
         "registerButton": "Register",
         "loading": "Creating account...",
         "haveAccount": "Already have an account? ",
-        "login": "Login"
+        "login": "Login",
+        "error": {
+            "passwordsDontMatch": "Passwords do not match",
+            "registrationFailed": "Registration failed",
+            "tooWeak": "Password is too weak. Aim for 'Good' or higher.",
+            "tooShort": "Password must be at least {{min}} characters long."
+        },
+        "success": {
+            "accountCreated": "Account created successfully. Redirecting to login..."
+        }
     },
     "profile": {
         "edit": "Edit Profile", 
@@ -73,7 +91,6 @@
         "photoAlt": "{{username}}'s profile photo",
         "photoAltAnon": "Profile photo",
         "editImage": "Edit Image",
-
         "userProfile": "User profile",
         "userProfileTitle": "{{username}}'s profile",
         "error": {
@@ -174,6 +191,8 @@
     },
     "challenges": {
         "title": "Challenges",
+        "leaderboard": "Leaderboard",
+        "leaderboardEmpty": "No entries yet",
         "attendError": "Could not attend the challenge",
         "leaveError": "Could not leave the challenge",
         "logError": "Could not log challenge progress",
