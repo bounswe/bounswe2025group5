@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { WASTE_TYPES } from '@/lib/constants/wasteTypes';
+import { WASTE_TYPES } from '@/lib/api/schemas/goals';
 
 type Props = {
   open: boolean;

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { WasteApi, type MonthlyWasteData } from '@/lib/api/waste';
-import { DEFAULT_WASTE_TYPE, WASTE_TYPE_OPTIONS } from '@/lib/constants/wasteTypes';
+import { DEFAULT_WASTE_TYPE, WASTE_TYPE_OPTIONS } from '@/lib/api/schemas/goals';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
