@@ -11,9 +11,10 @@ import userAvatar from '@/assets/user.png';
 interface CommentSectionProps {
   postId: number;
   onCommentAdded?: () => void;
+  onUsernameClick?: (username: string) => void;
 }
 
-export default function CommentSection({ postId, onCommentAdded }: CommentSectionProps) {
+export default function CommentSection({ postId, onCommentAdded, onUsernameClick }: CommentSectionProps) {
   const { t } = useTranslation();
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
@@ -94,6 +95,7 @@ export default function CommentSection({ postId, onCommentAdded }: CommentSectio
               comment={comment}
               onUpdate={handleCommentUpdate}
               onDelete={handleCommentDelete}
+              onUsernameClick={onUsernameClick}
             />
           ))}
         </div>
