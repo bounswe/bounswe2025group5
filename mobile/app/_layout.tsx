@@ -67,7 +67,12 @@ export default function RootLayout() {
             options={{
             }}
             />
-          
+          <Stack.Screen 
+            name="user_profile" 
+            options={{ 
+              title: 'User Profile',
+            }} 
+          />
           <Stack.Screen 
             name="create_post" 
             options={{ 

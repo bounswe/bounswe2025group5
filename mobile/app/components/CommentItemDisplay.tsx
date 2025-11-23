@@ -14,6 +14,7 @@ import {
   Keyboard,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import AccessibleText from '@/components/AccessibleText';
 import { useTranslation } from 'react-i18next';
 
@@ -75,6 +76,7 @@ function CommentItemDisplay({
   // --- END NEW PROPS for edit ---
 }: CommentItemDisplayProps) {
   const { t, i18n } = useTranslation();
+  const navigation = useNavigation<any>();
   const isOwner = loggedInUsername && comment.username === loggedInUsername;
   const colorScheme = useColorScheme(); // For save/cancel button text color
   const resolvedReportColor = reportActionColor || '#515151';
@@ -144,9 +146,11 @@ function CommentItemDisplay({
           )}
 
           <View style={styles.commentMeta}>
-            <AccessibleText backgroundColor={bubbleBackground} style={[styles.commentUsername, { marginRight: 0, color: commentUsernameColor }]}>
-              {comment.username}
-            </AccessibleText>
+            <TouchableOpacity onPress={() => navigation.navigate('user_profile', { username: comment.username })} accessibilityRole="link">
+              <AccessibleText backgroundColor={bubbleBackground} style={[styles.commentUsername, { marginRight: 0, color: commentUsernameColor }]}> 
+                {comment.username}
+              </AccessibleText>
+            </TouchableOpacity>
             <AccessibleText backgroundColor={bubbleBackground} style={[styles.commentTimestamp, { color: timestampColor }]}> 
               {timestampText}
             </AccessibleText>

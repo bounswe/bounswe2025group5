@@ -170,3 +170,66 @@ export async function register(username: string, email: string, password: string
   if (!r.ok) throw new Error(await r.text() || 'Registration failed');
   return r.json();
 }
+
+/** Follow API methods */
+
+/**
+ * Get follow statistics for a user (follower count, following count)
+ */
+export async function getFollowStats(username: string): Promise<{ followerCount: number; followingCount: number }> {
+  const encoded = encodeURIComponent(username);
+  return get(`/api/users/${encoded}/follow-stats`);
+}
+
+/**
+ * Get list of followers for a user (paginated)
+ */
+export async function getFollowersList(username: string, page: number = 0, limit: number = 20) {
+  const encoded = encodeURIComponent(username);
+  return get(`/api/users/${encoded}/followers?page=${page}&limit=${limit}`);
+}
+
+/**
+ * Get list of users that a user is following (paginated)
+ */
+export async function getFollowingsList(username: string, page: number = 0, limit: number = 20) {
+  const encoded = encodeURIComponent(username);
+  return get(`/api/users/${encoded}/followings?page=${page}&limit=${limit}`);
+}
+
+/**
+ * Check if the authenticated user is following a target user
+ */
+export async function isFollowingUser(targetUsername: string): Promise<boolean> {
+  try {
+    const encoded = encodeURIComponent(targetUsername);
+    const response = await get(`/api/users/*/is-following/${encoded}`, { auth: true });
+    return response === true || response?.isFollowing === true;
+  } catch (err) {
+    console.warn('Failed to check follow status:', err);
+    return false;
+  }
+}
+
+/**
+ * Follow a user (authenticated)
+ */
+export async function followUser(targetUsername: string): Promise<void> {
+  const encoded = encodeURIComponent(targetUsername);
+  await post(`/api/users/*/follow/${encoded}`, null, { auth: true });
+}
+
+/**
+ * Unfollow a user (authenticated)
+ */
+export async function unfollowUser(targetUsername: string): Promise<void> {
+  const encoded = encodeURIComponent(targetUsername);
+  const res = await apiRequest(`/api/users/*/unfollow/${encoded}`, {
+    method: 'DELETE',
+    auth: true,
+  });
+  if (!res.ok) {
+    throw new Error(await res.text());
+  }
+}
+

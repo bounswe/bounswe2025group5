@@ -15,6 +15,7 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import AccessibleText from '@/components/AccessibleText';
 import CommentItemDisplay from './CommentItemDisplay';
 import ReportModal, { ReportContext } from './ReportModal';
@@ -106,6 +107,7 @@ function PostItem({
 }: PostItemProps) {
   const { t, i18n } = useTranslation();
   const colorScheme = useColorScheme();
+  const navigation = useNavigation<any>();
   const [isImageViewerVisible, setImageViewerVisible] = useState(false);
   const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
   const [reportModalVisible, setReportModalVisible] = useState(false);
@@ -241,14 +243,16 @@ function PostItem({
             </View>
           )}
           <View style={styles.postHeaderText}>
-            <AccessibleText
-              type="title"
-              isLargeText
-              backgroundColor={cardBackgroundColor}
-              style={[styles.postTitle, { color: textColor }]}
-            >
-              {post.title}
-            </AccessibleText>
+            <TouchableOpacity onPress={() => navigation.navigate('user_profile', { username: post.title })} accessibilityRole="link">
+              <AccessibleText
+                type="title"
+                isLargeText
+                backgroundColor={cardBackgroundColor}
+                style={[styles.postTitle, { color: textColor }]}
+              >
+                {post.title}
+              </AccessibleText>
+            </TouchableOpacity>
             {formattedPublishedAt ? (
               <AccessibleText
                 backgroundColor={cardBackgroundColor}
