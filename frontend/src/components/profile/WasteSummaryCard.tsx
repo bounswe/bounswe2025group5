@@ -369,12 +369,6 @@ function formatWeight(grams: number): string {
   return `${formatNumber(grams, { maximumFractionDigits: 0 })} g`;
 }
 
-function formatDate(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-}
-
 function formatNumber(value: number, options?: Intl.NumberFormatOptions): string {
   return new Intl.NumberFormat(undefined, {
     minimumFractionDigits: 0,

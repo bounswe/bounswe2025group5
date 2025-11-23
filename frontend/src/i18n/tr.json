@@ -156,6 +156,8 @@
         "summaryNoDataDescription": "Lütfen bir başlangıç ve bitiş tarihi ve atık türü seçin",
         "summaryNoDataButton": "Verileri yenile",
         "summaryNoDataButtonLoading": "Yükleniyor...",
+        "summaryScaleMax": "Ölçek max",
+        "summaryTotal": "Toplam",
         "monthlyTitle": "12 Aylık Atık Trendleri",
         "wasteType": "Atık türü",
         "save": "Kaydet",
@@ -168,7 +170,8 @@
         "createTitle": "Atık hedefi oluştur",
         "createDesc": "Yeni bir atık hedefi oluşturun",
         "editTitle": "Atık hedefi düzenle",
-        "editDesc": "Atık hedefinizi güncelleyin"
+        "editDesc": "Atık hedefinizi güncelleyin",
+        "create": "Atık hedefi oluştur"
 
 
     },
