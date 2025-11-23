@@ -13,7 +13,7 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { ThemedText } from '@/components/ThemedText';
+import AccessibleText from '@/components/AccessibleText';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from './_layout';
 import { apiUrl } from './apiConfig';
@@ -33,15 +33,20 @@ function UserPostCard({
   post,
   cardBackgroundColor,
   iconColor,
+  editIconColor,
+  deleteIconColor,
   onEdit,
   onDelete,
 }: {
   post: PostData;
   cardBackgroundColor: string;
   iconColor: string;
+  editIconColor: string;
+  deleteIconColor: string;
   onEdit: (post: PostData) => void;
   onDelete: (postId: number) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.postContainer, { backgroundColor: cardBackgroundColor }]}>
       {post.photoUrl && (
@@ -55,25 +60,27 @@ function UserPostCard({
           }
         />
       )}
-      <ThemedText style={styles.postContent} numberOfLines={post.photoUrl ? 3 : 6}>
+      <AccessibleText backgroundColor={cardBackgroundColor} style={styles.postContent} numberOfLines={post.photoUrl ? 3 : 6}>
         {post.content}
-      </ThemedText>
+      </AccessibleText>
 
       <View style={styles.postFooter}>
         <View style={styles.postStats}>
           <Ionicons name="heart-outline" size={16} color={iconColor} />
-          <ThemedText style={styles.footerText}>{post.likes}</ThemedText>
+          <AccessibleText backgroundColor={cardBackgroundColor} style={styles.footerText}>{post.likes}</AccessibleText>
           <Ionicons name="chatbubble-outline" size={16} color={iconColor} />
-          <ThemedText style={styles.footerText}>
+          <AccessibleText backgroundColor={cardBackgroundColor} style={styles.footerText}>
             {Array.isArray(post.comments) ? post.comments.length : post.comments}
-          </ThemedText>
+          </AccessibleText>
         </View>
         <View style={styles.postActions}>
           <TouchableOpacity onPress={() => onEdit(post)} style={styles.actionIcon}>
-            <Ionicons name="pencil" size={20} color={iconColor} />
+            <Ionicons name="pencil" size={20} color={editIconColor} />
+            <AccessibleText backgroundColor={cardBackgroundColor} style={[styles.actionText, { color: editIconColor }]}>{' '}{t('edit')}</AccessibleText>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => onDelete(post.postId)} style={styles.actionIcon}>
-            <Ionicons name="trash" size={20} color={iconColor} />
+            <Ionicons name="trash" size={20} color={deleteIconColor} />
+            <AccessibleText backgroundColor={cardBackgroundColor} style={[styles.actionText, { color: deleteIconColor }]}>{' '}{t('delete')}</AccessibleText>
           </TouchableOpacity>
         </View>
       </View>
@@ -103,6 +110,8 @@ export default function MyPostsScreen() {
   const screenBackgroundColor = isDarkMode ? '#151718' : '#F0F2F5';
   const cardBackgroundColor = isDarkMode ? '#1C1C1E' : '#FFFFFF';
   const iconColor = isDarkMode ? '#8E8E93' : '#6C6C70';
+  const editIconActualColor = isDarkMode ? '#82B1FF' : '#007AFF';
+  const deleteIconActualColor = isDarkMode ? '#FF8A80' : '#D9534F';
   const activityIndicatorColor = isDarkMode ? '#FFFFFF' : '#000000';
   const refreshControlColors = isDarkMode
     ? { tintColor: '#FFFFFF', titleColor: '#FFFFFF' }
@@ -225,18 +234,18 @@ export default function MyPostsScreen() {
     >
       {error ? (
         <View style={styles.centeredMessageContainer}>
-          <ThemedText style={{ color: errorTextColor }}>{error}</ThemedText>
+          <AccessibleText backgroundColor={screenBackgroundColor} style={{ color: errorTextColor }}>{error}</AccessibleText>
         </View>
       ) : userPosts.length === 0 && !loading ? (
         <View style={styles.centeredMessageContainer}>
-          <ThemedText>{t('noPostsYet')}</ThemedText>
+          <AccessibleText backgroundColor={screenBackgroundColor}>{t('noPostsYet')}</AccessibleText>
           <TouchableOpacity
             style={styles.createPostButton}
             onPress={() => navigation.navigate('create_post')}
           >
-            <ThemedText style={styles.createPostButtonText}>
+            <AccessibleText backgroundColor={'#2196F3'} style={styles.createPostButtonText}>
               {t('createYourFirstPost')}
-            </ThemedText>
+            </AccessibleText>
           </TouchableOpacity>
         </View>
       ) : (
@@ -246,6 +255,8 @@ export default function MyPostsScreen() {
             post={post}
             cardBackgroundColor={cardBackgroundColor}
             iconColor={iconColor}
+            editIconColor={editIconActualColor}
+            deleteIconColor={deleteIconActualColor}
             onEdit={handleEditPost}
             onDelete={handleDeletePost}
           />
@@ -313,6 +324,13 @@ const styles = StyleSheet.create({
   actionIcon: {
     padding: 6,
     marginLeft: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionText: {
+    marginLeft: 4,
+    fontSize: 14,
+    fontWeight: '500',
   },
   centeredMessageContainer: {
     justifyContent: 'center',

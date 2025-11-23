@@ -12,7 +12,7 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { ThemedText } from '@/components/ThemedText';
+import AccessibleText from '@/components/AccessibleText';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
 import { useTranslation } from 'react-i18next';
@@ -72,24 +72,27 @@ function SavedPostCard({
           onError={(e) => console.warn('Saved Post Card: Image load error', e.nativeEvent.error)}
         />
       )}
-      <ThemedText style={styles.postContent} numberOfLines={post.photoUrl ? 3 : 6}>
+      <AccessibleText backgroundColor={cardBackgroundColor} style={styles.postContent} numberOfLines={post.photoUrl ? 3 : 6}>
         {post.content}
-      </ThemedText>
+      </AccessibleText>
 
-      <ThemedText style={styles.creatorText}>
+      <AccessibleText backgroundColor={cardBackgroundColor} style={styles.creatorText}>
         {t('byLabel')} {post.creatorUsername}
-      </ThemedText>
+      </AccessibleText>
 
       <View style={styles.postFooter}>
         <View style={styles.postStats}>
           <Ionicons name="heart-outline" size={16} color={iconColor} />
-          <ThemedText style={[styles.footerText, { color: iconColor }]}>{post.likeCount}</ThemedText>
+          <AccessibleText backgroundColor={cardBackgroundColor} style={[styles.footerText, { color: iconColor }]}>{post.likeCount}</AccessibleText>
           <Ionicons name="chatbubble-outline" size={16} color={iconColor} />
-          <ThemedText style={[styles.footerText, { color: iconColor }]}>{post.commentCount}</ThemedText>
+          <AccessibleText backgroundColor={cardBackgroundColor} style={[styles.footerText, { color: iconColor }]}>{post.commentCount}</AccessibleText>
         </View>
         <View style={styles.postActions}>
           <TouchableOpacity onPress={handleBookmarkPress} style={styles.actionIcon}>
             <Ionicons name={isSavedLocally ? 'bookmark' : 'bookmark-outline'} size={20} color={actionIconColor} />
+            <AccessibleText backgroundColor={cardBackgroundColor} style={{ color: actionIconColor, marginLeft: 5, fontWeight: '500' }}>
+              {isSavedLocally ? t('saved') : t('save')}
+            </AccessibleText>
           </TouchableOpacity>
         </View>
       </View>
@@ -323,11 +326,11 @@ export default function SavedPostsScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={refreshControlColors.tintColor} titleColor={refreshControlColors.titleColor} />}
       >
         <View style={styles.centeredMessageContainer}>
-          <ThemedText style={[styles.messageText, { color: errorTextColor, marginBottom: 20 }]}>
+          <AccessibleText backgroundColor={screenBackgroundColor} style={[styles.messageText, { color: errorTextColor, marginBottom: 20 }]}> 
             {t('loginRequiredSaved')}
-          </ThemedText>
+          </AccessibleText>
           <TouchableOpacity style={[styles.actionButton, { backgroundColor: primaryButtonColor }]} onPress={() => navigation.navigate('index' as never)}>
-            <ThemedText style={styles.buttonText}>{t('goToLogin')}</ThemedText>
+            <AccessibleText backgroundColor={primaryButtonColor} style={styles.buttonText}>{t('goToLogin')}</AccessibleText>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -350,11 +353,11 @@ export default function SavedPostsScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={refreshControlColors.tintColor} titleColor={refreshControlColors.titleColor} />}
       >
         <View style={styles.centeredMessageContainer}>
-          <ThemedText style={[styles.messageText, { color: errorTextColor, marginBottom: 20 }]}>
+          <AccessibleText backgroundColor={screenBackgroundColor} style={[styles.messageText, { color: errorTextColor, marginBottom: 20 }]}> 
             {error.key ? t(error.key) : error.message}
-          </ThemedText>
+          </AccessibleText>
           <TouchableOpacity onPress={fetchSavedPosts} style={styles.retryButton}>
-            <ThemedText style={styles.retryButtonText}>{t('retry')}</ThemedText>
+            <AccessibleText style={styles.retryButtonText}>{t('retry')}</AccessibleText>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -369,12 +372,12 @@ export default function SavedPostsScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={refreshControlColors.tintColor} titleColor={refreshControlColors.titleColor} />}
       >
         <View style={styles.centeredMessageContainer}>
-          <ThemedText style={styles.messageText}>{t('noSavedPosts')}</ThemedText>
+          <AccessibleText backgroundColor={screenBackgroundColor} style={styles.messageText}>{t('noSavedPosts')}</AccessibleText>
           <TouchableOpacity
             style={[styles.actionButton, { backgroundColor: primaryButtonColor, marginTop: 20 }]}
             onPress={() => navigation.navigate('(tabs)', { screen: 'explore' })}
           >
-            <ThemedText style={styles.buttonText}>{t('explorePosts')}</ThemedText>
+            <AccessibleText backgroundColor={primaryButtonColor} style={styles.buttonText}>{t('explorePosts')}</AccessibleText>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -445,7 +448,7 @@ const styles = StyleSheet.create({
   postStats: { flexDirection: 'row', alignItems: 'center' },
   footerText: { fontSize: 14, marginHorizontal: 8 },
   postActions: { flexDirection: 'row', alignItems: 'center' },
-  actionIcon: { padding: 8, marginLeft: 8, borderRadius: 15 },
+  actionIcon: { padding: 8, marginLeft: 8, borderRadius: 15, flexDirection: 'row', alignItems: 'center' },
   actionButton: { marginTop: 20, paddingVertical: 12, paddingHorizontal: 30, borderRadius: 25, alignItems: 'center', justifyContent: 'center', minWidth: 150 },
   buttonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '600' },
   retryButton: { marginTop: 15, borderColor: '#007AFF', borderWidth: 1, paddingVertical: 10, paddingHorizontal: 25, borderRadius: 25, alignItems: 'center', justifyContent: 'center', minWidth: 150 },

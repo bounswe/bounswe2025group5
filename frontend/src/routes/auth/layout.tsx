@@ -16,7 +16,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <LanguageToggle />
         </div>
         <main
-          className="min-h-screen flex items-center justify-center p-4"
+          className="min-h-screen pt-28 pb-12 px-4 flex items-center justify-center"
         >
           {children}
         </main>

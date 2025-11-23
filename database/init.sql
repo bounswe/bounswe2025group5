@@ -227,7 +227,8 @@ CREATE TABLE `saved_posts` (
 CREATE TABLE IF NOT EXISTS  `notifications` (
   `notification_id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
-  `message` varchar(255) NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `actor_id` varchar(255),
   `is_read` tinyint(1) DEFAULT '0',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`notification_id`),
@@ -244,6 +245,17 @@ CREATE TABLE badge (
         REFERENCES users(user_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
+);
+
+CREATE TABLE follows (
+    follower_username VARCHAR(100) NOT NULL,
+    following_username VARCHAR(100) NOT NULL,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (follower_username, following_username),
+    FOREIGN KEY (follower_username) REFERENCES users(username),
+    FOREIGN KEY (following_username) REFERENCES users(username)
 );
 
 
@@ -487,6 +499,8 @@ BEGIN
     WHERE `challenge_id` = OLD.challenge_id;
 END$$
 DELIMITER ;
+
+
 
 
 
