@@ -10,6 +10,15 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Spinner } from '@/components/ui/spinner';
+import {
+  ResponsiveContainer,
+  BarChart as RechartsBarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip as RechartsTooltip,
+  Cell,
+} from 'recharts';
 
 type WasteMonthlyChartProps = {
   username?: string | null;
@@ -90,6 +99,10 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
   const chartLabel = t('goals.monthlyChartLabel', 'Monthly collected waste in grams');
   const chartEmpty = !loading && monthlyData.length === 0;
   const maxScale = maxValue > 0 ? maxValue : 1000;
+  const chartData = monthlyData.map((entry) => ({
+    label: entry.month,
+    value: entry.totalWeight,
+  }));
 
   return (
     <Card className={cn('w-full', isCompact && 'h-full', className)}>
@@ -104,13 +117,6 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
                 {t(`wasteTypes.${resolvedWasteType}`, { defaultValue: resolvedWasteType })}
               </Badge>
             </div>
-            <CardDescription className={cn(isCompact ? 'text-xs' : 'text-sm')}>
-              {t(
-                'goals.monthlySubtitle',
-                'Powered by /api/logs/{{username}}/monthly?wasteType={{type}}',
-                { username: fallbackUsername ?? 'username', type: wasteType }
-              )}
-            </CardDescription>
           </div>
           <Button
             type="button"
@@ -126,22 +132,52 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
         </div>
       </CardHeader>
       <CardContent className={cn('space-y-4', isCompact ? 'p-4 pt-0' : 'p-5 pt-0')}>
-        <div className={cn('rounded-2xl border bg-muted/20', isCompact ? 'p-3' : 'p-4')}>
+        <div className={cn('rounded-2xl border bg-muted/20', isCompact ? 'pl-1 pr-3 py-3 h-48' : 'pl-3 pr-4 py-4 h-60')}>
           {loading && monthlyData.length === 0 ? (
-            <div className={cn('flex items-center justify-center', isCompact ? 'h-48' : 'h-60')}>
+            <div className="flex h-full items-center justify-center">
               <Spinner className="h-10 w-10" />
             </div>
           ) : chartEmpty ? (
-            <div className={cn('flex flex-col items-center justify-center text-muted-foreground', isCompact ? 'h-48' : 'h-60')}>
+            <div className="flex h-full flex-col items-center justify-center text-muted-foreground">
               {t('goals.monthlyEmpty', 'No logs found for this waste type in the last 12 months.')}
             </div>
           ) : (
-            <BarChart
-              ariaLabel={chartLabel}
-              data={monthlyData}
-              maxValue={maxScale}
-              height={isCompact ? 200 : 240}
-            />
+            <ResponsiveContainer width="100%" height="100%">
+              <RechartsBarChart data={chartData} margin={{ top: 8, right: 12, bottom: 8, left: 0 }}>
+                <XAxis
+                  dataKey="label"
+                  axisLine={false}
+                  tickLine={false}
+                  allowDecimals={false}
+                  interval={0}
+                  tickFormatter={(value) => String(value)}
+                  tick={{ fontSize: 12 }}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  allowDecimals={false}
+                  width={40}
+                  tickFormatter={(value) => formatNumber(value, { maximumFractionDigits: 0 })}
+                  tick={{ fontSize: 11 }}
+                />
+                <RechartsTooltip
+                  cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+                  formatter={(value) => formatWeight(Number(value))}
+                  labelFormatter={(label) => label}
+                  contentStyle={{
+                    borderRadius: 12,
+                    border: '1px solid var(--muted)',
+                    background: 'var(--card)',
+                  }}
+                />
+                <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={28}>
+                  {chartData.map((entry, index) => (
+                    <Cell key={index} fill={entry.value > 0 ? '#10b981' : '#d4d4d8'} />
+                  ))}
+                </Bar>
+              </RechartsBarChart>
+            </ResponsiveContainer>
           )}
         </div>
 
@@ -163,12 +199,6 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
               helper={peakMonth ? formatWeight(peakMonth.totalWeight) : t('goals.monthlyPeakEmpty', 'No logs yet')}
               variant={isCompact ? 'compact' : 'default'}
             />
-            <Metric
-              label={t('goals.monthlyEndpoint', 'Endpoint')}
-              value="/api/logs/{username}/monthly"
-              helper={t('goals.monthlyQueryHelper', 'GET wasteType={{type}}', { type: resolvedWasteType })}
-              variant={isCompact ? 'compact' : 'default'}
-            />
           </div>
 
           <form
@@ -180,18 +210,18 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
           >
             <div className="grid gap-1">
               <Label htmlFor="monthly-waste-type">{t('goals.monthlyWasteType', 'Waste type')}</Label>
-              <Input
+              <select
                 id="monthly-waste-type"
-                list="monthly-waste-type-options"
+                className="h-9 rounded-md border border-input bg-background px-3 text-sm"
                 value={wasteType}
                 onChange={(event) => setWasteType(event.target.value)}
-                placeholder={t('goals.summaryTypePlaceholder', 'e.g., PLASTIC')}
-              />
-              <datalist id="monthly-waste-type-options">
+              >
                 {WASTE_TYPE_OPTIONS.map((type) => (
-                  <option key={type} value={type} />
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
                 ))}
-              </datalist>
+              </select>
             </div>
             <div className="flex items-end">
               <Button type="submit" className="w-full" disabled={loading || !fallbackUsername}>
@@ -215,38 +245,6 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
         </div>
       </CardContent>
     </Card>
-  );
-}
-
-type BarChartProps = {
-  data: MonthlyWasteData[];
-  maxValue: number;
-  ariaLabel: string;
-  height?: number;
-};
-
-function BarChart({ data, maxValue, ariaLabel, height = 256 }: BarChartProps) {
-  return (
-    <div role="img" aria-label={ariaLabel} className="flex items-end gap-2" style={{ height }}>
-      {data.map((entry) => {
-        const rawPercent = maxValue > 0 ? (entry.totalWeight / maxValue) * 100 : 0;
-        const percentage = rawPercent > 0 ? Math.max(rawPercent, 8) : 0;
-        const monthLabel = formatMonthLabel(entry.year, entry.month);
-        return (
-          <div key={`${entry.year}-${entry.month}`} className="flex flex-1 flex-col items-center gap-1">
-            <div className="relative flex-1 w-full rounded-md bg-muted/60">
-              <div
-                className="absolute inset-x-0 bottom-0 rounded-md bg-gradient-to-t from-emerald-500 to-sky-500 shadow-sm"
-                style={{ height: `${percentage}%` }}
-                aria-hidden="true"
-              />
-            </div>
-            <span className="text-xs font-semibold text-foreground">{monthLabel.split(' ')[0]}</span>
-            <span className="text-[11px] text-muted-foreground">{formatWeight(entry.totalWeight)}</span>
-          </div>
-        );
-      })}
-    </div>
   );
 }
 

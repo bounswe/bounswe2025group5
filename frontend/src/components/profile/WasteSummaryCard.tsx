@@ -17,11 +17,19 @@ type FormState = {
   wasteType: string;
 };
 
-const DEFAULT_FORM: FormState = {
-  startDate: '2025-10-01',
-  endDate: '2025-10-20',
-  wasteType: DEFAULT_WASTE_TYPE,
-};
+function getDefaultForm(): FormState {
+  const end = new Date();
+  const start = new Date();
+  start.setDate(end.getDate() - 7);
+  const toIsoDate = (date: Date) => date.toISOString().split('T')[0];
+  return {
+    startDate: toIsoDate(start),
+    endDate: toIsoDate(end),
+    wasteType: DEFAULT_WASTE_TYPE,
+  };
+}
+
+const DEFAULT_FORM = getDefaultForm();
 
 type WasteSummaryCardProps = {
   className?: string;
