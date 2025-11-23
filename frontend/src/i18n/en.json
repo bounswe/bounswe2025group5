@@ -97,6 +97,7 @@
             "loadFailed": "Failed to load profile"
         },
         "noBio": "No bio yet",
+        "notFound": "Profile not found",
         "postsTitle": "Posts",
         "postsDesc": "Posts created by this user",
         "noPosts": "No posts yet",
