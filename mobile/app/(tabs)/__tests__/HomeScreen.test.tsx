@@ -13,6 +13,20 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // --- Mocks ---
 
+// Mock AuthContext from _layout to avoid executing _layout.tsx which has complex dependencies
+jest.mock("../../_layout", () => {
+  const React = require("react");
+  return {
+    __esModule: true,
+    AuthContext: React.createContext({
+      userType: null,
+      setUserType: jest.fn(),
+      username: "",
+      setUsername: jest.fn(),
+    }),
+  };
+});
+
 // Mock Navigation
 const mockNavigate = jest.fn();
 const mockSetParams = jest.fn();
@@ -79,7 +93,11 @@ jest.mock("@/components/ParallaxScrollView", () => {
 
 jest.mock("@/components/ThemedText", () => {
   const { Text } = require("react-native");
-  return ({ children, ...props }: any) => <Text {...props}>{children}</Text>;
+  return {
+    ThemedText: ({ children, ...props }: any) => (
+      <Text {...props}>{children}</Text>
+    ),
+  };
 });
 
 jest.mock("@/components/AccessibleText", () => {
@@ -89,16 +107,20 @@ jest.mock("@/components/AccessibleText", () => {
 
 jest.mock("../../components/CheckBox", () => {
   const { TouchableOpacity, Text } = require("react-native");
-  return ({ checked, onPress }: any) => (
+  const CheckBox = ({ checked, onPress }: any) => (
     <TouchableOpacity onPress={onPress} testID="checkbox">
       <Text>{checked ? "[X]" : "[ ]"}</Text>
     </TouchableOpacity>
   );
+  return CheckBox;
 });
 
-jest.mock("@expo/vector-icons", () => ({
-  Ionicons: "Ionicons",
-}));
+jest.mock("@expo/vector-icons", () => {
+  const { View } = require("react-native");
+  return {
+    Ionicons: (props: any) => <View {...props} testID="ionicons" />,
+  };
+});
 
 // --- Test Setup ---
 
@@ -168,7 +190,7 @@ describe("HomeScreen", () => {
     renderWithAuth();
 
     await waitFor(() => {
-      expect(screen.getByText("1234 users are reducing wastes")).toBeTruthy();
+      expect(screen.getByText(/1234 users are reducing wastes/)).toBeTruthy();
       expect(screen.getByText("trendingPosts")).toBeTruthy();
       expect(screen.getByText("logIn")).toBeTruthy();
       expect(screen.getByText("register")).toBeTruthy();
