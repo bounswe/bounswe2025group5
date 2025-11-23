@@ -30,9 +30,9 @@ export default function ImageDialog({
       <DialogContent 
         className="p-0 overflow-hidden"
         style={{
-          minWidth: '60vw',
-          maxWidth: '85vw',
-          minHeight: '65vh',
+          minWidth: '55vw',
+          maxWidth: '90vw',
+          minHeight: '50vh',
           maxHeight: '75vh',
           width: 'fit-content'
         }}
@@ -59,7 +59,11 @@ export default function ImageDialog({
           <img
             src={imageUrl}
             alt={altText}
-            className="w-auto h-auto min-w-[60vw] min-h-[65vh] max-w-[85vw] max-h-[75vh] object-contain"
+            className="max-w-[85vw] max-h-[75vh] object-contain"
+            style={{
+              minWidth: 'min(400px, 85vw)',
+              minHeight: 'min(400px, 75vh)',
+            }}
           />
         </div>
       </DialogContent>
