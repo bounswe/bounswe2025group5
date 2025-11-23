@@ -96,6 +96,7 @@
         "error": {
             "loadFailed": "Profil yüklenemedi"
         },
+        "notFound": "Profil bulunamadı",
         "noBio": "Henüz biyografi yok",
         "postsTitle": "Gönderiler",
         "postsDesc": "Bu kullanıcının oluşturduğu gönderiler",
