@@ -27,6 +27,7 @@ export const WasteTypeSchema = z.object({
   id: z.number().int(),
   name: z.string(),
 }).passthrough();
+export type WasteType = z.infer<typeof WasteTypeSchema>;
 
 export const WasteItemSchema = z.object({
   id: z.number().int(),

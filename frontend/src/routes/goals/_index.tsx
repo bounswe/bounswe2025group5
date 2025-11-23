@@ -5,6 +5,7 @@ import { type WasteGoalItem } from '@/lib/api/schemas/goals';
 import { UsersApi } from '@/lib/api/users';
 import CreateOrEditGoalDialog from '@/components/profile/CreateOrEditGoalDialog';
 import LogWasteDialog from '@/components/profile/LogWasteDialog';
+import WasteSummaryCard from '@/components/profile/WasteSummaryCard';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
@@ -57,6 +58,10 @@ export default function GoalsIndex() {
     <div className="min-h-screen flex flex-col text-foreground p-4">
       <div className="text-center mb-4 mt-30">
         <h1 className="text-3xl font-bold"> {t('goals.title', 'Goals')} </h1>
+      </div>
+
+      <div className="flex justify-center pb-8">
+        <WasteSummaryCard className="max-w-6xl" />
       </div>
 
       <div className="flex-1 flex flex-col items-center">

@@ -1,6 +1,6 @@
 import { ApiClient } from './client';
 import { z } from 'zod';
-
+import { WasteTypeSchema } from './schemas/goals';
 export const WasteLogSchema = z.object({
   logId: z.number().int().optional(),
   amount: z.number().optional(),
@@ -13,7 +13,11 @@ export type WasteLog = z.infer<typeof WasteLogSchema>;
 export const CreateOrEditWasteLogResponseSchema = WasteLogSchema;
 export const DeleteWasteLogResponseSchema = z.object({ logId: z.number().int().optional() }).passthrough();
 
-export const TotalLogResponseSchema = z.object({ total: z.number().optional() }).passthrough();
+export const TotalLogResponseSchema = z.object({
+  wasteType: WasteTypeSchema,
+  totalAmount: z.number().nonnegative(),
+}).passthrough();
+export type TotalLogResponse = z.infer<typeof TotalLogResponseSchema>;
 
 export const WasteApi = {
   list: async (goalId: number) => {
@@ -39,7 +43,7 @@ export const WasteApi = {
       endDate: params.endDate,
       wasteType: params.wasteType,
     });
-    const res = await ApiClient.get<{ total?: number }>(`/api/logs/summary?${query.toString()}`);
+    const res = await ApiClient.get<TotalLogResponse>(`/api/logs/summary?${query.toString()}`);
     return TotalLogResponseSchema.parse(res);
   },
 };
