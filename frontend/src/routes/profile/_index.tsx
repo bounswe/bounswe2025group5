@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { UsersApi } from "@/lib/api/users";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import GlassCard from "@/components/ui/glass-card";
 import { Spinner } from "@/components/ui/spinner";
 import DeleteAccount from "@/components/profile/delete_account";
 import EditProfile from "@/components/profile/edit_profile";
 import PostCard from "@/components/feedpage/post-card";
-import ScrollPanel from "@/components/mainpage/ScrollPanel";
 import type { SavedPostItem } from "@/lib/api/schemas/users";
 import type { PostItem } from "@/lib/api/schemas/posts";
 import { Button } from "@/components/ui/button";
@@ -339,31 +339,46 @@ export default function ProfileIndex() {
             <div className="flex-[2]"></div>
           </CardContent>
         </Card>
-        <Button onClick={() => setSaveToggle(!saveToggle)}>{saveToggle ? t('profile.showMyPosts', 'Show My Posts') : t('profile.showSavedPosts', 'Show Saved Posts')}</Button>
 
         {/* Posts Placeholder Card */}
-        <ScrollPanel
-            title={saveToggle ? t('profile.savedPostsTitle', 'Saved Posts') : t('profile.postsTitle', 'Your Posts')}
-            description={saveToggle ? t('profile.savedPostsDesc', 'Posts you have saved') : t('profile.postsDesc', 'Posts you have created')}
-        >
-         {saveToggle ? (_postsLoading ? <Spinner /> : (posts.length === 0 ? (
+        <GlassCard>
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <CardTitle>{saveToggle ? t('profile.savedPostsTitle', 'Saved Posts') : t('profile.postsTitle', 'Your Posts')}</CardTitle>
+                {(saveToggle ? t('profile.savedPostsDesc', 'Posts you have saved') : t('profile.postsDesc', 'Posts you have created')) && (
+                  <CardDescription>{saveToggle ? t('profile.savedPostsDesc', 'Posts you have saved') : t('profile.postsDesc', 'Posts you have created')}</CardDescription>
+                )}
+              </div>
+              <div className="ml-4">
+                <Button variant="tertiary" onClick={() => setSaveToggle(!saveToggle)}>
+                  {saveToggle ? t('profile.showMyPosts', 'Show My Posts') : t('profile.showSavedPosts', 'Show Saved Posts')}
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-y-auto">
+         {saveToggle ? (_postsLoading ? <div className="flex justify-center items-center min-h-[200px]"><Spinner /></div> : (posts.length === 0 ? (
             <div className="text-muted-foreground">{t('profile.noPosts', 'No posts yet')}</div>
           ) : (
             <div className="space-y-4 grid gap-4 sm:grid-cols-2">
               {posts.map((p) => (
-                <PostCard key={p.postId} post={p as PostItem} onPostUpdate={(updatedPost: PostItem) => handlePostUpdate(updatedPost as SavedPostItem)} onPostDelete={handlePostDelete} />
+                <PostCard key={p.postId} post={p as PostItem} onPostUpdate={(updatedPost: PostItem) => handlePostUpdate(updatedPost as SavedPostItem)} onPostDelete={handlePostDelete} onUsernameClick={handleUsernameClick} />
               ))}
             </div>
-          ))) : (_postsLoading ? <Spinner /> : (myPosts.length === 0 ? (  
+          ))) : (_postsLoading ? <div className="flex justify-center items-center min-h-[200px]"><Spinner /></div> : (myPosts.length === 0 ? (  
             <div className="text-muted-foreground">{t('profile.noPosts', 'No posts yet')}</div>
           ) : (
             <div className="space-y-4 grid gap-4 sm:grid-cols-2">
               {myPosts.map((p) => (
-                <PostCard key={p.postId} post={p as PostItem} onPostUpdate={(updatedPost: PostItem) => handlePostUpdate(updatedPost as PostItem)} onPostDelete={handlePostDelete} />
+                <PostCard key={p.postId} post={p as PostItem} onPostUpdate={(updatedPost: PostItem) => handlePostUpdate(updatedPost as PostItem)} onPostDelete={handlePostDelete} onUsernameClick={handleUsernameClick} />
               ))}
             </div>
           )))}
-        </ScrollPanel>
+            </div>
+          </CardContent>
+        </GlassCard>
       </div>
 
       <UserProfileDialog
@@ -375,5 +390,7 @@ export default function ProfileIndex() {
     </div>
   );
 }
+
+
 
 
