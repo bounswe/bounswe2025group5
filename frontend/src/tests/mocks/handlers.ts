@@ -1,4 +1,5 @@
 import { http, HttpResponse } from 'msw';
+import { postHandlers } from './postHandlers';
 
 /**
  * Extend this array with request handlers that mirror the real API contracts in
@@ -11,5 +12,6 @@ export const handlers = [
       status: 'ok',
     }),
   ),
+  ...postHandlers,
 ];
 
