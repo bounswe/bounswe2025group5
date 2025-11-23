@@ -19,6 +19,20 @@ export const TotalLogResponseSchema = z.object({
 }).passthrough();
 export type TotalLogResponse = z.infer<typeof TotalLogResponseSchema>;
 
+export const MonthlyWasteDataSchema = z.object({
+  year: z.number().int(),
+  month: z.number().int().min(1).max(12),
+  totalWeight: z.number().nonnegative(),
+}).passthrough();
+export type MonthlyWasteData = z.infer<typeof MonthlyWasteDataSchema>;
+
+export const WasteLogMonthlyResponseSchema = z.object({
+  username: z.string(),
+  wasteType: z.string(),
+  monthlyData: z.array(MonthlyWasteDataSchema),
+}).passthrough();
+export type WasteLogMonthlyResponse = z.infer<typeof WasteLogMonthlyResponseSchema>;
+
 export const WasteApi = {
   list: async (goalId: number) => {
     const res = await ApiClient.get<WasteLog[]>(`/api/waste-goals/${goalId}/logs`);
@@ -45,6 +59,15 @@ export const WasteApi = {
     });
     const res = await ApiClient.get<TotalLogResponse>(`/api/logs/summary?${query.toString()}`);
     return TotalLogResponseSchema.parse(res);
+  },
+  monthly: async (params: { username: string; wasteType: string }) => {
+    const query = new URLSearchParams({
+      wasteType: params.wasteType,
+    });
+    const res = await ApiClient.get<WasteLogMonthlyResponse>(
+      `/api/logs/${encodeURIComponent(params.username)}/monthly?${query.toString()}`
+    );
+    return WasteLogMonthlyResponseSchema.parse(res);
   },
 };
 

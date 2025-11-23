@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Spinner } from '@/components/ui/spinner';
 import { Badge } from '@/components/ui/badge';
+import { WASTE_TYPE_OPTIONS } from '@/lib/constants/wasteTypes';
 
 type FormState = {
   startDate: string;
@@ -21,16 +22,6 @@ const DEFAULT_FORM: FormState = {
   endDate: '2025-10-20',
   wasteType: 'Plastic',
 };
-
-const SUGGESTED_WASTE_TYPES = [
-  'Plastic',
-  'Paper',
-  'Glass',
-  'Metal',
-  'Organic',
-  'E-Waste',
-  'Textile',
-] as const;
 
 type WasteSummaryCardProps = {
   className?: string;
@@ -137,7 +128,7 @@ export default function WasteSummaryCard({ className }: WasteSummaryCardProps) {
               required
             />
             <datalist id="waste-type-options">
-              {SUGGESTED_WASTE_TYPES.map((type) => (
+              {WASTE_TYPE_OPTIONS.map((type) => (
                 <option key={type} value={type} />
               ))}
             </datalist>
