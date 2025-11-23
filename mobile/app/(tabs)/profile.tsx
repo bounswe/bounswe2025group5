@@ -35,6 +35,7 @@ import { apiRequest, clearSession } from "../services/apiClient";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useTranslation } from "react-i18next";
 import PostItem from "../components/PostItem";
+import { ScrollView } from "react-native";
 
 type CommentData = {
   commentId: number;
@@ -91,6 +92,8 @@ export default function ProfileScreen() {
   const [followingCount, setFollowingCount] = useState<number | null>(null);
   const [followersList, setFollowersList] = useState<string[]>([]);
   const [followingList, setFollowingList] = useState<string[]>([]);
+  const [followerAvatars, setFollowerAvatars] = useState<{ [username: string]: string | null }>({});
+  const [followingAvatars, setFollowingAvatars] = useState<{ [username: string]: string | null }>({});
   const [followersModalVisible, setFollowersModalVisible] = useState(false);
   const [followingModalVisible, setFollowingModalVisible] = useState(false);
   const [loadingFollowersModal, setLoadingFollowersModal] = useState(false);
@@ -154,6 +157,8 @@ export default function ProfileScreen() {
       const data = await res.json();
       const usernames = Array.isArray(data) ? data.map((item: any) => item.username || item) : [];
       setFollowersList(usernames);
+      // Prefetch avatars
+      await prefetchAvatars(usernames, 'followers');
     } catch (e) {
       console.warn('Could not fetch followers list', e);
       setFollowersList([]);
@@ -161,6 +166,28 @@ export default function ProfileScreen() {
       setLoadingFollowersModal(false);
     }
   }, [username]);
+
+  const prefetchAvatars = useCallback(async (usernames: string[], type: 'followers' | 'following') => {
+    const pairs = await Promise.all(
+      usernames.map(async (uname) => {
+        try {
+          const enc = encodeURIComponent(uname);
+          const r = await apiRequest(`/api/users/${enc}/profile?username=${enc}`);
+          if (r.ok) {
+            const d = await r.json();
+            return [uname, d.photoUrl ?? null] as const;
+          }
+        } catch {}
+        return [uname, null] as const;
+      })
+    );
+    const map = Object.fromEntries(pairs);
+    if (type === 'followers') {
+      setFollowerAvatars((prev) => ({ ...prev, ...map }));
+    } else {
+      setFollowingAvatars((prev) => ({ ...prev, ...map }));
+    }
+  }, []);
 
   const fetchFollowingList = useCallback(async () => {
     if (!username) return;
@@ -175,6 +202,8 @@ export default function ProfileScreen() {
       const data = await res.json();
       const usernames = Array.isArray(data) ? data.map((item: any) => item.username || item) : [];
       setFollowingList(usernames);
+      // Prefetch avatars
+      await prefetchAvatars(usernames, 'following');
     } catch (e) {
       console.warn('Could not fetch following list', e);
       setFollowingList([]);
@@ -881,7 +910,10 @@ export default function ProfileScreen() {
           if (!isMounted) return;
           setBio(data.biography ?? "");
           setAvatarUri(data.photoUrl ?? "");
-          setFollowersCount(typeof data.followersCount === 'number' ? data.followersCount : null);
+          const followerCountValue = typeof data.followerCount === 'number'
+            ? data.followerCount
+            : (typeof data.followersCount === 'number' ? data.followersCount : null);
+          setFollowersCount(followerCountValue);
           setFollowingCount(typeof data.followingCount === 'number' ? data.followingCount : null);
           setHasLoadedProfile(true);
           fetchUserPosts();
@@ -1429,67 +1461,91 @@ export default function ProfileScreen() {
         </View>
       ) : null}
 
-      <Modal visible={followersModalVisible} onRequestClose={() => setFollowersModalVisible(false)} transparent animationType="slide">
-        <View style={[styles.modalOverlay, { backgroundColor: contentBackgroundColor }]}>
-          <View style={styles.modalHeader}>
-            <AccessibleText backgroundColor={contentBackgroundColor} style={{ fontSize: 18, fontWeight: '700', color: generalTextColor }}>{t('followers')}</AccessibleText>
-            <TouchableOpacity onPress={() => setFollowersModalVisible(false)}>
-              <Ionicons name="close" size={24} color={generalTextColor} />
-            </TouchableOpacity>
+      <Modal visible={followersModalVisible} onRequestClose={() => setFollowersModalVisible(false)} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={{ width: '90%', maxWidth: 400, borderRadius: 16, backgroundColor: cardBackgroundColor, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 8 }}>
+            <View style={styles.modalHeader}>
+              <AccessibleText backgroundColor={cardBackgroundColor} style={{ fontSize: 18, fontWeight: '700', color: generalTextColor }}>{t('followers')}</AccessibleText>
+              <TouchableOpacity onPress={() => setFollowersModalVisible(false)}>
+                <Ionicons name="close" size={24} color={generalTextColor} />
+              </TouchableOpacity>
+            </View>
+            {loadingFollowersModal ? (
+              <ActivityIndicator style={{ marginVertical: 20 }} color={iconColor} />
+            ) : followersList.length === 0 ? (
+              <AccessibleText backgroundColor={cardBackgroundColor} style={{ textAlign: 'center', marginVertical: 20, color: iconColor }}>{t('noFollowers', { defaultValue: 'No followers' })}</AccessibleText>
+            ) : (
+              <ScrollView style={styles.listContainer}>
+                {followersList.map((uname) => {
+                  const avatar = followerAvatars[uname] || null;
+                  return (
+                    <TouchableOpacity
+                      key={uname}
+                      style={[styles.listItem, { backgroundColor: cardBackgroundColor }]}
+                      onPress={() => {
+                        setFollowersModalVisible(false);
+                        navigation.navigate('user_profile', { username: uname });
+                      }}
+                    >
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        {avatar ? (
+                          <Image source={{ uri: avatar }} style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: avatarPlaceholderColor, marginRight: 12 }} />
+                        ) : (
+                          <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: avatarPlaceholderColor, marginRight: 12 }} />
+                        )}
+                        <AccessibleText backgroundColor={cardBackgroundColor} style={{ color: generalTextColor, fontWeight: '500' }}>{uname}</AccessibleText>
+                      </View>
+                      <Ionicons name="chevron-forward" size={20} color={iconColor} />
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            )}
           </View>
-          {loadingFollowersModal ? (
-            <ActivityIndicator style={{ marginTop: 20 }} color={iconColor} />
-          ) : followersList.length === 0 ? (
-            <AccessibleText backgroundColor={contentBackgroundColor} style={{ textAlign: 'center', marginTop: 20, color: iconColor }}>{t('noFollowers', { defaultValue: 'No followers' })}</AccessibleText>
-          ) : (
-            <ScrollView style={styles.listContainer}>
-              {followersList.map((username) => (
-                <TouchableOpacity
-                  key={username}
-                  style={[styles.listItem, { backgroundColor: cardBackgroundColor }]}
-                  onPress={() => {
-                    setFollowersModalVisible(false);
-                    navigation.navigate('user_profile', { username });
-                  }}
-                >
-                  <AccessibleText backgroundColor={cardBackgroundColor} style={{ color: textColor, fontWeight: '500' }}>{username}</AccessibleText>
-                  <Ionicons name="chevron-forward" size={20} color={iconColor} />
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          )}
         </View>
       </Modal>
 
-      <Modal visible={followingModalVisible} onRequestClose={() => setFollowingModalVisible(false)} transparent animationType="slide">
-        <View style={[styles.modalOverlay, { backgroundColor: contentBackgroundColor }]}>
-          <View style={styles.modalHeader}>
-            <AccessibleText backgroundColor={contentBackgroundColor} style={{ fontSize: 18, fontWeight: '700', color: generalTextColor }}>{t('following')}</AccessibleText>
-            <TouchableOpacity onPress={() => setFollowingModalVisible(false)}>
-              <Ionicons name="close" size={24} color={generalTextColor} />
-            </TouchableOpacity>
+      <Modal visible={followingModalVisible} onRequestClose={() => setFollowingModalVisible(false)} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={{ width: '90%', maxWidth: 400, borderRadius: 16, backgroundColor: cardBackgroundColor, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 8 }}>
+            <View style={styles.modalHeader}>
+              <AccessibleText backgroundColor={cardBackgroundColor} style={{ fontSize: 18, fontWeight: '700', color: generalTextColor }}>{t('following')}</AccessibleText>
+              <TouchableOpacity onPress={() => setFollowingModalVisible(false)}>
+                <Ionicons name="close" size={24} color={generalTextColor} />
+              </TouchableOpacity>
+            </View>
+            {loadingFollowingModal ? (
+              <ActivityIndicator style={{ marginVertical: 20 }} color={iconColor} />
+            ) : followingList.length === 0 ? (
+              <AccessibleText backgroundColor={cardBackgroundColor} style={{ textAlign: 'center', marginVertical: 20, color: iconColor }}>{t('notFollowingAnyone', { defaultValue: 'Not following anyone' })}</AccessibleText>
+            ) : (
+              <ScrollView style={styles.listContainer}>
+                {followingList.map((uname) => {
+                  const avatar = followingAvatars[uname] || null;
+                  return (
+                    <TouchableOpacity
+                      key={uname}
+                      style={[styles.listItem, { backgroundColor: cardBackgroundColor }]}
+                      onPress={() => {
+                        setFollowingModalVisible(false);
+                        navigation.navigate('user_profile', { username: uname });
+                      }}
+                    >
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        {avatar ? (
+                          <Image source={{ uri: avatar }} style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: avatarPlaceholderColor, marginRight: 12 }} />
+                        ) : (
+                          <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: avatarPlaceholderColor, marginRight: 12 }} />
+                        )}
+                        <AccessibleText backgroundColor={cardBackgroundColor} style={{ color: generalTextColor, fontWeight: '500' }}>{uname}</AccessibleText>
+                      </View>
+                      <Ionicons name="chevron-forward" size={20} color={iconColor} />
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            )}
           </View>
-          {loadingFollowingModal ? (
-            <ActivityIndicator style={{ marginTop: 20 }} color={iconColor} />
-          ) : followingList.length === 0 ? (
-            <AccessibleText backgroundColor={contentBackgroundColor} style={{ textAlign: 'center', marginTop: 20, color: iconColor }}>{t('notFollowingAnyone', { defaultValue: 'Not following anyone' })}</AccessibleText>
-          ) : (
-            <ScrollView style={styles.listContainer}>
-              {followingList.map((username) => (
-                <TouchableOpacity
-                  key={username}
-                  style={[styles.listItem, { backgroundColor: cardBackgroundColor }]}
-                  onPress={() => {
-                    setFollowingModalVisible(false);
-                    navigation.navigate('user_profile', { username });
-                  }}
-                >
-                  <AccessibleText backgroundColor={cardBackgroundColor} style={{ color: textColor, fontWeight: '500' }}>{username}</AccessibleText>
-                  <Ionicons name="chevron-forward" size={20} color={iconColor} />
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          )}
         </View>
       </Modal>
     </>
@@ -1701,7 +1757,7 @@ const styles = StyleSheet.create({
   },
   wasteTypeChipActive: { backgroundColor: "#2E7D32", borderColor: "#2E7D32" },
   wasteTypeChipText: { fontSize: 12, fontWeight: "600" },
-  modalOverlay: { flex: 1, paddingTop: Platform.OS === "ios" ? 50 : 20 },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', padding: 16 },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#ccc' },
   listContainer: { flex: 1, paddingHorizontal: 0 },
   listItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },

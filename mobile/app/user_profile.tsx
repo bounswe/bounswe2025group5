@@ -39,7 +39,10 @@ export default function UserProfileScreen() {
       const data = await res.json();
       setBio(data.biography ?? '');
       setAvatarUri(data.photoUrl ?? null);
-      setFollowersCount(typeof data.followersCount === 'number' ? data.followersCount : null);
+      const followerCountValue = typeof data.followerCount === 'number'
+        ? data.followerCount
+        : (typeof data.followersCount === 'number' ? data.followersCount : null);
+      setFollowersCount(followerCountValue);
       setFollowingCount(typeof data.followingCount === 'number' ? data.followingCount : null);
       
       // Check if current user is following this user
@@ -48,7 +51,8 @@ export default function UserProfileScreen() {
           const checkRes = await apiRequest(`/api/users/${encodeURIComponent(username)}/is-following/${encoded}`);
           if (checkRes.ok) {
             const checkData = await checkRes.json();
-            setIsFollowing(checkData.isFollowing || false);
+            const followFlag = typeof checkData.follow === 'boolean' ? checkData.follow : checkData.isFollowing;
+            setIsFollowing(!!followFlag);
           }
         } catch (e) {
           console.warn('Could not check follow status', e);
