@@ -149,7 +149,7 @@
         "type": "Type",
         "restriction": "Restriction (g)",
         "duration": "Duration (days)",
-        "progress": "Progress",
+        "progress": "Usage",
         "cardTitle": "{{type}} goal",
         "showDetails": "Show details",
         "hideDetails": "Hide details",

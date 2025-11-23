@@ -207,7 +207,7 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
             }}
           >
             <div className="grid gap-1">
-              <Label htmlFor="monthly-waste-type">{t('goals.wasteType', 'Atık türü')}</Label>
+              <Label htmlFor="monthly-waste-type">{t('goals.wasteType', 'Waste type')}</Label>
               <select
                 id="monthly-waste-type"
                 className="h-9 rounded-md border border-input bg-background px-3 text-sm"
