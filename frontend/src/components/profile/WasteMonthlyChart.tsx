@@ -121,7 +121,7 @@ export default function WasteMonthlyChart({ username, className }: WasteMonthlyC
               list="monthly-waste-type-options"
               value={wasteType}
               onChange={(event) => setWasteType(event.target.value)}
-              placeholder={t('goals.summaryTypePlaceholder', 'e.g., Plastic')}
+              placeholder={t('goals.summaryTypePlaceholder', 'e.g., PLASTIC')}
             />
             <datalist id="monthly-waste-type-options">
               {WASTE_TYPE_OPTIONS.map((type) => (

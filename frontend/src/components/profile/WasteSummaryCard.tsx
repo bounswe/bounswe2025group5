@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Spinner } from '@/components/ui/spinner';
 import { Badge } from '@/components/ui/badge';
-import { WASTE_TYPE_OPTIONS } from '@/lib/constants/wasteTypes';
+import { DEFAULT_WASTE_TYPE, WASTE_TYPE_OPTIONS } from '@/lib/constants/wasteTypes';
 
 type FormState = {
   startDate: string;
@@ -20,7 +20,7 @@ type FormState = {
 const DEFAULT_FORM: FormState = {
   startDate: '2025-10-01',
   endDate: '2025-10-20',
-  wasteType: 'Plastic',
+  wasteType: DEFAULT_WASTE_TYPE,
 };
 
 type WasteSummaryCardProps = {
@@ -124,7 +124,7 @@ export default function WasteSummaryCard({ className }: WasteSummaryCardProps) {
               list="waste-type-options"
               value={form.wasteType}
               onChange={(event) => setForm((prev) => ({ ...prev, wasteType: event.target.value }))}
-              placeholder={t('goals.summaryTypePlaceholder', 'e.g., Plastic')}
+              placeholder={t('goals.summaryTypePlaceholder', 'e.g., PLASTIC')}
               required
             />
             <datalist id="waste-type-options">

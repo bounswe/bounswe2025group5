@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { WASTE_TYPES } from '@/lib/constants/wasteTypes';
 
 type Props = {
   open: boolean;
@@ -14,21 +15,14 @@ type Props = {
 };
 
 export default function CreateOrEditGoalDialog({ open, onOpenChange, initial, onSubmit, title = 'Waste Goal', description = 'Set your waste reduction goal' }: Props) {
-  const wasteTypes = [
-    { id: 3, name: 'GLASS' },
-    { id: 2, name: 'METAL' },
-    { id: 5, name: 'ORGANIC' },
-    { id: 4, name: 'PAPER' },
-    { id: 1, name: 'PLASTIC' },
-  ];
-  const [type, setType] = useState(initial?.type ?? wasteTypes[0].name);
+  const [type, setType] = useState(initial?.type ?? WASTE_TYPES[0].name);
   const [duration, setDuration] = useState<number>(initial?.duration ?? 7);
   const [restrictionAmountGrams, setRestrictionAmountGrams] = useState<number>(initial?.restrictionAmountGrams ?? 0);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (open) {
-      setType(initial?.type ?? wasteTypes[0].name);
+      setType(initial?.type ?? WASTE_TYPES[0].name);
       setDuration(initial?.duration ?? 7);
       setRestrictionAmountGrams(initial?.restrictionAmountGrams ?? 0);
     }
@@ -52,7 +46,7 @@ export default function CreateOrEditGoalDialog({ open, onOpenChange, initial, on
               value={type}
               onChange={(e) => setType(e.target.value)}
             >
-              {wasteTypes.map((wt) => (
+              {WASTE_TYPES.map((wt) => (
                 <option key={wt.id} value={wt.name}>{wt.name}</option>
               ))}
             </select>
