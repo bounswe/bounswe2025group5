@@ -36,9 +36,9 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
     }
   }, [username]);
 
-  const [wasteType, setWasteType] = useState(DEFAULT_WASTE_TYPE);
+  const [wasteType, setWasteType] = useState<string>(DEFAULT_WASTE_TYPE);
   const [monthlyData, setMonthlyData] = useState<MonthlyWasteData[]>([]);
-  const [resolvedWasteType, setResolvedWasteType] = useState(DEFAULT_WASTE_TYPE);
+  const [resolvedWasteType, setResolvedWasteType] = useState<string>(DEFAULT_WASTE_TYPE);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
@@ -93,7 +93,7 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
 
   return (
     <Card className={cn('w-full', isCompact && 'h-full', className)}>
-      <CardHeader className={cn('space-y-2', isCompact && 'space-y-1')}>
+      <CardHeader className={cn('space-y-2', isCompact ? 'p-4 pb-2' : 'p-5 pb-3')}>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-3">
@@ -125,14 +125,14 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
           </Button>
         </div>
       </CardHeader>
-      <CardContent className={cn('space-y-6', isCompact && 'space-y-4')}>
+      <CardContent className={cn('space-y-4', isCompact ? 'p-4 pt-0' : 'p-5 pt-0')}>
         <div className={cn('rounded-2xl border bg-muted/20', isCompact ? 'p-3' : 'p-4')}>
           {loading && monthlyData.length === 0 ? (
-            <div className={cn('flex items-center justify-center', isCompact ? 'h-56' : 'h-64')}>
+            <div className={cn('flex items-center justify-center', isCompact ? 'h-48' : 'h-60')}>
               <Spinner className="h-10 w-10" />
             </div>
           ) : chartEmpty ? (
-            <div className={cn('flex flex-col items-center justify-center text-muted-foreground', isCompact ? 'h-56' : 'h-64')}>
+            <div className={cn('flex flex-col items-center justify-center text-muted-foreground', isCompact ? 'h-48' : 'h-60')}>
               {t('goals.monthlyEmpty', 'No logs found for this waste type in the last 12 months.')}
             </div>
           ) : (
@@ -140,7 +140,7 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
               ariaLabel={chartLabel}
               data={monthlyData}
               maxValue={maxScale}
-              height={isCompact ? 220 : 256}
+              height={isCompact ? 200 : 240}
             />
           )}
         </div>
@@ -229,13 +229,14 @@ function BarChart({ data, maxValue, ariaLabel, height = 256 }: BarChartProps) {
   return (
     <div role="img" aria-label={ariaLabel} className="flex items-end gap-2" style={{ height }}>
       {data.map((entry) => {
-        const percentage = maxValue > 0 ? (entry.totalWeight / maxValue) * 100 : 0;
+        const rawPercent = maxValue > 0 ? (entry.totalWeight / maxValue) * 100 : 0;
+        const percentage = rawPercent > 0 ? Math.max(rawPercent, 8) : 0;
         const monthLabel = formatMonthLabel(entry.year, entry.month);
         return (
           <div key={`${entry.year}-${entry.month}`} className="flex flex-1 flex-col items-center gap-1">
-            <div className="relative flex-1 w-full rounded-lg bg-background/50">
+            <div className="relative flex-1 w-full rounded-md bg-muted/60">
               <div
-                className="absolute inset-x-0 bottom-0 rounded-lg bg-gradient-to-t from-emerald-500 to-sky-400"
+                className="absolute inset-x-0 bottom-0 rounded-md bg-gradient-to-t from-emerald-500 to-sky-500 shadow-sm"
                 style={{ height: `${percentage}%` }}
                 aria-hidden="true"
               />

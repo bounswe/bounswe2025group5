@@ -138,7 +138,9 @@
         "restriction": "Kısıt (g)",
         "duration": "Süre (gün)",
         "progress": "İlerleme",
-        "cardTitle": "{type} hedefi"
+        "cardTitle": "{type} hedefi",
+        "showDetails": "Detayları göster",
+        "hideDetails": "Detayları gizle"
     },
     "challenge" : {
         "navbar": "Etkinlikler"

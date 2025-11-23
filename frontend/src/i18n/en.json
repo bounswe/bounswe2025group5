@@ -150,7 +150,9 @@
         "restriction": "Restriction (g)",
         "duration": "Duration (days)",
         "progress": "Progress",
-        "cardTitle": "{type} goal"
+        "cardTitle": "{type} goal",
+        "showDetails": "Show details",
+        "hideDetails": "Hide details"
     },
     "challenge": {
         "navbar": "Challenge"

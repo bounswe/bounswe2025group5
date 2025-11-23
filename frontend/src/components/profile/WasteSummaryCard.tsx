@@ -78,7 +78,7 @@ export default function WasteSummaryCard({ className, variant = 'default' }: Was
 
   return (
     <Card className={cn('w-full', isCompact && 'h-full', className)}>
-      <CardHeader className={cn('space-y-2', isCompact && 'space-y-1')}>
+      <CardHeader className={cn('space-y-2', isCompact ? 'p-4 pb-2' : 'p-5 pb-3')}>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-3">
@@ -110,10 +110,10 @@ export default function WasteSummaryCard({ className, variant = 'default' }: Was
           </Button>
         </div>
       </CardHeader>
-      <CardContent className={cn('space-y-6', isCompact && 'space-y-4')}>
+      <CardContent className={cn('space-y-4', isCompact ? 'p-4 pt-0' : 'p-5 pt-0')}>
         <div className="flex items-center justify-center">
           {loading && !summary ? (
-            <div className="flex min-h-[220px] items-center justify-center">
+            <div className="flex h-48 items-center justify-center">
               <Spinner className="h-10 w-10" />
             </div>
           ) : (
@@ -123,14 +123,14 @@ export default function WasteSummaryCard({ className, variant = 'default' }: Was
               label={summary ? formatWeight(summary.totalAmount) : '--'}
               sublabel={t('goals.summaryTotal', 'Total collected')}
               scaleLabel={scaleMax > 0 ? `${t('goals.summaryScaleMax', 'Scale max')}: ${formatWeight(scaleMax)}` : undefined}
-              size={isCompact ? 200 : 220}
+              size={isCompact ? 170 : 200}
             />
           )}
         </div>
 
         <div
           id={detailSectionId}
-          className={cn('space-y-4', !expanded && 'hidden')}
+          className={cn('space-y-3', !expanded && 'hidden')}
           aria-hidden={!expanded}
         >
           <form
