@@ -93,14 +93,14 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
     <Card className={cn('w-full', isCompact && 'h-full', className)}>
       <CardHeader className={cn('space-y-2', isCompact && 'space-y-1')}>
         <div className="flex flex-wrap items-center gap-3">
-          <CardTitle className="text-2xl font-semibold">
+          <CardTitle className={cn('font-semibold', isCompact ? 'text-xl' : 'text-2xl')}>
             {t('goals.monthlyTitle', '12-month waste trends')}
           </CardTitle>
-          <Badge variant="outline" className="uppercase tracking-wide">
+          <Badge variant="outline" className={cn('uppercase tracking-wide', isCompact && 'text-xs')}>
             {resolvedWasteType}
           </Badge>
         </div>
-        <CardDescription>
+        <CardDescription className={cn(isCompact ? 'text-xs' : 'text-sm')}>
           {t(
             'goals.monthlySubtitle',
             'Powered by /api/logs/{{username}}/monthly?wasteType={{type}}',
@@ -175,16 +175,19 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
             label={t('goals.monthlyTotal', '12-month total')}
             value={formatWeight(totalCollected)}
             helper={t('goals.summaryScaleMax', 'Scale max') + `: ${formatWeight(maxScale)}`}
+            variant={isCompact ? 'compact' : 'default'}
           />
           <Metric
             label={t('goals.monthlyPeak', 'Peak month')}
             value={peakMonth ? formatMonthLabel(peakMonth.year, peakMonth.month) : '--'}
             helper={peakMonth ? formatWeight(peakMonth.totalWeight) : t('goals.monthlyPeakEmpty', 'No logs yet')}
+            variant={isCompact ? 'compact' : 'default'}
           />
           <Metric
             label={t('goals.monthlyEndpoint', 'Endpoint')}
             value="/api/logs/{username}/monthly"
             helper={t('goals.monthlyQueryHelper', 'GET wasteType={{type}}', { type: resolvedWasteType })}
+            variant={isCompact ? 'compact' : 'default'}
           />
         </div>
       </CardContent>
@@ -227,14 +230,16 @@ type MetricProps = {
   label: string;
   value: string;
   helper?: string;
+  variant?: 'default' | 'compact';
 };
 
-function Metric({ label, value, helper }: MetricProps) {
+function Metric({ label, value, helper, variant = 'default' }: MetricProps) {
+  const isCompact = variant === 'compact';
   return (
-    <div className="rounded-2xl border bg-background/50 p-4">
-      <p className="text-sm text-muted-foreground">{label}</p>
-      <p className="mt-1 text-2xl font-semibold">{value}</p>
-      {helper && <p className="mt-1 text-xs text-muted-foreground">{helper}</p>}
+    <div className={cn('rounded-2xl border bg-background/50', isCompact ? 'p-3' : 'p-4')}>
+      <p className={cn('text-muted-foreground', isCompact ? 'text-xs' : 'text-sm')}>{label}</p>
+      <p className={cn('mt-1 font-semibold', isCompact ? 'text-lg' : 'text-2xl')}>{value}</p>
+      {helper && <p className={cn('text-muted-foreground', isCompact ? 'mt-0.5 text-[11px]' : 'mt-1 text-xs')}>{helper}</p>}
     </div>
   );
 }
