@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import GoalCard from '@/components/profile/GoalCard';
+import GoalCard from '@/components/goals/GoalCard';
 import { type WasteGoalItem } from '@/lib/api/schemas/goals';
 import { UsersApi } from '@/lib/api/users';
-import CreateOrEditGoalDialog from '@/components/profile/CreateOrEditGoalDialog';
-import LogWasteDialog from '@/components/profile/LogWasteDialog';
+import CreateOrEditGoalDialog from '@/components/goals/CreateOrEditGoalDialog';
+import LogWasteDialog from '@/components/goals/LogWasteDialog';
 import WasteSummaryCard from '@/components/profile/WasteSummaryCard';
 import WasteMonthlyChart from '@/components/profile/WasteMonthlyChart';
 import { Button } from '@/components/ui/button';

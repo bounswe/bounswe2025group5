@@ -91,4 +91,3 @@ export default function LogWasteDialog({ goalId, username, open, onOpenChange, o
   );
 }
 
-

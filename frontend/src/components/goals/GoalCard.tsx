@@ -62,5 +62,3 @@ export default function GoalCard({ goal }: { goal: WasteGoalItem }) {
   );
 }
 
-
-

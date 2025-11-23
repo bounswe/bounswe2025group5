@@ -83,4 +83,3 @@ export default function CreateOrEditGoalDialog({ open, onOpenChange, initial, on
   );
 }
 
-
