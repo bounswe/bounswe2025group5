@@ -4,17 +4,17 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { WASTE_TYPES } from '@/lib/api/schemas/goals';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initial?: { type: string; duration: number; restrictionAmountGrams: number };
   onSubmit: (values: { type: string; duration: number; restrictionAmountGrams: number }) => Promise<void> | void;
-  title?: string;
-  description?: string;
 };
 
-export default function CreateOrEditGoalDialog({ open, onOpenChange, initial, onSubmit, title = 'Waste Goal', description = 'Set your waste reduction goal' }: Props) {
+export default function CreateOrEditGoalDialog({ open, onOpenChange, initial, onSubmit }: Props) {
+  const { t } = useTranslation();
   const [type, setType] = useState(initial?.type ?? WASTE_TYPES[0].name);
   const [duration, setDuration] = useState<number>(initial?.duration ?? 7);
   const [restrictionAmountGrams, setRestrictionAmountGrams] = useState<number>(initial?.restrictionAmountGrams ?? 0);
@@ -34,12 +34,12 @@ export default function CreateOrEditGoalDialog({ open, onOpenChange, initial, on
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+          <DialogTitle>{t('goals.createTitle', 'Create waste goal')}</DialogTitle>
+          <DialogDescription>{t('goals.createDesc', 'Define a new waste reduction goal')}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-3 py-2">
           <div className="grid gap-1">
-            <Label htmlFor="goal-type">Type</Label>
+            <Label htmlFor="goal-type">{t('goals.type', 'Type')}</Label>
             <select
               id="goal-type"
               className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
@@ -52,16 +52,16 @@ export default function CreateOrEditGoalDialog({ open, onOpenChange, initial, on
             </select>
           </div>
           <div className="grid gap-1">
-            <Label htmlFor="goal-duration">Duration (days)</Label>
+            <Label htmlFor="goal-duration">{t('goals.duration', 'Duration (days)')}</Label>
             <Input id="goal-duration" type="number" value={duration} onChange={(e) => setDuration(Number(e.target.value))} min={1} />
           </div>
           <div className="grid gap-1">
-            <Label htmlFor="goal-restriction">Restriction amount (grams)</Label>
+            <Label htmlFor="goal-restriction">{t('goals.restriction', 'Restriction amount (grams)')}</Label>
             <Input id="goal-restriction" type="number" value={restrictionAmountGrams} onChange={(e) => setRestrictionAmountGrams(Number(e.target.value))} min={0} />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>Cancel</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>{t('goals.cancel', 'Cancel')}</Button>
           <Button
             onClick={async () => {
               if (!canSubmit) return;
@@ -75,7 +75,7 @@ export default function CreateOrEditGoalDialog({ open, onOpenChange, initial, on
             }}
             disabled={!canSubmit || submitting}
           >
-            Save
+            {t('goals.save', 'Save')}
           </Button>
         </DialogFooter>
       </DialogContent>

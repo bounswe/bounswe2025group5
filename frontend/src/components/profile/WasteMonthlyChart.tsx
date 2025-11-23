@@ -3,10 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { WasteApi, type MonthlyWasteData } from '@/lib/api/waste';
 import { DEFAULT_WASTE_TYPE, WASTE_TYPE_OPTIONS } from '@/lib/api/schemas/goals';
 import { cn } from '@/lib/utils';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Spinner } from '@/components/ui/spinner';
@@ -96,7 +95,6 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
     void loadMonthly();
   }, [loadMonthly]);
 
-  const chartLabel = t('goals.monthlyChartLabel', 'Monthly collected waste in grams');
   const chartEmpty = !loading && monthlyData.length === 0;
   const maxScale = maxValue > 0 ? maxValue : 1000;
   const chartData = monthlyData.map((entry) => ({
@@ -209,7 +207,7 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
             }}
           >
             <div className="grid gap-1">
-              <Label htmlFor="monthly-waste-type">{t('goals.monthlyWasteType', 'Waste type')}</Label>
+              <Label htmlFor="monthly-waste-type">{t('goals.wasteType', 'Atık türü')}</Label>
               <select
                 id="monthly-waste-type"
                 className="h-9 rounded-md border border-input bg-background px-3 text-sm"

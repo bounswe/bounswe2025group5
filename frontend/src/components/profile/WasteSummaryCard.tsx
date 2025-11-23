@@ -101,7 +101,7 @@ export default function WasteSummaryCard({ className, variant = 'default' }: Was
             <CardDescription className={cn(isCompact ? 'text-xs' : 'text-sm')}>
               {t(
                 'goals.summarySubtitle',
-                'Aggregated from /api/logs/summary between {{start}} and {{end}}.',
+                '{{start}} / {{end}}.',
                 { start: activeRange.startDate, end: activeRange.endDate }
               )}
             </CardDescription>
@@ -202,29 +202,20 @@ export default function WasteSummaryCard({ className, variant = 'default' }: Was
           <div className="grid gap-4 sm:grid-cols-2">
             <StatCard
               label={t('goals.summaryRange', 'Tracking window')}
-              value={`${formatDate(activeRange.startDate)} → ${formatDate(activeRange.endDate)}`}
-              helper={durationDays > 0 ? t('goals.summaryDuration', '{{count}} day span', { count: durationDays }) : undefined}
+              value={durationDays > 0 ? t('goals.summaryDuration', '{{count}} day span', { count: durationDays }) : ""}
               variant={isCompact ? 'compact' : 'default'}
             />
             <StatCard
               label={t('goals.summaryAverage', 'Average per day')}
               value={summary ? formatWeight(averagePerDay) : '--'}
-              helper={summary ? t('goals.summaryAverageHelper', '~{{grams}} g/day', { grams: formatNumber(averagePerDay) }) : undefined}
               variant={isCompact ? 'compact' : 'default'}
             />
             <StatCard
               label={t('goals.summaryWasteLabel', 'Selected waste type')}
               value={wasteTypeLabel}
-              helper={summary?.wasteType?.id ? `${t('goals.summaryTypeId', 'Type id')}: ${summary.wasteType.id}` : undefined}
               variant={isCompact ? 'compact' : 'default'}
             />
-            <StatCard
-              label={t('goals.summaryEndpointLabel', 'Data source')}
-              value="/api/logs/summary"
-              helper={t('goals.summaryQueryHelper', 'GET with ISO interval filters')}
-              variant={isCompact ? 'compact' : 'default'}
-            />
-          </div>
+            </div>
 
           {!rangeIsValid && (
             <p className="text-sm text-destructive">

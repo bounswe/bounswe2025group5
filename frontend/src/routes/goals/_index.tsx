@@ -121,8 +121,6 @@ export default function GoalsIndex() {
       <CreateOrEditGoalDialog
         open={createOpen}
         onOpenChange={setCreateOpen}
-        title={t('goals.createTitle', 'Create waste goal')}
-        description={t('goals.createDesc', 'Define a new waste reduction goal')}
         onSubmit={async (values) => {
           if (!username) return;
           try {
@@ -143,8 +141,6 @@ export default function GoalsIndex() {
       <CreateOrEditGoalDialog
         open={editState.open}
         onOpenChange={(o) => setEditState((s) => ({ ...s, open: o }))}
-        title={t('goals.editTitle', 'Edit waste goal')}
-        description={t('goals.editDesc', 'Update your waste reduction goal')}
         initial={editState.goal && {
           type: editState.goal.wasteType,
           duration: editState.goal.duration,
