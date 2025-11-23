@@ -5,11 +5,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useTranslation } from 'react-i18next';
 import type { Notification } from '@/lib/api/schemas/notifications';
 import type { PostItem } from '@/lib/api/schemas/posts';
 import { PostsApi } from '@/lib/api/posts';
 import PostCard from '@/components/feedpage/post-card';
+import UserProfileDialog from '@/components/profile/userProfileDialog';
+import userAvatar from '@/assets/user.png';
 
 interface NotificationDetailDialogProps {
   notification: Notification | null;
@@ -26,11 +29,27 @@ export default function NotificationDetailDialog({
   const [post, setPost] = useState<PostItem | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showProfileDialog, setShowProfileDialog] = useState(false);
+  const [profileUsername, setProfileUsername] = useState<string | null>(null);
 
   useEffect(() => {
     if (!notification || !open) {
       setPost(null);
       setError(null);
+      // Don't reset profile dialog state here - it might be opening
+      return;
+    }
+
+    // For follow notifications, show profile dialog
+    if (notification.type === 'Follow') {
+      if (notification.actorId) {
+        setProfileUsername(notification.actorId);
+        // Use setTimeout to ensure profile dialog opens after this dialog closes
+        setTimeout(() => {
+          setShowProfileDialog(true);
+        }, 0);
+        onOpenChange(false); // Close the notification detail dialog
+      }
       return;
     }
 
@@ -87,49 +106,134 @@ export default function NotificationDetailDialog({
     const actor = notification.actorId || 'Someone';
     switch (notification.type) {
       case 'Like':
-        return `${actor} liked your post`;
+        return t('notifications.likedYourPost', { actor });
       case 'Create':
-        return `${actor} commented on your post`;
+        return t('notifications.commentedOnYourPost', { actor });
       case 'Follow':
-        return `${actor} started following you`;
+        return t('notifications.startedFollowing', { actor });
+      default:
+        return 'Notification';
+    }
+  };
+
+  const handleUsernameClick = (username: string) => {
+    setProfileUsername(username);
+    setShowProfileDialog(true);
+  };
+
+  const renderDialogTitle = () => {
+    if (!notification) return null;
+    
+    const actor = notification.actorId || 'Someone';
+    const hasActorId = !!notification.actorId;
+    
+    switch (notification.type) {
+      case 'Like':
+        return (
+          <div className="flex items-center gap-3">
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={userAvatar} alt={actor} />
+              <AvatarFallback>{actor[0]?.toUpperCase()}</AvatarFallback>
+            </Avatar>
+            <span className="font-normal">
+              <button
+                type="button"
+                onClick={() => hasActorId && handleUsernameClick(actor)}
+                className={hasActorId ? "font-semibold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded" : "font-semibold"}
+                disabled={!hasActorId}
+              >
+                {actor}
+              </button>
+              {' '}{t('notifications.likedYourPost_suffix')}
+            </span>
+          </div>
+        );
+      case 'Create':
+        return (
+          <div className="flex items-center gap-3">
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={userAvatar} alt={actor} />
+              <AvatarFallback>{actor[0]?.toUpperCase()}</AvatarFallback>
+            </Avatar>
+            <span className="font-normal">
+              <button
+                type="button"
+                onClick={() => hasActorId && handleUsernameClick(actor)}
+                className={hasActorId ? "font-semibold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded" : "font-semibold"}
+                disabled={!hasActorId}
+              >
+                {actor}
+              </button>
+              {' '}{t('notifications.commentedOnYourPost_suffix')}
+            </span>
+          </div>
+        );
+      case 'Follow':
+        return (
+          <div className="flex items-center gap-3">
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={userAvatar} alt={actor} />
+              <AvatarFallback>{actor[0]?.toUpperCase()}</AvatarFallback>
+            </Avatar>
+            <span className="font-normal">
+              <button
+                type="button"
+                onClick={() => hasActorId && handleUsernameClick(actor)}
+                className={hasActorId ? "font-semibold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded" : "font-semibold"}
+                disabled={!hasActorId}
+              >
+                {actor}
+              </button>
+              {' '}{t('notifications.startedFollowing_suffix')}
+            </span>
+          </div>
+        );
       default:
         return 'Notification';
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{getDialogTitle()}</DialogTitle>
-        </DialogHeader>
-        <div className="mt-4">
-          {isLoading && (
-            <p className="text-center text-muted-foreground py-8">
-              {t('notifications.loading')}
-            </p>
-          )}
-          {error && (
-            <p className="text-center text-destructive py-8">{error}</p>
-          )}
-          {!isLoading && !error && post && (
-            <PostCard
-              post={post}
-              onPostUpdate={(updatedPost) => setPost(updatedPost)}
-              onPostDelete={() => {
-                onOpenChange(false);
-              }}
-            />
-          )}
-          {!isLoading && !error && !post && notification?.type === 'Follow' && (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">
-                {notification.actorId} is now following you
+    <>
+      <Dialog open={open && !showProfileDialog} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{renderDialogTitle()}</DialogTitle>
+          </DialogHeader>
+          <div className="mt-4">
+            {isLoading && (
+              <p className="text-center text-muted-foreground py-8">
+                {t('notifications.loading')}
               </p>
-            </div>
-          )}
-        </div>
-      </DialogContent>
-    </Dialog>
+            )}
+            {error && (
+              <p className="text-center text-destructive py-8">{error}</p>
+            )}
+            {!isLoading && !error && post && (
+              <PostCard
+                post={post}
+                onPostUpdate={(updatedPost) => setPost(updatedPost)}
+                onPostDelete={() => {
+                  onOpenChange(false);
+                }}
+                onUsernameClick={handleUsernameClick}
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+      <UserProfileDialog
+        username={profileUsername}
+        open={showProfileDialog}
+        onOpenChange={(isOpen) => {
+          setShowProfileDialog(isOpen);
+          // Reset username when profile dialog is closed
+          if (!isOpen) {
+            setProfileUsername(null);
+          }
+        }}
+        onUsernameClick={handleUsernameClick}
+      />
+    </>
   );
 }
