@@ -8,22 +8,27 @@ import { Pencil, PlusCircle, Trash2 } from 'lucide-react';
 export default function GoalCard({ goal }: { goal: WasteGoalItem }) {
   const { t } = useTranslation();
   const progressPercent = Math.max(0, Math.min(100, goal.progress ?? 0));
+  const formattedProgress = new Intl.NumberFormat(undefined, {
+    maximumFractionDigits: 1,
+    minimumFractionDigits: 0,
+  }).format(progressPercent);
+  const wasteTypeLabel = t(`wasteTypes.${goal.wasteType}`, { defaultValue: goal.wasteType });
 
   return (
     <Card className="flex flex-col">
       <CardHeader>
         <CardTitle className="text-base">
-          {t('goals.cardTitle', '{type} goal', { type: goal.wasteType })}
+          {t('goals.cardTitle', '{type} goal', { type: wasteTypeLabel })}
         </CardTitle>
       </CardHeader>
       <CardContent className="text-sm text-muted-foreground space-y-2">
-        <div className="flex justify-between"><span>{t('goals.type', 'Type')}</span><span>{goal.wasteType}</span></div>
+        <div className="flex justify-between"><span>{t('goals.type', 'Type')}</span><span>{wasteTypeLabel}</span></div>
         <div className="flex justify-between"><span>{t('goals.restriction', 'Restriction (g)')}</span><span>{goal.restrictionAmountGrams}</span></div>
         <div className="flex justify-between"><span>{t('goals.duration', 'Duration (days)')}</span><span>{goal.duration}</span></div>
         <div className="space-y-1">
           <div className="flex justify-between">
             <span>{t('goals.progress', 'Progress')}</span>
-            <span>{progressPercent}%</span>
+            <span>{formattedProgress}%</span>
           </div>
           <Progress value={progressPercent} />
         </div>

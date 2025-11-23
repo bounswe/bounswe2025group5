@@ -150,9 +150,16 @@
         "restriction": "Restriction (g)",
         "duration": "Duration (days)",
         "progress": "Progress",
-        "cardTitle": "{type} goal",
+        "cardTitle": "{{type}} goal",
         "showDetails": "Show details",
         "hideDetails": "Hide details"
+    },
+    "wasteTypes": {
+        "GLASS": "Glass",
+        "METAL": "Metal",
+        "ORGANIC": "Organic",
+        "PAPER": "Paper",
+        "PLASTIC": "Plastic"
     },
     "challenge": {
         "navbar": "Challenge"

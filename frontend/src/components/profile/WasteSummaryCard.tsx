@@ -74,7 +74,8 @@ export default function WasteSummaryCard({ className, variant = 'default' }: Was
   const scaleMax = useMemo(() => summary ? niceCeil(summary.totalAmount) : 0, [summary]);
   const progressValue = summary && scaleMax > 0 ? Math.min((summary.totalAmount / scaleMax) * 100, 100) : 0;
   const averagePerDay = summary && durationDays > 0 ? summary.totalAmount / durationDays : 0;
-  const wasteTypeLabel = summary?.wasteType?.name ?? form.wasteType;
+  const wasteTypeKey = summary?.wasteType?.name ?? form.wasteType;
+  const wasteTypeLabel = t(`wasteTypes.${wasteTypeKey}`, { defaultValue: wasteTypeKey });
 
   return (
     <Card className={cn('w-full', isCompact && 'h-full', className)}>

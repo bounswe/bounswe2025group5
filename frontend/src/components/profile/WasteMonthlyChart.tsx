@@ -101,7 +101,7 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
                 {t('goals.monthlyTitle', '12-month waste trends')}
               </CardTitle>
               <Badge variant="outline" className={cn('uppercase tracking-wide', isCompact && 'text-xs')}>
-                {resolvedWasteType}
+                {t(`wasteTypes.${resolvedWasteType}`, { defaultValue: resolvedWasteType })}
               </Badge>
             </div>
             <CardDescription className={cn(isCompact ? 'text-xs' : 'text-sm')}>

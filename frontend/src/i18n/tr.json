@@ -138,9 +138,16 @@
         "restriction": "Kısıt (g)",
         "duration": "Süre (gün)",
         "progress": "İlerleme",
-        "cardTitle": "{type} hedefi",
+        "cardTitle": "{{type}} hedefi",
         "showDetails": "Detayları göster",
         "hideDetails": "Detayları gizle"
+    },
+    "wasteTypes": {
+        "GLASS": "Cam",
+        "METAL": "Metal",
+        "ORGANIC": "Organik",
+        "PAPER": "Kağıt",
+        "PLASTIC": "Plastik"
     },
     "challenge" : {
         "navbar": "Etkinlikler"
