@@ -651,7 +651,7 @@ export default function ExploreScreen() {
     } finally {
       setNotificationsLoading(false);
     }
-  }, [username, userType, t, userAvatars]);
+  }, [username, userType, t]);
 
   const handleNotificationsRefresh = useCallback(() => {
     fetchNotifications();
