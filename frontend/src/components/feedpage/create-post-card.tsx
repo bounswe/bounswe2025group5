@@ -90,6 +90,14 @@ export default function CreatePostCard({ onPostCreated, className }: CreatePostC
           
           <PopoverContent className="w-96 p-0 shadow-lg" align="start">
             <form onSubmit={handleSubmit} className="space-y-4 p-4">
+
+              {/* Kindness Reminder */}
+              <div className="bg-tertiary/5 border border-primary/20 rounded-lg p-3">
+                <p className="text-sm text-tertiary font-medium">
+                  {t('kindnessReminder.message')}
+                </p>
+              </div>
+
               {/* Post Content */}
               <div className="space-y-2">
                 <Label htmlFor="post-content">{t('feed.createPost.content.label')}</Label>

@@ -309,6 +309,9 @@
             "days": "{{count}}d"
         }
     },
+    "kindnessReminder": {
+        "message": "Remember to be kind and respectful in your communication. Let's build a positive community together!"
+    },
     "comment": {
         "placeholder": "Add a comment...",
         "save": "Save",
