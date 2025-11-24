@@ -303,6 +303,9 @@
             "days": "{{count}}g"
         }
     },
+    "kindnessReminder": {
+        "message": "İletişiminizde nazik ve saygılı olmayı unutmayın. Birlikte olumlu bir topluluk oluşturalım!"
+    },
     "comment": {
         "placeholder": "Yorum ekle...",
         "save": "Kaydet",

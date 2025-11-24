@@ -104,6 +104,13 @@ export default function CommentSection({ postId, onCommentAdded, onUsernameClick
       {/* Add Comment Form */}
       {currentUser && (
         <form onSubmit={handleSubmitComment} className="p-4 border-t">
+          {/* Kindness Reminder */}
+          <div className="bg-tertiary/5 border border-secondary/20 rounded-md p-2 mb-3">
+            <p className="text-xs text-tertiary font-medium">
+              {t('kindnessReminder.message')}
+            </p>
+          </div>
+
           <div className="flex items-center gap-3">
             <Avatar className="w-8 h-8 shrink-0">
               <AvatarImage src={userAvatar} alt={t('profile.photoAlt', { username: currentUser, defaultValue: `${currentUser}'s profile photo` })} />

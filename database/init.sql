@@ -521,5 +521,31 @@ END$$
 DELIMITER ;
 
 
+DELIMITER $$
+
+-- Trigger for Post deletions
+CREATE TRIGGER delete_post_notifications
+AFTER DELETE ON posts
+FOR EACH ROW
+BEGIN
+    DELETE FROM notifications
+    WHERE (objectType = 'Post' OR objectType = 'Comment')
+      AND objectId = OLD.post_id;
+END$$
+
+-- Trigger for Comment deletions
+CREATE TRIGGER delete_comment_notifications
+AFTER DELETE ON comments
+FOR EACH ROW
+BEGIN
+    DELETE FROM notifications
+    WHERE objectType = 'Comment'
+      AND objectId = OLD.post_id;
+END$$
+
+DELIMITER ;
+
+
+
 
 
