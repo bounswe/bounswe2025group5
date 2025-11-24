@@ -48,6 +48,7 @@ Make sure you have **Docker** and **Docker Compose** installed on your computer.
 
 
 2.  **Configuration Files**
+    * VITE_API_URL will be used at frontend container, you need to put that to env, the other ones are for backend container.
     * the application uses space object for the photos of profiles and posts, our suggesstion is creation of space object on digital ocean [website](https://www.digitalocean.com/products/spaces) , if you do not want to deal with it, please reach us and request the credentials.
     * The **application.properties** file works with the .env file in the root directory. You need to assign values to these variables: 
     ```bash
@@ -70,6 +71,9 @@ Make sure you have **Docker** and **Docker Compose** installed on your computer.
     DO_SPACES_POST_PHOTO_FOLDER=<digital-ocean-space-object-post-photo-folder-name>
     # qdrant container host name 
     QDRANT_HOST=qdrant-db
+    VITE_API_URL= <ip-address-of-your-backend-service>
+     ```
+
 
 ## Running the Application
 
@@ -102,3 +106,18 @@ To view the logs for a specific running container:
 ```bash
 docker-compose logs <container_name_or_id>
 ```
+## Running the Application For Mobile
+- If you run backend correctly, now the mobile apk will also use that backend , the configurations are:
+   ```bash
+      cd mobile
+      nano .env
+     ```
+    * put EXPO_PUBLIC_API_BASE_URL value to it.
+     ```bash
+      docker build -t mobile-apk .
+      docker create --name mobile-apk mobile-apk
+       docker cp mobile-apk:/app/artifacts/app-debug.apk ./app-standalone.apk
+  ```
+-  With these commands, you will get apk at your mobile directory.
+
+
