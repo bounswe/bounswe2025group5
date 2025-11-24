@@ -5,7 +5,7 @@ type GlobalWithLocation = typeof globalThis & { location?: { hostname?: string }
 
 const PROD_BASE_URL = 'https://waste-less.alibartukonca.org';
 
-const FORCE_PRODUCTION = true;
+const FORCE_PRODUCTION = false;
 
 const envBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 const envHost = process.env.EXPO_PUBLIC_API_HOST;
