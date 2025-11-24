@@ -91,10 +91,16 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
     if (response.status === 401) {
       const method = (options.method || 'GET').toString().toUpperCase();
       const isDeleteAccount = method === 'DELETE' && endpoint.startsWith('/api/users/');
+      const isLogin = endpoint === '/api/sessions';
+      
       if (isDeleteAccount) {
         throw new Error('Incorrect password');
       }
 
+      // Don't redirect on login failures - just throw the error
+      if (isLogin) {
+        throw new Error(errorMessage);
+      }
       clearTokens();
       localStorage.removeItem('username');
       if (!window.location.pathname.startsWith('/auth')) {
