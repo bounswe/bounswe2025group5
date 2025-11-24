@@ -81,6 +81,7 @@ export default function EditPostDialog({ post, onPostUpdated, currentUsername }:
           variant="ghost"
           size="icon"
           className="hover:bg-blue-50 hover:text-blue-600 transition-colors h-8 w-8"
+          aria-label={t('post.edit.button', 'Edit post')}
         >
           <Edit className="h-4 w-4" />
         </Button>

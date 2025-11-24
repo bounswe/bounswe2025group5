@@ -43,6 +43,7 @@ export default function ImageDialog({
             size="icon"
             onClick={() => onOpenChange(false)}
             className="bg-black/50 hover:bg-destructive text-white rounded-full"
+            aria-label={t('post.closeImage', 'Close image')}
           >
             <X className="h-4 w-4" />
           </Button>
