@@ -95,15 +95,8 @@ const renderWithAuth = () =>
 describe("Explore notifications", () => {
   let consoleErrorSpy: jest.SpyInstance;
 
-  beforeAll(() => {
-    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
-  });
-
-  afterAll(() => {
-    consoleErrorSpy?.mockRestore();
-  });
-
   beforeEach(() => {
+    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
     jest.clearAllMocks();
     mockApiRequest.mockImplementation(async (path: string) => {
       if (path.includes("/api/posts")) {
@@ -137,10 +130,14 @@ describe("Explore notifications", () => {
     });
   });
 
+  afterEach(() => {
+    consoleErrorSpy?.mockRestore();
+  });
+
   it("opens notifications modal and displays notifications", async () => {
     renderWithAuth();
 
-    fireEvent.press(screen.getByLabelText("Open notifications"));
+    fireEvent.press(await screen.findByLabelText("Open notifications"));
 
     await waitFor(() => {
       const hasNotificationsCall = mockApiRequest.mock.calls.some(
@@ -150,6 +147,11 @@ describe("Explore notifications", () => {
     });
 
     expect(await screen.findByText("Notifications")).toBeTruthy();
-    expect(await screen.findByText(/Someone liked your post/)).toBeTruthy();
+    await waitFor(
+      () => {
+        expect(screen.getByText(/Someone liked your post/i)).toBeTruthy();
+      },
+      { timeout: 4000 }
+    );
   });
 });
