@@ -18,7 +18,7 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
   const [username] = useState<string>(localStorage.getItem('username') || '');
   const [userInChallenge, setUserInChallenge] = useState<boolean>(challenge.userInChallenge);
   const [currentAmount, setCurrentAmount] = useState<number>(challenge.currentAmount ?? 0);
-  const [logAmount, setLogAmount] = useState<number>(1);
+  const [logAmount, setLogAmount] = useState<string>('');
 
   // a user attends a challange with challengeId, meanwhile the challenge is set to busy
   const attend = async (challengeId: number, username: string) => {
@@ -49,6 +49,11 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
   };
 
   const logChallengeProgress = async (challengeId: number, username: string, amount: number) => {
+    if (isNaN(amount) || amount <= 0) {
+      alert(t('challenges.invalidAmount', 'Please enter a positive amount'));
+      return;
+    }
+    
     try {
       setLogging((b) => ({ ...b, [challengeId]: true }));
       const response = await ChallengesApi.logChallengeProgress(challengeId, { username, amount });
@@ -184,20 +189,17 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
                     <div className="space-y-3">
                       <Input 
                         type="number" 
-                        min={1} 
                         value={logAmount} 
-                        onChange={e => {
-                          const next = Number(e.target.value);
-                          setLogAmount(isNaN(next) || next <= 0 ? 1 : next);
-                        }} 
+                        onChange={e => setLogAmount(e.target.value)} 
                         className="h-9"
+                        placeholder={t('challenges.enterAmount', 'Enter amount')}
                       />
                       <Button 
                         size="sm" 
                         variant="default" 
                         className="w-full h-9 btn-log-submit" 
                         disabled={!!logging[challenge.challengeId] || !!busy[challenge.challengeId]} 
-                        onClick={() => logChallengeProgress(challenge.challengeId, username, Math.max(1, logAmount))}
+                        onClick={() => logChallengeProgress(challenge.challengeId, username, Number(logAmount))}
                       >
                         {logging[challenge.challengeId] ? t('challenges.logging', 'Logging...') : t('challenges.submit', 'Submit')}
                       </Button>
