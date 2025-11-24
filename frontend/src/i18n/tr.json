@@ -209,7 +209,15 @@
     "challenge" : {
         "navbar": "Etkinlikler"
     },
-    "logout": "Çıkış Yap",
+    "logout": {
+        "label": "Çıkış Yap",
+        "dialog": {
+            "title": "Çıkışı Onayla",
+            "description": "Çıkış yapmak istediğinizden emin misiniz? Hesabınıza erişmek için tekrar giriş yapmanız gerekecek.",
+            "cancel": "İptal",
+            "confirm": "Çıkış Yap"
+        }
+    },
     "mainpage": {
         "navbar": "Ana Sayfa",
         "challengesTitle": "Katıldığınız Etkinlikler",
