@@ -149,8 +149,6 @@ export default function ProfileScreen() {
     i18n.changeLanguage(value ? "tr-TR" : "en-US");
   };
 
-  const followListTimeoutMs = 8000;
-
   const normalizeFollowList = useCallback((data: any): FollowUser[] => {
     if (!Array.isArray(data)) return [];
     return data
@@ -176,77 +174,77 @@ export default function ProfileScreen() {
 
   const fetchFollowersList = useCallback(async () => {
     if (!username) return;
+    let cancelled = false;
     setLoadingFollowersModal(true);
     setFollowersError(null);
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), followListTimeoutMs);
     try {
       const encoded = encodeURIComponent(username);
-      const res = await apiRequest(`/api/users/${encoded}/followers`, {
-        signal: controller.signal,
-      });
+      const res = await apiRequest(`/api/users/${encoded}/followers`);
       if (!res.ok) {
-        setFollowersList([]);
+        if (!cancelled) {
+          setFollowersList([]);
+          setFollowersError(
+            t("followersLoadError", {
+              defaultValue: "Could not load followers right now.",
+            })
+          );
+        }
+        return;
+      }
+      const data = await res.json();
+      if (!cancelled) {
+        setFollowersList(normalizeFollowList(data));
+      }
+    } catch (e: any) {
+      console.warn("Could not fetch followers list", e);
+      if (!cancelled) {
         setFollowersError(
           t("followersLoadError", {
             defaultValue: "Could not load followers right now.",
           })
         );
-        return;
+        setFollowersList([]);
       }
-      const data = await res.json();
-      setFollowersList(normalizeFollowList(data));
-    } catch (e: any) {
-      if (e?.name !== "AbortError") {
-        console.warn("Could not fetch followers list", e);
-      }
-      setFollowersError(
-        t("followersLoadError", {
-          defaultValue: "Could not load followers right now.",
-        })
-      );
-      setFollowersList([]);
     } finally {
-      clearTimeout(timeoutId);
-      setLoadingFollowersModal(false);
+      if (!cancelled) setLoadingFollowersModal(false);
     }
   }, [username, t, normalizeFollowList]);
 
   const fetchFollowingList = useCallback(async () => {
     if (!username) return;
+    let cancelled = false;
     setLoadingFollowingModal(true);
     setFollowingsError(null);
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), followListTimeoutMs);
     try {
       const encoded = encodeURIComponent(username);
-      const res = await apiRequest(`/api/users/${encoded}/followings`, {
-        signal: controller.signal,
-      });
+      const res = await apiRequest(`/api/users/${encoded}/followings`);
       if (!res.ok) {
-        setFollowingList([]);
+        if (!cancelled) {
+          setFollowingList([]);
+          setFollowingsError(
+            t("followingLoadError", {
+              defaultValue: "Could not load following list right now.",
+            })
+          );
+        }
+        return;
+      }
+      const data = await res.json();
+      if (!cancelled) {
+        setFollowingList(normalizeFollowList(data));
+      }
+    } catch (e: any) {
+      console.warn("Could not fetch following list", e);
+      if (!cancelled) {
         setFollowingsError(
           t("followingLoadError", {
             defaultValue: "Could not load following list right now.",
           })
         );
-        return;
+        setFollowingList([]);
       }
-      const data = await res.json();
-      setFollowingList(normalizeFollowList(data));
-    } catch (e: any) {
-      if (e?.name !== "AbortError") {
-        console.warn("Could not fetch following list", e);
-      }
-      setFollowingsError(
-        t("followingLoadError", {
-          defaultValue: "Could not load following list right now.",
-        })
-      );
-      setFollowingList([]);
     } finally {
-      clearTimeout(timeoutId);
-      setLoadingFollowingModal(false);
+      if (!cancelled) setLoadingFollowingModal(false);
     }
   }, [username, t, normalizeFollowList]);
 
@@ -1500,13 +1498,15 @@ export default function ProfileScreen() {
         </View>
       ) : null}
 
+      {followersModalVisible && (
       <Modal
         visible={followersModalVisible}
         onRequestClose={() => setFollowersModalVisible(false)}
         transparent
         animationType="fade"
-        statusBarTranslucent
-        presentationStyle="overFullScreen"
+        hardwareAccelerated={Platform.OS === "android"}
+        statusBarTranslucent={Platform.OS === "ios"}
+        presentationStyle={Platform.OS === "ios" ? "overFullScreen" : "fullScreen"}
       >
         <View style={styles.modalOverlay}>
           <View
@@ -1563,14 +1563,17 @@ export default function ProfileScreen() {
           </View>
         </View>
       </Modal>
+      )}
 
+      {followingModalVisible && (
       <Modal
         visible={followingModalVisible}
         onRequestClose={() => setFollowingModalVisible(false)}
         transparent
         animationType="fade"
-        statusBarTranslucent
-        presentationStyle="overFullScreen"
+        hardwareAccelerated={Platform.OS === "android"}
+        statusBarTranslucent={Platform.OS === "ios"}
+        presentationStyle={Platform.OS === "ios" ? "overFullScreen" : "fullScreen"}
       >
         <View style={styles.modalOverlay}>
           <View
@@ -1627,6 +1630,7 @@ export default function ProfileScreen() {
           </View>
         </View>
       </Modal>
+      )}
     </>
   );
 }
