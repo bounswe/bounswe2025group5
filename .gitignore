@@ -5,3 +5,4 @@ node_modules
 .idea
 copilot-instructions.md
 mobile.apk
+.env

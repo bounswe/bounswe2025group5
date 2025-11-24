@@ -10,6 +10,7 @@ import { LikesApi } from '@/lib/api/likes';
 import { PostsApi } from '@/lib/api/posts';
 import CommentSection from './comment-section';
 import EditPostDialog from './edit-post-dialog';
+import ImageDialog from './image-dialog';
 import {
   Dialog,
   DialogContent,
@@ -24,10 +25,11 @@ interface PostCardProps {
   post: PostItem;
   onPostUpdate?: (post: PostItem) => void;
   onPostDelete?: (postId: number) => void;
+  onUsernameClick?: (username: string) => void;
   className?: string;
 }
 
-export default function PostCard({ post, onPostUpdate, onPostDelete, className }: PostCardProps) {
+export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameClick, className }: PostCardProps) {
   const { t } = useTranslation();
   const [commentCount, setCommentCount] = useState(post.comments || 0);
   const [showComments, setShowComments] = useState(false);
@@ -41,6 +43,9 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, className }
   // Delete dialog state
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Image dialog state
+  const [showImageDialog, setShowImageDialog] = useState(false);
 
   const currentUser = typeof window !== 'undefined' ? localStorage.getItem('username') : null;
 
@@ -163,10 +168,21 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, className }
     )}>
       {/* Post Image */}
       {post.photoUrl && (
-        <div className="w-full aspect-square relative overflow-hidden">
+        <div 
+          className="w-full aspect-square relative overflow-hidden cursor-pointer hover:opacity-95 transition-opacity"
+          onClick={() => setShowImageDialog(true)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setShowImageDialog(true);
+            }
+          }}
+        >
           <img
             src={post.photoUrl}
-            alt={t('post.imageAlt')}
+            alt={t('post.imageAlt', { username: post.creatorUsername, defaultValue: `${post.creatorUsername}'s post image` })}
             className="w-full h-full object-cover"
             loading="lazy"
           />
@@ -178,12 +194,26 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, className }
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Avatar className="w-6 h-6">
-              <AvatarImage src={userAvatar} alt={post.creatorUsername} />
+              <AvatarImage
+                src={userAvatar}
+                alt={post.creatorUsername
+                  ? t('profile.photoAlt', {
+                      username: post.creatorUsername,
+                      defaultValue: `${post.creatorUsername}'s profile photo`,
+                    })
+                  : t('profile.photoAltAnon', 'Profile photo')}
+              />
               <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                 {post.creatorUsername.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <p className="font-semibold text-sm">{post.creatorUsername}</p>
+            <button
+              type="button"
+              onClick={() => onUsernameClick?.(post.creatorUsername)}
+              className="font-semibold text-sm hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+            >
+              {post.creatorUsername}
+            </button>
           </div>
           <div className="text-right">
             <p className="text-xs text-muted-foreground">{date}</p>
@@ -287,6 +317,7 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, className }
         <CommentSection
           postId={post.postId}
           onCommentAdded={handleCommentAdded}
+          onUsernameClick={onUsernameClick}
         />
       )}
 
@@ -320,6 +351,17 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, className }
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Image Dialog */}
+      {post.photoUrl && (
+        <ImageDialog
+          open={showImageDialog}
+          onOpenChange={setShowImageDialog}
+          imageUrl={post.photoUrl}
+          altText={t('post.imageAlt', { username: post.creatorUsername, defaultValue: `${post.creatorUsername}'s post image` })}
+          username={post.creatorUsername}
+        />
+      )}
     </Card>
   );
 }

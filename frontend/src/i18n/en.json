@@ -3,11 +3,26 @@
         "create": "Create",
         "submit": "Submit",
         "cancel": "Cancel",
-        "posting": "Posting..."
+        "posting": "Posting...",
+        "passwordStrength": {
+            "label": "Strength",
+            "veryWeak": "Very weak",
+            "weak": "Weak",
+            "fair": "Fair",
+            "good": "Good",
+            "strong": "Strong"
+        }
     },
     "welcome": {
         "welcomeMessage": "Welcome to Our Website!",
         "description": "We are glad to have you here. Explore our features and enjoy your stay!"
+    },
+    "motivation": {
+        "stayMotivated": "Stay Motivated",
+        "keepPushing": "Keep pushing your limits and never give up on your dreams!"
+    },
+    "navbar": {
+        "logoAlt": "WasteLess application logo"
     },
     "login": {
         "title": "Login to your account",
@@ -37,7 +52,8 @@
         },
         "password": {
             "label": "Password",
-            "placeholder": "Choose a strong password"
+            "placeholder": "Choose a strong password",
+            "requirements": "Hint: Mix unrelated letters, numbers, and symbols, avoid common patterns like \"123456\", at least 8 characters"
         },
         "confirmPassword": {
             "label": "Confirm Password",
@@ -46,7 +62,16 @@
         "registerButton": "Register",
         "loading": "Creating account...",
         "haveAccount": "Already have an account? ",
-        "login": "Login"
+        "login": "Login",
+        "error": {
+            "passwordsDontMatch": "Passwords do not match",
+            "registrationFailed": "Registration failed",
+            "tooWeak": "Password is too weak. Aim for 'Good' or higher.",
+            "tooShort": "Password must be at least {{min}} characters long."
+        },
+        "success": {
+            "accountCreated": "Account created successfully. Redirecting to login..."
+        }
     },
     "profile": {
         "edit": "Edit Profile", 
@@ -62,7 +87,32 @@
         "changePhoto": "Change Photo",
         "delete": "Delete Account",
         "confirmDelete": "This will permanently delete your account. Continue?",
-        "deleting": "Deleting..."
+        "passwordPlaceholder": "Enter your password",
+        "deleting": "Deleting...",
+        "deleteFailed": "Delete failed",
+        "photoAlt": "{{username}}'s profile photo",
+        "photoAltAnon": "Profile photo",
+        "editImage": "Edit Image",
+        "userProfile": "User profile",
+        "userProfileTitle": "{{username}}'s profile",
+        "error": {
+            "loadFailed": "Failed to load profile"
+        },
+        "noBio": "No bio yet",
+        "notFound": "Profile not found",
+        "postsTitle": "Posts",
+        "postsDesc": "Posts created by this user",
+        "noPosts": "No posts yet",
+        "followers": {
+            "button": "Followers",
+            "empty": "No followers yet"
+        },
+        "following": {
+            "button": "Following",
+            "empty": "Not following anyone yet"
+        },
+        "follow": "Follow",
+        "unfollow": "Unfollow"
     },
     "main": {
         "navbar": "Main"
@@ -121,8 +171,42 @@
         "type": "Type",
         "restriction": "Restriction (g)",
         "duration": "Duration (days)",
-        "progress": "Progress",
-        "cardTitle": "{type} goal"
+        "progress": "Usage",
+        "cardTitle": "{{type}} goal",
+        "showDetails": "Show details",
+        "hideDetails": "Hide details",
+        "summaryDuration": "{{count}} day span",
+        "summaryAverage": "Average per day",
+        "summaryWasteLabel": "Selected waste type",
+        "summaryRange": "Tracking window",
+        "summaryStart": "Start date",
+        "summaryEnd": "End date",
+        "summaryWasteType": "Waste type",
+        "summaryTypePlaceholder": "e.g., PLASTIC",
+        "summaryFetch": "Refresh data",
+        "summaryFetching": "Fetching...",
+        "summaryError": "Unable to load waste summary.",
+        "summaryNoData": "No data found",
+        "summaryNoDataDescription": "Please select a start and end date and a waste type",
+        "summaryNoDataButton": "Refresh data",
+        "summaryNoDataButtonLoading": "Fetching...",
+        "monthlyTitle": "12-month waste trends",
+        "wasteType": "Waste type",
+        "save": "Save",
+        "cancel": "Cancel",
+        "logWaste": "Log waste",
+        "logWasteDescription": "Select an item and quantity to log.",
+        "item": "Item",
+        "quantity": "Quantity",
+        "log": "Log"
+
+    },
+    "wasteTypes": {
+        "GLASS": "Glass",
+        "METAL": "Metal",
+        "ORGANIC": "Organic",
+        "PAPER": "Paper",
+        "PLASTIC": "Plastic"
     },
     "challenge": {
         "navbar": "Challenge"
@@ -144,6 +228,8 @@
     },
     "challenges": {
         "title": "Challenges",
+        "leaderboard": "Leaderboard",
+        "leaderboardEmpty": "No entries yet",
         "attendError": "Could not attend the challenge",
         "leaveError": "Could not leave the challenge",
         "logError": "Could not log challenge progress",
@@ -181,7 +267,7 @@
         }
     },
     "post": {
-        "imageAlt": "Post image",
+        "imageAlt": "{{username}}'s post image",
         "likes": "{{count}} like",
         "likes_plural": "{{count}} likes",
         "viewComments": "View {{count}} comment",
@@ -225,7 +311,8 @@
             "minutes": "{{count}}m", 
             "hours": "{{count}}h",
             "days": "{{count}}d"
-        }
+        },
+        "send": "Send comment"
     },
     "search": {
         "placeholder": "Search posts...",
@@ -235,5 +322,30 @@
         "noResults": "No posts found matching your search.",
         "loading": "Searching...",
         "error": "Failed to search posts. Please try again."
+    },
+    "notifications": {
+        "title": "Notifications",
+        "unread": "New",
+        "markAsRead": "Mark as read",
+        "markAllRead": "Mark all as read",
+        "noNotifications": "No notifications yet",
+        "loading": "Loading notifications...",
+        "error": "Failed to load notifications",
+        "timeAgo": {
+            "seconds": "{{count}}s",
+            "minutes": "{{count}}m",
+            "hours": "{{count}}h",
+            "days": "{{count}}d"
+        },
+        "types": {
+            "like": "{{actor}} liked your {{objectType}}",
+            "comment": "{{actor}} commented on your {{objectType}}",
+            "follow": "{{actor}} started following you",
+            "mention": "{{actor}} mentioned you in a {{objectType}}",
+            "default": "{{actor}} {{type}}"
+        },
+        "likedYourPost_suffix": "liked your post",
+        "commentedOnYourPost_suffix": "commented on your post",
+        "startedFollowing_suffix": "started following you"
     }
 }

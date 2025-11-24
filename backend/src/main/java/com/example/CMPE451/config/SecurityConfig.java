@@ -34,6 +34,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers( "/api/users","/api/sessions","/api/refresh-token","/api/challenges/homepage","/api/posts/mostLiked","/api/users/count").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/posts").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

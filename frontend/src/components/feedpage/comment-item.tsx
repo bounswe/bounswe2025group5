@@ -21,10 +21,11 @@ interface CommentItemProps {
   comment: Comment;
   onUpdate?: (comment: Comment) => void;
   onDelete?: (commentId: number) => void;
+  onUsernameClick?: (username: string) => void;
   className?: string;
 }
 
-export default function CommentItem({ comment, onUpdate, onDelete, className }: CommentItemProps) {
+export default function CommentItem({ comment, onUpdate, onDelete, onUsernameClick, className }: CommentItemProps) {
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(comment.content);
@@ -108,7 +109,15 @@ export default function CommentItem({ comment, onUpdate, onDelete, className }: 
   return (
     <div className={cn("flex gap-3 py-2 group", className)}>
       <Avatar className="w-8 h-8 shrink-0">
-        <AvatarImage src={userAvatar} alt={commentUsername || 'User'} />
+        <AvatarImage
+          src={userAvatar}
+          alt={commentUsername
+            ? t('profile.photoAlt', {
+                username: commentUsername,
+                defaultValue: `${commentUsername}'s profile photo`,
+              })
+            : t('profile.photoAltAnon', 'Profile photo')}
+        />
         <AvatarFallback className="bg-primary text-primary-foreground text-xs">
           {(commentUsername || 'U').charAt(0).toUpperCase()}
         </AvatarFallback>
@@ -146,9 +155,13 @@ export default function CommentItem({ comment, onUpdate, onDelete, className }: 
         ) : (
           <>
             <div className="bg-gray-100 rounded-lg px-3 py-2">
-              <p className="text-sm font-medium text-gray-900 mb-1">
+              <button
+                type="button"
+                onClick={() => commentUsername && onUsernameClick?.(commentUsername)}
+                className="block text-sm font-medium text-gray-900 mb-1 hover:underline text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+              >
                 {commentUsername}
-              </p>
+              </button>
               <p className="text-sm text-gray-700 break-words">
                 {comment.content}
               </p>

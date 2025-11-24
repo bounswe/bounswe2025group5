@@ -3,11 +3,26 @@
         "create": "Yarat",
         "submit": "Onayla",
         "cancel": "İptal",
-        "posting": "Paylaşılıyor..."
+        "posting": "Paylaşılıyor...",
+        "passwordStrength": {
+            "label": "Güç",
+            "veryWeak": "Çok zayıf",
+            "weak": "Zayıf",
+            "fair": "Orta",
+            "good": "İyi",
+            "strong": "Çok iyi"
+        }
     },
     "welcome": {
         "welcomeMessage": "Web Sitemize Hoş Geldiniz!",
         "description": "Burada olduğunuz için mutluyuz. Özelliklerimizi keşfedin ve keyfini çıkarın!"
+    },
+    "motivation": {
+        "stayMotivated": "Motivasyonunuzu Yüksek Tutun",
+        "keepPushing": "Sınırlarınızı zorlamaya devam edin ve hayallerinizden asla vazgeçmeyin!"
+    },
+    "navbar": {
+        "logoAlt": "WasteLess uygulama logosu"
     },
     "login": {
         "title": "Hesabınıza giriş yapın",
@@ -37,7 +52,8 @@
         },
         "password": {
             "label": "Şifre",
-            "placeholder": "Güçlü bir şifre seçin"
+            "placeholder": "Güçlü bir şifre seçin",
+            "requirements": "İpucu: Karışık harfler, sayılar ve semboller kullanın, '123456' gibi yaygın desenlerden kaçının, en az 8 karakter"
         },
         "confirmPassword": {
             "label": "Şifreyi Onayla",
@@ -46,7 +62,16 @@
         "registerButton": "Kayıt Ol",
         "loading": "Hesap oluşturuluyor...",
         "haveAccount": "Zaten bir hesabınız var mı? ",
-        "login": "Giriş Yap"
+        "login": "Giriş Yap",
+        "error": {
+            "passwordsDontMatch": "Şifreler eşleşmiyor",
+            "registrationFailed": "Kayıt başarısız",
+            "tooWeak": "Şifre çok zayıf. 'İyi' veya daha yüksek olmalı.",
+            "tooShort": "Şifre en az {{min}} karakter uzunluğunda olmalıdır."
+        },
+        "success": {
+            "accountCreated": "Hesap başarıyla oluşturuldu. Giriş sayfasına yönlendiriliyor..."
+        }
     },
     "profile": {
         "edit": "Profili Düzenle",
@@ -62,7 +87,32 @@
         "changePhoto": "Fotoğrafı Değiştir",
         "delete": "Hesabı Sil",
         "confirmDelete": "Bu işlem hesabınızı kalıcı olarak silecek. Devam edilsin mi?",
-        "deleting": "Siliniyor..."
+        "passwordPlaceholder": "Şifrenizi girin",
+        "deleting": "Siliniyor...",
+        "deleteFailed": "Silme başarısız",
+        "photoAlt": "{{username}}'in profil fotoğrafı",
+        "photoAltAnon": "Profil fotoğrafı",
+        "editImage": "Resmi Düzenle",
+        "userProfile": "Kullanıcı profili",
+        "userProfileTitle": "{{username}}'in profili",
+        "error": {
+            "loadFailed": "Profil yüklenemedi"
+        },
+        "notFound": "Profil bulunamadı",
+        "noBio": "Henüz biyografi yok",
+        "postsTitle": "Gönderiler",
+        "postsDesc": "Bu kullanıcının oluşturduğu gönderiler",
+        "noPosts": "Henüz gönderi yok",
+        "followers": {
+            "button": "Takipçiler",
+            "empty": "Henüz takipçi yok"
+        },
+        "following": {
+            "button": "Takip Edilenler",
+            "empty": "Henüz kimse takip edilmiyor"
+        },
+        "follow": "Takip Et",
+        "unfollow": "Takibi Bırak"
     },
     "main" : {
         "navbar": "Ana Sayfa"
@@ -109,8 +159,50 @@
         "type": "Tür",
         "restriction": "Kısıt (g)",
         "duration": "Süre (gün)",
-        "progress": "İlerleme",
-        "cardTitle": "{type} hedefi"
+        "progress": "Tüketim",
+        "cardTitle": "{{type}} hedefi",
+        "showDetails": "Detayları göster",
+        "hideDetails": "Detayları gizle",
+        "summaryDuration": "{{count}} gün aralığı",
+        "summaryAverage": "Günlük ortalama",
+        "summaryWasteLabel": "Seçilen atık türü",
+        "summaryRange": "Takip penceresi",
+        "summaryStart": "Başlangıç tarihi",
+        "summaryEnd": "Bitiş tarihi",
+        "summaryWasteType": "Atık türü",
+        "summaryTypePlaceholder": "örn. PLASTIC",
+        "summaryFetch": "Verileri yenile",
+        "summaryFetching": "Yükleniyor...",
+        "summaryError": "Atık özeti yüklenemedi.",
+        "summaryNoData": "Veri bulunamadı",
+        "summaryNoDataDescription": "Lütfen bir başlangıç ve bitiş tarihi ve atık türü seçin",
+        "summaryNoDataButton": "Verileri yenile",
+        "summaryNoDataButtonLoading": "Yükleniyor...",
+        "summaryScaleMax": "Ölçek max",
+        "summaryTotal": "Toplam",
+        "monthlyTitle": "12 Aylık Atık Trendleri",
+        "wasteType": "Atık türü",
+        "save": "Kaydet",
+        "cancel": "İptal",
+        "logWaste": "Atık kaydet",
+        "logWasteDescription": "Bir atık ürünü ve miktarı seçin",
+        "item": "Ürün",
+        "quantity": "Miktar",
+        "log": "Kayıt Ekle",
+        "createTitle": "Atık hedefi oluştur",
+        "createDesc": "Yeni bir atık hedefi oluşturun",
+        "editTitle": "Atık hedefi düzenle",
+        "editDesc": "Atık hedefinizi güncelleyin",
+        "create": "Atık hedefi oluştur"
+
+
+    },
+    "wasteTypes": {
+        "GLASS": "Cam",
+        "METAL": "Metal",
+        "ORGANIC": "Organik",
+        "PAPER": "Kağıt",
+        "PLASTIC": "Plastik"
     },
     "challenge" : {
         "navbar": "Etkinlikler"
@@ -132,6 +224,8 @@
     },
     "challenges": {
         "title": "Etkinlikler",
+        "leaderboard": "Liderlik Tablosu",
+        "leaderboardEmpty": "Henüz kayıt yok",
         "attendError": "Etkinliğe katılınamadı",
         "leaveError": "Etkinlikten ayrılınamadı",
         "logError": "Etkinlik ilerlemesi kaydedilemedi",
@@ -169,7 +263,7 @@
         }
     },
     "post": {
-        "imageAlt": "Gönderi resmi",
+        "imageAlt": "{{username}}'in gönderi resmi",
         "likes": "{{count}} beğeni",
         "viewComments": "{{count}} yorumu görüntüle",
         "hideComments": "Yorumları gizle",
@@ -211,7 +305,8 @@
             "minutes": "{{count}}dk",
             "hours": "{{count}}sa",
             "days": "{{count}}g"
-        }
+        },
+        "send": "Yorumu Gönder"
     },
     "search": {
         "placeholder": "Gönderi ara...",
@@ -221,5 +316,30 @@
         "noResults": "Aramanıza uygun gönderi bulunamadı.",
         "loading": "Aranıyor...",
         "error": "Gönderi arama başarısız. Lütfen tekrar deneyin."
+    },
+    "notifications": {
+        "title": "Bildirimler",
+        "unread": "Yeni",
+        "markAsRead": "Okundu olarak işaretle",
+        "markAllRead": "Tümünü okundu işaretle",
+        "noNotifications": "Henüz bildirim yok",
+        "loading": "Bildirimler yükleniyor...",
+        "error": "Bildirimler yüklenemedi",
+        "timeAgo": {
+            "seconds": "{{count}}sn",
+            "minutes": "{{count}}dk",
+            "hours": "{{count}}sa",
+            "days": "{{count}}g"
+        },
+        "types": {
+            "like": "{{actor}} {{objectType}} beğendi",
+            "comment": "{{actor}} {{objectType}} yorum yaptı",
+            "follow": "{{actor}} sizi takip etmeye başladı",
+            "mention": "{{actor}} sizi bir {{objectType}} bahsetti",
+            "default": "{{actor}} {{type}}"
+        },
+        "likedYourPost_suffix": "gönderinizi beğendi",
+        "commentedOnYourPost_suffix": "gönderinize yorum yaptı",
+        "startedFollowing_suffix": "sizi takip etmeye başladı"
     }
 }

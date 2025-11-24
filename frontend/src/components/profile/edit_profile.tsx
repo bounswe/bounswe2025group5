@@ -84,14 +84,18 @@ export default function EditProfile({ username, initialBio, initialPhotoUrl, onB
                     aria-label={t('profile.changePhoto')}
                 >
                     {photoUrl ? (
-                        <img src={photoUrl} alt="Profile" className="w-full h-full object-cover" />
+                        <img
+                            src={photoUrl}
+                            alt={storedUsername ? t('profile.photoAlt', { username: storedUsername, defaultValue: `${storedUsername}'s profile photo` }) : t('profile.photoAltAnon', 'Profile photo')}
+                            className="w-full h-full object-cover"
+                        />
                     ) : (
                         <div className="w-full h-full grid place-items-center text-muted-foreground">{t('profile.noPhoto', 'No photo')}</div>
                     )}
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <div className="flex items-center gap-2 text-white text-sm">
                             {/* Pencil icon */}
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M12 20h9" />
                                 <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
                             </svg>

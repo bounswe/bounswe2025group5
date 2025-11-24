@@ -75,17 +75,34 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
   }
 
   if (!response.ok) {
+    // Try to parse error message from response body
+    let errorMessage = `API Error: ${response.status} ${response.statusText}`;
+    try {
+      const errorData = await response.json();
+      if (errorData.message) {
+        errorMessage = errorData.message;
+      } else if (errorData.error) {
+        errorMessage = errorData.error;
+      }
+    } catch {
+      // If parsing fails, use the default error message
+    }
+
     if (response.status === 401) {
       const method = (options.method || 'GET').toString().toUpperCase();
       const isDeleteAccount = method === 'DELETE' && endpoint.startsWith('/api/users/');
       if (isDeleteAccount) {
         throw new Error('Incorrect password');
       }
+
       clearTokens();
       localStorage.removeItem('username');
-      window.location.href = '/auth/login';
+      if (!window.location.pathname.startsWith('/auth')) {
+        console.log('Redirecting to login due to unauthorized API response');
+        window.location.href = '/auth/login';
+      }
     }
-    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    throw new Error(errorMessage);
   }
 
   return response.json();
