@@ -46,15 +46,8 @@ Make sure you have **Docker** and **Docker Compose** installed on your computer.
     
     ```
 
-2.  **Initialize the Database**
-    * Create the database by running the `init.sql` script located in the `database` folder.
-    * Use MySQL Workbench for this and create your db at your local.(Suggestion)
-    ```bash
-    cd database
-    nano init.sql
-    ```
 
-3.  **Configuration Files**
+2.  **Configuration Files**
     * the application uses space object for the photos of profiles and posts, our suggesstion is creation of space object on digital ocean [website](https://www.digitalocean.com/products/spaces) , if you do not want to deal with it, please reach us and request the credentials.
     * The **application.properties** file works with the .env file in the root directory. You need to assign values to these variables: 
     ```bash
