@@ -1,5 +1,5 @@
 // app/(tabs)/index.tsx
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext, useRef, useMemo } from "react";
 import {
   Image,
   StyleSheet,
@@ -52,6 +52,64 @@ type TrendingPost = {
   photoUrl: string | null;
 };
 
+type SustainabilityFact = {
+  tr: string;
+  en: string;
+  source: string;
+};
+
+const FACT_SEED_OFFSET = 9173;
+
+const SUSTAINABILITY_FACTS: SustainabilityFact[] = [
+  {
+    tr: "1 ton ofis kağıdını geri dönüştürmek, 17 yetişkin ağacın kesilmesini önlüyor.",
+    en: "Recycling one ton of office paper prevents cutting down 17 mature trees.",
+    source: "U.S. Environmental Protection Agency (EPA)",
+  },
+  {
+    tr: "Sadece 1 alüminyum içecek kutusunu geri dönüştürmek, bir televizyonu 3 saat çalıştıracak enerjiyi geri kazandırır.",
+    en: "Recycling a single aluminum drink can powers a TV for three hours.",
+    source: "The Aluminum Association",
+  },
+  {
+    tr: "Tek bir kot pantolonun üretimi için 7.500-10.000 litre su harcanıyor; tekstili geri dönüştürmek bu suyu korur.",
+    en: "Making one pair of jeans uses about 7,500–10,000 liters of water; recycling textiles preserves that water.",
+    source: "United Nations (UN) Environment Programme",
+  },
+  {
+    tr: "1 ton plastiği geri dönüştürmek yaklaşık 16,3 varil (~2.500 litre) petrol tasarrufu sağlar.",
+    en: "Recycling a ton of plastic saves roughly 16.3 barrels (about 2,500 liters) of oil.",
+    source: "Stanford University Recycling Center / EPA",
+  },
+  {
+    tr: "1 ton cep telefonundan elde edilen altın, 1 ton maden cevherindekinden daha fazladır (150–300 gr vs. 5–30 gr).",
+    en: "A ton of cell phones contains more gold than a ton of ore (about 150–300 g vs. 5–30 g).",
+    source: "United Nations University (Global E-waste Monitor)",
+  },
+  {
+    tr: "Geri dönüştürülen her 1 ton cam, doğadan 1.2 ton hammadde çıkarılmasını engeller; cam kalite kaybı olmadan sonsuz kez dönüşür.",
+    en: "Every ton of recycled glass keeps 1.2 tons of raw materials in the ground; glass reprocesses endlessly without losing quality.",
+    source: "Glass Packaging Institute (GPI)",
+  },
+  {
+    tr: "1 plastik şişeyi geri dönüştürmek, 60 Watt'lık bir ampulü 6 saat yakacak enerjiyi kazandırır.",
+    en: "Recycling one plastic bottle saves enough energy to light a 60W bulb for six hours.",
+    source: "U.S. Environmental Protection Agency (EPA)",
+  },
+  {
+    tr: "1 ton kağıdı geri dönüştürmek, sıfırdan üretime kıyasla yaklaşık 26.500 litre su tasarrufu sağlar.",
+    en: "Recycling a ton of paper saves about 26,500 liters of water compared with making new paper.",
+    source: "Washington University in St. Louis / EPA",
+  },
+];
+
+const seededRandomIndex = (seed: number, max: number) => {
+  if (max <= 0) return 0;
+  const x = Math.sin(seed) * 10000;
+  const normalized = x - Math.floor(x);
+  return Math.min(max - 1, Math.floor(normalized * max));
+};
+
 export default function HomeScreen() {
   const navigation = useNavigation<Navigation>();
   const route = useRoute<any>();
@@ -77,6 +135,17 @@ export default function HomeScreen() {
   const continueTextColor = pickAccessibleTextColor(continueBg);
   const postBg = themeColors.commentBackground ?? "#f5f5f5";
   const postTextColor = pickAccessibleTextColor(postBg);
+
+  const sustainabilityFact = useMemo(() => {
+    const today = new Date();
+    const seed =
+      FACT_SEED_OFFSET +
+      today.getFullYear() * 10000 +
+      (today.getMonth() + 1) * 100 +
+      today.getDate();
+    const factIndex = seededRandomIndex(seed, SUSTAINABILITY_FACTS.length);
+    return SUSTAINABILITY_FACTS[factIndex];
+  }, []);
 
   const [showAuthFields, setShowAuthFields] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
@@ -571,6 +640,35 @@ export default function HomeScreen() {
               )}
             </View>
 
+            {!isRegistering && sustainabilityFact && (
+              <View
+                style={[
+                  styles.factBox,
+                  {
+                    backgroundColor: themeColors.cardBackground,
+                    borderColor: themeColors.borderColor,
+                  },
+                ]}
+              >
+                <Text style={[styles.factText, { color: themeColors.text }]}>
+                  {isTurkish ? sustainabilityFact.tr : sustainabilityFact.en}
+                </Text>
+                <Text
+                  style={[
+                    styles.factSource,
+                    {
+                      color:
+                        themeColors.textSubtle ??
+                        themeColors.textSecondary ??
+                        "#555",
+                    },
+                  ]}
+                >
+                  {sustainabilityFact.source}
+                </Text>
+              </View>
+            )}
+
             {isRegistering && (
               <>
                 <TextInput
@@ -814,4 +912,13 @@ const styles = StyleSheet.create({
   passwordStrengthLabel: { marginTop: 4, fontSize: 12, fontWeight: '600', textAlign: 'center' },
   passwordInput: { marginBottom: 0 },
   confirmInput: { marginTop: -10 },
+  factBox: {
+    marginHorizontal: 16,
+    marginVertical: 10,
+    padding: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+  },
+  factText: { fontSize: 14, lineHeight: 19 },
+  factSource: { marginTop: 6, fontSize: 12, lineHeight: 16, fontStyle: "italic" },
 });

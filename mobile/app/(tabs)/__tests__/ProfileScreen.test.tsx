@@ -1,325 +1,361 @@
-// __tests__/screens/ProfileScreen.test.tsx
+import React from "react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from "@testing-library/react-native";
+import ProfileScreen from "../profile";
+import { AuthContext } from "../../_layout";
+import { apiRequest, clearSession } from "../../services/apiClient";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import React from 'react';
-import { render, screen, fireEvent, act, waitFor } from '@testing-library/react-native';
-import { Text, View } from 'react-native';
+// --- Mocks ---
 
-// --- ADJUST PATHS ---
-import ProfileScreen from '../profile'; // Path to component
-import { NavigationContainer } from '@react-navigation/native';
-// Assuming context is in app/context/AuthContext.tsx
-import { AuthContext, AuthContextType, UserType } from '../../_layout'; // Path to context
-// --- END ADJUST PATHS ---
-
-// --- Mock Dependencies ---
-
-// AsyncStorage
-jest.mock('@react-native-async-storage/async-storage', () => ({
-    // Define mocks directly inside the factory
-    getItem: jest.fn().mockResolvedValue(null),
-    setItem: jest.fn().mockResolvedValue(null),
-    multiSet: jest.fn().mockResolvedValue(null),
-    removeItem: jest.fn().mockResolvedValue(null),
-    // multiRemove is now just another mocked method
-    multiRemove: jest.fn().mockResolvedValue(null),
-    // Add any other AsyncStorage methods your app might use
-}));
-
+// Mock Navigation
 const mockNavigate = jest.fn();
 const mockReset = jest.fn();
 const mockSetParams = jest.fn();
-jest.mock('@react-navigation/native', () => {
-    const actualNav = jest.requireActual('@react-navigation/native'); // Get actual stuff
-    return {
-        ...actualNav, // Keep actual NavigationContainer, etc.
-        useNavigation: () => ({ // Mock ONLY useNavigation
-            navigate: mockNavigate,
-            reset: mockReset,
-            setParams: mockSetParams,
-        }),
-        useRoute: () => ({ params: {} }), // Keep simple route mock
-        // We no longer need to mock useFocusEffect here because
-        // NavigationContainer provides the context it needs.
-        // The component's actual useFocusEffect will run.
-    };
+
+jest.mock("@react-navigation/native", () => {
+  const actualNav = jest.requireActual("@react-navigation/native");
+  const React = require("react");
+  return {
+    ...actualNav,
+    useNavigation: () => ({
+      navigate: mockNavigate,
+      reset: mockReset,
+      setParams: mockSetParams,
+    }),
+    useRoute: () => ({
+      params: {},
+    }),
+    useFocusEffect: (callback: any) => {
+      // Execute the callback immediately for testing purposes
+      React.useEffect(callback, []);
+    },
+  };
 });
 
-// Platform
-jest.mock('react-native/Libraries/Utilities/Platform', () => {
-    const Platform = jest.requireActual('react-native/Libraries/Utilities/Platform');
-    Platform.OS = 'ios';
-    Platform.select = jest.fn((selector) => selector[Platform.OS]);
-    return Platform;
-});
-
-// useColorScheme
-jest.mock('@/hooks/useColorScheme', () => ({
-    useColorScheme: () => 'light', // Default to light
+// Mock API Client
+jest.mock("../../services/apiClient", () => ({
+  apiRequest: jest.fn(),
+  clearSession: jest.fn(),
 }));
 
-// Ionicons
-jest.mock('@expo/vector-icons/Ionicons', () => {
-    const MockIcon = ({ name }: { name: string }) => {
-        const MockReactNative = require('react-native');
-        return <MockReactNative.Text testID={`icon-${name}`}>{name}</MockReactNative.Text>;
-    };
-    return MockIcon; // Assuming default export usage or simple name
+// Mock Async Storage
+jest.mock("@react-native-async-storage/async-storage", () => ({
+  multiRemove: jest.fn(),
+}));
+
+// Mock i18next
+jest.mock("react-i18next", () => ({
+  useTranslation: () => ({
+    t: (key: string, options?: any) => {
+      if (key === "helloUser") return `Hello, ${options?.username}`;
+      if (key === "totalImpact") return `Total Impact: ${options?.amount}`;
+      return key;
+    },
+    i18n: {
+      changeLanguage: jest.fn(),
+      language: "en",
+      resolvedLanguage: "en",
+    },
+  }),
+  initReactI18next: {
+    type: "3rdParty",
+    init: jest.fn(),
+  },
+}));
+
+// Mock Components
+jest.mock("@/components/ParallaxScrollView", () => {
+  const { View } = require("react-native");
+  return ({ children }: any) => (
+    <View testID="parallax-scroll-view">{children}</View>
+  );
 });
 
-// Image & require - Mock Image and ignore require for assets
-jest.mock('react-native/Libraries/Image/Image', () => 'Image');
-
-// Component Mocks
-jest.mock('@/components/ParallaxScrollView', () => {
-    const MockReactNative = require('react-native');
-    const View = MockReactNative.View;
-    const MockScrollView = ({ children, ...props }: any) => <View {...props}>{children}</View>;
-    return MockScrollView;
-});
-jest.mock('@/components/ThemedText', () => {
-    const MockReactNative = require('react-native');
-    const Text = MockReactNative.Text;
-    const MockThemedText = ({ children, style, ...props }: any) => (
-        <Text style={style} {...props}>{children}</Text>
-    );
-    return { ThemedText: MockThemedText };
+jest.mock("@/components/AccessibleText", () => {
+  const { Text } = require("react-native");
+  return ({ children, ...props }: any) => <Text {...props}>{children}</Text>;
 });
 
-// Global Fetch Mock (needs specific handling for profile routes)
-global.fetch = jest.fn() as jest.Mock;
+jest.mock("react-native-chart-kit", () => ({
+  BarChart: () => {
+    const { View } = require("react-native");
+    return <View testID="bar-chart" />;
+  },
+}));
 
-// --- Helper Functions ---
-const mockProfileInfoSuccess = (
-    biography = 'Test Bio',
-    photoUrl = 'http://example.com/avatar.jpg'
+jest.mock("react-native-svg", () => ({
+  TSpan: () => null,
+}));
+
+jest.mock("@expo/vector-icons/Ionicons", () => "Ionicons");
+
+jest.mock("../../components/PostItem", () => {
+  const { View, Text } = require("react-native");
+  return ({ post }: any) => (
+    <View testID={`post-item-${post.id}`}>
+      <Text>{post.title}</Text>
+      <Text>{post.content}</Text>
+    </View>
+  );
+});
+
+// --- Test Setup ---
+
+const mockSetUserType = jest.fn();
+const mockSetUsername = jest.fn();
+
+const renderWithAuth = (
+  userType: "user" | "guest" | null = "user",
+  username = "testuser"
 ) => {
-    (fetch as jest.Mock).mockImplementation((url: string | URL | Request) => {
-        const urlString =
-            typeof url === 'string'
-                ? url
-                : url instanceof URL
-                    ? url.toString()
-                    : (url as Request).url ?? '';
-        if (urlString.includes('/api/users/') && urlString.includes('/profile?username=')) {
-            return Promise.resolve({
-                ok: true, status: 200, json: () => Promise.resolve({ biography, photoUrl }),
-            });
-        }
-        // Default for other fetches if any
-        return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({}) });
+  return render(
+    <AuthContext.Provider
+      value={{
+        userType,
+        setUserType: mockSetUserType,
+        username,
+        setUsername: mockSetUsername,
+      }}
+    >
+      <ProfileScreen />
+    </AuthContext.Provider>
+  );
+};
+
+describe("ProfileScreen", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Default successful profile fetch
+    (apiRequest as jest.Mock).mockImplementation((url) => {
+      if (url.includes("/profile")) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              biography: "Test Bio",
+              photoUrl: "http://example.com/avatar.png",
+            }),
+        });
+      }
+      if (url.includes("/posts")) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve([]),
+        });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
     });
-};
+  });
 
-const mockProfileInfoNotFoundThenCreateSuccess = () => {
-     let callCount = 0;
-     (fetch as jest.Mock).mockImplementation((url: string | URL | Request) => {
-        const urlString =
-            typeof url === 'string'
-                ? url
-                : url instanceof URL
-                    ? url.toString()
-                    : (url as Request).url ?? '';
-        if (urlString.includes('/api/users/') && urlString.includes('/profile?username=')) {
-             callCount++;
-            if (callCount === 1) { // First call returns 404
-                 return Promise.resolve({ ok: false, status: 404 });
-             } else { // Second call (after create) returns success
-                 return Promise.resolve({
-                     ok: true, status: 200, json: () => Promise.resolve({ biography: '', photoUrl: '' }), // Assume create results in empty profile
-                 });
-             }
-         } else if (
-            urlString.includes('/api/users/') &&
-            urlString.endsWith('/profile') &&
-            url instanceof Request &&
-            url.method === 'PUT'
-        ) {
-             // Mock the create endpoint success
-             return Promise.resolve({ ok: true, status: 201, json: () => Promise.resolve({ message: 'Created' }) });
-         }
-         return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({}) });
-     });
-};
+  it("shows loading indicator initially", async () => {
+    // Delay the response to check loading state
+    (apiRequest as jest.Mock).mockImplementation(() => new Promise(() => {}));
 
-const mockProfileInfoError = () => {
-     (fetch as jest.Mock).mockImplementation((url: string | URL | Request) => {
-         const urlString =
-             typeof url === 'string'
-                 ? url
-                 : url instanceof URL
-                     ? url.toString()
-                     : (url as Request).url ?? '';
-         if (urlString.includes('/api/users/') && urlString.includes('/profile?username=')) {
-             return Promise.reject(new Error('API Error'));
-         }
-         return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({}) });
-     });
-};
+    renderWithAuth();
+    expect(screen.getByTestId("profile-loading-indicator")).toBeTruthy();
+  });
 
+  it("renders user profile data correctly", async () => {
+    renderWithAuth();
 
-const createMockAuthContext = (
-    userType: UserType = 'user',
-    username: string = 'testuser',
-    user_id: string = '123'
-): AuthContextType => ({
-    userType, username,
-    setUserType: jest.fn(), setUsername: jest.fn(),
-});
+    await waitFor(() => {
+      expect(screen.getByText("Hello, testuser")).toBeTruthy();
+      expect(screen.getByText("Test Bio")).toBeTruthy();
+      expect(screen.getByTestId("profile-avatar-image")).toBeTruthy();
+    });
+  });
 
-const renderComponent = (authContextValue = createMockAuthContext()) => {
-    return render(
-        // Wrap with NavigationContainer!
-        <NavigationContainer>
-            <AuthContext.Provider value={authContextValue}>
-                <ProfileScreen />
-            </AuthContext.Provider>
-        </NavigationContainer>
+  it("handles profile fetch error", async () => {
+    (apiRequest as jest.Mock).mockImplementation((url) => {
+      if (url.includes("/profile")) {
+        return Promise.resolve({
+          ok: false,
+          status: 500,
+        });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+    });
+
+    renderWithAuth();
+
+    await waitFor(() => {
+      expect(screen.getByText("errorCouldNotFetchProfile")).toBeTruthy();
+    });
+  });
+
+  it("redirects guest users to index", async () => {
+    renderWithAuth("guest", "");
+
+    await waitFor(() => {
+      expect(mockReset).toHaveBeenCalledWith({
+        index: 0,
+        routes: [
+          { name: "index", params: { error: "You need to sign up first!" } },
+        ],
+      });
+    });
+  });
+
+  it("handles logout correctly", async () => {
+    renderWithAuth();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("logout-button")).toBeTruthy();
+    });
+
+    fireEvent.press(screen.getByTestId("logout-button"));
+
+    await waitFor(() => {
+      expect(clearSession).toHaveBeenCalled();
+      expect(AsyncStorage.multiRemove).toHaveBeenCalledWith([
+        "password",
+        "email",
+      ]);
+      expect(mockSetUserType).toHaveBeenCalledWith(null);
+      expect(mockSetUsername).toHaveBeenCalledWith("");
+      expect(mockReset).toHaveBeenCalledWith({
+        index: 0,
+        routes: [{ name: "index" }],
+      });
+    });
+  });
+
+  it("navigates to badges screen", async () => {
+    renderWithAuth();
+    await waitFor(() =>
+      expect(screen.getByTestId("my-badges-button")).toBeTruthy()
     );
-};
 
-// --- Test Suite ---
-describe('<ProfileScreen />', () => {
+    fireEvent.press(screen.getByTestId("my-badges-button"));
+    expect(mockNavigate).toHaveBeenCalledWith("badges");
+  });
 
-    beforeEach(() => {
-        jest.clearAllMocks();
-        // Default fetch mock (can be overridden)
-        mockProfileInfoSuccess('', ''); // Default to success with empty profile
-    });
+  it("navigates to edit profile screen", async () => {
+    renderWithAuth();
+    await waitFor(() =>
+      expect(screen.getByTestId("edit-profile-button")).toBeTruthy()
+    );
 
-    it('should show loading indicator initially for user type', () => {
-        // Prevent fetch from resolving immediately
-        (fetch as jest.Mock).mockImplementation(() => new Promise(() => {}));
-        renderComponent(createMockAuthContext('user', 'testuser'));
-        expect(screen.getByTestId('profile-loading-indicator')).toBeTruthy();
-    });
+    fireEvent.press(screen.getByTestId("edit-profile-button"));
+    expect(mockNavigate).toHaveBeenCalledWith("edit_profile");
+  });
 
-    it('should redirect guest users', async () => {
-        const mockContext = createMockAuthContext('guest'); // GUEST user
-        renderComponent(mockContext);
+  it("navigates to create post screen", async () => {
+    renderWithAuth();
+    await waitFor(() =>
+      expect(screen.getByTestId("create-post-button")).toBeTruthy()
+    );
 
-        // useFocusEffect runs, checks userType, calls reset
-        // Need to wait slightly for effect to potentially run
-        await act(async () => {
-           await new Promise(resolve => setImmediate(resolve));
+    fireEvent.press(screen.getByTestId("create-post-button"));
+    expect(mockNavigate).toHaveBeenCalledWith("create_post");
+  });
+
+  it("navigates to manage posts screen", async () => {
+    renderWithAuth();
+    await waitFor(() =>
+      expect(screen.getByTestId("my-posts-button")).toBeTruthy()
+    );
+
+    fireEvent.press(screen.getByTestId("my-posts-button"));
+    expect(mockNavigate).toHaveBeenCalledWith("posts");
+  });
+
+  it("opens impact modal and fetches data", async () => {
+    (apiRequest as jest.Mock).mockImplementation((url) => {
+      if (url.includes("/monthly")) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve([
+              { year: 2024, month: 1, totalWeight: 5000 },
+              { year: 2024, month: 2, totalWeight: 7500 },
+            ]),
         });
-
-        expect(mockReset).toHaveBeenCalledWith({
-            index: 0,
-            routes: [{ name: 'index', params: { error: 'You need to sign up first!' } }],
+      }
+      // Default profile fetch
+      if (url.includes("/profile")) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              biography: "Test Bio",
+              photoUrl: "http://example.com/avatar.png",
+            }),
         });
-        // Check that main content is likely not rendered
-        expect(screen.queryByTestId('logout-button')).toBeNull();
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
     });
 
-    it('should fetch and display profile info (with data)', async () => {
-        const username = 'johndoe';
-        const bio = 'Developer and tester.';
-        const avatar = 'http://my.avatar/pic.png';
-        mockProfileInfoSuccess(bio, avatar); // Setup specific success response
-        renderComponent(createMockAuthContext('user', username));
+    renderWithAuth();
+    await waitFor(() =>
+      expect(screen.getByTestId("show-impact-button")).toBeTruthy()
+    );
 
-        // Wait for loading to finish and elements to appear
-        expect(await screen.findByTestId('profile-avatar-image')).toBeTruthy();
-        expect(await screen.findByText(`Hello, ${username}`)).toBeTruthy();
-        expect(await screen.findByText(bio)).toBeTruthy();
+    fireEvent.press(screen.getByTestId("show-impact-button"));
 
-        // Verify specific elements
-        const image = screen.getByTestId('profile-avatar-image');
-        expect(image.props.source.uri).toBe(avatar);
-        expect(screen.getByTestId('profile-bio-text').children.join('')).toBe(bio); // Check text content
-
-        // Verify placeholder isn't shown
-        expect(screen.queryByTestId('profile-avatar-placeholder')).toBeNull();
-        expect(screen.queryByText('No bio yet.')).toBeNull();
-
-        // Verify action buttons
-        expect(screen.getByTestId('logout-button')).toBeTruthy();
-        expect(screen.getByTestId('edit-profile-button')).toBeTruthy();
-        expect(screen.getByTestId('create-post-button')).toBeTruthy();
-        expect(screen.getByTestId('my-posts-button')).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByText("impactTitle")).toBeTruthy();
+      // 5000 + 7500 = 12500g = 12.5kg
+      expect(screen.getByText("Total Impact: 12.5")).toBeTruthy();
+      expect(screen.getByTestId("bar-chart")).toBeTruthy();
     });
+  });
 
-    it('should fetch and display profile info (no bio/avatar)', async () => {
-        const username = 'jane';
-        mockProfileInfoSuccess('', ''); // Success response with empty data
-        renderComponent(createMockAuthContext('user', username));
-    
-        // Wait for loading to finish
-        // FIX: Use the mock's testID
-        expect(await screen.findByTestId('icon-person-circle-outline')).toBeTruthy();
-        expect(await screen.findByText('No bio yet.')).toBeTruthy();
-        expect(await screen.findByText(`Hello, ${username}`)).toBeTruthy();
-    
-        // Check placeholder icon and text are shown
-        expect(screen.getByTestId('icon-person-circle-outline')).toBeTruthy(); // Already checked by findBy
-        expect(screen.getByTestId('profile-bio-text').children.join('')).toBe('No bio yet.');
-    
-        // Check image and specific bio text are not shown
-        expect(screen.queryByTestId('profile-avatar-image')).toBeNull();
-    
-         // Verify action buttons
-         expect(screen.getByTestId('logout-button')).toBeTruthy();
-         // ... other buttons
-    });
+  it("renders posts correctly", async () => {
+    const mockPosts = [
+      {
+        postId: 1,
+        creatorUsername: "testuser",
+        content: "Post 1",
+        likes: 0,
+        comments: 0,
+      },
+      {
+        postId: 2,
+        creatorUsername: "testuser",
+        content: "Post 2",
+        likes: 5,
+        comments: 2,
+      },
+    ];
 
-    it('should call navigation on button presses', async () => {
-        mockProfileInfoSuccess(); // Ensure component renders fully
-        renderComponent(createMockAuthContext('user', 'navTestUser'));
-
-        // Wait for component to finish loading
-        expect(await screen.findByTestId('edit-profile-button')).toBeTruthy();
-
-        // Test Edit Profile
-        fireEvent.press(screen.getByTestId('edit-profile-button'));
-        expect(mockNavigate).toHaveBeenCalledWith('edit_profile');
-
-        // Test Create Post
-        fireEvent.press(screen.getByTestId('create-post-button'));
-        expect(mockNavigate).toHaveBeenCalledWith('create_post');
-
-        // Test My Posts
-        fireEvent.press(screen.getByTestId('my-posts-button'));
-        expect(mockNavigate).toHaveBeenCalledWith('posts');
-    });
-
-    it('should handle logout correctly', async () => {
-        const mockSetUserType = jest.fn();
-        const mockSetUsername = jest.fn();
-        const mockSetUserId = jest.fn();
-
-        const baseContext = createMockAuthContext('user','logoutUser','789');
-        const specificContextValue: AuthContextType = {
-            ...baseContext,
-            setUserType: mockSetUserType,
-            setUsername: mockSetUsername,
-        };
-
-        mockProfileInfoSuccess();
-        renderComponent(specificContextValue);
-
-        expect(await screen.findByTestId('logout-button')).toBeTruthy();
-
-        // --- ACT ---
-        fireEvent.press(screen.getByTestId('logout-button'));
-
-        // --- ASSERT ---
-        // Need to re-import AsyncStorage *after* mocking to spy on it
-        // This is a bit advanced, let's just check the consequences first
-        // We can no longer directly access 'mockMultiRemove' as defined before.
-
-        // Wait for the consequences: context changes and navigation reset
-        await waitFor(() => {
-             expect(mockSetUserType).toHaveBeenCalledWith(null);
+    (apiRequest as jest.Mock).mockImplementation((url) => {
+      if (url.includes("/posts")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(mockPosts),
         });
-        expect(mockSetUsername).toHaveBeenCalledWith('');
-        // expect(mockSetUserId).toHaveBeenCalledWith(''); // Optional
-        expect(mockReset).toHaveBeenCalledWith({ index: 0, routes: [{ name: 'index' }] });
-
-        // If you absolutely MUST check the AsyncStorage call itself:
-        // const AsyncStorage = require('@react-native-async-storage/async-storage');
-        // expect(AsyncStorage.multiRemove).toHaveBeenCalledWith(['username', 'password', 'email', 'token']);
-        // Note: requiring after mocking can sometimes be fragile. Checking consequences is often better.
+      }
+      if (url.includes("/profile")) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              biography: "Test Bio",
+              photoUrl: "http://example.com/avatar.png",
+            }),
+        });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
     });
 
+    renderWithAuth();
 
+    await waitFor(() => {
+      expect(screen.getByTestId("post-item-1")).toBeTruthy();
+      expect(screen.getByTestId("post-item-2")).toBeTruthy();
+      expect(screen.getByText("Post 1")).toBeTruthy();
+      expect(screen.getByText("Post 2")).toBeTruthy();
+    });
+  });
 });

@@ -2,27 +2,21 @@ services:
   backend:
     build: backend
     environment:
-      # Database Connection
-      - DB_HOST=${DB_HOST}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
-
-      # DigitalOcean Spaces Config
+      - DB_HOST=db
+      - DB_USERNAME=root
+      - DB_PASSWORD=${DB_PASSWORD:-root}
       - DO_SPACES_ACCESS_KEY=${DO_SPACES_ACCESS_KEY}
       - DO_SPACES_SECRET_KEY=${DO_SPACES_SECRET_KEY}
-      - DO_SPACES_BUCKET_NAME=${DO_SPACES_BUCKET_NAME}
-      - DO_SPACES_REGION=${DO_SPACES_REGION}
-      - DO_SPACES_PHOTO_FOLDER=${DO_SPACES_PHOTO_FOLDER}
-      - DO_SPACES_POST_PHOTO_FOLDER=${DO_SPACES_POST_PHOTO_FOLDER}
-
-      # Qdrant Config
       - QDRANT_HOST=${QDRANT_HOST}
     networks:
       - appnet
     ports:
       - "127.0.0.1:8080:8080"
     depends_on:
-      - qdrant-db
+      qdrant-db:
+        condition: service_started
+      db:
+        condition: service_healthy
 
   frontend:
     build:
@@ -34,6 +28,26 @@ services:
       - appnet
     ports:
       - "127.0.0.1:3000:3000"
+
+  db:
+    image: mysql:8.4
+    container_name: waste_less_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
+      MYSQL_DATABASE: waste_less
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - db_data:/var/lib/mysql # Persists data even if container is removed
+    networks:
+      - appnet
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   qdrant-db:
     image: qdrant/qdrant:v1.15.0
@@ -52,3 +66,4 @@ networks:
 
 volumes:
   qdrant_storage:
+  db_data:

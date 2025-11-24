@@ -15,6 +15,7 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import AccessibleText from '@/components/AccessibleText';
 import CommentItemDisplay from './CommentItemDisplay';
 import ReportModal, { ReportContext } from './ReportModal';
@@ -106,6 +107,7 @@ function PostItem({
 }: PostItemProps) {
   const { t, i18n } = useTranslation();
   const colorScheme = useColorScheme();
+  const navigation = useNavigation<any>();
   const [isImageViewerVisible, setImageViewerVisible] = useState(false);
   const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
   const [reportModalVisible, setReportModalVisible] = useState(false);
@@ -137,6 +139,14 @@ function PostItem({
       return dateInstance.toISOString();
     }
   }, [post.createdAt, resolvedLanguage]);
+  const authorAvatarUri = post.authorAvatarUrl
+    ? post.authorAvatarUrl.startsWith('http')
+      ? post.authorAvatarUrl
+      : apiUrl(post.authorAvatarUrl)
+    : null;
+  const authorInitial = post.title ? post.title.charAt(0).toUpperCase() : '?';
+  const authorAvatarBackground = colorScheme === 'dark' ? '#2F2F31' : '#D9D9D9';
+  const authorAvatarTextColor = colorScheme === 'dark' ? '#F5F5F7' : '#111111';
 
   const handleLike = () => {
     if (userType === 'guest') {
@@ -218,10 +228,42 @@ function PostItem({
           </TouchableOpacity>
         )}
         
-        {/* ... Post title, image, content, footer (likes/comment count) ... */}
-        <AccessibleText type="title" isLargeText backgroundColor={cardBackgroundColor} style={styles.postTitle}>
-          {post.title}
-        </AccessibleText>
+        {/* Post header with avatar + metadata */}
+        <View style={styles.postHeaderRow}>
+          {authorAvatarUri ? (
+            <Image source={{ uri: authorAvatarUri }} style={styles.postAuthorAvatarImage} />
+          ) : (
+            <View style={[styles.postAuthorAvatar, { backgroundColor: authorAvatarBackground }]}>
+              <AccessibleText
+                backgroundColor={authorAvatarBackground}
+                style={[styles.postAuthorInitial, { color: authorAvatarTextColor }]}
+              >
+                {authorInitial}
+              </AccessibleText>
+            </View>
+          )}
+          <View style={styles.postHeaderText}>
+            <TouchableOpacity onPress={() => navigation.navigate('user_profile', { username: post.title })} accessibilityRole="link">
+              <AccessibleText
+                type="title"
+                isLargeText
+                backgroundColor={cardBackgroundColor}
+                style={[styles.postTitle, { color: textColor }]}
+              >
+                {post.title}
+              </AccessibleText>
+            </TouchableOpacity>
+            {formattedPublishedAt ? (
+              <AccessibleText
+                backgroundColor={cardBackgroundColor}
+                style={[styles.postTimestamp, { color: iconColor }]}
+                accessibilityLabel={formattedPublishedAt}
+              >
+                {formattedPublishedAt}
+              </AccessibleText>
+            ) : null}
+          </View>
+        </View>
         {imageUri && (
           <>
             <View style={styles.imageWrapper}>
@@ -307,20 +349,6 @@ function PostItem({
             {post.content}
           </AccessibleText>
         ) : null}
-        <View style={styles.postMetaRow}>
-          {formattedPublishedAt ? (
-            <AccessibleText
-              backgroundColor={cardBackgroundColor}
-              style={[styles.postTimestamp, { color: iconColor }]}
-              accessibilityLabel={formattedPublishedAt}
-            >
-              {formattedPublishedAt}
-            </AccessibleText>
-          ) : (
-            <View />
-          )}
-        </View>
-
         <View style={styles.postFooter}>
           <TouchableOpacity onPress={handleLike} style={styles.footerAction}>
             <Ionicons
@@ -538,10 +566,21 @@ const styles = StyleSheet.create({
     padding: 8,
     zIndex: 1,
   },
-  postTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 8 },
+  postHeaderRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  postAuthorAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  postAuthorAvatarImage: { width: 48, height: 48, borderRadius: 24, marginRight: 12 },
+  postAuthorInitial: { fontSize: 20, fontWeight: '700' },
+  postHeaderText: { flex: 1 },
+  postTitle: { fontSize: 16, fontWeight: 'bold' },
   postContent: { fontSize: 14, lineHeight: 20, marginBottom: 12 },
-  postMetaRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  postTimestamp: { fontSize: 12, opacity: 0.7, marginBottom: 8 },
+  postTimestamp: { fontSize: 12, opacity: 0.7, marginTop: 2 },
   reportButton: { padding: 4, marginLeft: 12 },
   reportButtonPlaceholder: { width: 24, height: 24 },
   postFooter: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
