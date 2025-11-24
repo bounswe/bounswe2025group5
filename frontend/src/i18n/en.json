@@ -38,7 +38,8 @@
             "label": "Password",
             "forgot": "Forgot your password?"
         },
-        "loginButton": "Login"
+        "loginButton": "Login",
+        "loading": "Logging in..."
     },
     "register": {
         "title": "Create a new account",

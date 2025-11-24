@@ -38,7 +38,8 @@
             "label": "Şifre",
             "forgot": "Şifrenizi mi unuttunuz?"
         },
-        "loginButton": "Giriş Yap"
+        "loginButton": "Giriş Yap",
+        "loading": "Giriş yapılıyor..."
     },
     "register": {
         "title": "Yeni bir hesap oluşturun",
