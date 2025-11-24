@@ -20,6 +20,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import userAvatar from '@/assets/user.png';
+import { useProfilePhoto } from '@/hooks/useProfilePhotos';
 
 interface PostCardProps {
   post: PostItem;
@@ -48,6 +49,9 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameC
   const [showImageDialog, setShowImageDialog] = useState(false);
 
   const currentUser = typeof window !== 'undefined' ? localStorage.getItem('username') : null;
+
+  // Fetch profile photo for post creator
+  const { photoUrl: creatorPhotoUrl } = useProfilePhoto(post.creatorUsername);
 
   // Sync local state with post prop changes
   useEffect(() => {
@@ -195,7 +199,7 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameC
           <div className="flex items-center gap-2">
             <Avatar className="w-6 h-6">
               <AvatarImage
-                src={userAvatar}
+                src={creatorPhotoUrl || userAvatar}
                 alt={post.creatorUsername
                   ? t('profile.photoAlt', {
                       username: post.creatorUsername,
