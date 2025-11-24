@@ -1,6 +1,11 @@
 ## Simple single-stage image: build then serve with Vite preview on port 3000
 FROM node:20-alpine
 
+
+
+ARG VITE_API_URL
+ENV VITE_API_URL=${VITE_API_URL}
+
 WORKDIR /app
 
 # Install dependencies
