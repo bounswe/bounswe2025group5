@@ -224,16 +224,20 @@ CREATE TABLE `saved_posts` (
   
 
   
-CREATE TABLE IF NOT EXISTS  `notifications` (
+CREATE TABLE IF NOT EXISTS `notifications` (
   `notification_id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
   `type` varchar(255) NOT NULL,
-  `actor_id` varchar(255),
+  `actor_id` varchar(255) DEFAULT NULL,
+  `object_type` varchar(255) NOT NULL,
+  `object_id` varchar(255) NOT NULL,
   `is_read` tinyint(1) DEFAULT '0',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`notification_id`),
-  KEY `user_id` (`user_id`),
-  CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
+  KEY `user_id_idx` (`user_id`),
+  CONSTRAINT `fk_notification_user`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `users` (`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -529,8 +533,8 @@ AFTER DELETE ON posts
 FOR EACH ROW
 BEGIN
     DELETE FROM notifications
-    WHERE (objectType = 'Post' OR objectType = 'Comment')
-      AND objectId = OLD.post_id;
+    WHERE (object_type = 'Post' OR object_type = 'Comment')
+      AND object_id = OLD.post_id;
 END$$
 
 -- Trigger for Comment deletions
@@ -539,8 +543,8 @@ AFTER DELETE ON comments
 FOR EACH ROW
 BEGIN
     DELETE FROM notifications
-    WHERE objectType = 'Comment'
-      AND objectId = OLD.post_id;
+    WHERE object_type = 'Comment'
+      AND object_id = OLD.post_id;
 END$$
 
 DELIMITER ;
