@@ -23,7 +23,7 @@ import {
 } from "react-native";
 import { BarChart } from "react-native-chart-kit";
 import { TSpan } from "react-native-svg";
-import ParallaxScrollView from "@/components/ParallaxScrollView";
+// import ParallaxScrollView from "@/components/ParallaxScrollView";
 import AccessibleText from "@/components/AccessibleText";
 import {
   useFocusEffect,
@@ -527,10 +527,11 @@ export default function ProfileScreen() {
   }, [username, userType, hasLoadedPosts, i18n]);
 
   const handleLikeToggle = async (postId: number, currentlyLiked: boolean) => {
-    if (userType === "guest" || !username) {
-      Alert.alert(t("loginRequired"), t("pleaseLogInToLikePosts"));
+    if (userType !== "user") {
+      Alert.alert(t("loginRequired"), t("pleaseLogInToLike"));
       return;
     }
+
     setPosts((currentList) =>
       currentList.map((p) =>
         p.id === postId
@@ -543,31 +544,35 @@ export default function ProfileScreen() {
       )
     );
     try {
-      const response = await apiRequest("/api/posts/like", {
-        method: currentlyLiked ? "DELETE" : "POST",
+      const url = "/api/posts/like";
+      const method = currentlyLiked ? "DELETE" : "POST";
+      const body = JSON.stringify({ username, postId });
+      const response = await apiRequest(url, {
+        method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, postId }),
+        body,
       });
       const responseBodyText = await response.text();
       if (!response.ok) {
-        let errorMsg = `Failed to ${currentlyLiked ? "unlike" : "like"} post.`;
+        let errorMsg = `Failed to ${
+          currentlyLiked ? "unlike" : "like"
+        }. Status: ${response.status}`;
         try {
           const errorData = JSON.parse(responseBodyText);
           errorMsg = errorData.message || errorMsg;
-        } catch {
-          errorMsg = `${errorMsg} ${responseBodyText.substring(0, 120)}`;
+        } catch (e) {
+          errorMsg += ` Response: ${responseBodyText.substring(0, 100)}`;
         }
         throw new Error(errorMsg);
       }
-      const parsed = JSON.parse(responseBodyText || "{}");
-      if (!parsed.success) {
+      const result = JSON.parse(responseBodyText);
+      if (!result.success)
         throw new Error(
-          parsed.message ||
+          result.message ||
             `Backend error on ${currentlyLiked ? "unlike" : "like"}.`
         );
-      }
     } catch (err: any) {
-      console.error("Failed to toggle like:", err);
+      console.error("Failed to toggle like:", err.message);
       Alert.alert(t("error"), err.message || t("couldNotUpdateLike"));
       setPosts((currentList) =>
         currentList.map((p) =>
@@ -584,7 +589,7 @@ export default function ProfileScreen() {
   };
 
   const handleSaveToggle = async (postId: number, currentlySaved: boolean) => {
-    if (userType === "guest" || !username) {
+    if (userType !== "user") {
       Alert.alert(t("loginRequired"), t("pleaseLogInToSavePosts"));
       return;
     }
@@ -684,7 +689,7 @@ export default function ProfileScreen() {
   };
 
   const handleToggleComments = (postId: number) => {
-    if (userType !== "user" || !username) {
+    if (userType !== "user") {
       Alert.alert(t("loginRequired"), t("loginRequiredForComment"));
       return;
     }
@@ -710,7 +715,7 @@ export default function ProfileScreen() {
   };
 
   const handlePostComment = async (postId: number) => {
-    if (!username) {
+    if (userType !== "user") {
       Alert.alert(t("loginRequired"), t("mustBeLoggedIn"));
       return;
     }
@@ -766,7 +771,7 @@ export default function ProfileScreen() {
   };
 
   const handleDeleteComment = async (postId: number, commentId: number) => {
-    if (!username) {
+    if (userType !== "user") {
       Alert.alert(t("error"), t("mustBeLoggedIn"));
       return;
     }
@@ -848,7 +853,7 @@ export default function ProfileScreen() {
     if (
       !editingCommentDetails ||
       editingCommentDetails.commentId !== commentIdToSave ||
-      !username
+      userType !== "user"
     ) {
       Alert.alert(t("error"), t("couldNotSaveEdit"));
       setEditingCommentDetails(null);
@@ -1010,19 +1015,17 @@ export default function ProfileScreen() {
 
   return (
     <>
-      <ParallaxScrollView
-        headerBackgroundColor={{
-          light: parallaxHeaderBgColor,
-          dark: parallaxHeaderBgColor,
-        }}
-        headerImage={
+      <ScrollView
+        style={{ flex: 1, backgroundColor: contentBackgroundColor }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={{ height: 250, backgroundColor: parallaxHeaderBgColor }}>
           <Image
-            source={require("@/assets/images/wallpaper.png")} // FILENAME IS CORRECT
-            style={styles.headerImage}
+            source={require("@/assets/images/wallpaper.png")}
+            style={{ width: "100%", height: "100%" }}
             resizeMode="cover"
           />
-        }
-      >
+        </View>
         <View
           style={[
             styles.contentContainer,
@@ -1367,7 +1370,7 @@ export default function ProfileScreen() {
             )}
           </View>
         </View>
-      </ParallaxScrollView>
+      </ScrollView>
 
       {isProgressModalVisible ? (
         <View style={styles.progressModalOverlay}>
@@ -1783,7 +1786,7 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   headerImage: { width: "100%", height: undefined, aspectRatio: 0.88 },
-  contentContainer: { flex: 1, padding: 16, marginTop: -20 },
+  contentContainer: { flex: 1, padding: 16, marginTop: -20, zIndex: 2 },
   topActionsContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
