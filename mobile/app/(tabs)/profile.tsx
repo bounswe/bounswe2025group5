@@ -1506,7 +1506,7 @@ export default function ProfileScreen() {
         animationType="fade"
         hardwareAccelerated={Platform.OS === "android"}
         statusBarTranslucent={Platform.OS === "ios"}
-        presentationStyle={Platform.OS === "ios" ? "overFullScreen" : "fullScreen"}
+        presentationStyle={Platform.OS === "ios" ? "overFullScreen" : undefined}
       >
         <View style={styles.modalOverlay}>
           <View
@@ -1573,7 +1573,7 @@ export default function ProfileScreen() {
         animationType="fade"
         hardwareAccelerated={Platform.OS === "android"}
         statusBarTranslucent={Platform.OS === "ios"}
-        presentationStyle={Platform.OS === "ios" ? "overFullScreen" : "fullScreen"}
+        presentationStyle={Platform.OS === "ios" ? "overFullScreen" : undefined}
       >
         <View style={styles.modalOverlay}>
           <View
