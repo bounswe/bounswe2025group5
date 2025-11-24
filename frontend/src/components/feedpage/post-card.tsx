@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, MessageCircle, Bookmark, BookmarkCheck, Trash2, Edit3 } from 'lucide-react';
+import { Heart, MessageCircle, Bookmark, BookmarkCheck, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import type { PostItem } from '@/lib/api/schemas/posts';
