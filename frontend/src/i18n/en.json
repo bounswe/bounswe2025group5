@@ -213,7 +213,15 @@
     "challenge": {
         "navbar": "Challenge"
     },
-    "logout": "Logout",
+    "logout": {
+        "label": "Logout",
+        "dialog": {
+            "title": "Confirm Logout",
+            "description": "Are you sure you want to logout? You will need to sign in again to access your account.",
+            "cancel": "Cancel",
+            "confirm": "Logout"
+        }
+    },
     "mainpage": {
         "navbar": "Mainpage",
         "challengesTitle": "Your Challenges",
