@@ -6,21 +6,23 @@ import type { WasteGoalItem } from '@/lib/api/schemas/goals';
 const formatTemplate = (template: string, vars?: Record<string, unknown>) =>
   template.replace(/\{\{?\s*(\w+)\s*\}?\}/g, (_, token) => String(vars?.[token] ?? ''));
 
+const t = (key: string, defaultValueOrOptions?: unknown, maybeOptions?: Record<string, unknown>) => {
+  const options =
+    typeof defaultValueOrOptions === 'object' && defaultValueOrOptions !== null && !Array.isArray(defaultValueOrOptions)
+      ? (defaultValueOrOptions as Record<string, unknown>)
+      : maybeOptions;
+  const defaultText =
+    typeof defaultValueOrOptions === 'string'
+      ? defaultValueOrOptions
+      : typeof options?.defaultValue === 'string'
+        ? options.defaultValue
+        : undefined;
+  return defaultText ? formatTemplate(defaultText, options) : key;
+};
+
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, defaultValueOrOptions?: unknown, maybeOptions?: Record<string, unknown>) => {
-      const options =
-        typeof defaultValueOrOptions === 'object' && defaultValueOrOptions !== null && !Array.isArray(defaultValueOrOptions)
-          ? (defaultValueOrOptions as Record<string, unknown>)
-          : maybeOptions;
-      const defaultText =
-        typeof defaultValueOrOptions === 'string'
-          ? defaultValueOrOptions
-          : typeof options?.defaultValue === 'string'
-            ? options.defaultValue
-            : undefined;
-      return defaultText ? formatTemplate(defaultText, options) : key;
-    },
+    t,
   }),
 }));
 
