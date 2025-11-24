@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, MessageCircle, Bookmark, BookmarkCheck, Trash2, Edit3 } from 'lucide-react';
+import { Heart, MessageCircle, Bookmark, BookmarkCheck, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import type { PostItem } from '@/lib/api/schemas/posts';
@@ -207,13 +207,21 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameC
                 {post.creatorUsername.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <button
-              type="button"
+            <div
+              role="link"
+              tabIndex={0}
               onClick={() => onUsernameClick?.(post.creatorUsername)}
-              className="font-semibold text-sm hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onUsernameClick?.(post.creatorUsername);
+                }
+              }}
+              className="font-semibold text-sm hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded cursor-pointer"
+              aria-label={t('profile.userLabel', { username: post.creatorUsername, defaultValue: `User ${post.creatorUsername}` })}
             >
               {post.creatorUsername}
-            </button>
+            </div>
           </div>
           <div className="text-right">
             <p className="text-xs text-muted-foreground">{date}</p>
@@ -237,6 +245,7 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameC
               "hover:bg-red-50 hover:text-red-500 transition-colors h-8 w-8",
               isLiked && "text-red-500"
             )}
+            aria-label={isLiked ? t('post.unlike', 'Unlike post') : t('post.like', 'Like post')}
           >
             <Heart className={cn("h-4 w-4", isLiked && "fill-current")} />
           </Button>
@@ -245,6 +254,7 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameC
             size="icon"
             onClick={() => setShowComments(!showComments)}
             className="hover:bg-blue-50 hover:text-blue-500 transition-colors h-8 w-8"
+            aria-label={showComments ? t('post.hideComments', 'Hide comments') : t('post.showComments', 'Show comments')}
           >
             <MessageCircle className="h-4 w-4" />
           </Button>
@@ -259,6 +269,7 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameC
               "hover:bg-amber-50 hover:text-amber-600 transition-colors h-8 w-8",
               isSaved && "text-amber-600"
             )}
+            aria-label={isSaved ? t('post.unsave', 'Unsave post') : t('post.save', 'Save post')}
           >
             {isSaved ? (
               <BookmarkCheck className="h-4 w-4 fill-current" />
@@ -278,6 +289,7 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameC
                 size="icon"
                 onClick={() => setShowDeleteDialog(true)}
                 className="hover:bg-red-50 hover:text-red-600 transition-colors h-8 w-8"
+                aria-label={t('post.delete.button', 'Delete post')}
               >
                 <Trash2 className="h-4 w-4" />
               </Button>

@@ -100,21 +100,6 @@ export default function NotificationDetailDialog({
     fetchRelatedObject();
   }, [notification, open]);
 
-  const getDialogTitle = () => {
-    if (!notification) return '';
-    
-    const actor = notification.actorId || 'Someone';
-    switch (notification.type) {
-      case 'Like':
-        return t('notifications.likedYourPost', { actor });
-      case 'Create':
-        return t('notifications.commentedOnYourPost', { actor });
-      case 'Follow':
-        return t('notifications.startedFollowing', { actor });
-      default:
-        return 'Notification';
-    }
-  };
 
   const handleUsernameClick = (username: string) => {
     setProfileUsername(username);
