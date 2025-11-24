@@ -215,7 +215,7 @@ CREATE TABLE `saved_posts` (
     PRIMARY KEY (`post_id`, `user_id`),
     KEY `FKs9a5ulcshnympbu557ps3qdlv` (`user_id`),
     CONSTRAINT `FK9poxgdc1595vxdxkyg202x4ge` 
-        FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`),
+        FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE,
     CONSTRAINT `FKs9a5ulcshnympbu557ps3qdlv` 
         FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB 
