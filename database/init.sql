@@ -501,6 +501,25 @@ END$$
 DELIMITER ;
 
 
+-- 1. Make sure the scheduler is ON
+SET GLOBAL event_scheduler = ON;
+
+DELIMITER $$
+
+-- 2. Create the test event
+CREATE EVENT check_challenge_expiry_test
+ON SCHEDULE EVERY 10 MINUTE
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    UPDATE challenges 
+    SET status = 'Ended' 
+    WHERE end_date < CURRENT_DATE() 
+      AND status = 'Active'; 
+END$$
+
+DELIMITER ;
+
 
 
 
