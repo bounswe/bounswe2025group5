@@ -947,11 +947,16 @@ export default function ProfileScreen() {
           if (!isMounted) return;
           setBio(data.biography ?? "");
           setAvatarUri(data.photoUrl ?? "");
-          const followerCountValue = typeof data.followerCount === 'number'
-            ? data.followerCount
-            : (typeof data.followersCount === 'number' ? data.followersCount : null);
+          const followerCountValue =
+            typeof data.followerCount === "number"
+              ? data.followerCount
+              : typeof data.followersCount === "number"
+              ? data.followersCount
+              : null;
           setFollowersCount(followerCountValue);
-          setFollowingCount(typeof data.followingCount === 'number' ? data.followingCount : null);
+          setFollowingCount(
+            typeof data.followingCount === "number" ? data.followingCount : null
+          );
           setHasLoadedProfile(true);
           fetchUserPosts();
         } catch (err) {
@@ -1185,14 +1190,37 @@ export default function ProfileScreen() {
                 {bio || t("noBioYet")}
               </AccessibleText>
 
-              <View style={{ flexDirection: 'row', marginTop: 8 }}>
-                <TouchableOpacity style={{ marginRight: 16 }} onPress={handleFollowersPress}>
-                  <AccessibleText backgroundColor={contentBackgroundColor} style={{ fontWeight: '700' }}>{followersCount ?? '-'}</AccessibleText>
-                  <AccessibleText backgroundColor={contentBackgroundColor} style={{ opacity: 0.8 }}>{t('followers')}</AccessibleText>
+              <View style={{ flexDirection: "row", marginTop: 8 }}>
+                <TouchableOpacity
+                  style={{ marginRight: 16 }}
+                  onPress={handleFollowersPress}
+                >
+                  <AccessibleText
+                    backgroundColor={contentBackgroundColor}
+                    style={{ fontWeight: "700" }}
+                  >
+                    {followersCount ?? "-"}
+                  </AccessibleText>
+                  <AccessibleText
+                    backgroundColor={contentBackgroundColor}
+                    style={{ opacity: 0.8 }}
+                  >
+                    {t("followers")}
+                  </AccessibleText>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={handleFollowingPress}>
-                  <AccessibleText backgroundColor={contentBackgroundColor} style={{ fontWeight: '700' }}>{followingCount ?? '-'}</AccessibleText>
-                  <AccessibleText backgroundColor={contentBackgroundColor} style={{ opacity: 0.8 }}>{t('following')}</AccessibleText>
+                  <AccessibleText
+                    backgroundColor={contentBackgroundColor}
+                    style={{ fontWeight: "700" }}
+                  >
+                    {followingCount ?? "-"}
+                  </AccessibleText>
+                  <AccessibleText
+                    backgroundColor={contentBackgroundColor}
+                    style={{ opacity: 0.8 }}
+                  >
+                    {t("following")}
+                  </AccessibleText>
                 </TouchableOpacity>
               </View>
             </View>
@@ -1499,41 +1527,69 @@ export default function ProfileScreen() {
       ) : null}
 
       {followersModalVisible && (
-      <Modal
-        visible={followersModalVisible}
-        onRequestClose={() => setFollowersModalVisible(false)}
-        transparent
-        animationType="fade"
-        hardwareAccelerated={Platform.OS === "android"}
-        statusBarTranslucent={Platform.OS === "ios"}
-        presentationStyle={Platform.OS === "ios" ? "overFullScreen" : undefined}
-      >
-        <View style={styles.modalOverlay}>
+        <View style={styles.progressModalOverlay}>
+          <TouchableOpacity
+            style={styles.progressModalBackdrop}
+            activeOpacity={1}
+            onPress={() => setFollowersModalVisible(false)}
+          />
           <View
             style={[
               styles.modalCard,
-              { backgroundColor: cardBackgroundColor, maxHeight: modalMaxHeight },
+              {
+                backgroundColor: cardBackgroundColor,
+                maxHeight: modalMaxHeight,
+              },
             ]}
           >
             <View style={styles.modalHeader}>
-              <AccessibleText backgroundColor={cardBackgroundColor} style={{ fontSize: 18, fontWeight: '700', color: generalTextColor }}>
-                {t('followers')}
+              <AccessibleText
+                backgroundColor={cardBackgroundColor}
+                style={{
+                  fontSize: 18,
+                  fontWeight: "700",
+                  color: generalTextColor,
+                }}
+              >
+                {t("followers")}
               </AccessibleText>
               <TouchableOpacity onPress={() => setFollowersModalVisible(false)}>
                 <Ionicons name="close" size={24} color={generalTextColor} />
               </TouchableOpacity>
             </View>
             {followersError ? (
-              <AccessibleText backgroundColor={cardBackgroundColor} style={{ textAlign: 'center', marginVertical: 20, color: iconColor }}>
+              <AccessibleText
+                backgroundColor={cardBackgroundColor}
+                style={{
+                  textAlign: "center",
+                  marginVertical: 20,
+                  color: iconColor,
+                }}
+              >
                 {followersError}
               </AccessibleText>
             ) : loadingFollowersModal ? (
-              <ActivityIndicator style={{ marginVertical: 20 }} color={iconColor} />
+              <ActivityIndicator
+                style={{ marginVertical: 20 }}
+                color={iconColor}
+              />
             ) : followersList.length === 0 ? (
-              <AccessibleText backgroundColor={cardBackgroundColor} style={{ textAlign: 'center', marginVertical: 20, color: iconColor }}>{t('noFollowers', { defaultValue: 'No followers' })}</AccessibleText>
+              <AccessibleText
+                backgroundColor={cardBackgroundColor}
+                style={{
+                  textAlign: "center",
+                  marginVertical: 20,
+                  color: iconColor,
+                }}
+              >
+                {t("noFollowers", { defaultValue: "No followers" })}
+              </AccessibleText>
             ) : (
               <ScrollView
-                style={[styles.listContainer, { maxHeight: modalMaxHeight - 70 }]}
+                style={[
+                  styles.listContainer,
+                  { maxHeight: modalMaxHeight - 70 },
+                ]}
                 contentContainerStyle={styles.listContent}
                 nestedScrollEnabled
                 keyboardShouldPersistTaps="handled"
@@ -1541,66 +1597,126 @@ export default function ProfileScreen() {
                 {followersList.map(({ username: uname, photoUrl }) => (
                   <TouchableOpacity
                     key={uname}
-                    style={[styles.listItem, { backgroundColor: cardBackgroundColor }]}
+                    style={[
+                      styles.listItem,
+                      { backgroundColor: cardBackgroundColor },
+                    ]}
                     onPress={() => {
                       setFollowersModalVisible(false);
-                      navigation.navigate('user_profile', { username: uname });
+                      navigation.navigate("user_profile", { username: uname });
                     }}
                   >
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <View
+                      style={{ flexDirection: "row", alignItems: "center" }}
+                    >
                       {photoUrl ? (
-                        <Image source={{ uri: photoUrl }} style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: avatarPlaceholderColor, marginRight: 12 }} />
+                        <Image
+                          source={{ uri: photoUrl }}
+                          style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: 16,
+                            backgroundColor: avatarPlaceholderColor,
+                            marginRight: 12,
+                          }}
+                        />
                       ) : (
-                        <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: avatarPlaceholderColor, marginRight: 12 }} />
+                        <View
+                          style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: 16,
+                            backgroundColor: avatarPlaceholderColor,
+                            marginRight: 12,
+                          }}
+                        />
                       )}
-                      <AccessibleText backgroundColor={cardBackgroundColor} style={{ color: generalTextColor, fontWeight: '500' }}>{uname}</AccessibleText>
+                      <AccessibleText
+                        backgroundColor={cardBackgroundColor}
+                        style={{ color: generalTextColor, fontWeight: "500" }}
+                      >
+                        {uname}
+                      </AccessibleText>
                     </View>
-                    <Ionicons name="chevron-forward" size={20} color={iconColor} />
+                    <Ionicons
+                      name="chevron-forward"
+                      size={20}
+                      color={iconColor}
+                    />
                   </TouchableOpacity>
                 ))}
               </ScrollView>
             )}
           </View>
         </View>
-      </Modal>
       )}
 
       {followingModalVisible && (
-      <Modal
-        visible={followingModalVisible}
-        onRequestClose={() => setFollowingModalVisible(false)}
-        transparent
-        animationType="fade"
-        hardwareAccelerated={Platform.OS === "android"}
-        statusBarTranslucent={Platform.OS === "ios"}
-        presentationStyle={Platform.OS === "ios" ? "overFullScreen" : undefined}
-      >
-        <View style={styles.modalOverlay}>
+        <View style={styles.progressModalOverlay}>
+          <TouchableOpacity
+            style={styles.progressModalBackdrop}
+            activeOpacity={1}
+            onPress={() => setFollowingModalVisible(false)}
+          />
           <View
             style={[
               styles.modalCard,
-              { backgroundColor: cardBackgroundColor, maxHeight: modalMaxHeight },
+              {
+                backgroundColor: cardBackgroundColor,
+                maxHeight: modalMaxHeight,
+              },
             ]}
           >
             <View style={styles.modalHeader}>
-              <AccessibleText backgroundColor={cardBackgroundColor} style={{ fontSize: 18, fontWeight: '700', color: generalTextColor }}>
-                {t('following')}
+              <AccessibleText
+                backgroundColor={cardBackgroundColor}
+                style={{
+                  fontSize: 18,
+                  fontWeight: "700",
+                  color: generalTextColor,
+                }}
+              >
+                {t("following")}
               </AccessibleText>
               <TouchableOpacity onPress={() => setFollowingModalVisible(false)}>
                 <Ionicons name="close" size={24} color={generalTextColor} />
               </TouchableOpacity>
             </View>
             {followingsError ? (
-              <AccessibleText backgroundColor={cardBackgroundColor} style={{ textAlign: 'center', marginVertical: 20, color: iconColor }}>
+              <AccessibleText
+                backgroundColor={cardBackgroundColor}
+                style={{
+                  textAlign: "center",
+                  marginVertical: 20,
+                  color: iconColor,
+                }}
+              >
                 {followingsError}
               </AccessibleText>
             ) : loadingFollowingModal ? (
-              <ActivityIndicator style={{ marginVertical: 20 }} color={iconColor} />
+              <ActivityIndicator
+                style={{ marginVertical: 20 }}
+                color={iconColor}
+              />
             ) : followingList.length === 0 ? (
-              <AccessibleText backgroundColor={cardBackgroundColor} style={{ textAlign: 'center', marginVertical: 20, color: iconColor }}>{t('notFollowingAnyone', { defaultValue: 'Not following anyone' })}</AccessibleText>
+              <AccessibleText
+                backgroundColor={cardBackgroundColor}
+                style={{
+                  textAlign: "center",
+                  marginVertical: 20,
+                  color: iconColor,
+                }}
+              >
+                {t("notFollowingAnyone", {
+                  defaultValue: "Not following anyone",
+                })}
+              </AccessibleText>
             ) : (
               <ScrollView
-                style={[styles.listContainer, { maxHeight: modalMaxHeight - 70 }]}
+                style={[
+                  styles.listContainer,
+                  { maxHeight: modalMaxHeight - 70 },
+                ]}
                 contentContainerStyle={styles.listContent}
                 nestedScrollEnabled
                 keyboardShouldPersistTaps="handled"
@@ -1608,28 +1724,58 @@ export default function ProfileScreen() {
                 {followingList.map(({ username: uname, photoUrl }) => (
                   <TouchableOpacity
                     key={uname}
-                    style={[styles.listItem, { backgroundColor: cardBackgroundColor }]}
+                    style={[
+                      styles.listItem,
+                      { backgroundColor: cardBackgroundColor },
+                    ]}
                     onPress={() => {
                       setFollowingModalVisible(false);
-                      navigation.navigate('user_profile', { username: uname });
+                      navigation.navigate("user_profile", { username: uname });
                     }}
                   >
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <View
+                      style={{ flexDirection: "row", alignItems: "center" }}
+                    >
                       {photoUrl ? (
-                        <Image source={{ uri: photoUrl }} style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: avatarPlaceholderColor, marginRight: 12 }} />
+                        <Image
+                          source={{ uri: photoUrl }}
+                          style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: 16,
+                            backgroundColor: avatarPlaceholderColor,
+                            marginRight: 12,
+                          }}
+                        />
                       ) : (
-                        <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: avatarPlaceholderColor, marginRight: 12 }} />
+                        <View
+                          style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: 16,
+                            backgroundColor: avatarPlaceholderColor,
+                            marginRight: 12,
+                          }}
+                        />
                       )}
-                      <AccessibleText backgroundColor={cardBackgroundColor} style={{ color: generalTextColor, fontWeight: '500' }}>{uname}</AccessibleText>
+                      <AccessibleText
+                        backgroundColor={cardBackgroundColor}
+                        style={{ color: generalTextColor, fontWeight: "500" }}
+                      >
+                        {uname}
+                      </AccessibleText>
                     </View>
-                    <Ionicons name="chevron-forward" size={20} color={iconColor} />
+                    <Ionicons
+                      name="chevron-forward"
+                      size={20}
+                      color={iconColor}
+                    />
                   </TouchableOpacity>
                 ))}
               </ScrollView>
             )}
           </View>
         </View>
-      </Modal>
       )}
     </>
   );
@@ -1840,20 +1986,42 @@ const styles = StyleSheet.create({
   },
   wasteTypeChipActive: { backgroundColor: "#2E7D32", borderColor: "#2E7D32" },
   wasteTypeChipText: { fontSize: 12, fontWeight: "600" },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', padding: 16 },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#ccc' },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+  },
   modalCard: {
-    width: '90%',
+    width: "90%",
     maxWidth: 400,
     borderRadius: 16,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.25,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 2 },
     elevation: 8,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   listContainer: { paddingHorizontal: 0, flexGrow: 0 },
   listContent: { paddingBottom: 12 },
-  listItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
+  listItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+  },
 });
