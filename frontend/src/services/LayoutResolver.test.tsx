@@ -71,7 +71,7 @@ describe('LayoutResolver', () => {
     expect(screen.queryByTestId('protected-wrapper')).not.toBeInTheDocument();
   });
 
-  it('falls back to bare children when no layout matches the path', () => {
+  it('falls back to the root layout when no deeper layout matches', () => {
     render(
       <MemoryRouter initialEntries={['/unknown']}>
         <LayoutResolver>
@@ -81,7 +81,7 @@ describe('LayoutResolver', () => {
     );
 
     expect(screen.getByTestId('child-content')).toBeInTheDocument();
-    expect(screen.queryByTestId('navbar')).not.toBeInTheDocument();
+    expect(screen.getByTestId('navbar')).toBeInTheDocument();
   });
 });
 

@@ -1,12 +1,21 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, beforeEach, vi } from 'vitest';
+import { describe, expect, it, beforeAll, afterAll, beforeEach, vi } from 'vitest';
 import Index from '@/routes/_index';
+import * as React from 'react';
 import * as ReactRouterDom from 'react-router-dom';
 
-const { MemoryRouter } = ReactRouterDom;
 const mockNavigate = vi.fn();
-vi.spyOn(ReactRouterDom, 'useNavigate').mockImplementation(() => mockNavigate);
+
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual<typeof ReactRouterDom>('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
+
+const { MemoryRouter } = ReactRouterDom;
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -25,11 +34,9 @@ const carouselApi = {
 };
 
 vi.mock('@/components/ui/carousel', () => {
-  const React = require('react');
-  const useEffect = React.useEffect;
   const passThrough = ({ children }: { children: React.ReactNode }) => <>{children}</>;
   const Carousel = ({ children, setApi }: { children: React.ReactNode; setApi?: (api: typeof carouselApi) => void }) => {
-    useEffect(() => {
+    React.useEffect(() => {
       setApi?.(carouselApi);
     }, [setApi]);
     return <div data-testid="carousel">{children}</div>;
@@ -56,10 +63,22 @@ const localStorageMock = (() => {
   };
 })();
 
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock,
-  configurable: true,
-  writable: true,
+const originalLocalStorage = window.localStorage;
+
+beforeAll(() => {
+  Object.defineProperty(window, 'localStorage', {
+    value: localStorageMock,
+    configurable: true,
+    writable: true,
+  });
+});
+
+afterAll(() => {
+  Object.defineProperty(window, 'localStorage', {
+    value: originalLocalStorage,
+    configurable: true,
+    writable: true,
+  });
 });
 
 describe('Landing Index Route', () => {

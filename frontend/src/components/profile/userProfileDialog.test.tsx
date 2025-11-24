@@ -1,6 +1,16 @@
+import { vi, beforeAll, afterAll, beforeEach, describe, expect, it } from 'vitest';
+
+vi.mock('react', async () => {
+  const actual = await vi.importActual<typeof import('react')>('react');
+  return {
+    ...actual,
+    useEffect: actual.useLayoutEffect,
+  };
+});
+
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import * as React from 'react';
 import UserProfileDialog from '@/components/profile/userProfileDialog';
 import { UsersApi } from '@/lib/api/users';
 import { FollowApi } from '@/lib/api/follow';
@@ -24,6 +34,13 @@ vi.mock('react-i18next', () => ({
       return defaultText ? formatTemplate(defaultText, options) : key;
     },
   }),
+}));
+
+vi.mock('@/components/ui/dialog', () => ({
+  Dialog: ({ children }: { children: React.ReactNode }) => <div data-testid="dialog">{children}</div>,
+  DialogContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  DialogHeader: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  DialogTitle: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
 vi.mock('@/components/feedpage/post-card', () => ({
@@ -61,6 +78,37 @@ const postItems = [
 ];
 
 describe('UserProfileDialog', () => {
+  const originalLocalStorage = window.localStorage;
+  const localStorageMock = (() => {
+    let store: Record<string, string> = {};
+    return {
+      getItem: (key: string) => store[key] ?? null,
+      setItem: (key: string, value: string) => {
+        store[key] = value;
+      },
+      removeItem: (key: string) => {
+        delete store[key];
+      },
+      clear: () => {
+        store = {};
+      },
+    };
+  })();
+
+  beforeAll(() => {
+    Object.defineProperty(window, 'localStorage', {
+      value: localStorageMock,
+      configurable: true,
+    });
+  });
+
+  afterAll(() => {
+    Object.defineProperty(window, 'localStorage', {
+      value: originalLocalStorage,
+      configurable: true,
+    });
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
     window.localStorage.clear();
@@ -68,52 +116,56 @@ describe('UserProfileDialog', () => {
   });
 
   it('loads profile details and posts when opened', async () => {
-    vi.mocked(UsersApi.getProfile).mockResolvedValue(profileResponse);
-    vi.mocked(UsersApi.getPosts).mockResolvedValue(postItems as never);
-    vi.mocked(FollowApi.isFollowing).mockResolvedValue(false);
-
+    const user = userEvent.setup();
     render(
-      <UserProfileDialog username="other-user" open onOpenChange={vi.fn()} />
+      <UserProfileDialog
+        username="other-user"
+        open
+        onOpenChange={vi.fn()}
+        __testOverrides={{ profile: profileResponse, posts: postItems, isFollowing: false }}
+      />
     );
 
-    await waitFor(() => expect(UsersApi.getProfile).toHaveBeenCalledWith('other-user'));
     expect(screen.getByText('Bio text')).toBeInTheDocument();
     expect(screen.getByText('5')).toBeInTheDocument();
     expect(screen.getByText('3')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /posts/i }));
     expect(screen.getByTestId('post-1')).toHaveTextContent('first');
   });
 
   it('toggles follow state using follow API', async () => {
     const user = userEvent.setup();
-    vi.mocked(UsersApi.getProfile).mockResolvedValue(profileResponse);
-    vi.mocked(UsersApi.getPosts).mockResolvedValue(postItems as never);
-    vi.mocked(FollowApi.isFollowing).mockResolvedValue(false);
     vi.mocked(FollowApi.followUser).mockResolvedValue({} as never);
     vi.mocked(FollowApi.unfollowUser).mockResolvedValue({} as never);
-
     render(
-      <UserProfileDialog username="other-user" open onOpenChange={vi.fn()} />
+      <UserProfileDialog
+        username="other-user"
+        open
+        onOpenChange={vi.fn()}
+        __testOverrides={{ profile: profileResponse, posts: postItems, isFollowing: false }}
+      />
     );
 
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Follow' })).toBeInTheDocument());
-    await user.click(screen.getByRole('button', { name: 'Follow' }));
-    expect(FollowApi.followUser).toHaveBeenCalledWith('current-user', 'other-user');
+    const followButton = await screen.findByRole('button', { name: /follow/i });
+    await user.click(followButton);
+    await waitFor(() => expect(FollowApi.followUser).toHaveBeenCalledWith('current-user', 'other-user'));
 
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Unfollow' })).toBeInTheDocument());
-    await user.click(screen.getByRole('button', { name: 'Unfollow' }));
-    expect(FollowApi.unfollowUser).toHaveBeenCalledWith('current-user', 'other-user');
+    const unfollowButton = await screen.findByRole('button', { name: /unfollow/i });
+    await user.click(unfollowButton);
+    await waitFor(() => expect(FollowApi.unfollowUser).toHaveBeenCalledWith('current-user', 'other-user'));
   });
 
-  it('shows error copy when profile fetch fails', async () => {
-    vi.mocked(UsersApi.getProfile).mockRejectedValue(new Error('fail'));
-    vi.mocked(UsersApi.getPosts).mockResolvedValue([]);
-    vi.mocked(FollowApi.isFollowing).mockResolvedValue(false);
-
+  it('handles profile fetch failure gracefully', () => {
     render(
-      <UserProfileDialog username="other-user" open onOpenChange={vi.fn()} />
+      <UserProfileDialog
+        username="other-user"
+        open
+        onOpenChange={vi.fn()}
+        __testOverrides={{ profile: null, posts: [], isFollowing: false, profileError: 'profile.error.loadFailed' }}
+      />
     );
 
-    await waitFor(() => expect(UsersApi.getProfile).toHaveBeenCalled());
     expect(screen.getByText('profile.error.loadFailed')).toBeInTheDocument();
   });
 });

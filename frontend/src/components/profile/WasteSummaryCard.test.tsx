@@ -33,6 +33,13 @@ vi.mock('@/lib/api/waste', () => ({
   },
 }));
 
+vi.mock('@/components/ui/accordion', () => ({
+  Accordion: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  AccordionItem: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  AccordionTrigger: ({ children }: { children: React.ReactNode }) => <button type="button">{children}</button>,
+  AccordionContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}));
+
 const summaryResponse = {
   wasteType: { id: 1, name: 'PLASTIC' },
   totalAmount: 5000,

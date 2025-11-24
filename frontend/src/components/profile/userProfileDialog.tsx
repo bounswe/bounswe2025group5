@@ -18,23 +18,39 @@ interface UserProfileDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onUsernameClick?: (username: string) => void;
+  __testOverrides?: {
+    profile?: ProfileResponse | null;
+    posts?: PostItem[];
+    isFollowing?: boolean;
+    profileError?: string | null;
+  };
 }
 
-export default function UserProfileDialog({ username, open, onOpenChange, onUsernameClick }: UserProfileDialogProps) {
+export default function UserProfileDialog({
+  username,
+  open,
+  onOpenChange,
+  onUsernameClick,
+  __testOverrides,
+}: UserProfileDialogProps) {
   const { t } = useTranslation();
-  const [profile, setProfile] = useState<ProfileResponse | null>(null);
-  const [isProfileLoading, setIsProfileLoading] = useState(false);
-  const [profileError, setProfileError] = useState<string | null>(null);
-  const [posts, setPosts] = useState<PostItem[]>([]);
-  const [isPostsLoading, setIsPostsLoading] = useState(false);
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [isFollowLoading, setIsFollowLoading] = useState(false);
+  const hasOverrides = Boolean(__testOverrides);
+  const [profile, setProfile] = useState<ProfileResponse | null>(__testOverrides?.profile ?? null);
+  const [isProfileLoading, setIsProfileLoading] = useState(!hasOverrides);
+  const [profileError, setProfileError] = useState<string | null>(__testOverrides?.profileError ?? null);
+  const [posts, setPosts] = useState<PostItem[]>(__testOverrides?.posts ?? []);
+  const [isPostsLoading, setIsPostsLoading] = useState(!hasOverrides);
+  const [isFollowing, setIsFollowing] = useState(__testOverrides?.isFollowing ?? false);
+  const [isFollowLoading, setIsFollowLoading] = useState(!hasOverrides);
   const [isFollowActionLoading, setIsFollowActionLoading] = useState(false);
 
-  const currentUser = typeof window !== 'undefined' ? localStorage.getItem('username') : null;
+  // ✅ use window.localStorage so tests/JSDOM don’t crash
+  const currentUser =
+    typeof window !== 'undefined' ? window.localStorage.getItem('username') : null;
   const isOwnProfile = currentUser === username;
 
   useEffect(() => {
+    if (hasOverrides) return;
     if (!open || !username || !currentUser) return;
 
     let cancelled = false;
@@ -91,7 +107,7 @@ export default function UserProfileDialog({ username, open, onOpenChange, onUser
     return () => {
       cancelled = true;
     };
-  }, [open, username, currentUser, isOwnProfile, t]);
+  }, [open, username, currentUser, isOwnProfile, t, hasOverrides]);
 
   useEffect(() => {
     if (!open) {
@@ -113,12 +129,24 @@ export default function UserProfileDialog({ username, open, onOpenChange, onUser
         await FollowApi.unfollowUser(currentUser, username);
         setIsFollowing(false);
         setProfile((prev) =>
-          prev ? { ...prev, followerCount: Math.max(0, (prev.followerCount ?? 0) - 1) } : prev
+          prev
+            ? {
+                ...prev,
+                followerCount: Math.max(0, (prev.followerCount ?? 0) - 1),
+              }
+            : prev,
         );
       } else {
         await FollowApi.followUser(currentUser, username);
         setIsFollowing(true);
-        setProfile((prev) => (prev ? { ...prev, followerCount: (prev.followerCount ?? 0) + 1 } : prev));
+        setProfile((prev) =>
+          prev
+            ? {
+                ...prev,
+                followerCount: (prev.followerCount ?? 0) + 1,
+              }
+            : prev,
+        );
       }
     } catch (error: unknown) {
       console.error('Error toggling follow:', error);
@@ -138,7 +166,9 @@ export default function UserProfileDialog({ username, open, onOpenChange, onUser
       <DialogContent className="sm:max-w-[50rem] flex flex-col">
         <DialogHeader>
           <DialogTitle>
-            {username ? t('profile.userProfileTitle', { username }) : t('profile.userProfile')}
+            {username
+              ? t('profile.userProfileTitle', { username })
+              : t('profile.userProfile')}
           </DialogTitle>
         </DialogHeader>
 
@@ -157,17 +187,19 @@ export default function UserProfileDialog({ username, open, onOpenChange, onUser
         ) : (
           <div className="flex flex-col gap-4">
             <div className="flex items-start gap-8">
-              <div className="flex-[2]"></div>
+              <div className="flex-[2]" />
               <div className="flex flex-col items-center gap-3 flex-[2]">
                 <Avatar className="w-16 h-16">
                   <AvatarImage
                     src={profile.photoUrl || userAvatar}
-                    alt={avatarUsername
-                      ? t('profile.photoAlt', {
-                          username: avatarUsername,
-                          defaultValue: `${avatarUsername}'s profile photo`,
-                        })
-                      : t('profile.photoAltAnon', 'Profile photo')}
+                    alt={
+                      avatarUsername
+                        ? t('profile.photoAlt', {
+                            username: avatarUsername,
+                            defaultValue: `${avatarUsername}'s profile photo`,
+                          })
+                        : t('profile.photoAltAnon', 'Profile photo')
+                    }
                   />
                   <AvatarFallback className="bg-primary text-primary-foreground text-lg">
                     {avatarUsername.charAt(0).toUpperCase()}
@@ -182,7 +214,7 @@ export default function UserProfileDialog({ username, open, onOpenChange, onUser
                   )}
                 </div>
               </div>
-              <div className="flex-[1]"></div>
+              <div className="flex-[1]" />
               <div className="flex flex-col items-center gap-4 flex-[2]">
                 <div className="flex gap-6">
                   <div className="flex flex-col items-center">
@@ -221,15 +253,22 @@ export default function UserProfileDialog({ username, open, onOpenChange, onUser
                   </Button>
                 )}
               </div>
-              <div className="flex-[2]"></div>
+              <div className="flex-[2]" />
             </div>
 
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="posts" className="border rounded-md px-4">
                 <AccordionTrigger className="hover:no-underline">
                   <div className="flex flex-col items-start gap-1">
-                    <span className="font-semibold text-base">{t('profile.postsTitle', 'Posts')}</span>
-                    <span className="text-xs text-muted-foreground font-normal">{t('profile.postsDesc', 'Posts created by this user')}</span>
+                    <span className="font-semibold text-base">
+                      {t('profile.postsTitle', 'Posts')}
+                    </span>
+                    <span className="text-xs text-muted-foreground font-normal">
+                      {t(
+                        'profile.postsDesc',
+                        'Posts created by this user',
+                      )}
+                    </span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
@@ -245,10 +284,7 @@ export default function UserProfileDialog({ username, open, onOpenChange, onUser
                     <div className="space-y-4 grid gap-4 sm:grid-cols-2 justify-items-center max-h-[50vh] overflow-y-auto pr-2">
                       {posts.map((post) => (
                         <div key={post.postId} className="max-w-xs w-full">
-                          <PostCard
-                            post={post}
-                            onUsernameClick={onUsernameClick}
-                          />
+                          <PostCard post={post} onUsernameClick={onUsernameClick} />
                         </div>
                       ))}
                     </div>

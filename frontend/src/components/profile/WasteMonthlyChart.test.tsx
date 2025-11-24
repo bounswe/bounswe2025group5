@@ -40,6 +40,13 @@ vi.mock('recharts', () => {
   };
 });
 
+vi.mock('@/components/ui/accordion', () => ({
+  Accordion: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  AccordionItem: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  AccordionTrigger: ({ children }: { children: React.ReactNode }) => <button type="button">{children}</button>,
+  AccordionContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}));
+
 vi.mock('@/lib/api/waste', () => ({
   WasteApi: {
     monthly: vi.fn(),
@@ -62,6 +69,7 @@ describe('WasteMonthlyChart', () => {
   });
 
   it('fetches and renders monthly waste data', async () => {
+    const user = userEvent.setup();
     vi.mocked(WasteApi.monthly).mockResolvedValue(monthlyResponse);
 
     render(<WasteMonthlyChart username="demo" />);
@@ -70,9 +78,11 @@ describe('WasteMonthlyChart', () => {
       expect(WasteApi.monthly).toHaveBeenCalledWith({ username: 'demo', wasteType: 'GLASS' })
     );
     expect(screen.getByText('12-month waste trends')).toBeInTheDocument();
-    expect(screen.getByText('METAL')).toBeInTheDocument();
+    expect(
+      screen.getByText((content, node) => node?.tagName === 'SPAN' && content === 'METAL')
+    ).toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Refresh data' }));
+    await user.click(screen.getByRole('button', { name: 'Refresh data' }));
     expect(WasteApi.monthly).toHaveBeenCalledTimes(2);
   });
 

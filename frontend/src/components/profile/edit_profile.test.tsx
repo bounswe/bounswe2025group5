@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import * as React from 'react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import EditProfile from '@/components/profile/edit_profile';
@@ -7,24 +8,35 @@ import { UsersApi } from '@/lib/api/users';
 const formatTemplate = (template: string, vars?: Record<string, unknown>) =>
   template.replace(/\{\{?\s*(\w+)\s*\}?\}/g, (_, token) => String(vars?.[token] ?? ''));
 
+// i18n mock
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, defaultValueOrOptions?: unknown, maybeOptions?: Record<string, unknown>) => {
       const options =
-        typeof defaultValueOrOptions === 'object' && defaultValueOrOptions !== null && !Array.isArray(defaultValueOrOptions)
+        typeof defaultValueOrOptions === 'object' &&
+        defaultValueOrOptions !== null &&
+        !Array.isArray(defaultValueOrOptions)
           ? (defaultValueOrOptions as Record<string, unknown>)
           : maybeOptions;
       const defaultText =
         typeof defaultValueOrOptions === 'string'
           ? defaultValueOrOptions
           : typeof options?.defaultValue === 'string'
-            ? options.defaultValue
-            : undefined;
+          ? options.defaultValue
+          : undefined;
       return defaultText ? formatTemplate(defaultText, options) : key;
     },
   }),
 }));
 
+// ✅ Popover mock to avoid portals / Radix behavior in tests
+vi.mock('@/components/ui/popover', () => ({
+  Popover: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  PopoverTrigger: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  PopoverContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}));
+
+// Users API mock
 vi.mock('@/lib/api/users', () => ({
   UsersApi: {
     updateProfile: vi.fn(),
@@ -92,4 +104,3 @@ describe('EditProfile', () => {
     expect(onPhotoSaved).toHaveBeenCalledWith('https://example.com/avatar.png');
   });
 });
-

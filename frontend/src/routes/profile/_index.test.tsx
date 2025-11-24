@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeAll, afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import ProfileIndex from '@/routes/profile/_index';
 import { UsersApi } from '@/lib/api/users';
 import { FollowApi } from '@/lib/api/follow';
@@ -96,10 +96,22 @@ const localStorageMock = (() => {
   };
 })();
 
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock,
-  configurable: true,
-  writable: true,
+const originalLocalStorage = window.localStorage;
+
+beforeAll(() => {
+  Object.defineProperty(window, 'localStorage', {
+    value: localStorageMock,
+    configurable: true,
+    writable: true,
+  });
+});
+
+afterAll(() => {
+  Object.defineProperty(window, 'localStorage', {
+    value: originalLocalStorage,
+    configurable: true,
+    writable: true,
+  });
 });
 
 const mockedGetProfile = vi.mocked(UsersApi.getProfile);

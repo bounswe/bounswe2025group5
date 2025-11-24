@@ -77,10 +77,22 @@ const localStorageMock = (() => {
   };
 })();
 
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock,
-  configurable: true,
-  writable: true,
+const originalLocalStorage = window.localStorage;
+
+beforeAll(() => {
+  Object.defineProperty(window, 'localStorage', {
+    value: localStorageMock,
+    configurable: true,
+    writable: true,
+  });
+});
+
+afterAll(() => {
+  Object.defineProperty(window, 'localStorage', {
+    value: originalLocalStorage,
+    configurable: true,
+    writable: true,
+  });
 });
 
 const mockListGoals = vi.mocked(UsersApi.listGoals);
