@@ -220,4 +220,18 @@ describe('CreatePostCard', () => {
     // Check if form is open
     expect(screen.getByLabelText('feed.createPost.content.label')).toBeInTheDocument();
   });
+
+  test('displays kindness reminder when form is opened', async () => {
+    const user = userEvent.setup();
+    render(<CreatePostCard />);
+
+    // Open popover
+    const placeholder = screen.getByText('feed.createPost.placeholder');
+    await user.click(placeholder);
+
+    // Check if kindness reminder is displayed
+    await waitFor(() => {
+      expect(screen.getByText('kindnessReminder.message')).toBeInTheDocument();
+    });
+  });
 });
