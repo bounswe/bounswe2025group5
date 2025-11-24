@@ -1,6 +1,6 @@
 import { ApiClient } from './client';
 import { z } from 'zod';
-
+import { WasteTypeSchema } from './schemas/goals';
 export const WasteLogSchema = z.object({
   logId: z.number().int().optional(),
   amount: z.number().optional(),
@@ -13,7 +13,25 @@ export type WasteLog = z.infer<typeof WasteLogSchema>;
 export const CreateOrEditWasteLogResponseSchema = WasteLogSchema;
 export const DeleteWasteLogResponseSchema = z.object({ logId: z.number().int().optional() }).passthrough();
 
-export const TotalLogResponseSchema = z.object({ total: z.number().optional() }).passthrough();
+export const TotalLogResponseSchema = z.object({
+  wasteType: WasteTypeSchema,
+  totalAmount: z.number().nonnegative(),
+}).passthrough();
+export type TotalLogResponse = z.infer<typeof TotalLogResponseSchema>;
+
+export const MonthlyWasteDataSchema = z.object({
+  year: z.number().int(),
+  month: z.number().int().min(1).max(12),
+  totalWeight: z.number().nonnegative(),
+}).passthrough();
+export type MonthlyWasteData = z.infer<typeof MonthlyWasteDataSchema>;
+
+export const WasteLogMonthlyResponseSchema = z.object({
+  username: z.string(),
+  wasteType: z.string(),
+  monthlyData: z.array(MonthlyWasteDataSchema),
+}).passthrough();
+export type WasteLogMonthlyResponse = z.infer<typeof WasteLogMonthlyResponseSchema>;
 
 export const WasteApi = {
   list: async (goalId: number) => {
@@ -39,8 +57,17 @@ export const WasteApi = {
       endDate: params.endDate,
       wasteType: params.wasteType,
     });
-    const res = await ApiClient.get<{ total?: number }>(`/api/logs/summary?${query.toString()}`);
+    const res = await ApiClient.get<TotalLogResponse>(`/api/logs/summary?${query.toString()}`);
     return TotalLogResponseSchema.parse(res);
+  },
+  monthly: async (params: { username: string; wasteType: string }) => {
+    const query = new URLSearchParams({
+      wasteType: params.wasteType,
+    });
+    const res = await ApiClient.get<WasteLogMonthlyResponse>(
+      `/api/logs/${encodeURIComponent(params.username)}/monthly?${query.toString()}`
+    );
+    return WasteLogMonthlyResponseSchema.parse(res);
   },
 };
 

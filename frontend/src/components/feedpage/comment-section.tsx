@@ -11,9 +11,10 @@ import userAvatar from '@/assets/user.png';
 interface CommentSectionProps {
   postId: number;
   onCommentAdded?: () => void;
+  onUsernameClick?: (username: string) => void;
 }
 
-export default function CommentSection({ postId, onCommentAdded }: CommentSectionProps) {
+export default function CommentSection({ postId, onCommentAdded, onUsernameClick }: CommentSectionProps) {
   const { t } = useTranslation();
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
@@ -94,6 +95,7 @@ export default function CommentSection({ postId, onCommentAdded }: CommentSectio
               comment={comment}
               onUpdate={handleCommentUpdate}
               onDelete={handleCommentDelete}
+              onUsernameClick={onUsernameClick}
             />
           ))}
         </div>
@@ -104,7 +106,7 @@ export default function CommentSection({ postId, onCommentAdded }: CommentSectio
         <form onSubmit={handleSubmitComment} className="p-4 border-t">
           <div className="flex items-center gap-3">
             <Avatar className="w-8 h-8 shrink-0">
-              <AvatarImage src={userAvatar} alt={currentUser} />
+              <AvatarImage src={userAvatar} alt={t('profile.photoAlt', { username: currentUser, defaultValue: `${currentUser}'s profile photo` })} />
               <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                 {currentUser.charAt(0).toUpperCase()}
               </AvatarFallback>
@@ -122,6 +124,8 @@ export default function CommentSection({ postId, onCommentAdded }: CommentSectio
                 type="submit"
                 size="icon"
                 disabled={!newComment.trim() || isSubmitting}
+                aria-label={t('comment.send', 'Send comment')}
+                title={t('comment.send', 'Send comment')}
               >
                 <Send className="h-4 w-4" />
               </Button>
