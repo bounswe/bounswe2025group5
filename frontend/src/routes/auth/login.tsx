@@ -6,14 +6,16 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardAction, 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import GlassCard from "@/components/ui/glass-card";
+import { AlertCircle } from "lucide-react";
 
 export default function Login() {
   const { t } = useTranslation();
   const [emailOrUsername, setEmailOrUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [_error, setError] = useState<string | null>(null);
-  const [_loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: FormEvent) => {
@@ -51,6 +53,12 @@ export default function Login() {
           </CardHeader>
        <CardContent>
          <form id="login-form" onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           <div className="flex flex-col gap-6">
             <div className="grid gap-2">
               <Label htmlFor="email">{t("login.email.label")} / {t("login.username")}</Label>
@@ -78,8 +86,8 @@ export default function Login() {
          </form>
       </CardContent>
        <CardFooter className="flex-col gap-2">
-         <Button form="login-form" type="submit" className="w-full">
-          {t("login.loginButton")}
+         <Button form="login-form" type="submit" className="w-full" disabled={loading}>
+          {loading ? t("login.loading") : t("login.loginButton")}
         </Button>
       </CardFooter>
         </Card>

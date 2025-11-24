@@ -3,6 +3,13 @@ import { render, screen, fireEvent } from '@testing-library/react-native';
 
 import PostItem from '../../components/PostItem';
 
+jest.mock('@react-navigation/native', () => ({
+  useNavigation: () => ({
+    navigate: jest.fn(),
+    goBack: jest.fn(),
+  }),
+}));
+
 jest.mock('react-i18next', () => {
   const actual = jest.requireActual('react-i18next');
   return {

@@ -42,8 +42,9 @@ export const UsersApi = {
     return data;
   },
   deleteAccount: async (username: string, password: string): Promise<{ deleted?: boolean }> => {
-    const qs = new URLSearchParams({ password }).toString();
-    return ApiClient.delete<{ deleted?: boolean }>(`/api/users/${encodeURIComponent(username)}?${qs}`);
+    return ApiClient.delete<{ deleted?: boolean }>(`/api/users/${encodeURIComponent(username)}`, {
+      password,
+    });
   },
   listChallenges: async (username: string): Promise<ChallengeListItem[]> => {
     const data = await ApiClient.get<ChallengeListItem[]>(`/api/challenges/${encodeURIComponent(username)}`);

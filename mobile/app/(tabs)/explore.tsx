@@ -651,7 +651,7 @@ export default function ExploreScreen() {
     } finally {
       setNotificationsLoading(false);
     }
-  }, [username, userType, t, userAvatars]);
+  }, [username, userType, t]);
 
   const handleNotificationsRefresh = useCallback(() => {
     fetchNotifications();
@@ -864,8 +864,27 @@ export default function ExploreScreen() {
   );
 
   const handleNotificationPress = (notif: NotificationItem) => {
+    const normalizedType = notif.type?.toLowerCase();
     const normalizedObjectType = notif.objectType?.toLowerCase();
     const derivedPostId = deriveNotificationPostId(notif);
+    const messageLower = notif.message?.toLowerCase() ?? "";
+    const actorUsername =
+      notif.actorUsername ?? deriveActorUsername(notif.actorId, notif.message);
+    const followsCurrentUser =
+      normalizedType === "follow" &&
+      Boolean(
+        messageLower.includes("started following you") ||
+          (username &&
+            notif.objectId &&
+            notif.objectId.toLowerCase() === username.toLowerCase()) ||
+          (username && !notif.objectId)
+      );
+    if (followsCurrentUser && actorUsername) {
+      closePostPreview();
+      closeNotifications();
+      navigation.navigate("user_profile", { username: actorUsername });
+      return;
+    }
     const allowsPreview =
       normalizedObjectType === "post" ||
       normalizedObjectType === "comment" ||
