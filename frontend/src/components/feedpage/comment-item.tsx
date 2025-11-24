@@ -155,13 +155,21 @@ export default function CommentItem({ comment, onUpdate, onDelete, onUsernameCli
         ) : (
           <>
             <div className="bg-gray-100 rounded-lg px-3 py-2">
-              <button
-                type="button"
+              <div
+                role="link"
+                tabIndex={0}
                 onClick={() => commentUsername && onUsernameClick?.(commentUsername)}
-                className="block text-sm font-medium text-gray-900 mb-1 hover:underline text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    commentUsername && onUsernameClick?.(commentUsername);
+                  }
+                }}
+                className="block text-sm font-medium text-gray-900 mb-1 hover:underline text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded cursor-pointer"
+                aria-label={t('profile.userLabel', { username: commentUsername, defaultValue: `User ${commentUsername}` })}
               >
                 {commentUsername}
-              </button>
+              </div>
               <p className="text-sm text-gray-700 break-words">
                 {comment.content}
               </p>
@@ -181,6 +189,7 @@ export default function CommentItem({ comment, onUpdate, onDelete, onUsernameCli
                     size="icon"
                     onClick={handleEdit}
                     className="h-5 w-5 hover:bg-blue-50 hover:text-blue-600"
+                    aria-label={t('comment.edit', 'Edit comment')}
                   >
                     <Edit3 className="h-2.5 w-2.5" />
                   </Button>
@@ -189,6 +198,7 @@ export default function CommentItem({ comment, onUpdate, onDelete, onUsernameCli
                     size="icon"
                     onClick={() => setShowDeleteDialog(true)}
                     className="h-5 w-5 hover:bg-red-50 hover:text-red-600"
+                    aria-label={t('comment.delete', 'Delete comment')}
                   >
                     <Trash2 className="h-2.5 w-2.5" />
                   </Button>
@@ -203,9 +213,9 @@ export default function CommentItem({ comment, onUpdate, onDelete, onUsernameCli
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{t('comment.delete.title')}</DialogTitle>
+            <DialogTitle>{t('comment.deleteDialog.title')}</DialogTitle>
             <DialogDescription>
-              {t('comment.delete.description')}
+              {t('comment.deleteDialog.description')}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex gap-2 sm:justify-end">
@@ -214,14 +224,14 @@ export default function CommentItem({ comment, onUpdate, onDelete, onUsernameCli
               onClick={() => setShowDeleteDialog(false)}
               disabled={isLoading}
             >
-              {t('comment.delete.cancel')}
+              {t('comment.deleteDialog.cancel')}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDeleteComment}
               disabled={isLoading}
             >
-              {isLoading ? t('comment.delete.deleting') : t('comment.delete.confirm')}
+              {isLoading ? t('comment.deleteDialog.deleting') : t('comment.deleteDialog.confirm')}
             </Button>
           </DialogFooter>
         </DialogContent>

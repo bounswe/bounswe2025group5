@@ -36,8 +36,8 @@ describe('CreateOrEditGoalDialog', () => {
       /restriction amount/i,
     );
 
-    expect(screen.getByText(/edit goal/i)).toBeInTheDocument();
-    expect(screen.getByText(/update your progress/i)).toBeInTheDocument();
+    expect(screen.getByText(/create waste goal/i)).toBeInTheDocument();
+    expect(screen.getByText(/define a new waste reduction goal/i)).toBeInTheDocument();
     expect(typeSelect.value).toBe('PAPER');
     expect(durationInput.value).toBe('21');
     expect(restrictionInput.value).toBe('500');

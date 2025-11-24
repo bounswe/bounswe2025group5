@@ -26,7 +26,7 @@ export default function CreateChallenge() {
         setError(null);
         setSuccess(null);
         try {
-            if (!title || !description || !type || !startDate || !endDate || !amount) {
+            if (!title || !description || !type || !startDate || !endDate || amount === '') {
                 setError(t('challenges.create.missingFields', 'Please fill in all required fields'));
                 setLoading(false);
                 return;

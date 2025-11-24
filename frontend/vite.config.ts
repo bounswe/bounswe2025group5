@@ -5,6 +5,7 @@ import path from "path";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
+  envDir: path.resolve(__dirname, ".."),
   plugins: [
     react(),
     tailwindcss(),
