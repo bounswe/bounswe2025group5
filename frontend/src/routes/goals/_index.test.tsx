@@ -79,6 +79,8 @@ const localStorageMock = (() => {
 
 Object.defineProperty(window, 'localStorage', {
   value: localStorageMock,
+  configurable: true,
+  writable: true,
 });
 
 const mockListGoals = vi.mocked(UsersApi.listGoals);
