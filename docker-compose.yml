@@ -2,9 +2,9 @@ services:
   backend:
     build: backend
     environment:
-      - DB_HOST=${DB_HOST}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=db
+      - DB_USERNAME=root
+      - DB_PASSWORD=${DB_PASSWORD:-root}
       - DO_SPACES_ACCESS_KEY=${DO_SPACES_ACCESS_KEY}
       - DO_SPACES_SECRET_KEY=${DO_SPACES_SECRET_KEY}
       - QDRANT_HOST=${QDRANT_HOST}
@@ -13,7 +13,10 @@ services:
     ports:
       - "127.0.0.1:8080:8080"
     depends_on:
-      - qdrant-db
+      qdrant-db:
+        condition: service_started
+      db:
+        condition: service_healthy
 
   frontend:
     build:
@@ -26,6 +29,26 @@ services:
     ports:
       - "127.0.0.1:3000:3000"
 
+  db:
+    image: mysql:8.4
+    container_name: waste_less_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
+      MYSQL_DATABASE: waste_less
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - db_data:/var/lib/mysql # Persists data even if container is removed
+    networks:
+      - appnet
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   qdrant-db:
     image: qdrant/qdrant:v1.15.0
     container_name: qdrant-db
@@ -36,9 +59,11 @@ services:
       - qdrant_storage:/qdrant/storage
     ports:
       - "6333:6333"
+
 networks:
   appnet:
     driver: bridge
 
 volumes:
   qdrant_storage:
+  db_data:
