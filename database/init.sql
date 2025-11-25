@@ -1,4 +1,4 @@
-DROP DATABASE waste_less;
+DROP DATABASE IF EXISTS waste_less;
 CREATE DATABASE  waste_less;
 Use  waste_less;
 CREATE  TABLE IF NOT EXISTS  `users` (
