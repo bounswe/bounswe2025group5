@@ -360,11 +360,15 @@
             "like": "{{actor}} liked your {{objectType}}",
             "comment": "{{actor}} commented on your {{objectType}}",
             "follow": "{{actor}} started following you",
+            "share": "{{actor}} shared your {{objectType}}",
+            "challenge": "Challenge ended",
             "mention": "{{actor}} mentioned you in a {{objectType}}",
             "default": "{{actor}} {{type}}"
         },
         "likedYourPost_suffix": "liked your post",
         "commentedOnYourPost_suffix": "commented on your post",
-        "startedFollowing_suffix": "started following you"
+        "startedFollowing_suffix": "started following you",
+        "sharedYourPost_suffix": "shared your post",
+        "challengeEnded_suffix": "ended"
     }
 }

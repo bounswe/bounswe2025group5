@@ -16,6 +16,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import userAvatar from '@/assets/user.png';
+import { useProfilePhoto } from '@/hooks/useProfilePhotos';
 
 interface CommentItemProps {
   comment: Comment;
@@ -35,6 +36,9 @@ export default function CommentItem({ comment, onUpdate, onDelete, onUsernameCli
   const currentUser = typeof window !== 'undefined' ? localStorage.getItem('username') : null;
   const commentUsername = comment.creatorUsername || comment.username;
   const isOwner = currentUser === commentUsername;
+
+  // Fetch profile photo for commenter
+  const { photoUrl: commenterPhotoUrl } = useProfilePhoto(commentUsername);
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '';
@@ -110,7 +114,7 @@ export default function CommentItem({ comment, onUpdate, onDelete, onUsernameCli
     <div className={cn("flex gap-3 py-2 group", className)}>
       <Avatar className="w-8 h-8 shrink-0">
         <AvatarImage
-          src={userAvatar}
+          src={commenterPhotoUrl || userAvatar}
           alt={commentUsername
             ? t('profile.photoAlt', {
                 username: commentUsername,
