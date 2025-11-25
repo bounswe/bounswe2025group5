@@ -13,6 +13,7 @@ import { PostsApi } from '@/lib/api/posts';
 import PostCard from '@/components/feedpage/post-card';
 import UserProfileDialog from '@/components/profile/userProfileDialog';
 import userAvatar from '@/assets/user.png';
+import { useProfilePhoto } from '@/hooks/useProfilePhotos';
 
 interface NotificationDetailDialogProps {
   notification: Notification | null;
@@ -31,6 +32,9 @@ export default function NotificationDetailDialog({
   const [error, setError] = useState<string | null>(null);
   const [showProfileDialog, setShowProfileDialog] = useState(false);
   const [profileUsername, setProfileUsername] = useState<string | null>(null);
+
+  // Fetch profile photo for notification actor
+  const { photoUrl: actorPhotoUrl } = useProfilePhoto(notification?.actorId);
 
   useEffect(() => {
     if (!notification || !open) {
@@ -117,7 +121,7 @@ export default function NotificationDetailDialog({
         return (
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10">
-              <AvatarImage src={userAvatar} alt={actor} />
+              <AvatarImage src={actorPhotoUrl || userAvatar} alt={actor} />
               <AvatarFallback>{actor[0]?.toUpperCase()}</AvatarFallback>
             </Avatar>
             <span className="font-normal">
@@ -133,11 +137,11 @@ export default function NotificationDetailDialog({
             </span>
           </div>
         );
-      case 'Create':
+      case 'Comment':
         return (
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10">
-              <AvatarImage src={userAvatar} alt={actor} />
+              <AvatarImage src={actorPhotoUrl || userAvatar} alt={actor} />
               <AvatarFallback>{actor[0]?.toUpperCase()}</AvatarFallback>
             </Avatar>
             <span className="font-normal">
@@ -157,7 +161,7 @@ export default function NotificationDetailDialog({
         return (
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10">
-              <AvatarImage src={userAvatar} alt={actor} />
+              <AvatarImage src={actorPhotoUrl || userAvatar} alt={actor} />
               <AvatarFallback>{actor[0]?.toUpperCase()}</AvatarFallback>
             </Avatar>
             <span className="font-normal">

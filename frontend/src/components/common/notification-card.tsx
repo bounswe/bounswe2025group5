@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import type { Notification } from '@/lib/api/schemas/notifications';
 import userAvatar from '@/assets/user.png';
+import { useProfilePhoto } from '@/hooks/useProfilePhotos';
 
 interface NotificationCardProps {
   notification: Notification;
@@ -21,6 +22,9 @@ export default function NotificationCard({
   className,
 }: NotificationCardProps) {
   const { t } = useTranslation();
+
+  // Fetch profile photo for notification actor
+  const { photoUrl: actorPhotoUrl } = useProfilePhoto(notification.actorId);
 
   const formatTimeAgo = (timestamp: string) => {
     const now = new Date();
@@ -99,7 +103,7 @@ export default function NotificationCard({
       <CardContent className="p-3 py-2 relative">
         <div className="flex items-start gap-2">
           <Avatar className="h-8 w-8 shrink-0">
-            <AvatarImage src={userAvatar} alt={notification.actorId || 'User'} />
+            <AvatarImage src={actorPhotoUrl || userAvatar} alt={notification.actorId || 'User'} />
             <AvatarFallback>{(notification.actorId || 'U')[0].toUpperCase()}</AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
