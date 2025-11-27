@@ -81,6 +81,8 @@ Make sure you have **Docker** and **Docker Compose** installed on your computer.
     Change your directory to the project's root folder:
     ```bash
     cd /path/to/bounswe2025group5
+    cp database/init.sql .
+
     ```
 
 2.  **Build and Run Services**
