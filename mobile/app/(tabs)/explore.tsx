@@ -186,11 +186,6 @@ export default function ExploreScreen() {
   const feedAccentShadow = isFriendsFeed
     ? "rgba(30, 94, 48, 0.2)"
     : "rgba(13, 71, 161, 0.2)";
-  const resolvedLanguage = (
-    i18n.resolvedLanguage ||
-    i18n.language ||
-    "en"
-  ).toString();
   const resolvedPreviewImageUri = previewPost?.photoUrl
     ? previewPost.photoUrl.startsWith("http")
       ? previewPost.photoUrl
@@ -365,16 +360,47 @@ export default function ExploreScreen() {
       if (!value) return "";
       const dateInstance = value instanceof Date ? value : new Date(value);
       if (Number.isNaN(dateInstance.getTime())) return "";
-      try {
-        return dateInstance.toLocaleString(resolvedLanguage, {
-          dateStyle: "medium",
-          timeStyle: "short",
-        });
-      } catch {
-        return dateInstance.toISOString();
+      const diffSeconds = Math.max(
+        0,
+        Math.round((Date.now() - dateInstance.getTime()) / 1000)
+      );
+      if (diffSeconds < 5) {
+        return t("timeJustNow", { defaultValue: "just now" });
       }
+      if (diffSeconds < 60) {
+        return t("timeSecondsAgo", {
+          count: diffSeconds,
+          defaultValue: `${diffSeconds} seconds ago`,
+        });
+      }
+      const minutes = Math.max(1, Math.round(diffSeconds / 60));
+      if (minutes < 60) {
+        return t("timeMinutesAgo", {
+          count: minutes,
+          defaultValue: `${minutes} minutes ago`,
+        });
+      }
+      const hours = Math.max(1, Math.round(minutes / 60));
+      if (hours < 24) {
+        return t("timeHoursAgo", {
+          count: hours,
+          defaultValue: `${hours} hours ago`,
+        });
+      }
+      const days = Math.max(1, Math.round(hours / 24));
+      if (days < 7) {
+        return t("timeDaysAgo", {
+          count: days,
+          defaultValue: `${days} days ago`,
+        });
+      }
+      const weeks = Math.max(1, Math.round(days / 7));
+      return t("timeWeeksAgo", {
+        count: weeks,
+        defaultValue: `${weeks} weeks ago`,
+      });
     },
-    [resolvedLanguage]
+    [t]
   );
 
   const resolveAvatarUri = (uri?: string | null) => {
