@@ -127,6 +127,9 @@ export default function ExploreScreen() {
   const [selectedNotificationActor, setSelectedNotificationActor] = useState<
     string | null
   >(null);
+  const [notificationThumbnails, setNotificationThumbnails] = useState<
+    Record<number, string | null>
+  >({});
   const [isPostPreviewVisible, setPostPreviewVisible] = useState(false);
   const [previewPost, setPreviewPost] = useState<Post | null>(null);
   const [previewComments, setPreviewComments] = useState<CommentData[]>([]);
@@ -135,6 +138,7 @@ export default function ExploreScreen() {
   const hasLoadedPostsRef = useRef(false);
   const scrollViewRef = useRef<ScrollView | null>(null);
   const lastScrollOffsetRef = useRef(0);
+  const notificationThumbnailFetchesRef = useRef<Set<number>>(new Set());
 
   const colorScheme = useColorScheme();
   const screenBackgroundColor = colorScheme === "dark" ? "#151718" : "#F0F2F5";
@@ -371,6 +375,11 @@ export default function ExploreScreen() {
   );
 
   const resolveAvatarUri = (uri?: string | null) => {
+    if (!uri) return null;
+    return uri.startsWith("http") ? uri : apiUrl(uri);
+  };
+
+  const resolvePostImageUri = (uri?: string | null) => {
     if (!uri) return null;
     return uri.startsWith("http") ? uri : apiUrl(uri);
   };
@@ -916,6 +925,92 @@ export default function ExploreScreen() {
     isPostPreviewVisible,
     selectedNotificationPostId,
     loadNotificationPostPreview,
+  ]);
+
+  const getPhotoUrlForPostFromState = useCallback(
+    (postId: number) => {
+      const candidates = [
+        posts.find((p) => p.id === postId)?.photoUrl,
+        searchResults.find((p) => p.id === postId)?.photoUrl,
+        previewPost?.id === postId ? previewPost.photoUrl : null,
+      ];
+      const firstMatch = candidates.find((url) => url);
+      return resolvePostImageUri(firstMatch ?? null);
+    },
+    [posts, previewPost, resolvePostImageUri, searchResults]
+  );
+
+  const fetchNotificationPostThumbnail = useCallback(
+    async (postId: number) => {
+      if (notificationThumbnailFetchesRef.current.has(postId)) return;
+      notificationThumbnailFetchesRef.current.add(postId);
+      try {
+        const cached = getPhotoUrlForPostFromState(postId);
+        if (cached) {
+          setNotificationThumbnails((prev) =>
+            prev[postId] === cached ? prev : { ...prev, [postId]: cached }
+          );
+          return;
+        }
+
+        const response = await apiRequest(`/api/posts/${postId}`);
+        if (!response.ok) {
+          setNotificationThumbnails((prev) =>
+            Object.prototype.hasOwnProperty.call(prev, postId)
+              ? prev
+              : { ...prev, [postId]: null }
+          );
+          return;
+        }
+        const data = await response.json();
+        const rawPhoto =
+          data?.photoUrl ??
+          data?.photoURL ??
+          data?.photo_url ??
+          (Array.isArray(data?.photos) ? data.photos[0] : null);
+        const resolved = resolvePostImageUri(rawPhoto ?? null);
+        setNotificationThumbnails((prev) =>
+          prev[postId] === resolved ? prev : { ...prev, [postId]: resolved ?? null }
+        );
+      } catch (err) {
+        setNotificationThumbnails((prev) =>
+          Object.prototype.hasOwnProperty.call(prev, postId)
+            ? prev
+            : { ...prev, [postId]: null }
+        );
+      } finally {
+        notificationThumbnailFetchesRef.current.delete(postId);
+      }
+    },
+    [getPhotoUrlForPostFromState]
+  );
+
+  useEffect(() => {
+    if (!notifications.length) return;
+    notifications.forEach((notif) => {
+      const normalizedType = notif.type?.toLowerCase();
+      const normalizedObject = notif.objectType?.toLowerCase();
+      const postId = deriveNotificationPostId(notif);
+      const looksPostRelated =
+        postId !== null &&
+        (normalizedObject === "post" ||
+          (!normalizedObject &&
+            (normalizedType === "like" ||
+              normalizedType === "comment" ||
+              normalizedType === "create")));
+      if (!looksPostRelated || postId === null) return;
+      if (
+        notificationThumbnailFetchesRef.current.has(postId) ||
+        Object.prototype.hasOwnProperty.call(notificationThumbnails, postId)
+      ) {
+        return;
+      }
+      fetchNotificationPostThumbnail(postId);
+    });
+  }, [
+    notifications,
+    fetchNotificationPostThumbnail,
+    notificationThumbnails,
   ]);
 
   const fetchPosts = async (
@@ -2103,6 +2198,31 @@ export default function ExploreScreen() {
                       </View>
                     )
                   ) : null;
+                  const derivedPostIdForThumb = deriveNotificationPostId(notif);
+                  const normalizedNotifType = notif.type?.toLowerCase();
+                  const normalizedNotifObject = notif.objectType?.toLowerCase();
+                  const isPostRelated =
+                    derivedPostIdForThumb !== null &&
+                    (normalizedNotifObject === "post" ||
+                      (!normalizedNotifObject &&
+                        (normalizedNotifType === "like" ||
+                          normalizedNotifType === "comment" ||
+                          normalizedNotifType === "create")));
+                  const hasFetchedThumbnail =
+                    derivedPostIdForThumb !== null &&
+                    Object.prototype.hasOwnProperty.call(
+                      notificationThumbnails,
+                      derivedPostIdForThumb
+                    );
+                  const resolvedThumbnailUri =
+                    derivedPostIdForThumb !== null
+                      ? notificationThumbnails[derivedPostIdForThumb] ?? null
+                      : null;
+                  const shouldShowThumbnail =
+                    isPostRelated &&
+                    Boolean(resolvedThumbnailUri && resolvedThumbnailUri.length);
+                  const shouldReserveThumbnailSpace =
+                    isPostRelated && !hasFetchedThumbnail;
                   return (
                     <TouchableOpacity
                       key={`${notif.id}-${notif.createdAt ?? "timestamp"}`}
@@ -2165,6 +2285,34 @@ export default function ExploreScreen() {
                             </AccessibleText>
                           ) : null}
                         </View>
+                        {(shouldShowThumbnail || shouldReserveThumbnailSpace) && (
+                          <View
+                            style={[
+                              styles.notificationThumbnailWrapper,
+                              { backgroundColor: commentInputBackgroundColor },
+                            ]}
+                          >
+                            {shouldShowThumbnail && resolvedThumbnailUri ? (
+                              <Image
+                                source={{ uri: resolvedThumbnailUri }}
+                                style={styles.notificationThumbnailImage}
+                                resizeMode="cover"
+                              />
+                            ) : (
+                              <View
+                                style={[
+                                  styles.notificationThumbnailPlaceholder,
+                                  {
+                                    backgroundColor:
+                                      colorScheme === "dark"
+                                        ? "#2F2F31"
+                                        : "#E5E5EA",
+                                  },
+                                ]}
+                              />
+                            )}
+                          </View>
+                        )}
                       </View>
                     </TouchableOpacity>
                   );
@@ -2620,6 +2768,21 @@ const styles = StyleSheet.create({
   },
   notificationAvatarImage: { width: 48, height: 48, borderRadius: 24 },
   notificationAvatarInitial: { fontSize: 18, fontWeight: "700" },
+  notificationThumbnailWrapper: {
+    width: 64,
+    height: 64,
+    marginLeft: 12,
+    borderRadius: 14,
+    overflow: "hidden",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  notificationThumbnailImage: { width: "100%", height: "100%" },
+  notificationThumbnailPlaceholder: {
+    width: "100%",
+    height: "100%",
+    opacity: 0.6,
+  },
   notificationPreviewBackdrop: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
