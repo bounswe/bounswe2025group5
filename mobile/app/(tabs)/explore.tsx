@@ -2248,7 +2248,10 @@ export default function ExploreScreen() {
                   const isLikePost =
                     normalizedNotifType === "like" &&
                     (normalizedNotifObject === "post" || !normalizedNotifObject);
-                  const maxExcerptLength = 70;
+                  const isCreatePost =
+                    normalizedNotifType === "create" &&
+                    (normalizedNotifObject === "post" || !normalizedNotifObject);
+                  const maxExcerptLength = 35;
                   const hasFetchedThumbnail =
                     derivedPostIdForThumb !== null &&
                     Object.prototype.hasOwnProperty.call(
@@ -2269,7 +2272,7 @@ export default function ExploreScreen() {
                     : t("notificationFallbackMessage", {
                         defaultValue: "You have a new notification.",
                       });
-                  if (isLikePost && derivedPostIdForThumb !== null) {
+                  if ((isLikePost || isCreatePost) && derivedPostIdForThumb !== null) {
                     const bodyFromState = getPostContentFromState(
                       derivedPostIdForThumb
                     );
