@@ -130,6 +130,9 @@ export default function ExploreScreen() {
   const [notificationThumbnails, setNotificationThumbnails] = useState<
     Record<number, string | null>
   >({});
+  const [notificationPostBodies, setNotificationPostBodies] = useState<
+    Record<number, string | null>
+  >({});
   const [isPostPreviewVisible, setPostPreviewVisible] = useState(false);
   const [previewPost, setPreviewPost] = useState<Post | null>(null);
   const [previewComments, setPreviewComments] = useState<CommentData[]>([]);
@@ -927,17 +930,33 @@ export default function ExploreScreen() {
     loadNotificationPostPreview,
   ]);
 
+  const findPostInState = useCallback(
+    (postId: number): Post | null => {
+      const fromFeed = posts.find((p) => p.id === postId);
+      if (fromFeed) return fromFeed;
+      const fromSearch = searchResults.find((p) => p.id === postId);
+      if (fromSearch) return fromSearch;
+      if (previewPost?.id === postId) return previewPost;
+      return null;
+    },
+    [posts, previewPost, searchResults]
+  );
+
   const getPhotoUrlForPostFromState = useCallback(
     (postId: number) => {
-      const candidates = [
-        posts.find((p) => p.id === postId)?.photoUrl,
-        searchResults.find((p) => p.id === postId)?.photoUrl,
-        previewPost?.id === postId ? previewPost.photoUrl : null,
-      ];
-      const firstMatch = candidates.find((url) => url);
-      return resolvePostImageUri(firstMatch ?? null);
+      const match = findPostInState(postId);
+      const candidate = match?.photoUrl ?? null;
+      return resolvePostImageUri(candidate ?? null);
     },
-    [posts, previewPost, resolvePostImageUri, searchResults]
+    [findPostInState, resolvePostImageUri]
+  );
+
+  const getPostContentFromState = useCallback(
+    (postId: number) => {
+      const match = findPostInState(postId);
+      return match?.content ?? null;
+    },
+    [findPostInState]
   );
 
   const fetchNotificationPostThumbnail = useCallback(
@@ -946,6 +965,12 @@ export default function ExploreScreen() {
       notificationThumbnailFetchesRef.current.add(postId);
       try {
         const cached = getPhotoUrlForPostFromState(postId);
+        const cachedBody = getPostContentFromState(postId);
+        if (cachedBody) {
+          setNotificationPostBodies((prev) =>
+            prev[postId] === cachedBody ? prev : { ...prev, [postId]: cachedBody }
+          );
+        }
         if (cached) {
           setNotificationThumbnails((prev) =>
             prev[postId] === cached ? prev : { ...prev, [postId]: cached }
@@ -969,11 +994,28 @@ export default function ExploreScreen() {
           data?.photo_url ??
           (Array.isArray(data?.photos) ? data.photos[0] : null);
         const resolved = resolvePostImageUri(rawPhoto ?? null);
+        const rawContent =
+          (typeof data?.content === "string" && data.content) ||
+          (typeof data?.body === "string" && data.body) ||
+          (typeof data?.text === "string" && data.text) ||
+          null;
         setNotificationThumbnails((prev) =>
           prev[postId] === resolved ? prev : { ...prev, [postId]: resolved ?? null }
         );
+        if (rawContent) {
+          setNotificationPostBodies((prev) =>
+            prev[postId] === rawContent ? prev : { ...prev, [postId]: rawContent }
+          );
+        } else if (!Object.prototype.hasOwnProperty.call(notificationPostBodies, postId)) {
+          setNotificationPostBodies((prev) => ({ ...prev, [postId]: null }));
+        }
       } catch (err) {
         setNotificationThumbnails((prev) =>
+          Object.prototype.hasOwnProperty.call(prev, postId)
+            ? prev
+            : { ...prev, [postId]: null }
+        );
+        setNotificationPostBodies((prev) =>
           Object.prototype.hasOwnProperty.call(prev, postId)
             ? prev
             : { ...prev, [postId]: null }
@@ -982,7 +1024,7 @@ export default function ExploreScreen() {
         notificationThumbnailFetchesRef.current.delete(postId);
       }
     },
-    [getPhotoUrlForPostFromState]
+    [getPhotoUrlForPostFromState, getPostContentFromState, notificationPostBodies]
   );
 
   useEffect(() => {
@@ -2161,11 +2203,6 @@ export default function ExploreScreen() {
                   const timestamp = formatNotificationTimestamp(
                     notif.createdAt
                   );
-                  const messageText = notif.message?.trim()?.length
-                    ? notif.message
-                    : t("notificationFallbackMessage", {
-                        defaultValue: "You have a new notification.",
-                      });
                   const showAvatar = shouldDisplayNotificationAvatar(notif);
                   const avatarInitial = showAvatar
                     ? getNotificationInitial(notif)
@@ -2208,6 +2245,10 @@ export default function ExploreScreen() {
                         (normalizedNotifType === "like" ||
                           normalizedNotifType === "comment" ||
                           normalizedNotifType === "create")));
+                  const isLikePost =
+                    normalizedNotifType === "like" &&
+                    (normalizedNotifObject === "post" || !normalizedNotifObject);
+                  const maxExcerptLength = 70;
                   const hasFetchedThumbnail =
                     derivedPostIdForThumb !== null &&
                     Object.prototype.hasOwnProperty.call(
@@ -2223,6 +2264,29 @@ export default function ExploreScreen() {
                     Boolean(resolvedThumbnailUri && resolvedThumbnailUri.length);
                   const shouldReserveThumbnailSpace =
                     isPostRelated && !hasFetchedThumbnail;
+                  let messageText = notif.message?.trim()?.length
+                    ? notif.message
+                    : t("notificationFallbackMessage", {
+                        defaultValue: "You have a new notification.",
+                      });
+                  if (isLikePost && derivedPostIdForThumb !== null) {
+                    const bodyFromState = getPostContentFromState(
+                      derivedPostIdForThumb
+                    );
+                    const body =
+                      notificationPostBodies[derivedPostIdForThumb] ??
+                      bodyFromState ??
+                      null;
+                    if (body && body.trim().length) {
+                      const normalizedBody = body.trim().replace(/\s+/g, " ");
+                      const shouldTruncate =
+                        normalizedBody.length > maxExcerptLength;
+                      const excerpt = shouldTruncate
+                        ? `${normalizedBody.slice(0, maxExcerptLength - 1)}…`
+                        : normalizedBody;
+                      messageText = `${messageText}: "${excerpt}"`;
+                    }
+                  }
                   return (
                     <TouchableOpacity
                       key={`${notif.id}-${notif.createdAt ?? "timestamp"}`}
@@ -2263,15 +2327,15 @@ export default function ExploreScreen() {
                                 },
                               ]}
                             />
-                            <AccessibleText
-                              backgroundColor={notificationCardBackground}
-                              style={[
-                                styles.notificationMessage,
-                                { color: generalTextColor },
-                              ]}
-                            >
+                          <AccessibleText
+                            backgroundColor={notificationCardBackground}
+                            style={[
+                              styles.notificationMessage,
+                              { color: generalTextColor },
+                            ]}
+                          >
                               {messageText}
-                            </AccessibleText>
+                          </AccessibleText>
                           </View>
                           {timestamp ? (
                             <AccessibleText
