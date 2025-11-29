@@ -145,6 +145,7 @@ export default function ExploreScreen() {
   const lastScrollOffsetRef = useRef(0);
   const notificationThumbnailFetchesRef = useRef<Set<number>>(new Set());
   const notificationCommentPreviewFetchesRef = useRef<Set<number>>(new Set());
+  const notificationMarkingRef = useRef<Set<number>>(new Set());
 
   const colorScheme = useColorScheme();
   const screenBackgroundColor = colorScheme === "dark" ? "#151718" : "#F0F2F5";
@@ -910,6 +911,7 @@ export default function ExploreScreen() {
     const isChallengeEnd =
       normalizedType === "end" && normalizedObjectType === "challenge";
     if (isChallengeEnd) return;
+    markNotificationAsRead(notif);
     const derivedPostId = deriveNotificationPostId(notif);
     const messageLower = notif.message?.toLowerCase() ?? "";
     const actorUsername =
@@ -1005,6 +1007,33 @@ export default function ExploreScreen() {
       return comments[0]?.content ?? null;
     },
     [commentsByPostId]
+  );
+
+  const markNotificationAsRead = useCallback(
+    async (notif: NotificationItem) => {
+      if (notif.isRead || notificationMarkingRef.current.has(notif.id)) return;
+      notificationMarkingRef.current.add(notif.id);
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n.id === notif.id
+            ? {
+                ...n,
+                isRead: true,
+              }
+            : n
+        )
+      );
+      try {
+        await apiRequest(`/api/notifications/read/${notif.id}`, {
+          method: "POST",
+        });
+      } catch (err) {
+        // If it fails, keep it marked locally to avoid flicker; backend is best-effort
+      } finally {
+        notificationMarkingRef.current.delete(notif.id);
+      }
+    },
+    []
   );
 
   const fetchNotificationPostThumbnail = useCallback(
@@ -2419,7 +2448,7 @@ export default function ExploreScreen() {
                   const isCommentOnPost =
                     normalizedNotifType === "comment" &&
                     (normalizedNotifObject === "post" || !normalizedNotifObject);
-                  const maxPostBodyExcerptLength = 25;
+                  const maxPostBodyExcerptLength = 29;
                   const maxCommentExcerptLength = 15;
                   const hasFetchedThumbnail =
                     derivedPostIdForThumb !== null &&
