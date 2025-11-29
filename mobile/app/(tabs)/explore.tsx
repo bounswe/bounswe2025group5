@@ -130,6 +130,8 @@ export default function ExploreScreen() {
   const [notificationThumbnails, setNotificationThumbnails] = useState<
     Record<number, string | null>
   >({});
+  const [notificationCommentPreviews, setNotificationCommentPreviews] =
+    useState<Record<number, string | null>>({});
   const [notificationPostBodies, setNotificationPostBodies] = useState<
     Record<number, string | null>
   >({});
@@ -142,6 +144,7 @@ export default function ExploreScreen() {
   const scrollViewRef = useRef<ScrollView | null>(null);
   const lastScrollOffsetRef = useRef(0);
   const notificationThumbnailFetchesRef = useRef<Set<number>>(new Set());
+  const notificationCommentPreviewFetchesRef = useRef<Set<number>>(new Set());
 
   const colorScheme = useColorScheme();
   const screenBackgroundColor = colorScheme === "dark" ? "#151718" : "#F0F2F5";
@@ -985,6 +988,22 @@ export default function ExploreScreen() {
     [findPostInState]
   );
 
+  const getCommentPreviewFromState = useCallback(
+    (postId: number, actorUsername?: string | null) => {
+      const comments = commentsByPostId[postId];
+      if (!comments || !comments.length) return null;
+      const normalizedActor = actorUsername?.trim().toLowerCase();
+      if (normalizedActor) {
+        const byActor = comments.find(
+          (c) => c.username?.toLowerCase() === normalizedActor
+        );
+        if (byActor?.content) return byActor.content;
+      }
+      return comments[0]?.content ?? null;
+    },
+    [commentsByPostId]
+  );
+
   const fetchNotificationPostThumbnail = useCallback(
     async (postId: number) => {
       if (notificationThumbnailFetchesRef.current.has(postId)) return;
@@ -1053,6 +1072,73 @@ export default function ExploreScreen() {
     [getPhotoUrlForPostFromState, getPostContentFromState, notificationPostBodies]
   );
 
+  const fetchNotificationCommentPreview = useCallback(
+    async (notif: NotificationItem, postId: number) => {
+      if (notificationCommentPreviewFetchesRef.current.has(notif.id)) return;
+      notificationCommentPreviewFetchesRef.current.add(notif.id);
+      try {
+        const cached = notificationCommentPreviews[notif.id];
+        if (cached) return;
+
+        const fromState = getCommentPreviewFromState(
+          postId,
+          notif.actorUsername ?? notif.actorId
+        );
+        if (fromState) {
+          setNotificationCommentPreviews((prev) =>
+            prev[notif.id] === fromState
+              ? prev
+              : { ...prev, [notif.id]: fromState }
+          );
+          return;
+        }
+
+        const res = await apiRequest(`/api/posts/${postId}/comments`);
+        if (!res.ok) {
+          setNotificationCommentPreviews((prev) =>
+            Object.prototype.hasOwnProperty.call(prev, notif.id)
+              ? prev
+              : { ...prev, [notif.id]: null }
+          );
+          return;
+        }
+        const data = await res.json();
+        const comments = Array.isArray(data?.comments)
+          ? data.comments
+          : Array.isArray(data?.comments?.comments)
+          ? data.comments.comments
+          : Array.isArray(data?.comments?.items)
+          ? data.comments.items
+          : [];
+        const normalizedActor = notif.actorUsername?.toLowerCase();
+        const matched =
+          (normalizedActor &&
+            comments.find(
+              (c: any) =>
+                typeof c?.creatorUsername === "string" &&
+                c.creatorUsername.toLowerCase() === normalizedActor
+            )) ||
+          comments[0];
+        const previewContent =
+          typeof matched?.content === "string" ? matched.content : null;
+        setNotificationCommentPreviews((prev) =>
+          prev[notif.id] === previewContent
+            ? prev
+            : { ...prev, [notif.id]: previewContent }
+        );
+      } catch (err) {
+        setNotificationCommentPreviews((prev) =>
+          Object.prototype.hasOwnProperty.call(prev, notif.id)
+            ? prev
+            : { ...prev, [notif.id]: null }
+        );
+      } finally {
+        notificationCommentPreviewFetchesRef.current.delete(notif.id);
+      }
+    },
+    [getCommentPreviewFromState, notificationCommentPreviews]
+  );
+
   useEffect(() => {
     if (!notifications.length) return;
     notifications.forEach((notif) => {
@@ -1079,6 +1165,53 @@ export default function ExploreScreen() {
     notifications,
     fetchNotificationPostThumbnail,
     notificationThumbnails,
+  ]);
+
+  useEffect(() => {
+    if (!notifications.length) return;
+    notifications.forEach((notif) => {
+      const normalizedType = notif.type?.toLowerCase();
+      const normalizedObject = notif.objectType?.toLowerCase();
+      const postId = deriveNotificationPostId(notif);
+      const isCommentOnPost =
+        postId !== null &&
+        (normalizedType === "comment" &&
+          (normalizedObject === "post" || !normalizedObject));
+      if (!isCommentOnPost || postId === null) return;
+
+      const previewAlready =
+        Object.prototype.hasOwnProperty.call(
+          notificationCommentPreviews,
+          notif.id
+        ) && notificationCommentPreviews[notif.id] !== undefined;
+
+      const fromState = getCommentPreviewFromState(
+        postId,
+        notif.actorUsername ?? notif.actorId
+      );
+      if (!previewAlready && fromState) {
+        setNotificationCommentPreviews((prev) =>
+          prev[notif.id] === fromState
+            ? prev
+            : { ...prev, [notif.id]: fromState }
+        );
+        return;
+      }
+
+      if (
+        previewAlready ||
+        notificationCommentPreviewFetchesRef.current.has(notif.id)
+      ) {
+        return;
+      }
+
+      fetchNotificationCommentPreview(notif, postId);
+    });
+  }, [
+    notifications,
+    fetchNotificationCommentPreview,
+    getCommentPreviewFromState,
+    notificationCommentPreviews,
   ]);
 
   const fetchPosts = async (
@@ -2277,7 +2410,11 @@ export default function ExploreScreen() {
                   const isCreatePost =
                     normalizedNotifType === "create" &&
                     (normalizedNotifObject === "post" || !normalizedNotifObject);
-                  const maxExcerptLength = 35;
+                  const isCommentOnPost =
+                    normalizedNotifType === "comment" &&
+                    (normalizedNotifObject === "post" || !normalizedNotifObject);
+                  const maxPostBodyExcerptLength = 35;
+                  const maxCommentExcerptLength = 15;
                   const hasFetchedThumbnail =
                     derivedPostIdForThumb !== null &&
                     Object.prototype.hasOwnProperty.call(
@@ -2309,10 +2446,28 @@ export default function ExploreScreen() {
                     if (body && body.trim().length) {
                       const normalizedBody = body.trim().replace(/\s+/g, " ");
                       const shouldTruncate =
-                        normalizedBody.length > maxExcerptLength;
+                        normalizedBody.length > maxPostBodyExcerptLength;
                       const excerpt = shouldTruncate
-                        ? `${normalizedBody.slice(0, maxExcerptLength - 1)}…`
+                        ? `${normalizedBody.slice(0, maxPostBodyExcerptLength - 1)}…`
                         : normalizedBody;
+                      messageText = `${messageText}: "${excerpt}"`;
+                    }
+                  }
+                  if (isCommentOnPost && derivedPostIdForThumb !== null) {
+                    const commentPreview =
+                      notificationCommentPreviews[notif.id] ??
+                      getCommentPreviewFromState(
+                        derivedPostIdForThumb,
+                        notif.actorUsername ?? notif.actorId
+                      ) ??
+                      null;
+                    if (commentPreview && commentPreview.trim().length) {
+                      const normalized = commentPreview.trim().replace(/\s+/g, " ");
+                      const shouldTruncate =
+                        normalized.length > maxCommentExcerptLength;
+                      const excerpt = shouldTruncate
+                        ? `${normalized.slice(0, maxCommentExcerptLength - 1)}…`
+                        : normalized;
                       messageText = `${messageText}: "${excerpt}"`;
                     }
                   }
