@@ -907,6 +907,9 @@ export default function ExploreScreen() {
   const handleNotificationPress = (notif: NotificationItem) => {
     const normalizedType = notif.type?.toLowerCase();
     const normalizedObjectType = notif.objectType?.toLowerCase();
+    const isChallengeEnd =
+      normalizedType === "end" && normalizedObjectType === "challenge";
+    if (isChallengeEnd) return;
     const derivedPostId = deriveNotificationPostId(notif);
     const messageLower = notif.message?.toLowerCase() ?? "";
     const actorUsername =
@@ -2410,6 +2413,9 @@ export default function ExploreScreen() {
                   const isCreatePost =
                     normalizedNotifType === "create" &&
                     (normalizedNotifObject === "post" || !normalizedNotifObject);
+                  const isChallengeEnd =
+                    normalizedNotifType === "end" &&
+                    normalizedNotifObject === "challenge";
                   const isCommentOnPost =
                     normalizedNotifType === "comment" &&
                     (normalizedNotifObject === "post" || !normalizedNotifObject);
@@ -2483,9 +2489,10 @@ export default function ExploreScreen() {
                             : notificationUnreadAccent,
                         },
                       ]}
-                      activeOpacity={0.8}
-                      onPress={() => handleNotificationPress(notif)}
-                      accessibilityRole="button"
+                      activeOpacity={isChallengeEnd ? 1 : 0.8}
+                      disabled={isChallengeEnd}
+                      onPress={isChallengeEnd ? undefined : () => handleNotificationPress(notif)}
+                      accessibilityRole={isChallengeEnd ? undefined : "button"}
                       accessibilityLabel={t("notificationsTitle", {
                         defaultValue: "Notifications",
                       })}
