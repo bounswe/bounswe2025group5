@@ -2419,7 +2419,7 @@ export default function ExploreScreen() {
                   const isCommentOnPost =
                     normalizedNotifType === "comment" &&
                     (normalizedNotifObject === "post" || !normalizedNotifObject);
-                  const maxPostBodyExcerptLength = 35;
+                  const maxPostBodyExcerptLength = 25;
                   const maxCommentExcerptLength = 15;
                   const hasFetchedThumbnail =
                     derivedPostIdForThumb !== null &&
