@@ -127,6 +127,7 @@ export default function ExploreScreen() {
   const [selectedNotificationActor, setSelectedNotificationActor] = useState<
     string | null
   >(null);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [notificationThumbnails, setNotificationThumbnails] = useState<
     Record<number, string | null>
   >({});
@@ -910,8 +911,8 @@ export default function ExploreScreen() {
     const normalizedObjectType = notif.objectType?.toLowerCase();
     const isChallengeEnd =
       normalizedType === "end" && normalizedObjectType === "challenge";
-    if (isChallengeEnd) return;
     markNotificationAsRead(notif);
+    if (isChallengeEnd) return;
     const derivedPostId = deriveNotificationPostId(notif);
     const messageLower = notif.message?.toLowerCase() ?? "";
     const actorUsername =
@@ -1382,6 +1383,11 @@ export default function ExploreScreen() {
   useEffect(() => {
     hasLoadedPostsRef.current = posts.length > 0;
   }, [posts.length]);
+
+  useEffect(() => {
+    const unread = notifications.filter((n) => !n.isRead).length;
+    setUnreadCount(unread);
+  }, [notifications]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -1974,6 +1980,16 @@ export default function ExploreScreen() {
                   size={28}
                   color={notificationIconColor}
                 />
+                {unreadCount > 0 && (
+                  <View style={styles.notificationBadge}>
+                    <AccessibleText
+                      backgroundColor={notificationUnreadAccent}
+                      style={styles.notificationBadgeText}
+                    >
+                      {unreadCount > 3 ? "3+" : unreadCount.toString()}
+                    </AccessibleText>
+                  </View>
+                )}
               </TouchableOpacity>
             </>
           )}
@@ -2448,7 +2464,7 @@ export default function ExploreScreen() {
                   const isCommentOnPost =
                     normalizedNotifType === "comment" &&
                     (normalizedNotifObject === "post" || !normalizedNotifObject);
-                  const maxPostBodyExcerptLength = 29;
+                  const maxPostBodyExcerptLength = 25;
                   const maxCommentExcerptLength = 15;
                   const hasFetchedThumbnail =
                     derivedPostIdForThumb !== null &&
@@ -2518,10 +2534,9 @@ export default function ExploreScreen() {
                             : notificationUnreadAccent,
                         },
                       ]}
-                      activeOpacity={isChallengeEnd ? 1 : 0.8}
-                      disabled={isChallengeEnd}
-                      onPress={isChallengeEnd ? undefined : () => handleNotificationPress(notif)}
-                      accessibilityRole={isChallengeEnd ? undefined : "button"}
+                      activeOpacity={0.8}
+                      onPress={() => handleNotificationPress(notif)}
+                      accessibilityRole="button"
                       accessibilityLabel={t("notificationsTitle", {
                         defaultValue: "Notifications",
                       })}
@@ -2972,6 +2987,7 @@ const styles = StyleSheet.create({
   postCommentButtonDisabled: { backgroundColor: "#B0C4DE" },
   postCommentButtonText: { color: "#FFFFFF", fontWeight: "600", fontSize: 14 },
   notificationButton: {
+    position: "relative",
     padding: 8,
     borderRadius: 24,
     alignItems: "center",
@@ -3034,6 +3050,23 @@ const styles = StyleSheet.create({
   notificationBody: { flexDirection: "row", alignItems: "center" },
   notificationTextGroup: { flex: 1, marginLeft: 12 },
   notificationTextGroupFullWidth: { marginLeft: 0 },
+  notificationBadge: {
+    position: "absolute",
+    top: -4,
+    right: -4,
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: "#2E7D32",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 6,
+  },
+  notificationBadgeText: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    fontWeight: "700",
+  },
   notificationItemHeader: { flexDirection: "row", alignItems: "center" },
   notificationStatusDot: {
     width: 10,
