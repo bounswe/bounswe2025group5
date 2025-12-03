@@ -1184,6 +1184,7 @@ export default function ExploreScreen() {
       const looksPostRelated =
         postId !== null &&
         (normalizedObject === "post" ||
+          normalizedObject === "comment" ||
           (!normalizedObject &&
             (normalizedType === "like" ||
               normalizedType === "comment" ||
@@ -1211,8 +1212,9 @@ export default function ExploreScreen() {
       const postId = deriveNotificationPostId(notif);
       const isCommentOnPost =
         postId !== null &&
-        (normalizedType === "comment" &&
-          (normalizedObject === "post" || !normalizedObject));
+        ((normalizedType === "comment" &&
+          (normalizedObject === "post" || !normalizedObject)) ||
+          (normalizedType === "create" && normalizedObject === "comment"));
       if (!isCommentOnPost || postId === null) return;
 
       const previewAlready =
@@ -2454,6 +2456,7 @@ export default function ExploreScreen() {
                   const isPostRelated =
                     derivedPostIdForThumb !== null &&
                     (normalizedNotifObject === "post" ||
+                      normalizedNotifObject === "comment" ||
                       (!normalizedNotifObject &&
                         (normalizedNotifType === "like" ||
                           normalizedNotifType === "comment" ||
@@ -2468,10 +2471,13 @@ export default function ExploreScreen() {
                     normalizedNotifType === "end" &&
                     normalizedNotifObject === "challenge";
                   const isCommentOnPost =
-                    normalizedNotifType === "comment" &&
-                    (normalizedNotifObject === "post" || !normalizedNotifObject);
+                    (normalizedNotifType === "comment" &&
+                      (normalizedNotifObject === "post" ||
+                        !normalizedNotifObject)) ||
+                    (normalizedNotifType === "create" &&
+                      normalizedNotifObject === "comment");
                   const maxPostBodyExcerptLength = 25;
-                  const maxCommentExcerptLength = 15;
+                  const maxCommentExcerptLength = 25;
                   const hasFetchedThumbnail =
                     derivedPostIdForThumb !== null &&
                     Object.prototype.hasOwnProperty.call(
