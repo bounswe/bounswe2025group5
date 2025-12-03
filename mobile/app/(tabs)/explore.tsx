@@ -1055,7 +1055,11 @@ export default function ExploreScreen() {
           return;
         }
 
-        const response = await apiRequest(`/api/posts/${postId}`);
+        const endpoint =
+          username && username.trim().length > 0
+            ? `/api/posts/${postId}?username=${encodeURIComponent(username)}`
+            : `/api/posts/${postId}`;
+        const response = await apiRequest(endpoint);
         if (!response.ok) {
           setNotificationThumbnails((prev) =>
             Object.prototype.hasOwnProperty.call(prev, postId)
