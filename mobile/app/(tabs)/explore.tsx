@@ -199,7 +199,7 @@ export default function ExploreScreen() {
 
   useEffect(() => {
     if (!userType && username !== undefined) {
-      navigation.navigate("index" as never);
+      (navigation as any).navigate("index");
     }
   }, [userType, username, navigation]);
 
@@ -643,10 +643,9 @@ export default function ExploreScreen() {
     setNotificationsError(null);
     try {
       const encodedUsername = username ? encodeURIComponent(username) : null;
-      const endpoints: string[] = ["/api/notifications/me"];
+      const endpoints: string[] = [];
       if (encodedUsername) {
         endpoints.push(`/api/notifications/${encodedUsername}`);
-        endpoints.push(`/api/notifications?username=${encodedUsername}`);
       }
       let fetched: NotificationItem[] | null = null;
       let lastError: NotificationFetchError | null = null;
@@ -929,7 +928,7 @@ export default function ExploreScreen() {
     if (followsCurrentUser && actorUsername) {
       closePostPreview();
       closeNotifications();
-      navigation.navigate("user_profile", { username: actorUsername });
+      (navigation as any).navigate("user_profile", { username: actorUsername });
       return;
     }
     const allowsPreview =
@@ -1999,7 +1998,7 @@ export default function ExploreScreen() {
           <View style={styles.guestActionHeader}>
             <TouchableOpacity
               style={styles.loginButton}
-              onPress={() => navigation.navigate("index" as never)}
+              onPress={() => (navigation as any).navigate("index")}
             >
               <AccessibleText
                 backgroundColor={"#2196F3"}

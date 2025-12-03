@@ -65,22 +65,38 @@ async function buildHeadersWithAuth(headers: HeadersInitLike, auth: boolean) {
   return merged;
 }
 
+let refreshPromise: Promise<boolean> | null = null;
+
 export async function refreshTokens(): Promise<boolean> {
-  const refreshToken = await getRefreshToken();
-  if (!refreshToken) { await clearSession(); return false; }
-  try {
-    const r = await fetch(apiUrl('/api/refresh-token'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ refreshToken }),
-    });
-    if (!r.ok) { await clearSession(); return false; }
-    const data: LoginResponse = await r.json();
-    await storeSession(data);
-    return true;
-  } catch {
-    return false;
-  }
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = (async () => {
+    try {
+      const refreshToken = await getRefreshToken();
+      if (!refreshToken) {
+        await clearSession();
+        return false;
+      }
+      const r = await fetch(apiUrl('/api/refresh-token'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      });
+      if (!r.ok) {
+        await clearSession();
+        return false;
+      }
+      const data: LoginResponse = await r.json();
+      await storeSession(data);
+      return true;
+    } catch {
+      return false;
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
 }
 
 /** Core wrapper. JSON by default; handles FormData without forcing Content-Type. */
