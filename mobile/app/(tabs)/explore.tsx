@@ -3068,6 +3068,8 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 12,
     fontWeight: "700",
+    lineHeight: 14,
+    textAlign: "center",
   },
   notificationItemHeader: { flexDirection: "row", alignItems: "center" },
   notificationStatusDot: {
