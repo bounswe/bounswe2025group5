@@ -19,6 +19,10 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
   const [userInChallenge, setUserInChallenge] = useState<boolean>(challenge.userInChallenge);
   const [currentAmount, setCurrentAmount] = useState<number>(challenge.currentAmount ?? 0);
   const [logAmount, setLogAmount] = useState<string>('');
+  const previewDescription =
+    challenge.description && challenge.description.length > 100
+      ? `${challenge.description.slice(0, 100)}...`
+      : challenge.description;
 
   // a user attends a challange with challengeId, meanwhile the challenge is set to busy
   const attend = async (challengeId: number, username: string) => {
@@ -79,8 +83,8 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
               <div className="flex-1 min-w-0">
                 <CardTitle className="text-base">{challenge.name}</CardTitle>
                 {challenge.description && (
-                  <CardDescription className="text-xs mt-1 line-clamp-2">
-                    {challenge.description}
+                  <CardDescription className="text-xs mt-1">
+                    {previewDescription}
                   </CardDescription>
                 )}
               </div>
