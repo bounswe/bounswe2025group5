@@ -1406,6 +1406,9 @@ export default function ExploreScreen() {
 
       if (userType) {
         refreshFeed(false, hasLoadedPostsRef.current);
+        if (userType === "user") {
+          fetchNotifications();
+        }
       } else if (username === null || username === "") {
         setPosts([]);
         setLoading(false);
@@ -1415,7 +1418,7 @@ export default function ExploreScreen() {
         if (rafId !== null) cancelAnimationFrame(rafId);
         interactionHandle?.cancel?.();
       };
-    }, [userType, username])
+    }, [userType, username, fetchNotifications])
   );
 
   const handleLoadMore = () => {

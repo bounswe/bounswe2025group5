@@ -23,7 +23,6 @@ export type LoginResponse = {
 export type ApiRequestOptions = RequestInit & {
   auth?: boolean;
   useApiUrl?: boolean;
-  /** Force: don't JSON-encode body or set JSON headers */
   skipJson?: boolean;
 };
 
@@ -119,7 +118,6 @@ export async function apiRequest(path: string, options: ApiRequestOptions = {}):
 
   let headers = await buildHeadersWithAuth(req.headers, auth);
 
-  // *** Critical: for multipart, do NOT set Content-Type; let fetch set the boundary ***
   if (bodyIsFD) {
     headers.delete('Content-Type');
     if (!headers.has('Accept')) headers.set('Accept', 'application/json');
