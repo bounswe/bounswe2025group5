@@ -80,7 +80,6 @@ export default function ExploreScreen() {
   const username = authContext?.username;
 
   const [posts, setPosts] = useState<Post[]>([]);
-  const [isFriendsFeed, setIsFriendsFeed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [lastPostId, setLastPostId] = useState<number | null>(null);
@@ -187,10 +186,8 @@ export default function ExploreScreen() {
     colorScheme === "dark" ? "#2F2F31" : "#D9D9D9";
   const notificationAvatarTextColor =
     colorScheme === "dark" ? "#F5F5F7" : "#111111";
-  const feedAccentColor = isFriendsFeed ? "#2E7D32" : "#1976D2";
-  const feedAccentShadow = isFriendsFeed
-    ? "rgba(30, 94, 48, 0.2)"
-    : "rgba(13, 71, 161, 0.2)";
+  const feedAccentColor = "#1976D2";
+  const feedAccentShadow = "rgba(13, 71, 161, 0.2)";
   const resolvedPreviewImageUri = previewPost?.photoUrl
     ? previewPost.photoUrl.startsWith("http")
       ? previewPost.photoUrl
@@ -202,12 +199,6 @@ export default function ExploreScreen() {
       (navigation as any).navigate("index");
     }
   }, [userType, username, navigation]);
-
-  useEffect(() => {
-    if (userType === "guest" && isFriendsFeed) {
-      setIsFriendsFeed(false);
-    }
-  }, [userType, isFriendsFeed]);
 
   const mapApiItemToPost = (item: any): Post => ({
     id: item.postId,
@@ -1947,29 +1938,18 @@ export default function ExploreScreen() {
             </AccessibleText>
           ) : (
             <>
-              <TouchableOpacity
-                style={styles.feedToggle}
-                onPress={() => setIsFriendsFeed((prev) => !prev)}
-                accessibilityRole="button"
-                accessibilityLabel={t("toggleFeed", {
-                  defaultValue: "Toggle feed",
-                })}
+              <AccessibleText
+                type="title"
+                backgroundColor={screenBackgroundColor}
+                style={[
+                  styles.feedToggleLabel,
+                  {
+                    color: feedAccentColor,
+                  },
+                ]}
               >
-                <AccessibleText
-                  type="title"
-                  backgroundColor={screenBackgroundColor}
-                  style={[
-                    styles.feedToggleLabel,
-                    {
-                      color: feedAccentColor,
-                    },
-                  ]}
-                >
-                  {isFriendsFeed
-                    ? t("exploreFriends", { defaultValue: "Explore Friends" })
-                    : t("exploreGlobal", { defaultValue: "Explore Global" })}
-                </AccessibleText>
-              </TouchableOpacity>
+                {t("explore", { defaultValue: "Explore" })}
+              </AccessibleText>
 
               <TouchableOpacity
                 style={[
