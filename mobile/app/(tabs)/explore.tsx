@@ -1978,9 +1978,16 @@ export default function ExploreScreen() {
                 ]}
                 onPress={openNotifications}
                 accessibilityRole="button"
-                accessibilityLabel={t("openNotifications", {
-                  defaultValue: "Open notifications",
-                })}
+                accessibilityLabel={
+                  unreadCount > 0
+                    ? t("openNotificationsWithCount", {
+                        count: unreadCount,
+                        defaultValue: `Open notifications. ${unreadCount} unread notifications`,
+                      })
+                    : t("openNotifications", {
+                        defaultValue: "Open notifications",
+                      })
+                }
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
                 <Ionicons
@@ -2292,14 +2299,24 @@ export default function ExploreScreen() {
             styles.notificationsOverlay,
             { backgroundColor: screenBackgroundColor },
           ]}
+          accessibilityViewIsModal={true}
         >
           <View style={styles.notificationsHeader}>
             <TouchableOpacity
               onPress={closeNotifications}
-              accessibilityLabel={t("close", { defaultValue: "Close" })}
+              accessibilityRole="button"
+              accessibilityLabel={t("closeNotifications", {
+                defaultValue: "Close notifications",
+              })}
               style={styles.notificationsBackButton}
             >
-              <Ionicons name="arrow-back" size={24} color={generalTextColor} />
+              <Ionicons
+                name="arrow-back"
+                size={24}
+                color={generalTextColor}
+                importantForAccessibility="no-hide-descendants"
+                accessibilityElementsHidden={true}
+              />
             </TouchableOpacity>
             <AccessibleText
               backgroundColor={screenBackgroundColor}
@@ -2549,8 +2566,18 @@ export default function ExploreScreen() {
                       activeOpacity={0.8}
                       onPress={() => handleNotificationPress(notif)}
                       accessibilityRole="button"
-                      accessibilityLabel={t("notificationsTitle", {
-                        defaultValue: "Notifications",
+                      accessibilityLabel={t("notificationItemLabel", {
+                        status: notif.isRead
+                          ? t("read", { defaultValue: "Read" })
+                          : t("unread", { defaultValue: "Unread" }),
+                        message: messageText,
+                        time: timestamp,
+                        defaultValue: `${
+                          notif.isRead ? "Read" : "Unread"
+                        }. ${messageText}. ${timestamp}`,
+                      })}
+                      accessibilityHint={t("doubleTapToOpenNotification", {
+                        defaultValue: "Double tap to open notification",
                       })}
                     >
                       <View style={styles.notificationBody}>
