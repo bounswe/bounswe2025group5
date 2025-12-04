@@ -80,7 +80,6 @@ export default function ExploreScreen() {
   const username = authContext?.username;
 
   const [posts, setPosts] = useState<Post[]>([]);
-  const [isFriendsFeed, setIsFriendsFeed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [lastPostId, setLastPostId] = useState<number | null>(null);
@@ -127,6 +126,15 @@ export default function ExploreScreen() {
   const [selectedNotificationActor, setSelectedNotificationActor] = useState<
     string | null
   >(null);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notificationThumbnails, setNotificationThumbnails] = useState<
+    Record<number, string | null>
+  >({});
+  const [notificationCommentPreviews, setNotificationCommentPreviews] =
+    useState<Record<number, string | null>>({});
+  const [notificationPostBodies, setNotificationPostBodies] = useState<
+    Record<number, string | null>
+  >({});
   const [isPostPreviewVisible, setPostPreviewVisible] = useState(false);
   const [previewPost, setPreviewPost] = useState<Post | null>(null);
   const [previewComments, setPreviewComments] = useState<CommentData[]>([]);
@@ -135,6 +143,9 @@ export default function ExploreScreen() {
   const hasLoadedPostsRef = useRef(false);
   const scrollViewRef = useRef<ScrollView | null>(null);
   const lastScrollOffsetRef = useRef(0);
+  const notificationThumbnailFetchesRef = useRef<Set<number>>(new Set());
+  const notificationCommentPreviewFetchesRef = useRef<Set<number>>(new Set());
+  const notificationMarkingRef = useRef<Set<number>>(new Set());
 
   const colorScheme = useColorScheme();
   const screenBackgroundColor = colorScheme === "dark" ? "#151718" : "#F0F2F5";
@@ -175,15 +186,8 @@ export default function ExploreScreen() {
     colorScheme === "dark" ? "#2F2F31" : "#D9D9D9";
   const notificationAvatarTextColor =
     colorScheme === "dark" ? "#F5F5F7" : "#111111";
-  const feedAccentColor = isFriendsFeed ? "#2E7D32" : "#1976D2";
-  const feedAccentShadow = isFriendsFeed
-    ? "rgba(30, 94, 48, 0.2)"
-    : "rgba(13, 71, 161, 0.2)";
-  const resolvedLanguage = (
-    i18n.resolvedLanguage ||
-    i18n.language ||
-    "en"
-  ).toString();
+  const feedAccentColor = "#1976D2";
+  const feedAccentShadow = "rgba(13, 71, 161, 0.2)";
   const resolvedPreviewImageUri = previewPost?.photoUrl
     ? previewPost.photoUrl.startsWith("http")
       ? previewPost.photoUrl
@@ -192,15 +196,9 @@ export default function ExploreScreen() {
 
   useEffect(() => {
     if (!userType && username !== undefined) {
-      navigation.navigate("index" as never);
+      (navigation as any).navigate("index");
     }
   }, [userType, username, navigation]);
-
-  useEffect(() => {
-    if (userType === "guest" && isFriendsFeed) {
-      setIsFriendsFeed(false);
-    }
-  }, [userType, isFriendsFeed]);
 
   const mapApiItemToPost = (item: any): Post => ({
     id: item.postId,
@@ -358,19 +356,55 @@ export default function ExploreScreen() {
       if (!value) return "";
       const dateInstance = value instanceof Date ? value : new Date(value);
       if (Number.isNaN(dateInstance.getTime())) return "";
-      try {
-        return dateInstance.toLocaleString(resolvedLanguage, {
-          dateStyle: "medium",
-          timeStyle: "short",
-        });
-      } catch {
-        return dateInstance.toISOString();
+      const diffSeconds = Math.max(
+        0,
+        Math.round((Date.now() - dateInstance.getTime()) / 1000)
+      );
+      if (diffSeconds < 5) {
+        return t("timeJustNow", { defaultValue: "just now" });
       }
+      if (diffSeconds < 60) {
+        return t("timeSecondsAgo", {
+          count: diffSeconds,
+          defaultValue: `${diffSeconds} seconds ago`,
+        });
+      }
+      const minutes = Math.max(1, Math.round(diffSeconds / 60));
+      if (minutes < 60) {
+        return t("timeMinutesAgo", {
+          count: minutes,
+          defaultValue: `${minutes} minutes ago`,
+        });
+      }
+      const hours = Math.max(1, Math.round(minutes / 60));
+      if (hours < 24) {
+        return t("timeHoursAgo", {
+          count: hours,
+          defaultValue: `${hours} hours ago`,
+        });
+      }
+      const days = Math.max(1, Math.round(hours / 24));
+      if (days < 7) {
+        return t("timeDaysAgo", {
+          count: days,
+          defaultValue: `${days} days ago`,
+        });
+      }
+      const weeks = Math.max(1, Math.round(days / 7));
+      return t("timeWeeksAgo", {
+        count: weeks,
+        defaultValue: `${weeks} weeks ago`,
+      });
     },
-    [resolvedLanguage]
+    [t]
   );
 
   const resolveAvatarUri = (uri?: string | null) => {
+    if (!uri) return null;
+    return uri.startsWith("http") ? uri : apiUrl(uri);
+  };
+
+  const resolvePostImageUri = (uri?: string | null) => {
     if (!uri) return null;
     return uri.startsWith("http") ? uri : apiUrl(uri);
   };
@@ -600,10 +634,9 @@ export default function ExploreScreen() {
     setNotificationsError(null);
     try {
       const encodedUsername = username ? encodeURIComponent(username) : null;
-      const endpoints: string[] = ["/api/notifications/me"];
+      const endpoints: string[] = [];
       if (encodedUsername) {
         endpoints.push(`/api/notifications/${encodedUsername}`);
-        endpoints.push(`/api/notifications?username=${encodedUsername}`);
       }
       let fetched: NotificationItem[] | null = null;
       let lastError: NotificationFetchError | null = null;
@@ -866,6 +899,10 @@ export default function ExploreScreen() {
   const handleNotificationPress = (notif: NotificationItem) => {
     const normalizedType = notif.type?.toLowerCase();
     const normalizedObjectType = notif.objectType?.toLowerCase();
+    const isChallengeEnd =
+      normalizedType === "end" && normalizedObjectType === "challenge";
+    markNotificationAsRead(notif);
+    if (isChallengeEnd) return;
     const derivedPostId = deriveNotificationPostId(notif);
     const messageLower = notif.message?.toLowerCase() ?? "";
     const actorUsername =
@@ -882,7 +919,7 @@ export default function ExploreScreen() {
     if (followsCurrentUser && actorUsername) {
       closePostPreview();
       closeNotifications();
-      navigation.navigate("user_profile", { username: actorUsername });
+      (navigation as any).navigate("user_profile", { username: actorUsername });
       return;
     }
     const allowsPreview =
@@ -916,6 +953,294 @@ export default function ExploreScreen() {
     isPostPreviewVisible,
     selectedNotificationPostId,
     loadNotificationPostPreview,
+  ]);
+
+  const findPostInState = useCallback(
+    (postId: number): Post | null => {
+      const fromFeed = posts.find((p) => p.id === postId);
+      if (fromFeed) return fromFeed;
+      const fromSearch = searchResults.find((p) => p.id === postId);
+      if (fromSearch) return fromSearch;
+      if (previewPost?.id === postId) return previewPost;
+      return null;
+    },
+    [posts, previewPost, searchResults]
+  );
+
+  const getPhotoUrlForPostFromState = useCallback(
+    (postId: number) => {
+      const match = findPostInState(postId);
+      const candidate = match?.photoUrl ?? null;
+      return resolvePostImageUri(candidate ?? null);
+    },
+    [findPostInState, resolvePostImageUri]
+  );
+
+  const getPostContentFromState = useCallback(
+    (postId: number) => {
+      const match = findPostInState(postId);
+      return match?.content ?? null;
+    },
+    [findPostInState]
+  );
+
+  const getCommentPreviewFromState = useCallback(
+    (postId: number, actorUsername?: string | null) => {
+      const comments = commentsByPostId[postId];
+      if (!comments || !comments.length) return null;
+      const normalizedActor = actorUsername?.trim().toLowerCase();
+      if (normalizedActor) {
+        const byActor = comments.find(
+          (c) => c.username?.toLowerCase() === normalizedActor
+        );
+        if (byActor?.content) return byActor.content;
+      }
+      return comments[0]?.content ?? null;
+    },
+    [commentsByPostId]
+  );
+
+  const markNotificationAsRead = useCallback(
+    async (notif: NotificationItem) => {
+      if (notif.isRead || notificationMarkingRef.current.has(notif.id)) return;
+      notificationMarkingRef.current.add(notif.id);
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n.id === notif.id
+            ? {
+                ...n,
+                isRead: true,
+              }
+            : n
+        )
+      );
+      try {
+        await apiRequest(`/api/notifications/read/${notif.id}`, {
+          method: "POST",
+        });
+      } catch (err) {
+        // If it fails, keep it marked locally to avoid flicker; backend is best-effort
+      } finally {
+        notificationMarkingRef.current.delete(notif.id);
+      }
+    },
+    []
+  );
+
+  const fetchNotificationPostThumbnail = useCallback(
+    async (postId: number) => {
+      if (notificationThumbnailFetchesRef.current.has(postId)) return;
+      notificationThumbnailFetchesRef.current.add(postId);
+      try {
+        const cached = getPhotoUrlForPostFromState(postId);
+        const cachedBody = getPostContentFromState(postId);
+        if (cachedBody) {
+          setNotificationPostBodies((prev) =>
+            prev[postId] === cachedBody ? prev : { ...prev, [postId]: cachedBody }
+          );
+        }
+        if (cached) {
+          setNotificationThumbnails((prev) =>
+            prev[postId] === cached ? prev : { ...prev, [postId]: cached }
+          );
+          return;
+        }
+
+        const endpoint =
+          username && username.trim().length > 0
+            ? `/api/posts/${postId}?username=${encodeURIComponent(username)}`
+            : `/api/posts/${postId}`;
+        const response = await apiRequest(endpoint);
+        if (!response.ok) {
+          setNotificationThumbnails((prev) =>
+            Object.prototype.hasOwnProperty.call(prev, postId)
+              ? prev
+              : { ...prev, [postId]: null }
+          );
+          return;
+        }
+        const data = await response.json();
+        const rawPhoto =
+          data?.photoUrl ??
+          data?.photoURL ??
+          data?.photo_url ??
+          (Array.isArray(data?.photos) ? data.photos[0] : null);
+        const resolved = resolvePostImageUri(rawPhoto ?? null);
+        const rawContent =
+          (typeof data?.content === "string" && data.content) ||
+          (typeof data?.body === "string" && data.body) ||
+          (typeof data?.text === "string" && data.text) ||
+          null;
+        setNotificationThumbnails((prev) =>
+          prev[postId] === resolved ? prev : { ...prev, [postId]: resolved ?? null }
+        );
+        if (rawContent) {
+          setNotificationPostBodies((prev) =>
+            prev[postId] === rawContent ? prev : { ...prev, [postId]: rawContent }
+          );
+        } else if (!Object.prototype.hasOwnProperty.call(notificationPostBodies, postId)) {
+          setNotificationPostBodies((prev) => ({ ...prev, [postId]: null }));
+        }
+      } catch (err) {
+        setNotificationThumbnails((prev) =>
+          Object.prototype.hasOwnProperty.call(prev, postId)
+            ? prev
+            : { ...prev, [postId]: null }
+        );
+        setNotificationPostBodies((prev) =>
+          Object.prototype.hasOwnProperty.call(prev, postId)
+            ? prev
+            : { ...prev, [postId]: null }
+        );
+      } finally {
+        notificationThumbnailFetchesRef.current.delete(postId);
+      }
+    },
+    [getPhotoUrlForPostFromState, getPostContentFromState, notificationPostBodies]
+  );
+
+  const fetchNotificationCommentPreview = useCallback(
+    async (notif: NotificationItem, postId: number) => {
+      if (notificationCommentPreviewFetchesRef.current.has(notif.id)) return;
+      notificationCommentPreviewFetchesRef.current.add(notif.id);
+      try {
+        const cached = notificationCommentPreviews[notif.id];
+        if (cached) return;
+
+        const fromState = getCommentPreviewFromState(
+          postId,
+          notif.actorUsername ?? notif.actorId
+        );
+        if (fromState) {
+          setNotificationCommentPreviews((prev) =>
+            prev[notif.id] === fromState
+              ? prev
+              : { ...prev, [notif.id]: fromState }
+          );
+          return;
+        }
+
+        const res = await apiRequest(`/api/posts/${postId}/comments`);
+        if (!res.ok) {
+          setNotificationCommentPreviews((prev) =>
+            Object.prototype.hasOwnProperty.call(prev, notif.id)
+              ? prev
+              : { ...prev, [notif.id]: null }
+          );
+          return;
+        }
+        const data = await res.json();
+        const comments = Array.isArray(data?.comments)
+          ? data.comments
+          : Array.isArray(data?.comments?.comments)
+          ? data.comments.comments
+          : Array.isArray(data?.comments?.items)
+          ? data.comments.items
+          : [];
+        const normalizedActor = notif.actorUsername?.toLowerCase();
+        const matched =
+          (normalizedActor &&
+            comments.find(
+              (c: any) =>
+                typeof c?.creatorUsername === "string" &&
+                c.creatorUsername.toLowerCase() === normalizedActor
+            )) ||
+          comments[0];
+        const previewContent =
+          typeof matched?.content === "string" ? matched.content : null;
+        setNotificationCommentPreviews((prev) =>
+          prev[notif.id] === previewContent
+            ? prev
+            : { ...prev, [notif.id]: previewContent }
+        );
+      } catch (err) {
+        setNotificationCommentPreviews((prev) =>
+          Object.prototype.hasOwnProperty.call(prev, notif.id)
+            ? prev
+            : { ...prev, [notif.id]: null }
+        );
+      } finally {
+        notificationCommentPreviewFetchesRef.current.delete(notif.id);
+      }
+    },
+    [getCommentPreviewFromState, notificationCommentPreviews]
+  );
+
+  useEffect(() => {
+    if (!notifications.length) return;
+    notifications.forEach((notif) => {
+      const normalizedType = notif.type?.toLowerCase();
+      const normalizedObject = notif.objectType?.toLowerCase();
+      const postId = deriveNotificationPostId(notif);
+      const looksPostRelated =
+        postId !== null &&
+        (normalizedObject === "post" ||
+          normalizedObject === "comment" ||
+          (!normalizedObject &&
+            (normalizedType === "like" ||
+              normalizedType === "comment" ||
+              normalizedType === "create")));
+      if (!looksPostRelated || postId === null) return;
+      if (
+        notificationThumbnailFetchesRef.current.has(postId) ||
+        Object.prototype.hasOwnProperty.call(notificationThumbnails, postId)
+      ) {
+        return;
+      }
+      fetchNotificationPostThumbnail(postId);
+    });
+  }, [
+    notifications,
+    fetchNotificationPostThumbnail,
+    notificationThumbnails,
+  ]);
+
+  useEffect(() => {
+    if (!notifications.length) return;
+    notifications.forEach((notif) => {
+      const normalizedType = notif.type?.toLowerCase();
+      const normalizedObject = notif.objectType?.toLowerCase();
+      const postId = deriveNotificationPostId(notif);
+      const isCommentOnPost =
+        postId !== null &&
+        ((normalizedType === "comment" &&
+          (normalizedObject === "post" || !normalizedObject)) ||
+          (normalizedType === "create" && normalizedObject === "comment"));
+      if (!isCommentOnPost || postId === null) return;
+
+      const previewAlready =
+        Object.prototype.hasOwnProperty.call(
+          notificationCommentPreviews,
+          notif.id
+        ) && notificationCommentPreviews[notif.id] !== undefined;
+
+      const fromState = getCommentPreviewFromState(
+        postId,
+        notif.actorUsername ?? notif.actorId
+      );
+      if (!previewAlready && fromState) {
+        setNotificationCommentPreviews((prev) =>
+          prev[notif.id] === fromState
+            ? prev
+            : { ...prev, [notif.id]: fromState }
+        );
+        return;
+      }
+
+      if (
+        previewAlready ||
+        notificationCommentPreviewFetchesRef.current.has(notif.id)
+      ) {
+        return;
+      }
+
+      fetchNotificationCommentPreview(notif, postId);
+    });
+  }, [
+    notifications,
+    fetchNotificationCommentPreview,
+    getCommentPreviewFromState,
+    notificationCommentPreviews,
   ]);
 
   const fetchPosts = async (
@@ -1055,6 +1380,11 @@ export default function ExploreScreen() {
     hasLoadedPostsRef.current = posts.length > 0;
   }, [posts.length]);
 
+  useEffect(() => {
+    const unread = notifications.filter((n) => !n.isRead).length;
+    setUnreadCount(unread);
+  }, [notifications]);
+
   useFocusEffect(
     React.useCallback(() => {
       let isActive = true;
@@ -1073,6 +1403,9 @@ export default function ExploreScreen() {
 
       if (userType) {
         refreshFeed(false, hasLoadedPostsRef.current);
+        if (userType === "user") {
+          fetchNotifications();
+        }
       } else if (username === null || username === "") {
         setPosts([]);
         setLoading(false);
@@ -1082,7 +1415,7 @@ export default function ExploreScreen() {
         if (rafId !== null) cancelAnimationFrame(rafId);
         interactionHandle?.cancel?.();
       };
-    }, [userType, username])
+    }, [userType, username, fetchNotifications])
   );
 
   const handleLoadMore = () => {
@@ -1605,29 +1938,18 @@ export default function ExploreScreen() {
             </AccessibleText>
           ) : (
             <>
-              <TouchableOpacity
-                style={styles.feedToggle}
-                onPress={() => setIsFriendsFeed((prev) => !prev)}
-                accessibilityRole="button"
-                accessibilityLabel={t("toggleFeed", {
-                  defaultValue: "Toggle feed",
-                })}
+              <AccessibleText
+                type="title"
+                backgroundColor={screenBackgroundColor}
+                style={[
+                  styles.feedToggleLabel,
+                  {
+                    color: feedAccentColor,
+                  },
+                ]}
               >
-                <AccessibleText
-                  type="title"
-                  backgroundColor={screenBackgroundColor}
-                  style={[
-                    styles.feedToggleLabel,
-                    {
-                      color: feedAccentColor,
-                    },
-                  ]}
-                >
-                  {isFriendsFeed
-                    ? t("exploreFriends", { defaultValue: "Explore Friends" })
-                    : t("exploreGlobal", { defaultValue: "Explore Global" })}
-                </AccessibleText>
-              </TouchableOpacity>
+                {t("explore", { defaultValue: "Explore" })}
+              </AccessibleText>
 
               <TouchableOpacity
                 style={[
@@ -1636,9 +1958,16 @@ export default function ExploreScreen() {
                 ]}
                 onPress={openNotifications}
                 accessibilityRole="button"
-                accessibilityLabel={t("openNotifications", {
-                  defaultValue: "Open notifications",
-                })}
+                accessibilityLabel={
+                  unreadCount > 0
+                    ? t("openNotificationsWithCount", {
+                        count: unreadCount,
+                        defaultValue: `Open notifications. ${unreadCount} unread notifications`,
+                      })
+                    : t("openNotifications", {
+                        defaultValue: "Open notifications",
+                      })
+                }
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
                 <Ionicons
@@ -1646,6 +1975,16 @@ export default function ExploreScreen() {
                   size={28}
                   color={notificationIconColor}
                 />
+                {unreadCount > 0 && (
+                  <View style={styles.notificationBadge}>
+                    <AccessibleText
+                      backgroundColor={notificationUnreadAccent}
+                      style={styles.notificationBadgeText}
+                    >
+                      {unreadCount > 3 ? "3+" : unreadCount.toString()}
+                    </AccessibleText>
+                  </View>
+                )}
               </TouchableOpacity>
             </>
           )}
@@ -1655,7 +1994,7 @@ export default function ExploreScreen() {
           <View style={styles.guestActionHeader}>
             <TouchableOpacity
               style={styles.loginButton}
-              onPress={() => navigation.navigate("index" as never)}
+              onPress={() => (navigation as any).navigate("index")}
             >
               <AccessibleText
                 backgroundColor={"#2196F3"}
@@ -1940,14 +2279,24 @@ export default function ExploreScreen() {
             styles.notificationsOverlay,
             { backgroundColor: screenBackgroundColor },
           ]}
+          accessibilityViewIsModal={true}
         >
           <View style={styles.notificationsHeader}>
             <TouchableOpacity
               onPress={closeNotifications}
-              accessibilityLabel={t("close", { defaultValue: "Close" })}
+              accessibilityRole="button"
+              accessibilityLabel={t("closeNotifications", {
+                defaultValue: "Close notifications",
+              })}
               style={styles.notificationsBackButton}
             >
-              <Ionicons name="arrow-back" size={24} color={generalTextColor} />
+              <Ionicons
+                name="arrow-back"
+                size={24}
+                color={generalTextColor}
+                importantForAccessibility="no-hide-descendants"
+                accessibilityElementsHidden={true}
+              />
             </TouchableOpacity>
             <AccessibleText
               backgroundColor={screenBackgroundColor}
@@ -2066,11 +2415,6 @@ export default function ExploreScreen() {
                   const timestamp = formatNotificationTimestamp(
                     notif.createdAt
                   );
-                  const messageText = notif.message?.trim()?.length
-                    ? notif.message
-                    : t("notificationFallbackMessage", {
-                        defaultValue: "You have a new notification.",
-                      });
                   const showAvatar = shouldDisplayNotificationAvatar(notif);
                   const avatarInitial = showAvatar
                     ? getNotificationInitial(notif)
@@ -2103,6 +2447,90 @@ export default function ExploreScreen() {
                       </View>
                     )
                   ) : null;
+                  const derivedPostIdForThumb = deriveNotificationPostId(notif);
+                  const normalizedNotifType = notif.type?.toLowerCase();
+                  const normalizedNotifObject = notif.objectType?.toLowerCase();
+                  const isPostRelated =
+                    derivedPostIdForThumb !== null &&
+                    (normalizedNotifObject === "post" ||
+                      normalizedNotifObject === "comment" ||
+                      (!normalizedNotifObject &&
+                        (normalizedNotifType === "like" ||
+                          normalizedNotifType === "comment" ||
+                          normalizedNotifType === "create")));
+                  const isLikePost =
+                    normalizedNotifType === "like" &&
+                    (normalizedNotifObject === "post" || !normalizedNotifObject);
+                  const isCreatePost =
+                    normalizedNotifType === "create" &&
+                    (normalizedNotifObject === "post" || !normalizedNotifObject);
+                  const isChallengeEnd =
+                    normalizedNotifType === "end" &&
+                    normalizedNotifObject === "challenge";
+                  const isCommentOnPost =
+                    (normalizedNotifType === "comment" &&
+                      (normalizedNotifObject === "post" ||
+                        !normalizedNotifObject)) ||
+                    (normalizedNotifType === "create" &&
+                      normalizedNotifObject === "comment");
+                  const maxPostBodyExcerptLength = 25;
+                  const maxCommentExcerptLength = 25;
+                  const hasFetchedThumbnail =
+                    derivedPostIdForThumb !== null &&
+                    Object.prototype.hasOwnProperty.call(
+                      notificationThumbnails,
+                      derivedPostIdForThumb
+                    );
+                  const resolvedThumbnailUri =
+                    derivedPostIdForThumb !== null
+                      ? notificationThumbnails[derivedPostIdForThumb] ?? null
+                      : null;
+                  const shouldShowThumbnail =
+                    isPostRelated &&
+                    Boolean(resolvedThumbnailUri && resolvedThumbnailUri.length);
+                  const shouldReserveThumbnailSpace =
+                    isPostRelated && !hasFetchedThumbnail;
+                  let messageText = notif.message?.trim()?.length
+                    ? notif.message
+                    : t("notificationFallbackMessage", {
+                        defaultValue: "You have a new notification.",
+                      });
+                  if ((isLikePost || isCreatePost) && derivedPostIdForThumb !== null) {
+                    const bodyFromState = getPostContentFromState(
+                      derivedPostIdForThumb
+                    );
+                    const body =
+                      notificationPostBodies[derivedPostIdForThumb] ??
+                      bodyFromState ??
+                      null;
+                    if (body && body.trim().length) {
+                      const normalizedBody = body.trim().replace(/\s+/g, " ");
+                      const shouldTruncate =
+                        normalizedBody.length > maxPostBodyExcerptLength;
+                      const excerpt = shouldTruncate
+                        ? `${normalizedBody.slice(0, maxPostBodyExcerptLength - 1)}…`
+                        : normalizedBody;
+                      messageText = `${messageText}: "${excerpt}"`;
+                    }
+                  }
+                  if (isCommentOnPost && derivedPostIdForThumb !== null) {
+                    const commentPreview =
+                      notificationCommentPreviews[notif.id] ??
+                      getCommentPreviewFromState(
+                        derivedPostIdForThumb,
+                        notif.actorUsername ?? notif.actorId
+                      ) ??
+                      null;
+                    if (commentPreview && commentPreview.trim().length) {
+                      const normalized = commentPreview.trim().replace(/\s+/g, " ");
+                      const shouldTruncate =
+                        normalized.length > maxCommentExcerptLength;
+                      const excerpt = shouldTruncate
+                        ? `${normalized.slice(0, maxCommentExcerptLength - 1)}…`
+                        : normalized;
+                      messageText = `${messageText}: "${excerpt}"`;
+                    }
+                  }
                   return (
                     <TouchableOpacity
                       key={`${notif.id}-${notif.createdAt ?? "timestamp"}`}
@@ -2118,8 +2546,18 @@ export default function ExploreScreen() {
                       activeOpacity={0.8}
                       onPress={() => handleNotificationPress(notif)}
                       accessibilityRole="button"
-                      accessibilityLabel={t("notificationsTitle", {
-                        defaultValue: "Notifications",
+                      accessibilityLabel={t("notificationItemLabel", {
+                        status: notif.isRead
+                          ? t("read", { defaultValue: "Read" })
+                          : t("unread", { defaultValue: "Unread" }),
+                        message: messageText,
+                        time: timestamp,
+                        defaultValue: `${
+                          notif.isRead ? "Read" : "Unread"
+                        }. ${messageText}. ${timestamp}`,
+                      })}
+                      accessibilityHint={t("doubleTapToOpenNotification", {
+                        defaultValue: "Double tap to open notification",
                       })}
                     >
                       <View style={styles.notificationBody}>
@@ -2143,15 +2581,15 @@ export default function ExploreScreen() {
                                 },
                               ]}
                             />
-                            <AccessibleText
-                              backgroundColor={notificationCardBackground}
-                              style={[
-                                styles.notificationMessage,
-                                { color: generalTextColor },
-                              ]}
-                            >
+                          <AccessibleText
+                            backgroundColor={notificationCardBackground}
+                            style={[
+                              styles.notificationMessage,
+                              { color: generalTextColor },
+                            ]}
+                          >
                               {messageText}
-                            </AccessibleText>
+                          </AccessibleText>
                           </View>
                           {timestamp ? (
                             <AccessibleText
@@ -2165,6 +2603,34 @@ export default function ExploreScreen() {
                             </AccessibleText>
                           ) : null}
                         </View>
+                        {(shouldShowThumbnail || shouldReserveThumbnailSpace) && (
+                          <View
+                            style={[
+                              styles.notificationThumbnailWrapper,
+                              { backgroundColor: commentInputBackgroundColor },
+                            ]}
+                          >
+                            {shouldShowThumbnail && resolvedThumbnailUri ? (
+                              <Image
+                                source={{ uri: resolvedThumbnailUri }}
+                                style={styles.notificationThumbnailImage}
+                                resizeMode="cover"
+                              />
+                            ) : (
+                              <View
+                                style={[
+                                  styles.notificationThumbnailPlaceholder,
+                                  {
+                                    backgroundColor:
+                                      colorScheme === "dark"
+                                        ? "#2F2F31"
+                                        : "#E5E5EA",
+                                  },
+                                ]}
+                              />
+                            )}
+                          </View>
+                        )}
                       </View>
                     </TouchableOpacity>
                   );
@@ -2540,6 +3006,7 @@ const styles = StyleSheet.create({
   postCommentButtonDisabled: { backgroundColor: "#B0C4DE" },
   postCommentButtonText: { color: "#FFFFFF", fontWeight: "600", fontSize: 14 },
   notificationButton: {
+    position: "relative",
     padding: 8,
     borderRadius: 24,
     alignItems: "center",
@@ -2602,6 +3069,25 @@ const styles = StyleSheet.create({
   notificationBody: { flexDirection: "row", alignItems: "center" },
   notificationTextGroup: { flex: 1, marginLeft: 12 },
   notificationTextGroupFullWidth: { marginLeft: 0 },
+  notificationBadge: {
+    position: "absolute",
+    top: -4,
+    right: -4,
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: "#2E7D32",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 6,
+  },
+  notificationBadgeText: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    fontWeight: "700",
+    lineHeight: 14,
+    textAlign: "center",
+  },
   notificationItemHeader: { flexDirection: "row", alignItems: "center" },
   notificationStatusDot: {
     width: 10,
@@ -2620,6 +3106,21 @@ const styles = StyleSheet.create({
   },
   notificationAvatarImage: { width: 48, height: 48, borderRadius: 24 },
   notificationAvatarInitial: { fontSize: 18, fontWeight: "700" },
+  notificationThumbnailWrapper: {
+    width: 64,
+    height: 64,
+    marginLeft: 12,
+    borderRadius: 14,
+    overflow: "hidden",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  notificationThumbnailImage: { width: "100%", height: "100%" },
+  notificationThumbnailPlaceholder: {
+    width: "100%",
+    height: "100%",
+    opacity: 0.6,
+  },
   notificationPreviewBackdrop: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",

@@ -257,35 +257,45 @@ function PostItem({
 
         {/* Post header with avatar + metadata */}
         <View style={styles.postHeaderRow}>
-          {authorAvatarUri ? (
-            <Image
-              source={{ uri: authorAvatarUri }}
-              style={styles.postAuthorAvatarImage}
-            />
-          ) : (
-            <View
-              style={[
-                styles.postAuthorAvatar,
-                { backgroundColor: authorAvatarBackground },
-              ]}
-            >
-              <AccessibleText
-                backgroundColor={authorAvatarBackground}
+          <View
+            accessible={false}
+            importantForAccessibility="no-hide-descendants"
+            accessibilityElementsHidden={true}
+          >
+            {authorAvatarUri ? (
+              <Image
+                source={{ uri: authorAvatarUri }}
+                style={styles.postAuthorAvatarImage}
+              />
+            ) : (
+              <View
                 style={[
-                  styles.postAuthorInitial,
-                  { color: authorAvatarTextColor },
+                  styles.postAuthorAvatar,
+                  { backgroundColor: authorAvatarBackground },
                 ]}
               >
-                {authorInitial}
-              </AccessibleText>
-            </View>
-          )}
+                <AccessibleText
+                  backgroundColor={authorAvatarBackground}
+                  style={[
+                    styles.postAuthorInitial,
+                    { color: authorAvatarTextColor },
+                  ]}
+                >
+                  {authorInitial}
+                </AccessibleText>
+              </View>
+            )}
+          </View>
           <View style={styles.postHeaderText}>
             <TouchableOpacity
               onPress={() =>
                 navigation.navigate("user_profile", { username: post.title })
               }
               accessibilityRole="link"
+              accessibilityLabel={t("visitUserProfile", {
+                username: post.title,
+                defaultValue: `Visit ${post.title}'s profile`,
+              })}
             >
               <AccessibleText
                 type="title"
@@ -300,7 +310,10 @@ function PostItem({
               <AccessibleText
                 backgroundColor={cardBackgroundColor}
                 style={[styles.postTimestamp, { color: iconColor }]}
-                accessibilityLabel={formattedPublishedAt}
+                accessibilityLabel={t("postedAt", {
+                  date: formattedPublishedAt,
+                  defaultValue: `Posted at ${formattedPublishedAt}`,
+                })}
               >
                 {formattedPublishedAt}
               </AccessibleText>
@@ -313,6 +326,7 @@ function PostItem({
               <Image
                 source={{ uri: imageUri }}
                 style={styles.postImage}
+                accessibilityLabel={t("postImage", { defaultValue: "Post image" })}
                 onError={(e) =>
                   console.warn(
                     "Explore: Image failed to load:",
@@ -409,7 +423,29 @@ function PostItem({
           </AccessibleText>
         ) : null}
         <View style={styles.postFooter}>
-          <TouchableOpacity onPress={handleLike} style={styles.footerAction}>
+          <TouchableOpacity
+            onPress={handleLike}
+            style={styles.footerAction}
+            accessible={true}
+            accessibilityRole="none"
+            accessibilityLabel={
+              post.likedByUser
+                ? t("likedLikesCountAction", {
+                    count: post.likes,
+                    defaultValue:
+                      post.likes === 1
+                        ? `Liked. 1 like. Double tap to unlike`
+                        : `Liked. ${post.likes} likes. Double tap to unlike`,
+                  })
+                : t("unlikedLikesCountAction", {
+                    count: post.likes,
+                    defaultValue:
+                      post.likes === 1
+                        ? `1 like. Double tap to like`
+                        : `${post.likes} likes. Double tap to like`,
+                  })
+            }
+          >
             <Ionicons
               name={post.likedByUser ? "heart" : "heart-outline"}
               size={20}
@@ -431,6 +467,25 @@ function PostItem({
               onToggleComments();
             }}
             style={styles.footerAction}
+            accessible={true}
+            accessibilityRole="none"
+            accessibilityLabel={
+              isExpanded
+                ? t("commentsCountHideAction", {
+                    count: post.comments,
+                    defaultValue:
+                      post.comments === 1
+                        ? `1 comment. Double tap to hide comments`
+                        : `${post.comments} comments. Double tap to hide comments`,
+                  })
+                : t("commentsCountShowAction", {
+                    count: post.comments,
+                    defaultValue:
+                      post.comments === 1
+                        ? `1 comment. Double tap to show comments`
+                        : `${post.comments} comments. Double tap to show comments`,
+                  })
+            }
           >
             <Ionicons name="chatbubble-outline" size={20} color={iconColor} />
             <AccessibleText
@@ -445,6 +500,17 @@ function PostItem({
             testID="save-toggle"
             onPress={handleSave}
             style={[styles.footerAction, { marginLeft: "auto" }]}
+            accessible={true}
+            accessibilityRole="none"
+            accessibilityLabel={
+              post.savedByUser
+                ? t("savedAction", {
+                    defaultValue: "Saved. Double tap to unsave",
+                  })
+                : t("saveAction", {
+                    defaultValue: "Save. Double tap to save",
+                  })
+            }
           >
             <Ionicons
               testID={`icon-${
