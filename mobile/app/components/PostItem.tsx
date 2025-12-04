@@ -257,35 +257,45 @@ function PostItem({
 
         {/* Post header with avatar + metadata */}
         <View style={styles.postHeaderRow}>
-          {authorAvatarUri ? (
-            <Image
-              source={{ uri: authorAvatarUri }}
-              style={styles.postAuthorAvatarImage}
-            />
-          ) : (
-            <View
-              style={[
-                styles.postAuthorAvatar,
-                { backgroundColor: authorAvatarBackground },
-              ]}
-            >
-              <AccessibleText
-                backgroundColor={authorAvatarBackground}
+          <View
+            accessible={false}
+            importantForAccessibility="no-hide-descendants"
+            accessibilityElementsHidden={true}
+          >
+            {authorAvatarUri ? (
+              <Image
+                source={{ uri: authorAvatarUri }}
+                style={styles.postAuthorAvatarImage}
+              />
+            ) : (
+              <View
                 style={[
-                  styles.postAuthorInitial,
-                  { color: authorAvatarTextColor },
+                  styles.postAuthorAvatar,
+                  { backgroundColor: authorAvatarBackground },
                 ]}
               >
-                {authorInitial}
-              </AccessibleText>
-            </View>
-          )}
+                <AccessibleText
+                  backgroundColor={authorAvatarBackground}
+                  style={[
+                    styles.postAuthorInitial,
+                    { color: authorAvatarTextColor },
+                  ]}
+                >
+                  {authorInitial}
+                </AccessibleText>
+              </View>
+            )}
+          </View>
           <View style={styles.postHeaderText}>
             <TouchableOpacity
               onPress={() =>
                 navigation.navigate("user_profile", { username: post.title })
               }
               accessibilityRole="link"
+              accessibilityLabel={t("visitUserProfile", {
+                username: post.title,
+                defaultValue: `Visit ${post.title}'s profile`,
+              })}
             >
               <AccessibleText
                 type="title"
@@ -300,7 +310,10 @@ function PostItem({
               <AccessibleText
                 backgroundColor={cardBackgroundColor}
                 style={[styles.postTimestamp, { color: iconColor }]}
-                accessibilityLabel={formattedPublishedAt}
+                accessibilityLabel={t("postedAt", {
+                  date: formattedPublishedAt,
+                  defaultValue: `Posted at ${formattedPublishedAt}`,
+                })}
               >
                 {formattedPublishedAt}
               </AccessibleText>
@@ -313,6 +326,7 @@ function PostItem({
               <Image
                 source={{ uri: imageUri }}
                 style={styles.postImage}
+                accessibilityLabel={t("postImage", { defaultValue: "Post image" })}
                 onError={(e) =>
                   console.warn(
                     "Explore: Image failed to load:",
