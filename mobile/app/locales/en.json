@@ -275,6 +275,8 @@
     "notificationsTitle": "Notifications",
     "notificationsEmpty": "You're all caught up!",
     "openNotifications": "Open notifications",
+    "openNotificationsWithCount": "Open notifications. {{count}} unread notifications",
+    "closeNotifications": "Close notifications",
     "notificationUnknownActor": "Someone",
     "notificationTargetYou": "you",
     "notificationLikePost": "{{actor}} liked your post",

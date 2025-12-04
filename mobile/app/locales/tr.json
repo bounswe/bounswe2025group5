@@ -275,6 +275,8 @@
     "notificationsTitle": "Bildirimler",
     "notificationsEmpty": "Şimdilik bildirimin yok.",
     "openNotifications": "Bildirimleri aç",
+    "openNotificationsWithCount": "Bildirimleri aç. {{count}} okunmamış bildirim",
+    "closeNotifications": "Bildirimleri kapat",
     "notificationUnknownActor": "Biri",
     "notificationTargetYou": "sen",
     "notificationLikePost": "{{actor}} gönderini beğendi",
