@@ -9,11 +9,11 @@ import java.sql.Timestamp;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReportResponse {
+public class GetReportResponse {
     private Integer id;
     private String reporterUsername;
     private String type;
     private String description;
-    private Boolean isRead;
+    private Integer isSolved;
     private Timestamp createdAt;
 }

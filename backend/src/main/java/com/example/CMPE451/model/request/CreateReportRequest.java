@@ -11,4 +11,6 @@ public class CreateReportRequest {
     private String username;
     private String content;
     private String type;
+    private String contentType;
+    private Integer objectId;
 }
