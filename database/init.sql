@@ -261,27 +261,30 @@ CREATE TABLE follows (
     FOREIGN KEY (follower_username) REFERENCES users(username),
     FOREIGN KEY (following_username) REFERENCES users(username)
 );
-
 CREATE TABLE report (
                         report_id INT AUTO_INCREMENT PRIMARY KEY,
                         reporter VARCHAR(255) NOT NULL,
                         type VARCHAR(50) NOT NULL,
                         description TEXT,
-                        isRead INT NOT NULL DEFAULT 0,
+                        is_solved INT NOT NULL DEFAULT 0,
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        content_type VARCHAR(20) NOT NULL,
+                        object_id INT NOT NULL,
+                        action VARCHAR(50) DEFAULT NULL,
                         CONSTRAINT fk_reporter
                             FOREIGN KEY (reporter)
                                 REFERENCES users(username)
                                 ON DELETE CASCADE,
 
-    -- Constraint to limit type to specific strings
                         CONSTRAINT chk_type
-                            CHECK (type IN ('Violence', 'Sexuality')),
-
-    -- Constraint to ensure isRead is strictly 0 or 1
-                        CONSTRAINT chk_is_read
-                            CHECK (isRead IN (0, 1))
-);
+                            CHECK (type IN ('Violence', 'Sexuality', 'Spam', 'Other', 'Hate Speech')),
+                        CONSTRAINT chk_is_solved
+                            CHECK (is_solved IN (0, 1)),
+                        CONSTRAINT chk_content_type
+                            CHECK (content_type IN ('Comment', 'Post')),
+                        CONSTRAINT chk_action
+                            CHECK (action IN ('ClosedWithoutChange', 'Deletion'))
+    );
 -- Trigger: after_like_insert
 -- Purpose: After a new row is inserted into `post_likes`,
 --          automatically increment the `likes` counter
