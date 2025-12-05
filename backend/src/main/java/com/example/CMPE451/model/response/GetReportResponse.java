@@ -15,5 +15,7 @@ public class GetReportResponse {
     private String type;
     private String description;
     private Integer isSolved;
+    private String contentType;
+    private Integer objectId;
     private Timestamp createdAt;
 }

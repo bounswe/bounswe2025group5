@@ -24,14 +24,11 @@ public class ReportService {
     private final UserRepository userRepository;
 
     public CreateReportResponse createReport(CreateReportRequest request) {
-        User reporter = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new NotFoundException("Reporter user with the name : "+request.getUsername() + " not found"));
-        if (!(List.of("Violence", "Sexuality", "Other","Spam","Hate Speech").contains(request.getType()))){
-            throw  new InvalidCredentialsException("The given type: "+ request.getType()+" not appropriate");
-        }
+        User reporter = userRepository.findByUsername(request.getReporterName())
+                .orElseThrow(() -> new NotFoundException("Reporter user with the name : "+request.getReporterName() + " not found"));
         Report report = new Report();
         report.setReporter(reporter);
-        report.setDescription(request.getContent());
+        report.setDescription(request.getDescription());
         report.setType(request.getType());
         report.setIsSolved(0);
         report.setContentType(request.getContentType());
@@ -58,7 +55,7 @@ public class ReportService {
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new NotFoundException("Report not found with id :"+ reportId));
         report.setIsSolved(1);
-        if (!report.getAction().equals("Deletion")){
+        if (report.getAction() == null || !report.getAction().equals("Deletion")){
             report.setAction("ClosedWithoutChange");
         }
         reportRepository.save(report);
@@ -72,6 +69,8 @@ public class ReportService {
                 report.getType(),
                 report.getDescription(),
                 report.getIsSolved(),
+                report.getContentType(),
+                report.getObjectId(),
                 report.getCreatedAt()
         );
     }

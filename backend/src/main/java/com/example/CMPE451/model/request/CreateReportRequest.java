@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateReportRequest {
-    private String username;
-    private String content;
+    private String reporterName;
+    private String description;
     private String type;
     private String contentType;
     private Integer objectId;
