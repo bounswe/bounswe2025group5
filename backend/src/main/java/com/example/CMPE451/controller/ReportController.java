@@ -1,7 +1,9 @@
 package com.example.CMPE451.controller;
 
 import com.example.CMPE451.model.request.CreateReportRequest;
-import com.example.CMPE451.model.response.ReportResponse;
+import com.example.CMPE451.model.response.CreateReportResponse;
+import com.example.CMPE451.model.response.GetReportResponse;
+import com.example.CMPE451.model.response.MarkResponse;
 import com.example.CMPE451.service.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,25 +19,29 @@ public class ReportController {
     private final ReportService reportService;
 
 
-    @PostMapping("/create")
-    public ResponseEntity<ReportResponse> createReport(@RequestBody CreateReportRequest request) {
-            ReportResponse response = reportService.createReport(request);
+    @PostMapping
+    public ResponseEntity<CreateReportResponse> createReport(@RequestBody CreateReportRequest request) {
+        CreateReportResponse response = reportService.createReport(request);
             return ResponseEntity.ok(response);
 
     }
 
-
     @GetMapping("/unread")
-    public ResponseEntity<List<ReportResponse>> getUnreadReports() {
-        List<ReportResponse> response = reportService.getUnreadReports();
+    public ResponseEntity<List<GetReportResponse>> getUnSolvedReports() {
+        List<GetReportResponse> response = reportService.getUnreadReports();
         return ResponseEntity.ok(response);
     }
 
 
-    @PutMapping("/{id}/read")
-    public ResponseEntity<ReportResponse> readReport(@PathVariable Integer id) {
-            ReportResponse response = reportService.markReportAsRead(id);
+    @PutMapping("/{id}/solve-flag")
+    public ResponseEntity<MarkResponse> solveReport(@PathVariable Integer id) {
+            MarkResponse response = reportService.markReportAsSolved(id);
             return ResponseEntity.ok(response);
 
+    }
+    @PutMapping("/{id}/delete-flag")
+    public ResponseEntity<MarkResponse> markAsDeletion(@PathVariable Integer id) {
+        MarkResponse response = reportService.markReportAsDeleted(id);
+        return ResponseEntity.ok(response);
     }
 }
