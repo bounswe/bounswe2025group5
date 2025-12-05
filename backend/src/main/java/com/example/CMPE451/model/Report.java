@@ -30,10 +30,19 @@ public class Report {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "isRead", nullable = false)
-    private Boolean isRead = false;
+    @Column(name = "isSolved", nullable = false)
+    private Integer isSolved = 0;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;
+
+    @Column(name = "content_type", nullable = false)
+    private String contentType;
+
+    @Column(name = "object_id", nullable = false)
+    private Integer objectId;
+
+    @Column(name = "action")
+    private String action;
 }

@@ -14,7 +14,5 @@ public interface ReportRepository extends JpaRepository<Report, Integer> {
 
     List<Report> findByType(String type);
 
-    List<Report> findByIsReadFalse();
-
-    List<Report> findByIsReadTrue();
+    List<Report> findByIsSolved(Integer status);
 }
