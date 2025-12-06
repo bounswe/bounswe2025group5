@@ -31,12 +31,14 @@ vi.mock('@/lib/api/reports', () => ({
 vi.mock('@/lib/api/posts', () => ({
   PostsApi: {
     remove: vi.fn(),
+    getById: vi.fn(),
   },
 }));
 
 vi.mock('@/lib/api/comments', () => ({
   CommentsApi: {
     remove: vi.fn(),
+    getById: vi.fn(),
   },
 }));
 
@@ -49,6 +51,26 @@ const sampleReport = {
   contentType: 'POST',
   objectId: 42,
   createdAt: '2024-05-01T10:00:00Z',
+};
+
+const samplePostItem = {
+  postId: 42,
+  creatorUsername: 'poster',
+  content: 'offending post',
+  photoUrl: null,
+  likes: 0,
+  liked: false,
+  saved: false,
+  comments: 0,
+  createdAt: '2024-05-01T10:00:00Z',
+};
+
+const sampleComment = {
+  commentId: 99,
+  postId: 42,
+  content: 'bad comment',
+  creatorUsername: 'commenter',
+  createdAt: '2024-05-02T10:00:00Z',
 };
 
 describe('ModeratorDashboard', () => {
@@ -143,6 +165,39 @@ describe('ModeratorDashboard', () => {
     await waitFor(() => expect(CommentsApi.remove).toHaveBeenCalledWith(99));
     await waitFor(() => expect(ReportsApi.markDeletion).toHaveBeenCalledWith('moderator-user', 3));
     await waitFor(() => expect(screen.queryByTestId('report-3')).not.toBeInTheDocument());
+  });
+
+  it('opens a dialog to preview reported posts', async () => {
+    const user = userEvent.setup();
+    vi.mocked(ReportsApi.getUnread).mockResolvedValue([sampleReport]);
+    vi.mocked(PostsApi.getById).mockResolvedValue(samplePostItem as never);
+
+    render(<ModeratorDashboard />);
+
+    expect(await screen.findByTestId('report-1')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /view content/i }));
+
+    await waitFor(() => expect(PostsApi.getById).toHaveBeenCalledWith(42));
+    expect(await screen.findByText(/offending post/)).toBeInTheDocument();
+  });
+
+  it('shows comment preview when viewing reported comments', async () => {
+    const user = userEvent.setup();
+    vi.mocked(ReportsApi.getUnread).mockResolvedValue([
+      { ...sampleReport, id: 5, contentType: 'COMMENT', objectId: 99 },
+    ]);
+    vi.mocked(CommentsApi.getById).mockResolvedValue(sampleComment as never);
+    vi.mocked(PostsApi.getById).mockResolvedValue(samplePostItem as never);
+
+    render(<ModeratorDashboard />);
+
+    expect(await screen.findByTestId('report-5')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /view content/i }));
+
+    await waitFor(() => expect(CommentsApi.getById).toHaveBeenCalledWith(99));
+    expect(await screen.findByText(/bad comment/)).toBeInTheDocument();
   });
 });
 

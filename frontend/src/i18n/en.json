@@ -246,7 +246,12 @@
         "delete": "Delete content",
         "deleting": "Deleting...",
         "deleteError": "Failed to delete reported content",
-        "unsupportedContent": "Unsupported content type"
+        "unsupportedContent": "Unsupported content type",
+        "view": "View content",
+        "viewing": "Loading content...",
+        "viewError": "Unable to load reported content",
+        "dialogTitle": "Reported {{type}}",
+        "commentPreview": "Comment by {{username}}"
     },
     "challenges": {
         "title": "Challenges",

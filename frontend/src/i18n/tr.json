@@ -242,7 +242,12 @@
         "delete": "İçeriği sil",
         "deleting": "Siliniyor...",
         "deleteError": "Bildirilen içerik silinemedi",
-        "unsupportedContent": "Desteklenmeyen içerik türü"
+        "unsupportedContent": "Desteklenmeyen içerik türü",
+        "view": "İçeriği görüntüle",
+        "viewing": "İçerik yükleniyor...",
+        "viewError": "Bildirilen içerik yüklenemedi",
+        "dialogTitle": "Bildirilen {{type}}",
+        "commentPreview": "{{username}} kullanıcısının yorumu"
     },
     "challenges": {
         "title": "Etkinlikler",

@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Spinner } from '@/components/ui/spinner';
 import { PostsApi } from '@/lib/api/posts';
 import { CommentsApi } from '@/lib/api/comments';
+import ReportObjectDialog from '@/components/moderation/ReportObjectDialog';
 
 const formatTimestamp = (value: string) => {
   const parsed = new Date(value);
@@ -25,6 +26,13 @@ export function ModeratorDashboard() {
   const [username, setUsername] = useState<string | null>(null);
   const [solvingId, setSolvingId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [activeReport, setActiveReport] = useState<ReportItem | null>(null);
+  const [isObjectDialogOpen, setIsObjectDialogOpen] = useState(false);
+  const handleViewReport = (report: ReportItem) => {
+    setActiveReport(report);
+    setIsObjectDialogOpen(true);
+  };
+
 
   const loadReports = useCallback(async () => {
     setError(null);
@@ -154,6 +162,13 @@ export function ModeratorDashboard() {
                 </p>
                 <div className="flex flex-wrap justify-end gap-2">
                   <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleViewReport(report)}
+                  >
+                    {t('moderator.view', 'View content')}
+                  </Button>
+                  <Button
                     variant="destructive"
                     size="sm"
                     onClick={() => void handleDeleteContent(report)}
@@ -179,6 +194,16 @@ export function ModeratorDashboard() {
           ))}
         </div>
       )}
+      <ReportObjectDialog
+        report={activeReport}
+        open={isObjectDialogOpen}
+        onOpenChange={(open) => {
+          setIsObjectDialogOpen(open);
+          if (!open) {
+            setActiveReport(null);
+          }
+        }}
+      />
     </div>
   );
 }
