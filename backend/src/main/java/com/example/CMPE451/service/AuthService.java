@@ -1,5 +1,6 @@
 package com.example.CMPE451.service;
 
+import com.example.CMPE451.exception.ConflictException;
 import com.example.CMPE451.exception.NotFoundException;
 import com.example.CMPE451.model.request.ResetPasswordRequest;
 import org.springframework.transaction.annotation.Transactional;
@@ -126,7 +127,9 @@ public class AuthService {
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPasswordHash())) {
             throw new InvalidCredentialsException("Current password is incorrect");
         }
-
+        if (passwordEncoder.matches(request.getNewPassword(), user.getPasswordHash())) {
+            throw new ConflictException("The new and old password are the same");
+        }
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
 
         userRepository.save(user);
