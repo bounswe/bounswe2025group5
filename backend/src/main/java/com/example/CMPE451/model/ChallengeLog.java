@@ -1,5 +1,6 @@
 package com.example.CMPE451.model;
 
+import com.example.CMPE451.exception.InvalidCredentialsException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,13 +20,14 @@ public class ChallengeLog {
     @Column(name = "log_id")
     private Integer logId;
 
-    @Column(name = "amount", nullable = false)
-    private Double amount;
+    @Column(name = "quantity", nullable = false)
+    private Double quantity;
+    @ManyToOne
 
-    /**
-     * The timestamp when this log entry was created.
-     * It is not updatable and will be set automatically on creation.
-     */
+    @JoinColumn(name = "item_id", nullable = false)
+    private WasteItem item;
+
+
     @Column(name = "timestamp", nullable = false, updatable = false)
     private LocalDateTime timestamp;
 
@@ -37,10 +39,17 @@ public class ChallengeLog {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public ChallengeLog(Challenge challenge, User user, Double amount) {
+    public ChallengeLog(Challenge challenge, User user, Double quantity,WasteItem item) {
+        if (!item.getType().getId().equals(challenge.getType().getId())) {
+            throw new InvalidCredentialsException(
+                    "Validation failed: The logged item's type ('" + item.getType().getName() +
+                            "') does not match the challenge's type ('" + challenge.getType().getName() + "')."
+            );
+        }
         this.challenge = challenge;
         this.user = user;
-        this.amount = amount;
+        this.quantity = quantity;
+        this.item = item;
     }
 
     @PrePersist

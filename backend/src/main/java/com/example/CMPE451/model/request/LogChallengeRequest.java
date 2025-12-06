@@ -9,5 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LogChallengeRequest {
     private String username;
-    private Double amount;
+    private Double quantity;
+    private Integer itemId;
 }

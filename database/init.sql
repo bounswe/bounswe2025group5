@@ -79,37 +79,42 @@ CREATE TABLE IF NOT EXISTS `waste_log` (
     REFERENCES `waste_item` (`item_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-
 CREATE TABLE `challenges` (
-  `challenge_id`  INT NOT NULL AUTO_INCREMENT,
-  `name`          VARCHAR(100) NOT NULL,
-  `description`   VARCHAR(400) NOT NULL,
-  `type`          VARCHAR(50) NOT NULL,
-  `amount`        DOUBLE NOT NULL,
-  `current_amount` DOUBLE NOT NULL DEFAULT 0,
-  `start_date`    DATE NOT NULL,
-  `end_date`      DATE NOT NULL,
-  `status`        ENUM('Active','Requested','Ended','Completed') DEFAULT 'Active',
-  PRIMARY KEY (`challenge_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+                  `challenge_id` int NOT NULL AUTO_INCREMENT,
+                  `name` varchar(100) NOT NULL,
+                  `description` varchar(400) DEFAULT NULL,
+                  `type` int NOT NULL,
+
+                  `amount` double NOT NULL,
+                  `current_amount` double NOT NULL DEFAULT '0',
+                  `start_date` date NOT NULL,
+                  `end_date` date NOT NULL,
+                  `status` enum('Active','Requested','Ended','Completed') DEFAULT 'Active',
+
+                  PRIMARY KEY (`challenge_id`),
+                  CONSTRAINT `fk_challenge_waste_type`
+                      FOREIGN KEY (`type`) REFERENCES `waste_types`(`id`)
+                          ON DELETE RESTRICT
+                          ON UPDATE CASCADE
+)
+    ENGINE=InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `challenge_log` (
-  `log_id`       INT NOT NULL AUTO_INCREMENT,
-  `challenge_id` INT NOT NULL,
-  `user_id`      INT NOT NULL,
-  `amount`       DOUBLE NOT NULL,
-  `timestamp`    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`log_id`),
-  INDEX `fk_log_challenge_idx` (`challenge_id` ASC),
-  INDEX `fk_log_user_idx` (`user_id` ASC),
-  CONSTRAINT `fk_log_challenge`
-    FOREIGN KEY (`challenge_id`)
-    REFERENCES `challenges` (`challenge_id`)
-    ON DELETE CASCADE,
-  CONSTRAINT `fk_challenge_log_user`
-    FOREIGN KEY (`user_id`)
-    REFERENCES `users` (`user_id`)
-    ON DELETE CASCADE
+                     `log_id` int NOT NULL AUTO_INCREMENT,
+                     `challenge_id` int NOT NULL,
+                     `user_id` int NOT NULL,
+                     `item_id` int NOT NULL,
+                     `quantity` double NOT NULL,
+                     `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                     PRIMARY KEY (`log_id`),
+                     KEY `fk_log_challenge_idx` (`challenge_id`),
+                     KEY `fk_log_user_idx` (`user_id`),
+                     KEY `fk_log_item_idx` (`item_id`),
+                     CONSTRAINT `fk_challenge_log_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
+                     CONSTRAINT `fk_log_challenge` FOREIGN KEY (`challenge_id`) REFERENCES `challenges` (`challenge_id`) ON DELETE CASCADE,
+                     CONSTRAINT `fk_log_item_challenge` FOREIGN KEY (`item_id`) REFERENCES `waste_item` (`item_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `challenge_user` (
@@ -261,8 +266,30 @@ CREATE TABLE follows (
     FOREIGN KEY (follower_username) REFERENCES users(username),
     FOREIGN KEY (following_username) REFERENCES users(username)
 );
+CREATE TABLE report (
+                        report_id INT AUTO_INCREMENT PRIMARY KEY,
+                        reporter VARCHAR(255) NOT NULL,
+                        type VARCHAR(50) NOT NULL,
+                        description TEXT,
+                        is_solved INT NOT NULL DEFAULT 0,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        content_type VARCHAR(20) NOT NULL,
+                        object_id INT NOT NULL,
+                        action VARCHAR(50) DEFAULT NULL,
+                        CONSTRAINT fk_reporter
+                            FOREIGN KEY (reporter)
+                                REFERENCES users(username)
+                                ON DELETE CASCADE,
 
-
+                        CONSTRAINT chk_type
+                            CHECK (type IN ('Violence', 'Sexuality', 'Spam', 'Other', 'Hate Speech')),
+                        CONSTRAINT chk_is_solved
+                            CHECK (is_solved IN (0, 1)),
+                        CONSTRAINT chk_content_type
+                            CHECK (content_type IN ('Comment', 'Post')),
+                        CONSTRAINT chk_action
+                            CHECK (action IN ('ClosedWithoutChange', 'Deletion'))
+    );
 -- Trigger: after_like_insert
 -- Purpose: After a new row is inserted into `post_likes`,
 --          automatically increment the `likes` counter
@@ -551,5 +578,26 @@ DELIMITER ;
 
 
 
+DELIMITER $$
+    CREATE TRIGGER `challenge_log_after_insert`
+        AFTER INSERT ON `challenge_log`
+        FOR EACH ROW
+    BEGIN
+        DECLARE total_challenge_val DOUBLE;
+
+        SELECT SUM(wi.weight_in_grams * cl.quantity)
+        INTO total_challenge_val
+        FROM `challenge_log` cl
+                 JOIN `waste_item` wi ON cl.item_id = wi.item_id
+        WHERE cl.challenge_id = NEW.challenge_id
+          AND cl.user_id = NEW.user_id;
+
+        UPDATE `challenge_user`
+        SET amount = IFNULL(total_challenge_val, 0)
+        WHERE challenge_id = NEW.challenge_id
+          AND user_id = NEW.user_id;
+        END$$
+
+        DELIMITER ;
 
 

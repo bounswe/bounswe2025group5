@@ -6,11 +6,10 @@ import com.example.CMPE451.model.request.AttendChallengeRequest;
 import com.example.CMPE451.model.request.CreateChallengeRequest;
 import com.example.CMPE451.model.request.LogChallengeRequest;
 import com.example.CMPE451.model.response.*;
-import com.example.CMPE451.repository.ChallengeLogRepository;
-import com.example.CMPE451.repository.ChallengeRepository;
-import com.example.CMPE451.repository.ChallengeUserRepository;
-import com.example.CMPE451.repository.UserRepository;
+import com.example.CMPE451.repository.*;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,15 +28,21 @@ public class ChallengeService {
     private final UserRepository userRepository;
     private final ChallengeUserRepository challengeUserRepository;
     private final ChallengeLogRepository challengeLogRepository;
+    private final WasteTypeRepository wasteTypeRepository;
     private final ActivityLogger activityLogger;
+    private final WasteItemRepository wasteItemRepository;
 
 
+    @Autowired
+    private EntityManager entityManager;
     @Transactional
     public ChallengeResponse createChallenge(CreateChallengeRequest request) {
+        WasteType wasteType = wasteTypeRepository.findByName(request.getType())
+                .orElseThrow(() -> new NotFoundException("WasteType not found: " + request.getType()));
         Challenge savedChallenge = challengeRepository.save(new Challenge(
                 request.getName(),
                 request.getDescription(),
-                request.getType(),
+                wasteType,
                 request.getAmount(),
                 request.getStartDate(),
                 request.getEndDate(),
@@ -52,7 +57,7 @@ public class ChallengeService {
                 savedChallenge.getStartDate(),
                 savedChallenge.getEndDate(),
                 savedChallenge.getStatus(),
-                savedChallenge.getType()
+                wasteType.getName()
         );
     }
 
@@ -137,7 +142,7 @@ public class ChallengeService {
                         challenge.getStartDate(),
                         challenge.getEndDate(),
                         challenge.getStatus(),
-                        challenge.getType(),
+                        challenge.getType().getName(),
                         challenge.getCurrentAmount(),
                         participatedChallengeIds.contains(challenge.getChallengeId())
                 ))
@@ -169,15 +174,13 @@ public class ChallengeService {
         ChallengeUser challengeUser = challengeUserRepository.findByChallengeIdAndUserId(challengeId, user.getId())
                 .orElseThrow(() ->  new NotFoundException("User is not participating in this challenge."));
         ;
-
-        ChallengeLog newLog = new ChallengeLog(challenge, user, request.getAmount());
-        challengeLogRepository.save(newLog);
-
-        double newTotalAmount = challengeUser.getAmount() + request.getAmount();
-        challengeUser.setAmount(newTotalAmount);
-        challengeUser= challengeUserRepository.saveAndFlush(challengeUser);
+        WasteItem item = wasteItemRepository.findById(request.getItemId())
+                .orElseThrow(() -> new NotFoundException("WasteItem not found: " + request.getItemId()));
 
 
+        ChallengeLog newLog = new ChallengeLog(challenge, user, request.getQuantity(),item);
+        challengeLogRepository.saveAndFlush(newLog);
+        entityManager.refresh(challengeUser);
         return new LogChallengeResponse(user.getUsername(), challengeId, challengeUser.getAmount());
     }
 
@@ -193,7 +196,7 @@ public class ChallengeService {
         List<ChallengeLog> logs = challengeLogRepository.findByChallenge_ChallengeIdAndUser_Id(challengeId, user.getId());
 
         List<ChallengeLogInfo> logInfos = logs.stream()
-                .map(log -> new ChallengeLogInfo(log.getAmount(), log.getTimestamp()))
+                .map(log -> new ChallengeLogInfo(log.getQuantity(),log.getItem().getDisplayName(), log.getTimestamp()))
                 .collect(Collectors.toList());
 
         return new UserChallengeLogsResponse(username, challengeId, logInfos);
@@ -210,7 +213,7 @@ public class ChallengeService {
                         challenge.getStartDate(),
                         challenge.getEndDate(),
                         challenge.getStatus(),
-                        challenge.getType()
+                        challenge.getType().getName()
                 ))
                 .collect(Collectors.toList());
     }
@@ -232,12 +235,20 @@ public class ChallengeService {
 
     @Transactional(readOnly = true)
     public List<String> getUsernamesForChallenge(Integer challengeId) {
-        Challenge challenge = challengeRepository.findById(challengeId)
+        challengeRepository.findById(challengeId)
                 .orElseThrow(() -> new NotFoundException("Challenge not found with ID: " + challengeId));
 
         return challengeUserRepository.findByIdChallengeId(challengeId).stream()
                 .map(cu -> cu.getUser().getUsername())
                 .toList();
+    }
+
+
+    public List<WasteItem> getWasteItemsForChallenge(Integer challengeId) {
+        Challenge challenge = challengeRepository.findById(challengeId)
+                .orElseThrow(() -> new NotFoundException("Challenge not found with ID: " + challengeId));
+        WasteType type = challenge.getType();
+        return wasteItemRepository.findByType(type);
     }
 
 }

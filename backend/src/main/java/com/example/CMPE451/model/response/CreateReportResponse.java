@@ -4,13 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChallengeLogInfo {
-    private Double quantity;
-    private String item;
-    private LocalDateTime timestamp;
+public class CreateReportResponse {
+    private boolean success;
 }
