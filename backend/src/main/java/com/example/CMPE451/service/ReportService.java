@@ -23,6 +23,13 @@ public class ReportService {
     private final ReportRepository reportRepository;
     private final UserRepository userRepository;
 
+    private void checkModeratorAccess(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User with username: " + username + " not found"));
+        if (!user.getIsModerator()) {
+            throw new InvalidCredentialsException("User " + username + " is not authorized to perform this action.");
+        }
+    }
     public CreateReportResponse createReport(CreateReportRequest request) {
         User reporter = userRepository.findByUsername(request.getReporterName())
                 .orElseThrow(() -> new NotFoundException("Reporter user with the name : "+request.getReporterName() + " not found"));
@@ -37,13 +44,15 @@ public class ReportService {
         return new CreateReportResponse(true);
     }
 
-    public List<GetReportResponse> getUnreadReports() {
+    public List<GetReportResponse> getUnreadReports(String username) {
+        checkModeratorAccess(username);
         List<Report> reports = reportRepository.findByIsSolved(0);
         return reports.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
-    public MarkResponse markReportAsDeleted(Integer reportId) {
+    public MarkResponse markReportAsDeleted(Integer reportId,String username) {
+        checkModeratorAccess(username);
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new NotFoundException("Report not found with id :"+ reportId));
         report.setAction("Deletion");
@@ -51,7 +60,8 @@ public class ReportService {
         return new MarkResponse(true,reportId);
     }
 
-    public MarkResponse markReportAsSolved(Integer reportId) {
+    public MarkResponse markReportAsSolved(Integer reportId,String username) {
+        checkModeratorAccess(username);
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new NotFoundException("Report not found with id :"+ reportId));
         report.setIsSolved(1);

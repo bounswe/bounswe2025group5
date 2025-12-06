@@ -26,22 +26,22 @@ public class ReportController {
 
     }
 
-    @GetMapping("/unread")
-    public ResponseEntity<List<GetReportResponse>> getUnSolvedReports() {
-        List<GetReportResponse> response = reportService.getUnreadReports();
+    @GetMapping("/{username}/unread")
+    public ResponseEntity<List<GetReportResponse>> getUnSolvedReports(@PathVariable String username) {
+        List<GetReportResponse> response = reportService.getUnreadReports(username);
         return ResponseEntity.ok(response);
     }
 
 
-    @PutMapping("/{id}/solve-flag")
-    public ResponseEntity<MarkResponse> solveReport(@PathVariable Integer id) {
-            MarkResponse response = reportService.markReportAsSolved(id);
+    @PutMapping("/{username}/{id}/solve-flag")
+    public ResponseEntity<MarkResponse> solveReport(@PathVariable Integer id,@PathVariable String username) {
+            MarkResponse response = reportService.markReportAsSolved(id,username);
             return ResponseEntity.ok(response);
 
     }
-    @PutMapping("/{id}/delete-flag")
-    public ResponseEntity<MarkResponse> markAsDeletion(@PathVariable Integer id) {
-        MarkResponse response = reportService.markReportAsDeleted(id);
+    @PutMapping("/{username}/{id}/delete-flag")
+    public ResponseEntity<MarkResponse> markAsDeletion(@PathVariable Integer id,@PathVariable String username) {
+        MarkResponse response = reportService.markReportAsDeleted(id,username);
         return ResponseEntity.ok(response);
     }
 }
