@@ -20,16 +20,19 @@ export function ModeratorDashboard() {
   const [reports, setReports] = useState<ReportItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
+  const [solvingId, setSolvingId] = useState<number | null>(null);
 
   const loadReports = useCallback(async () => {
     setError(null);
     setLoading(true);
     try {
-      const username = localStorage.getItem(USERNAME_KEY);
-      if (!username) {
+      const storedUsername = localStorage.getItem(USERNAME_KEY);
+      if (!storedUsername) {
         throw new Error(t('moderator.noUsername', 'Missing moderator username'));
       }
-      const data = await ReportsApi.getUnread(username);
+      setUsername(storedUsername);
+      const data = await ReportsApi.getUnread(storedUsername);
       setReports(data);
     } catch (err) {
       const message = err instanceof Error ? err.message : t('moderator.error', 'Failed to load reports');
@@ -38,6 +41,27 @@ export function ModeratorDashboard() {
       setLoading(false);
     }
   }, [t]);
+
+  const handleSolve = useCallback(
+    async (reportId: number) => {
+      if (!username) {
+        setError(t('moderator.noUsername', 'Missing moderator username'));
+        return;
+      }
+      setSolvingId(reportId);
+      try {
+        await ReportsApi.markSolved(username, reportId);
+        setReports((prev) => prev.filter((report) => report.id !== reportId));
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : t('moderator.solveError', 'Failed to mark report as solved');
+        setError(message);
+      } finally {
+        setSolvingId((current) => (current === reportId ? null : current));
+      }
+    },
+    [username, t],
+  );
 
   useEffect(() => {
     void loadReports();
@@ -91,11 +115,23 @@ export function ModeratorDashboard() {
                   <Badge>{t('moderator.objectId', 'ID {{id}}', { id: report.objectId })}</Badge>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-2">
+              <CardContent className="space-y-3">
                 <p className="text-sm text-foreground">{report.description}</p>
                 <p className="text-xs text-muted-foreground">
                   {t('moderator.reportedAt', 'Reported {{time}}', { time: formatTimestamp(report.createdAt) })}
                 </p>
+                <div className="flex justify-end">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => void handleSolve(report.id)}
+                    disabled={solvingId === report.id}
+                  >
+                    {solvingId === report.id
+                      ? t('moderator.solving', 'Marking...')
+                      : t('moderator.solve', 'Mark as solved')}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ))}

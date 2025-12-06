@@ -239,7 +239,10 @@
         "reportedAt": "Reported {{time}}",
         "objectId": "ID {{id}}",
         "error": "Failed to load reports",
-        "noUsername": "Missing moderator username"
+        "noUsername": "Missing moderator username",
+        "solve": "Mark as solved",
+        "solving": "Marking...",
+        "solveError": "Failed to mark report as solved"
     },
     "challenges": {
         "title": "Challenges",

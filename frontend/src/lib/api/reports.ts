@@ -11,9 +11,16 @@ export type ReportItem = {
   createdAt: string;
 };
 
+export type MarkReportResponse = {
+  success: boolean;
+  id: number;
+};
+
 export const ReportsApi = {
   getUnread: (username: string) =>
     ApiClient.get<ReportItem[]>(`/api/reports/${encodeURIComponent(username)}/unread`),
+  markSolved: (username: string, reportId: number) =>
+    ApiClient.put<MarkReportResponse>(`/api/reports/${encodeURIComponent(username)}/${reportId}/solve-flag`),
 };
 
 

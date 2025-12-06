@@ -21,6 +21,7 @@ vi.mock('react-i18next', () => ({
 vi.mock('@/lib/api/reports', () => ({
   ReportsApi: {
     getUnread: vi.fn(),
+    markSolved: vi.fn(),
   },
 }));
 
@@ -78,6 +79,21 @@ describe('ModeratorDashboard', () => {
     await waitFor(() => expect(ReportsApi.getUnread).toHaveBeenCalledTimes(2));
     expect(await screen.findByTestId('report-2')).toBeInTheDocument();
     expect(screen.getByText(/bob/)).toBeInTheDocument();
+  });
+
+  it('marks reports as solved', async () => {
+    const user = userEvent.setup();
+    vi.mocked(ReportsApi.getUnread).mockResolvedValue([sampleReport]);
+    vi.mocked(ReportsApi.markSolved).mockResolvedValue({ success: true, id: 1 });
+
+    render(<ModeratorDashboard />);
+
+    expect(await screen.findByTestId('report-1')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /mark as solved/i }));
+
+    await waitFor(() => expect(ReportsApi.markSolved).toHaveBeenCalledWith('moderator-user', 1));
+    await waitFor(() => expect(screen.queryByTestId('report-1')).not.toBeInTheDocument());
   });
 });
 

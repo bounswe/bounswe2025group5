@@ -235,7 +235,10 @@
         "reportedAt": "{{time}} tarihinde bildirildi",
         "objectId": "Kimlik {{id}}",
         "error": "Raporlar yüklenemedi",
-        "noUsername": "Moderatör kullanıcı adı eksik"
+        "noUsername": "Moderatör kullanıcı adı eksik",
+        "solve": "Çözüldü olarak işaretle",
+        "solving": "İşaretleniyor...",
+        "solveError": "Rapor çözüldü olarak işaretlenemedi"
     },
     "challenges": {
         "title": "Etkinlikler",
