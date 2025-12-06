@@ -1,6 +1,7 @@
 package com.example.CMPE451.controller;
 
 
+import com.example.CMPE451.model.WasteItem;
 import com.example.CMPE451.model.request.AttendChallengeRequest;
 import com.example.CMPE451.model.request.CreateChallengeRequest;
 import com.example.CMPE451.model.request.LogChallengeRequest;
@@ -86,6 +87,12 @@ public class ChallengeController {
             @PathVariable String username) {
         List<MyChallengeResponse> challenges = challengeService.getAttendedChallenges(username);
         return ResponseEntity.ok(challenges);
+    }
+
+    @GetMapping("/{challengeId}/items")
+    public ResponseEntity<List<WasteItem>> getWasteItemsForChallenge(@PathVariable Integer challengeId) {
+        List<WasteItem> items = challengeService.getWasteItemsForChallenge(challengeId);
+        return ResponseEntity.ok(items);
     }
 
 }

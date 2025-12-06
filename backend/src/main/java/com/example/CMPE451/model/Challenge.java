@@ -24,8 +24,9 @@ public class Challenge {
     @Column(name = "description", nullable = false, length = 200)
     private String description;
 
-    @Column(name = "type", nullable = false, length = 50)
-    private String type;
+    @ManyToOne
+    @JoinColumn(name = "type", nullable = false)
+    private WasteType type;
 
     @Column(name = "amount", nullable = false)
     private Double amount;
@@ -51,7 +52,7 @@ public class Challenge {
         Completed
     }
 
-    public Challenge(String name, String description, String type, Double amount, LocalDate startDate, LocalDate endDate,Double currentAmount) {
+    public Challenge(String name, String description, WasteType type, Double amount, LocalDate startDate, LocalDate endDate,Double currentAmount) {
         this.name = name;
         this.description = description;
         this.type = type;
