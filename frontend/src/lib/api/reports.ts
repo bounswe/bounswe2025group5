@@ -33,6 +33,8 @@ export const ReportsApi = {
     ApiClient.get<ReportItem[]>(`/api/reports/${encodeURIComponent(username)}/unread`),
   markSolved: (username: string, reportId: number) =>
     ApiClient.put<MarkReportResponse>(`/api/reports/${encodeURIComponent(username)}/${reportId}/solve-flag`),
+  markDeletion: (username: string, reportId: number) =>
+    ApiClient.put<MarkReportResponse>(`/api/reports/${encodeURIComponent(username)}/${reportId}/delete-flag`),
   create: (payload: CreateReportPayload) =>
     ApiClient.post<CreateReportResponse>('/api/reports', payload),
 };
