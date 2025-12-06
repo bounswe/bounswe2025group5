@@ -1,9 +1,15 @@
 // Base API client with automatic token refresh and helpers
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
-//const API_BASE_URL = "http://localhost:8080";
 
 export const ACCESS_TOKEN_KEY = 'authToken';
 export const REFRESH_TOKEN_KEY = 'refreshToken';
+export const USERNAME_KEY = 'username';
+export const MODERATOR_FLAG_KEY = 'isModerator';
+
+type AuthMetadata = {
+  username?: string;
+  isModerator?: boolean;
+};
 
 export const getAccessToken = (): string | null => localStorage.getItem(ACCESS_TOKEN_KEY);
 export const getRefreshToken = (): string | null => localStorage.getItem(REFRESH_TOKEN_KEY);
@@ -13,9 +19,39 @@ export const setTokens = (accessToken: string, refreshToken: string): void => {
   localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
 };
 
+export const setAuthMetadata = (metadata: AuthMetadata): void => {
+  try {
+    if (metadata.username !== undefined) {
+      localStorage.setItem(USERNAME_KEY, metadata.username);
+    }
+
+    if (metadata.isModerator !== undefined) {
+      localStorage.setItem(MODERATOR_FLAG_KEY, metadata.isModerator ? 'true' : 'false');
+    }
+  } catch {
+    // Ignore storage failures (e.g., private mode)
+  }
+};
+
+const readBooleanFlag = (key: string): boolean => {
+  try {
+    return localStorage.getItem(key) === 'true';
+  } catch {
+    return false;
+  }
+};
+
+export const isModeratorUser = (): boolean => readBooleanFlag(MODERATOR_FLAG_KEY);
+
 export const clearTokens = (): void => {
-  localStorage.removeItem(ACCESS_TOKEN_KEY);
-  localStorage.removeItem(REFRESH_TOKEN_KEY);
+  try {
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(USERNAME_KEY);
+    localStorage.removeItem(MODERATOR_FLAG_KEY);
+  } catch {
+    // Ignore storage failures
+  }
 };
 
 async function tryRefreshAccessToken(): Promise<boolean> {
@@ -40,7 +76,7 @@ async function tryRefreshAccessToken(): Promise<boolean> {
   } = await resp.json();
 
   setTokens(data.token, data.refreshToken);
-  try { localStorage.setItem('username', data.username); } catch {}
+  setAuthMetadata({ username: data.username,  isModerator: data.isModerator });
   return true;
 }
 
@@ -102,7 +138,6 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
         throw new Error(errorMessage);
       }
       clearTokens();
-      localStorage.removeItem('username');
       if (!window.location.pathname.startsWith('/auth')) {
         console.log('Redirecting to login due to unauthorized API response');
         window.location.href = '/auth/login';

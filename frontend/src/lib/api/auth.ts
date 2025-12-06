@@ -1,4 +1,4 @@
-import { ApiClient, setTokens } from './client';
+import { ApiClient, setTokens, setAuthMetadata } from './client';
 import type { LoginResponse } from './client';
 import { LoginResponseSchema } from './schemas/auth';
 
@@ -16,5 +16,5 @@ export const AuthApi = {
     ),
 };
 
-export { setTokens };
+export { setTokens, setAuthMetadata };
 

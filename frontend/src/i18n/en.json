@@ -228,6 +228,19 @@
         "likes": "Likes",
         "comments": "Comments"
     },
+    "moderator": {
+        "navbar": "Moderator",
+        "title": "Moderator queue",
+        "subtitle": "Review and resolve unresolved reports",
+        "refresh": "Refresh",
+        "refreshing": "Refreshing...",
+        "empty": "No unresolved reports — all clear!",
+        "reportedBy": "Reported by {{username}}",
+        "reportedAt": "Reported {{time}}",
+        "objectId": "ID {{id}}",
+        "error": "Failed to load reports",
+        "noUsername": "Missing moderator username"
+    },
     "challenges": {
         "title": "Challenges",
         "leaderboard": "Leaderboard",

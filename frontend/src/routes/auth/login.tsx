@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { AuthApi, setTokens } from "@/lib/api/auth";
+import { AuthApi, setTokens, setAuthMetadata } from "@/lib/api/auth";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardAction, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,7 +26,10 @@ export default function Login() {
     try {
       const response = await AuthApi.login(emailOrUsername, password);
       setTokens(response.token, response.refreshToken);
-      try { localStorage.setItem('username', response.username); } catch {}
+      setAuthMetadata({
+        username: response.username,
+        isModerator: response.isModerator,
+      });
       navigate("/"); // Redirect to home after successful login
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");

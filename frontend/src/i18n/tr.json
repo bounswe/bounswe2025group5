@@ -224,6 +224,19 @@
         "likes": "Beğeni",
         "comments": "Yorum"
     },
+    "moderator": {
+        "navbar": "Moderatör",
+        "title": "Moderatör kuyruğu",
+        "subtitle": "Çözümlenmemiş raporları inceleyin ve yanıtlayın",
+        "refresh": "Yenile",
+        "refreshing": "Yenileniyor...",
+        "empty": "Çözümlenmemiş rapor yok — her şey yolunda!",
+        "reportedBy": "{{username}} tarafından bildirildi",
+        "reportedAt": "{{time}} tarihinde bildirildi",
+        "objectId": "Kimlik {{id}}",
+        "error": "Raporlar yüklenemedi",
+        "noUsername": "Moderatör kullanıcı adı eksik"
+    },
     "challenges": {
         "title": "Etkinlikler",
         "leaderboard": "Liderlik Tablosu",
