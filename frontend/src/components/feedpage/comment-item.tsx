@@ -22,6 +22,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { ReportsApi } from '@/lib/api/reports';
 import { toast } from 'sonner';
 
+const REPORT_TYPES = ['SPAM', 'HARASSMENT', 'MISINFORMATION', 'OTHER'] as const;
+
 interface CommentItemProps {
   comment: Comment;
   onUpdate?: (comment: Comment) => void;
@@ -38,6 +40,7 @@ export default function CommentItem({ comment, onUpdate, onDelete, onUsernameCli
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [reportReason, setReportReason] = useState('');
+  const [reportType, setReportType] = useState<(typeof REPORT_TYPES)[number]>(REPORT_TYPES[0]);
   const [reportError, setReportError] = useState<string | null>(null);
   const [isReporting, setIsReporting] = useState(false);
   
@@ -133,6 +136,7 @@ export default function CommentItem({ comment, onUpdate, onDelete, onUsernameCli
   const resetReportState = () => {
     setReportReason('');
     setReportError(null);
+    setReportType(REPORT_TYPES[0]);
   };
 
   const handleSubmitReport = async () => {
@@ -149,7 +153,7 @@ export default function CommentItem({ comment, onUpdate, onDelete, onUsernameCli
       await ReportsApi.create({
         reporterName: currentUser,
         description: reportReason.trim(),
-        type: 'CONTENT',
+        type: reportType,
         contentType: 'COMMENT',
         objectId: comment.commentId,
       });
@@ -319,6 +323,23 @@ export default function CommentItem({ comment, onUpdate, onDelete, onUsernameCli
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-foreground" htmlFor={`report-type-comment-${comment.commentId ?? 'temp'}`}>
+                {t('reports.typeLabel', 'Report type')}
+              </label>
+              <select
+                id={`report-type-comment-${comment.commentId ?? 'temp'}`}
+                value={reportType}
+                onChange={(e) => setReportType(e.target.value as (typeof REPORT_TYPES)[number])}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                {REPORT_TYPES.map((type) => (
+                  <option key={type} value={type}>
+                    {t(`reports.typeOptions.${type}`, type)}
+                  </option>
+                ))}
+              </select>
+            </div>
             <label className="text-sm font-medium text-foreground" htmlFor={`report-comment-${comment.commentId ?? 'temp'}`}>
               {t('reports.reasonLabel', 'Reason')}
             </label>

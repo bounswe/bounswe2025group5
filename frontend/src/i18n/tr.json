@@ -354,7 +354,14 @@
         "success": "Bildirim alındı. Topluluğu denetlememize yardımcı olduğunuz için teşekkürler.",
         "error": "Bildirimi gönderemedik. Lütfen tekrar deneyin.",
         "missingReason": "Lütfen kısa bir açıklama girin.",
-        "loginRequired": "İçeriği bildirmek için giriş yapın"
+        "loginRequired": "İçeriği bildirmek için giriş yapın",
+        "typeLabel": "Bildirimin türü",
+        "typeOptions": {
+            "SPAM": "Spam veya yanıltıcı içerik",
+            "HARASSMENT": "Taciz veya nefret söylemi",
+            "MISINFORMATION": "Yanlış bilgi",
+            "OTHER": "Diğer sorun"
+        }
     },
     "search": {
         "placeholder": "Gönderi ara...",

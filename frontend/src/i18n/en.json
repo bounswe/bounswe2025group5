@@ -360,7 +360,14 @@
         "success": "Report submitted. Thank you for helping us moderate the community.",
         "error": "Failed to submit report. Please try again.",
         "missingReason": "Please provide a short explanation.",
-        "loginRequired": "Sign in to report content"
+        "loginRequired": "Sign in to report content",
+        "typeLabel": "Report type",
+        "typeOptions": {
+            "SPAM": "Spam or misleading",
+            "HARASSMENT": "Harassment or hate",
+            "MISINFORMATION": "Misinformation",
+            "OTHER": "Other issue"
+        }
     },
     "search": {
         "placeholder": "Search posts...",

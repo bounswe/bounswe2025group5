@@ -26,6 +26,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { ReportsApi } from '@/lib/api/reports';
 import { toast } from 'sonner';
 
+const REPORT_TYPES = ['SPAM', 'HARASSMENT', 'MISINFORMATION', 'OTHER'] as const;
+
 interface PostCardProps {
   post: PostItem;
   onPostUpdate?: (post: PostItem) => void;
@@ -55,6 +57,7 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameC
   // Report dialog state
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [reportReason, setReportReason] = useState('');
+  const [reportType, setReportType] = useState<(typeof REPORT_TYPES)[number]>(REPORT_TYPES[0]);
   const [reportError, setReportError] = useState<string | null>(null);
   const [isReporting, setIsReporting] = useState(false);
 
@@ -186,6 +189,7 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameC
   const resetReportState = () => {
     setReportReason('');
     setReportError(null);
+    setReportType(REPORT_TYPES[0]);
   };
 
   const handleReportSubmit = async () => {
@@ -202,7 +206,7 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameC
       await ReportsApi.create({
         reporterName: currentUser,
         description: reportReason.trim(),
-        type: 'CONTENT',
+        type: reportType,
         contentType: 'POST',
         objectId: post.postId,
       });
@@ -440,6 +444,23 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameC
             <DialogDescription>{t('reports.description', 'Help us keep the community safe by telling us what is wrong with this content.')}</DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-foreground" htmlFor={`report-type-${post.postId}`}>
+                {t('reports.typeLabel', 'Report type')}
+              </label>
+              <select
+                id={`report-type-${post.postId}`}
+                value={reportType}
+                onChange={(e) => setReportType(e.target.value as (typeof REPORT_TYPES)[number])}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                {REPORT_TYPES.map((type) => (
+                  <option key={type} value={type}>
+                    {t(`reports.typeOptions.${type}`, type)}
+                  </option>
+                ))}
+              </select>
+            </div>
             <label className="text-sm font-medium text-foreground" htmlFor={`report-reason-${post.postId}`}>
               {t('reports.reasonLabel', 'Reason')}
             </label>
