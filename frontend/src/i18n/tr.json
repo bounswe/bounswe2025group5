@@ -238,7 +238,11 @@
         "noUsername": "Moderatör kullanıcı adı eksik",
         "solve": "Çözüldü olarak işaretle",
         "solving": "İşaretleniyor...",
-        "solveError": "Rapor çözüldü olarak işaretlenemedi"
+        "solveError": "Rapor çözüldü olarak işaretlenemedi",
+        "delete": "İçeriği sil",
+        "deleting": "Siliniyor...",
+        "deleteError": "Bildirilen içerik silinemedi",
+        "unsupportedContent": "Desteklenmeyen içerik türü"
     },
     "challenges": {
         "title": "Etkinlikler",

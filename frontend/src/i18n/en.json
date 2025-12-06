@@ -242,7 +242,11 @@
         "noUsername": "Missing moderator username",
         "solve": "Mark as solved",
         "solving": "Marking...",
-        "solveError": "Failed to mark report as solved"
+        "solveError": "Failed to mark report as solved",
+        "delete": "Delete content",
+        "deleting": "Deleting...",
+        "deleteError": "Failed to delete reported content",
+        "unsupportedContent": "Unsupported content type"
     },
     "challenges": {
         "title": "Challenges",

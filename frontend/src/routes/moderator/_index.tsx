@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Spinner } from '@/components/ui/spinner';
+import { PostsApi } from '@/lib/api/posts';
+import { CommentsApi } from '@/lib/api/comments';
 
 const formatTimestamp = (value: string) => {
   const parsed = new Date(value);
@@ -22,6 +24,7 @@ export function ModeratorDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [solvingId, setSolvingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const loadReports = useCallback(async () => {
     setError(null);
@@ -58,6 +61,35 @@ export function ModeratorDashboard() {
         setError(message);
       } finally {
         setSolvingId((current) => (current === reportId ? null : current));
+      }
+    },
+    [username, t],
+  );
+
+  const handleDeleteContent = useCallback(
+    async (report: ReportItem) => {
+      if (!username) {
+        setError(t('moderator.noUsername', 'Missing moderator username'));
+        return;
+      }
+      setDeletingId(report.id);
+      try {
+        const contentType = report.contentType?.toUpperCase();
+        if (contentType === 'POST') {
+          await PostsApi.remove(report.objectId);
+        } else if (contentType === 'COMMENT') {
+          await CommentsApi.remove(report.objectId);
+        } else {
+          throw new Error(t('moderator.unsupportedContent', 'Unsupported content type'));
+        }
+        await ReportsApi.markDeletion(username, report.id);
+        setReports((prev) => prev.filter((item) => item.id !== report.id));
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : t('moderator.deleteError', 'Failed to delete reported content');
+        setError(message);
+      } finally {
+        setDeletingId((current) => (current === report.id ? null : current));
       }
     },
     [username, t],
@@ -120,7 +152,17 @@ export function ModeratorDashboard() {
                 <p className="text-xs text-muted-foreground">
                   {t('moderator.reportedAt', 'Reported {{time}}', { time: formatTimestamp(report.createdAt) })}
                 </p>
-                <div className="flex justify-end">
+                <div className="flex flex-wrap justify-end gap-2">
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => void handleDeleteContent(report)}
+                    disabled={deletingId === report.id}
+                  >
+                    {deletingId === report.id
+                      ? t('moderator.deleting', 'Deleting...')
+                      : t('moderator.delete', 'Delete content')}
+                  </Button>
                   <Button
                     variant="secondary"
                     size="sm"

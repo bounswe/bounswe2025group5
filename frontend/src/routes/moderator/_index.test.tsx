@@ -4,6 +4,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ModeratorDashboard } from '@/routes/moderator/_index';
 import { ReportsApi } from '@/lib/api/reports';
 import { USERNAME_KEY } from '@/lib/api/client';
+import { PostsApi } from '@/lib/api/posts';
+import { CommentsApi } from '@/lib/api/comments';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -22,6 +24,19 @@ vi.mock('@/lib/api/reports', () => ({
   ReportsApi: {
     getUnread: vi.fn(),
     markSolved: vi.fn(),
+    markDeletion: vi.fn(),
+  },
+}));
+
+vi.mock('@/lib/api/posts', () => ({
+  PostsApi: {
+    remove: vi.fn(),
+  },
+}));
+
+vi.mock('@/lib/api/comments', () => ({
+  CommentsApi: {
+    remove: vi.fn(),
   },
 }));
 
@@ -94,6 +109,40 @@ describe('ModeratorDashboard', () => {
 
     await waitFor(() => expect(ReportsApi.markSolved).toHaveBeenCalledWith('moderator-user', 1));
     await waitFor(() => expect(screen.queryByTestId('report-1')).not.toBeInTheDocument());
+  });
+
+  it('deletes reported posts when requested', async () => {
+    const user = userEvent.setup();
+    vi.mocked(ReportsApi.getUnread).mockResolvedValue([sampleReport]);
+    vi.mocked(PostsApi.remove).mockResolvedValue({} as never);
+    vi.mocked(ReportsApi.markDeletion).mockResolvedValue({ success: true, id: 1 });
+
+    render(<ModeratorDashboard />);
+
+    expect(await screen.findByTestId('report-1')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /delete content/i }));
+
+    await waitFor(() => expect(PostsApi.remove).toHaveBeenCalledWith(42));
+    await waitFor(() => expect(ReportsApi.markDeletion).toHaveBeenCalledWith('moderator-user', 1));
+    await waitFor(() => expect(screen.queryByTestId('report-1')).not.toBeInTheDocument());
+  });
+
+  it('deletes reported comments with the proper API', async () => {
+    const user = userEvent.setup();
+    vi.mocked(ReportsApi.getUnread).mockResolvedValue([{ ...sampleReport, id: 3, contentType: 'COMMENT', objectId: 99 }]);
+    vi.mocked(CommentsApi.remove).mockResolvedValue({} as never);
+    vi.mocked(ReportsApi.markDeletion).mockResolvedValue({ success: true, id: 3 });
+
+    render(<ModeratorDashboard />);
+
+    expect(await screen.findByTestId('report-3')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /delete content/i }));
+
+    await waitFor(() => expect(CommentsApi.remove).toHaveBeenCalledWith(99));
+    await waitFor(() => expect(ReportsApi.markDeletion).toHaveBeenCalledWith('moderator-user', 3));
+    await waitFor(() => expect(screen.queryByTestId('report-3')).not.toBeInTheDocument());
   });
 });
 
