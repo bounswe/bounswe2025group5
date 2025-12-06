@@ -243,4 +243,12 @@ public class ChallengeService {
                 .toList();
     }
 
+
+    public List<WasteItem> getWasteItemsForChallenge(Integer challengeId) {
+        Challenge challenge = challengeRepository.findById(challengeId)
+                .orElseThrow(() -> new NotFoundException("Challenge not found with ID: " + challengeId));
+        WasteType type = challenge.getType();
+        return wasteItemRepository.findByType(type);
+    }
+
 }
