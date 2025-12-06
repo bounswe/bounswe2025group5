@@ -8,6 +8,7 @@ type ReportAlarmButtonProps = {
   disabled?: boolean;
   onClick?: () => void;
   className?: string;
+  size?: 'sm' | 'md';
 };
 
 export default function ReportAlarmButton({
@@ -16,7 +17,11 @@ export default function ReportAlarmButton({
   disabled,
   onClick,
   className,
+  size = 'md',
 }: ReportAlarmButtonProps) {
+  const buttonSize = size === 'sm' ? 'h-9 w-9' : 'h-12 w-12';
+  const iconSize = size === 'sm' ? 'h-4 w-4' : 'h-6 w-6';
+
   return (
     <Button
       type="button"
@@ -26,11 +31,12 @@ export default function ReportAlarmButton({
       aria-label={ariaLabel}
       title={title}
       className={cn(
-        'h-12 w-12 rounded-full border-dashed border-foreground/60 bg-background text-foreground shadow-md transition hover:scale-105 hover:bg-destructive hover:text-destructive-foreground focus-visible:ring-2 focus-visible:ring-destructive',
+        buttonSize,
+        'rounded-full border-dashed border-foreground/60 bg-background text-foreground shadow-md transition hover:scale-105 hover:bg-destructive hover:text-destructive-foreground focus-visible:ring-2 focus-visible:ring-destructive',
         className,
       )}
     >
-      <AlarmClock className="h-6 w-6" strokeWidth={1.75} />
+      <AlarmClock className={cn(iconSize)} strokeWidth={1.75} />
     </Button>
   );
 }

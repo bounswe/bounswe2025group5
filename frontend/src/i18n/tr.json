@@ -343,6 +343,19 @@
         },
         "send": "Yorumu Gönder"
     },
+    "reports": {
+        "titlePost": "Gönderiyi bildir",
+        "titleComment": "Yorumu bildir",
+        "description": "Bu içerikte neyin yanlış olduğunu söyleyerek topluluğu güvende tutmamıza yardımcı olun.",
+        "reasonLabel": "Sebep",
+        "reasonPlaceholder": "Sorunu açıklayın...",
+        "submit": "Bildirimi gönder",
+        "submitting": "Gönderiliyor...",
+        "success": "Bildirim alındı. Topluluğu denetlememize yardımcı olduğunuz için teşekkürler.",
+        "error": "Bildirimi gönderemedik. Lütfen tekrar deneyin.",
+        "missingReason": "Lütfen kısa bir açıklama girin.",
+        "loginRequired": "İçeriği bildirmek için giriş yapın"
+    },
     "search": {
         "placeholder": "Gönderi ara...",
         "button": "Ara",
