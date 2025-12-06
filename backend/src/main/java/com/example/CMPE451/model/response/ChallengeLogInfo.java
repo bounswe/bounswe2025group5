@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ChallengeLogInfo {
-    private Double amount;
+    private Double quantity;
+    private String item;
     private LocalDateTime timestamp;
 }

@@ -22,7 +22,7 @@ public class MyChallengeResponse {
         this.challengeId = challenge.getChallengeId();
         this.name = challenge.getName();
         this.description = challenge.getDescription();
-        this.type = challenge.getType();
+        this.type = challenge.getType().getName();
         this.status = challenge.getStatus();
         this.challengeGoalAmount = challenge.getAmount();
         this.challengeCurrentTotalAmount = challenge.getCurrentAmount();
