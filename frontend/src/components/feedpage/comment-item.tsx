@@ -105,6 +105,19 @@ export default function CommentItem({ comment, onUpdate, onDelete, onUsernameCli
 
   const handleDeleteComment = async () => {
     if (!comment.commentId || isLoading) return;
+
+    setIsLoading(true);
+    try {
+      await CommentsApi.remove(comment.commentId);
+      onDelete?.(comment.commentId);
+      setShowDeleteDialog(false);
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleOpenReport = () => {
     if (!currentUser) {
       toast.error(t('reports.loginRequired', 'Sign in to report content'));
@@ -148,19 +161,6 @@ export default function CommentItem({ comment, onUpdate, onDelete, onUsernameCli
       toast.error(t('reports.error', 'Failed to submit report'));
     } finally {
       setIsReporting(false);
-    }
-  };
-
-
-    setIsLoading(true);
-    try {
-      await CommentsApi.remove(comment.commentId);
-      onDelete?.(comment.commentId);
-      setShowDeleteDialog(false);
-    } catch (error) {
-      console.error('Error deleting comment:', error);
-    } finally {
-      setIsLoading(false);
     }
   };
 

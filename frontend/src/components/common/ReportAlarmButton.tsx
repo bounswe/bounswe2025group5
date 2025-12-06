@@ -1,4 +1,4 @@
-import { AlarmClock } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -36,7 +36,7 @@ export default function ReportAlarmButton({
         className,
       )}
     >
-      <AlarmClock className={cn(iconSize)} strokeWidth={1.75} />
+      <AlertTriangle className={cn(iconSize)} strokeWidth={2} />
     </Button>
   );
 }
