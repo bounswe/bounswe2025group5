@@ -1,6 +1,7 @@
 package com.example.CMPE451.service;
 
 import com.example.CMPE451.exception.NotFoundException;
+import com.example.CMPE451.model.request.ResetPasswordRequest;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.CMPE451.exception.InvalidCredentialsException;
 import com.example.CMPE451.model.RefreshToken;
@@ -17,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -104,5 +107,33 @@ public class AuthService {
 
         return new RegisterResponse("User registered successfully", newUser.getUsername(), newUser.getEmail());
     }
+
+
+
+    public Map<String, Boolean> resetPassword(ResetPasswordRequest request) {
+        String individual = request.getEmailOrUsername();
+        Optional<User> identifier;
+
+        if (individual.contains("@")) {
+            identifier = userRepository.findByEmail(individual);
+        } else {
+            identifier = userRepository.findByUsername(individual);
+        }
+
+        User user = identifier.orElseThrow(() ->
+                new NotFoundException("User not found"));
+
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPasswordHash())) {
+            throw new InvalidCredentialsException("Current password is incorrect");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+
+        userRepository.save(user);
+        return new HashMap<>() {{
+            put("success", true);
+        }};
+    }
 }
+
 
