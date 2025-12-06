@@ -11,6 +11,18 @@ export type ReportItem = {
   createdAt: string;
 };
 
+export type CreateReportPayload = {
+  reporterName: string;
+  description: string;
+  type: string;
+  contentType: string;
+  objectId: number;
+};
+
+export type CreateReportResponse = {
+  success: boolean;
+};
+
 export type MarkReportResponse = {
   success: boolean;
   id: number;
@@ -21,6 +33,8 @@ export const ReportsApi = {
     ApiClient.get<ReportItem[]>(`/api/reports/${encodeURIComponent(username)}/unread`),
   markSolved: (username: string, reportId: number) =>
     ApiClient.put<MarkReportResponse>(`/api/reports/${encodeURIComponent(username)}/${reportId}/solve-flag`),
+  create: (payload: CreateReportPayload) =>
+    ApiClient.post<CreateReportResponse>('/api/reports', payload),
 };
 
 
