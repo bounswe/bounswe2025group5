@@ -19,24 +19,25 @@ export default function ReportAlarmButton({
   className,
   size = 'md',
 }: ReportAlarmButtonProps) {
-  const buttonSize = size === 'sm' ? 'h-9 w-9' : 'h-12 w-12';
+  const buttonSize = size === 'sm' ? 'h-8 w-8' : 'h-12 w-12';
   const iconSize = size === 'sm' ? 'h-4 w-4' : 'h-6 w-6';
 
   return (
     <Button
       type="button"
-      variant="outline"
+      variant="ghost"
+      size="icon"
       disabled={disabled}
       onClick={onClick}
       aria-label={ariaLabel}
       title={title}
       className={cn(
         buttonSize,
-        'rounded-full border-dashed border-foreground/60 bg-background text-foreground shadow-md transition hover:scale-105 hover:bg-destructive hover:text-destructive-foreground focus-visible:ring-2 focus-visible:ring-destructive',
+        'hover:bg-[#e80e0e24] hover:text-red-600 transition-colors',
         className,
       )}
     >
-      <AlertTriangle className={cn(iconSize)} strokeWidth={2} />
+      <AlertTriangle className={cn(iconSize)} />
     </Button>
   );
 }
