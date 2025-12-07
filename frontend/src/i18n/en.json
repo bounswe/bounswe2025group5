@@ -411,5 +411,20 @@
         "likedYourPost_suffix": "liked your post",
         "commentedOnYourPost_suffix": "commented on your post",
         "startedFollowing_suffix": "started following you"
+    },
+    "feedback": {
+        "buttonLabel": "Send Feedback",
+        "title": "Share Your Feedback",
+        "description": "Help us improve by sharing your thoughts, suggestions, or reporting issues.",
+        "messageLabel": "Your Message",
+        "placeholder": "Tell us what you think...",
+        "charCount": "{{count}} / {{max}} characters",
+        "submitting": "Sending...",
+        "success": "Thank you! Your feedback has been submitted successfully.",
+        "error": "Failed to submit feedback. Please try again later.",
+        "emptyError": "Please enter your feedback before submitting.",
+        "authError": "You must be logged in to submit feedback.",
+        "forbiddenError": "You don't have permission to submit feedback. Please ensure you're logged in.",
+        "userNotFoundError": "User account not found. Please try logging in again."
     }
 }

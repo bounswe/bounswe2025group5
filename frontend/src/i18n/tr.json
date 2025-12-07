@@ -405,5 +405,20 @@
         "likedYourPost_suffix": "gönderinizi beğendi",
         "commentedOnYourPost_suffix": "gönderinize yorum yaptı",
         "startedFollowing_suffix": "sizi takip etmeye başladı"
+    },
+    "feedback": {
+        "buttonLabel": "Geri Bildirim Gönder",
+        "title": "Geri Bildiriminizi Paylaşın",
+        "description": "Düşüncelerinizi, önerilerinizi veya sorunları paylaşarak bize yardımcı olun.",
+        "messageLabel": "Mesajınız",
+        "placeholder": "Ne düşündüğünüzü bize söyleyin...",
+        "charCount": "{{count}} / {{max}} karakter",
+        "submitting": "Gönderiliyor...",
+        "success": "Teşekkürler! Geri bildiriminiz başarıyla gönderildi.",
+        "error": "Geri bildirim gönderilemedi. Lütfen daha sonra tekrar deneyin.",
+        "emptyError": "Lütfen göndermeden önce geri bildiriminizi girin.",
+        "authError": "Geri bildirim göndermek için giriş yapmalısınız.",
+        "forbiddenError": "Geri bildirim gönderme izniniz yok. Lütfen giriş yaptığınızdan emin olun.",
+        "userNotFoundError": "Kullanıcı hesabı bulunamadı. Lütfen tekrar giriş yapmayı deneyin."
     }
 }

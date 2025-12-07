@@ -2,6 +2,7 @@
 import wallpaper from '@/assets/background.png';
 import Navbar from '@/components/common/navbar';
 import LanguageToggle from '@/components/common/LanguageToggle';
+import FeedbackButton from '@/components/common/feedback-button';
 
 export default function mainLayout({ children }: { children: React.ReactNode }) {
     return (
@@ -16,6 +17,7 @@ export default function mainLayout({ children }: { children: React.ReactNode }) 
         <div className="fixed bottom-6 left-6 z-50">
           <LanguageToggle />
         </div>
+        <FeedbackButton />
         <main className="min-h-screen">
           {children}
         </main>
