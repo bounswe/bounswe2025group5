@@ -224,6 +224,31 @@
         "likes": "Beğeni",
         "comments": "Yorum"
     },
+    "moderator": {
+        "navbar": "Moderatör",
+        "title": "Moderatör kuyruğu",
+        "subtitle": "Çözümlenmemiş raporları inceleyin ve yanıtlayın",
+        "refresh": "Yenile",
+        "refreshing": "Yenileniyor...",
+        "empty": "Çözümlenmemiş rapor yok — her şey yolunda!",
+        "reportedBy": "{{username}} tarafından bildirildi",
+        "reportedAt": "{{time}} tarihinde bildirildi",
+        "objectId": "Kimlik {{id}}",
+        "error": "Raporlar yüklenemedi",
+        "noUsername": "Moderatör kullanıcı adı eksik",
+        "solve": "Çözüldü olarak işaretle",
+        "solving": "İşaretleniyor...",
+        "solveError": "Rapor çözüldü olarak işaretlenemedi",
+        "delete": "İçeriği sil",
+        "deleting": "Siliniyor...",
+        "deleteError": "Bildirilen içerik silinemedi",
+        "unsupportedContent": "Desteklenmeyen içerik türü",
+        "view": "İçeriği görüntüle",
+        "viewing": "İçerik yükleniyor...",
+        "viewError": "Bildirilen içerik yüklenemedi",
+        "dialogTitle": "Bildirilen {{type}}",
+        "commentPreview": "{{username}} kullanıcısının yorumu"
+    },
     "challenges": {
         "title": "Etkinlikler",
         "leaderboard": "Liderlik Tablosu",
@@ -326,6 +351,26 @@
             "days": "{{count}}g"
         },
         "send": "Yorumu Gönder"
+    },
+    "reports": {
+        "titlePost": "Gönderiyi bildir",
+        "titleComment": "Yorumu bildir",
+        "description": "Bu içerikte neyin yanlış olduğunu söyleyerek topluluğu güvende tutmamıza yardımcı olun.",
+        "reasonLabel": "Sebep",
+        "reasonPlaceholder": "Sorunu açıklayın...",
+        "submit": "Bildirimi gönder",
+        "submitting": "Gönderiliyor...",
+        "success": "Bildirim alındı. Topluluğu denetlememize yardımcı olduğunuz için teşekkürler.",
+        "error": "Bildirimi gönderemedik. Lütfen tekrar deneyin.",
+        "missingReason": "Lütfen kısa bir açıklama girin.",
+        "loginRequired": "İçeriği bildirmek için giriş yapın",
+        "typeLabel": "Bildirimin türü",
+        "typeOptions": {
+            "SPAM": "Spam veya yanıltıcı içerik",
+            "HARASSMENT": "Taciz veya nefret söylemi",
+            "MISINFORMATION": "Yanlış bilgi",
+            "OTHER": "Diğer sorun"
+        }
     },
     "search": {
         "placeholder": "Gönderi ara...",

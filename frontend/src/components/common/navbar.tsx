@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import LogoutButton from '@/components/common/LogoutButton';
 import NotificationIcon from '@/components/common/NotificationIcon';
 import { useTranslation } from 'react-i18next';
+import { isModeratorUser } from '@/lib/api/client';
 
 interface NavbarProps {
   className?: string;
@@ -23,12 +24,16 @@ export default function Navbar({ className }: NavbarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const isAuthed = typeof window !== 'undefined' && !!localStorage.getItem('authToken');
+  const isModerator = isAuthed && isModeratorUser();
   if (isAuthed) {
     const index = navRoutes.findIndex(r => r.path === '/');
     if (index !== -1) {
       navRoutes[index].path = '/mainpage';
       navRoutes[index].name = t('mainpage.navbar');
     }
+  }
+  if (isModerator && !navRoutes.some(route => route.path === '/moderator')) {
+    navRoutes.push({ name: t('moderator.navbar', 'Moderation'), path: '/moderator' });
   }
   const routesToShow = navRoutes.filter(r =>
     isAuthed || (r.path !== '/profile' && r.path !== '/goals' && r.path !== '/challenges')

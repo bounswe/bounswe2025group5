@@ -228,6 +228,31 @@
         "likes": "Likes",
         "comments": "Comments"
     },
+    "moderator": {
+        "navbar": "Moderator",
+        "title": "Moderator queue",
+        "subtitle": "Review and resolve unresolved reports",
+        "refresh": "Refresh",
+        "refreshing": "Refreshing...",
+        "empty": "No unresolved reports — all clear!",
+        "reportedBy": "Reported by {{username}}",
+        "reportedAt": "Reported {{time}}",
+        "objectId": "ID {{id}}",
+        "error": "Failed to load reports",
+        "noUsername": "Missing moderator username",
+        "solve": "Mark as solved",
+        "solving": "Marking...",
+        "solveError": "Failed to mark report as solved",
+        "delete": "Delete content",
+        "deleting": "Deleting...",
+        "deleteError": "Failed to delete reported content",
+        "unsupportedContent": "Unsupported content type",
+        "view": "View content",
+        "viewing": "Loading content...",
+        "viewError": "Unable to load reported content",
+        "dialogTitle": "Reported {{type}}",
+        "commentPreview": "Comment by {{username}}"
+    },
     "challenges": {
         "title": "Challenges",
         "leaderboard": "Leaderboard",
@@ -332,6 +357,26 @@
             "days": "{{count}}d"
         },
         "send": "Send comment"
+    },
+    "reports": {
+        "titlePost": "Report post",
+        "titleComment": "Report comment",
+        "description": "Help us keep the community safe by letting us know what is wrong with this content.",
+        "reasonLabel": "Reason",
+        "reasonPlaceholder": "Describe the issue...",
+        "submit": "Submit report",
+        "submitting": "Submitting...",
+        "success": "Report submitted. Thank you for helping us moderate the community.",
+        "error": "Failed to submit report. Please try again.",
+        "missingReason": "Please provide a short explanation.",
+        "loginRequired": "Sign in to report content",
+        "typeLabel": "Report type",
+        "typeOptions": {
+            "SPAM": "Spam or misleading",
+            "HARASSMENT": "Harassment or hate",
+            "MISINFORMATION": "Misinformation",
+            "OTHER": "Other issue"
+        }
     },
     "search": {
         "placeholder": "Search posts...",

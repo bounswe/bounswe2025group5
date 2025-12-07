@@ -21,6 +21,12 @@ import {
 } from '@/components/ui/dialog';
 import userAvatar from '@/assets/user.png';
 import { useProfilePhoto } from '@/hooks/useProfilePhotos';
+import ReportAlarmButton from '@/components/common/ReportAlarmButton';
+import { Textarea } from '@/components/ui/textarea';
+import { ReportsApi } from '@/lib/api/reports';
+import { toast } from 'sonner';
+
+const REPORT_TYPES = ['SPAM', 'HARASSMENT', 'MISINFORMATION', 'OTHER'] as const;
 
 interface PostCardProps {
   post: PostItem;
@@ -47,6 +53,13 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameC
 
   // Image dialog state
   const [showImageDialog, setShowImageDialog] = useState(false);
+
+  // Report dialog state
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
+  const [reportReason, setReportReason] = useState('');
+  const [reportType, setReportType] = useState<(typeof REPORT_TYPES)[number]>(REPORT_TYPES[0]);
+  const [reportError, setReportError] = useState<string | null>(null);
+  const [isReporting, setIsReporting] = useState(false);
 
   const currentUser = typeof window !== 'undefined' ? localStorage.getItem('username') : null;
 
@@ -165,6 +178,49 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameC
 
   const { date, time } = formatDate(post.createdAt || post.savedAt || '');
 
+  const handleOpenReport = () => {
+    if (!currentUser) {
+      toast.error(t('reports.loginRequired', 'Sign in to report content'));
+      return;
+    }
+    setReportDialogOpen(true);
+  };
+
+  const resetReportState = () => {
+    setReportReason('');
+    setReportError(null);
+    setReportType(REPORT_TYPES[0]);
+  };
+
+  const handleReportSubmit = async () => {
+    if (!currentUser) {
+      toast.error(t('reports.loginRequired', 'Sign in to report content'));
+      return;
+    }
+    if (!reportReason.trim()) {
+      setReportError(t('reports.missingReason', 'Please provide a short explanation.'));
+      return;
+    }
+    setIsReporting(true);
+    try {
+      await ReportsApi.create({
+        reporterName: currentUser,
+        description: reportReason.trim(),
+        type: reportType,
+        contentType: 'POST',
+        objectId: post.postId,
+      });
+      toast.success(t('reports.success', 'Report submitted. Thank you!'));
+      setReportDialogOpen(false);
+      resetReportState();
+    } catch (error) {
+      console.error('Error reporting post:', error);
+      toast.error(t('reports.error', 'Failed to submit report'));
+    } finally {
+      setIsReporting(false);
+    }
+  };
+
   return (
     <Card className={cn(
       "w-full max-w-2xl mx-auto overflow-hidden p-0 py-0 gap-0 h-auto min-h-[180px]",
@@ -264,6 +320,12 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameC
           </Button>
         </div>
         <div className="flex items-center gap-2">
+          <ReportAlarmButton
+            size="sm"
+            onClick={handleOpenReport}
+            aria-label={t('reports.titlePost', 'Report post')}
+            title={t('reports.titlePost', 'Report post')}
+          />
           <Button
             variant="ghost"
             size="icon"
@@ -363,6 +425,63 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameC
               disabled={isDeleting}
             >
               {isDeleting ? t('post.delete.deleting') : t('post.delete.confirm')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Report Dialog */}
+      <Dialog
+        open={reportDialogOpen}
+        onOpenChange={(open) => {
+          setReportDialogOpen(open);
+          if (!open) resetReportState();
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t('reports.titlePost', 'Report post')}</DialogTitle>
+            <DialogDescription>{t('reports.description', 'Help us keep the community safe by telling us what is wrong with this content.')}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-foreground" htmlFor={`report-type-${post.postId}`}>
+                {t('reports.typeLabel', 'Report type')}
+              </label>
+              <select
+                id={`report-type-${post.postId}`}
+                value={reportType}
+                onChange={(e) => setReportType(e.target.value as (typeof REPORT_TYPES)[number])}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                {REPORT_TYPES.map((type) => (
+                  <option key={type} value={type}>
+                    {t(`reports.typeOptions.${type}`, type)}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <label className="text-sm font-medium text-foreground" htmlFor={`report-reason-${post.postId}`}>
+              {t('reports.reasonLabel', 'Reason')}
+            </label>
+            <Textarea
+              id={`report-reason-${post.postId}`}
+              value={reportReason}
+              onChange={(e) => {
+                setReportReason(e.target.value);
+                if (reportError) setReportError(null);
+              }}
+              placeholder={t('reports.reasonPlaceholder', 'Describe the issue...')}
+              maxLength={500}
+            />
+            {reportError && <p className="text-sm text-destructive">{reportError}</p>}
+          </div>
+          <DialogFooter className="flex gap-2 sm:justify-end">
+            <Button variant="outline" onClick={() => setReportDialogOpen(false)} disabled={isReporting}>
+              {t('common.cancel', 'Cancel')}
+            </Button>
+            <Button onClick={handleReportSubmit} disabled={isReporting}>
+              {isReporting ? t('reports.submitting', 'Submitting...') : t('reports.submit', 'Submit report')}
             </Button>
           </DialogFooter>
         </DialogContent>
