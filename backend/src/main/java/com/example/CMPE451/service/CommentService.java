@@ -93,6 +93,15 @@ public class CommentService {
         );
     }
 
+    public CommentResponse getComment(Integer commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new InvalidCredentialsException("Comment not found with id: " + commentId));;
+        return new CommentResponse(
+                commentId,
+                comment.getContent(),
+                comment.getCreatedAt(),
+                comment.getUser().getUsername()
+        );
+    }
     private CommentResponse convertToResponse(Comment comment) {
         return new CommentResponse(
                 comment.getCommentId(),
