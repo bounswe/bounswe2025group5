@@ -621,3 +621,104 @@ DELIMITER $$
         DELIMITER ;
 
 
+DELIMITER $$
+
+        -- ==========================================================================================
+-- TRIGGER: Check for Badges after INSERTING a log
+-- Checks if the user's total weight for that specific waste type crosses thresholds.
+-- ==========================================================================================
+        CREATE TRIGGER `check_badge_after_insert`
+            AFTER INSERT ON `waste_log`
+            FOR EACH ROW
+        BEGIN
+            DECLARE current_type_id INT;
+    DECLARE current_type_name VARCHAR(255);
+    DECLARE total_weight DOUBLE;
+    DECLARE badge_name VARCHAR(255);
+
+    -- 1. Get the Type ID and Type Name (e.g., 'Plastic') for the item just logged
+            SELECT t.type_id, UPPER(t.name)
+            INTO current_type_id, current_type_name
+            FROM `waste_item` i
+                     JOIN `waste_type` t ON i.type_id = t.type_id
+            WHERE i.item_id = NEW.item_id;
+
+            -- 2. Calculate total weight for this User AND this specific Type
+            SELECT IFNULL(SUM(wi.weight_in_grams * wl.quantity), 0)
+            INTO total_weight
+            FROM `waste_log` wl
+                     JOIN `waste_item` wi ON wl.item_id = wi.item_id
+            WHERE wl.user_id = NEW.user_id
+              AND wi.type_id = current_type_id;
+
+            -- 3. Check Thresholds and Award Badges using INSERT IGNORE
+            -- INSERT IGNORE prevents errors if the user already has the badge.
+
+            -- Level 1: SAVER (> 1000g)
+            IF total_weight > 1000 THEN
+        SET badge_name = CONCAT(current_type_name, ' SAVER');
+        INSERT IGNORE INTO `badge` (name, user_id) VALUES (badge_name, NEW.user_id);
+        END IF;
+
+        -- Level 2: HERO (> 5000g)
+        IF total_weight > 5000 THEN
+        SET badge_name = CONCAT(current_type_name, ' HERO');
+        INSERT IGNORE INTO `badge` (name, user_id) VALUES (badge_name, NEW.user_id);
+    END IF;
+
+    -- Level 3: LEGEND (> 10000g)
+    IF total_weight > 10000 THEN
+        SET badge_name = CONCAT(current_type_name, ' LEGEND');
+        INSERT IGNORE INTO `badge` (name, user_id) VALUES (badge_name, NEW.user_id);
+END IF;
+
+    END$$
+
+
+    -- ==========================================================================================
+-- TRIGGER: Check for Badges after UPDATING a log
+-- Needed in case a user changes quantity (e.g., 10 -> 100) and crosses a threshold.
+-- ==========================================================================================
+    CREATE TRIGGER `check_badge_after_update`
+        AFTER UPDATE ON `waste_log`
+        FOR EACH ROW
+    BEGIN
+        DECLARE current_type_id INT;
+    DECLARE current_type_name VARCHAR(255);
+    DECLARE total_weight DOUBLE;
+    DECLARE badge_name VARCHAR(255);
+
+    -- 1. Get the Type ID and Name based on the NEW item_id
+        SELECT t.type_id, UPPER(t.name)
+        INTO current_type_id, current_type_name
+        FROM `waste_item` i
+                 JOIN `waste_type` t ON i.type_id = t.type_id
+        WHERE i.item_id = NEW.item_id;
+
+        -- 2. Calculate total weight
+        SELECT IFNULL(SUM(wi.weight_in_grams * wl.quantity), 0)
+        INTO total_weight
+        FROM `waste_log` wl
+                 JOIN `waste_item` wi ON wl.item_id = wi.item_id
+        WHERE wl.user_id = NEW.user_id
+          AND wi.type_id = current_type_id;
+
+        -- 3. Check Thresholds
+        IF total_weight > 1000 THEN
+        SET badge_name = CONCAT(current_type_name, ' SAVER');
+        INSERT IGNORE INTO `badge` (name, user_id) VALUES (badge_name, NEW.user_id);
+    END IF;
+
+    IF total_weight > 5000 THEN
+        SET badge_name = CONCAT(current_type_name, ' HERO');
+        INSERT IGNORE INTO `badge` (name, user_id) VALUES (badge_name, NEW.user_id);
+END IF;
+
+    IF total_weight > 10000 THEN
+        SET badge_name = CONCAT(current_type_name, ' LEGEND');
+        INSERT IGNORE INTO `badge` (name, user_id) VALUES (badge_name, NEW.user_id);
+END IF;
+
+    END$$
+
+    DELIMITER ;
