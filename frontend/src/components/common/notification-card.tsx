@@ -50,9 +50,17 @@ export default function NotificationCard({
       case 'Like':
         return { actor, text: `liked your ${objType}` };
       case 'Create':
-        return { actor, text: `commented on your ${objType}` };
+        // If objectType is comment, someone commented on your post
+        // If objectType is post, someone you follow shared a post
+        if (objType === 'comment') {
+          return { actor, text: `commented on your post` };
+        } else {
+          return { actor, text: `shared a post` };
+        }
       case 'Follow':
         return { actor, text: 'started following you' };
+      case 'End':
+        return { actor: '', text: 'Challenge has ended' };
       default:
         return { actor, text: 'interacted with your content' };
     }
@@ -108,12 +116,39 @@ export default function NotificationCard({
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="text-sm leading-tight">
-              <span className="font-semibold">{getNotificationMessage().actor}</span>
-              {' '}
+              {getNotificationMessage().actor && (
+                <>
+                  <span className="font-semibold">{getNotificationMessage().actor}</span>
+                  {' '}
+                </>
+              )}
               <span className={cn(!notification.isRead && 'font-medium')}>
                 {getNotificationMessage().text}
               </span>
             </p>
+            {(notification.postMessage || notification.commentContent || notification.challengeTitle) && (
+              <div className="mt-2 p-2 rounded-md bg-muted/50 border border-border/50">
+                {notification.postMessage && (
+                  <p className="text-xs text-muted-foreground line-clamp-2 italic">
+                    "{notification.postMessage.length > 80 
+                      ? `${notification.postMessage.slice(0, 80)}...` 
+                      : notification.postMessage}"
+                  </p>
+                )}
+                {notification.commentContent && (
+                  <p className="text-xs text-muted-foreground line-clamp-2 italic">
+                    "{notification.commentContent.length > 80 
+                      ? `${notification.commentContent.slice(0, 80)}...` 
+                      : notification.commentContent}"
+                  </p>
+                )}
+                {notification.challengeTitle && (
+                  <p className="text-xs font-medium text-primary">
+                    {notification.challengeTitle}
+                  </p>
+                )}
+              </div>
+            )}
             <div className="flex items-center justify-between mt-0.5">
               <p className="text-[10px] text-muted-foreground">
                 {formatTimeAgo(notification.createdAt)}

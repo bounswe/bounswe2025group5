@@ -8,6 +8,9 @@ export const NotificationSchema = z.object({
   createdAt: z.string(), // ISO timestamp string
   objectId: z.string().nullable(),
   objectType: z.string().nullable(),
+  postMessage: z.string().optional(), // Optional post message preview (populated client-side)
+  challengeTitle: z.string().optional(), // Optional challenge title (populated client-side)
+  commentContent: z.string().optional(), // Optional comment content (populated client-side)
 }).passthrough();
 
 export type Notification = z.infer<typeof NotificationSchema>;
