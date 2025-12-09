@@ -290,6 +290,26 @@ CREATE TABLE report (
                         CONSTRAINT chk_action
                             CHECK (action IN ('ClosedWithoutChange', 'Deletion'))
     );
+
+CREATE TABLE feedback (
+                          feedback_id INT AUTO_INCREMENT PRIMARY KEY,
+                          feedbacker_username VARCHAR(255) NOT NULL,
+                          content_type VARCHAR(50) NOT NULL,
+                          content TEXT NOT NULL,
+                          is_seen INT NOT NULL DEFAULT 0,
+                          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+                          CONSTRAINT fk_feedbacker
+                              FOREIGN KEY (feedbacker_username)
+                                  REFERENCES users(username)
+                                  ON DELETE CASCADE,
+
+                          CONSTRAINT chk_feedback_content_type
+                              CHECK (content_type IN ('Suggestion', 'Compliment', 'Complaint')),
+
+                          CONSTRAINT chk_feedback_is_seen
+                              CHECK (is_seen IN (0, 1))
+);
 -- Trigger: after_like_insert
 -- Purpose: After a new row is inserted into `post_likes`,
 --          automatically increment the `likes` counter
