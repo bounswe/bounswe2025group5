@@ -18,8 +18,8 @@ export default function FeedbackButton({ className }: FeedbackButtonProps) {
       <Button
         onClick={() => setIsDialogOpen(true)}
         className={cn(
-          'fixed bottom-6 right-6 z-50 rounded-full h-14 w-14 shadow-lg hover:shadow-xl transition-all duration-200',
-          'bg-primary hover:bg-primary/90',
+          'fixed bottom-6 left-6 z-50 ring-2 ring-foreground/80 hover:ring-foreground rounded-full h-14 w-14 shadow-xl hover:shadow-xl transition-all duration-200',
+          'bg-tertiary hover:bg-tertiary',
           className
         )}
         aria-label={t('feedback.buttonLabel')}
