@@ -44,4 +44,10 @@ public class CommentController {
         return ResponseEntity.ok(response);
     }
 
+
+    @GetMapping("/comment/{commentId}")
+    public ResponseEntity<CommentResponse> getComment(@PathVariable Integer commentId) {
+        CommentResponse response =commentService.getComment(commentId);
+        return ResponseEntity.ok(response);
+    }
 }
