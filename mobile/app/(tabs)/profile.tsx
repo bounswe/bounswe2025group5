@@ -1081,25 +1081,41 @@ export default function ProfileScreen() {
             </View>
 
             <View style={styles.languageToggleOuterContainer}>
-              <View style={styles.languageToggleContainer}>
+              <TouchableOpacity
+                style={styles.languageToggleContainer}
+                onPress={() => toggleLanguage(!isTurkish)}
+                accessible={true}
+                accessibilityRole="none"
+                accessibilityLabel={
+                  isTurkish
+                    ? "Current language: Turkish. Double tap to switch to English"
+                    : "Current language: English. Double tap to switch to Turkish"
+                }
+              >
                 <Text style={styles.languageLabel}>EN</Text>
-                <Switch
-                  trackColor={{ false: "#767577", true: "#81b0ff" }}
-                  thumbColor={
-                    isDarkMode
-                      ? isTurkish
+                <View
+                  pointerEvents="none"
+                  importantForAccessibility="no-hide-descendants"
+                  accessibilityElementsHidden={true}
+                >
+                  <Switch
+                    trackColor={{ false: "#767577", true: "#81b0ff" }}
+                    thumbColor={
+                      isDarkMode
+                        ? isTurkish
+                          ? "#f5dd4b"
+                          : "#f4f4f4"
+                        : isTurkish
                         ? "#f5dd4b"
                         : "#f4f4f4"
-                      : isTurkish
-                      ? "#f5dd4b"
-                      : "#f4f4f4"
-                  }
-                  ios_backgroundColor="#3e3e3e"
-                  onValueChange={toggleLanguage}
-                  value={isTurkish}
-                />
+                    }
+                    ios_backgroundColor="#3e3e3e"
+                    onValueChange={toggleLanguage}
+                    value={isTurkish}
+                  />
+                </View>
                 <Text style={styles.languageLabel}>TR</Text>
-              </View>
+              </TouchableOpacity>
             </View>
           </View>
 

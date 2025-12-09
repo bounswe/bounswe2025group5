@@ -80,7 +80,6 @@ export default function ExploreScreen() {
   const username = authContext?.username;
 
   const [posts, setPosts] = useState<Post[]>([]);
-  const [isFriendsFeed, setIsFriendsFeed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [lastPostId, setLastPostId] = useState<number | null>(null);
@@ -187,10 +186,8 @@ export default function ExploreScreen() {
     colorScheme === "dark" ? "#2F2F31" : "#D9D9D9";
   const notificationAvatarTextColor =
     colorScheme === "dark" ? "#F5F5F7" : "#111111";
-  const feedAccentColor = isFriendsFeed ? "#2E7D32" : "#1976D2";
-  const feedAccentShadow = isFriendsFeed
-    ? "rgba(30, 94, 48, 0.2)"
-    : "rgba(13, 71, 161, 0.2)";
+  const feedAccentColor = "#1976D2";
+  const feedAccentShadow = "rgba(13, 71, 161, 0.2)";
   const resolvedPreviewImageUri = previewPost?.photoUrl
     ? previewPost.photoUrl.startsWith("http")
       ? previewPost.photoUrl
@@ -202,12 +199,6 @@ export default function ExploreScreen() {
       (navigation as any).navigate("index");
     }
   }, [userType, username, navigation]);
-
-  useEffect(() => {
-    if (userType === "guest" && isFriendsFeed) {
-      setIsFriendsFeed(false);
-    }
-  }, [userType, isFriendsFeed]);
 
   const mapApiItemToPost = (item: any): Post => ({
     id: item.postId,
@@ -1947,29 +1938,18 @@ export default function ExploreScreen() {
             </AccessibleText>
           ) : (
             <>
-              <TouchableOpacity
-                style={styles.feedToggle}
-                onPress={() => setIsFriendsFeed((prev) => !prev)}
-                accessibilityRole="button"
-                accessibilityLabel={t("toggleFeed", {
-                  defaultValue: "Toggle feed",
-                })}
+              <AccessibleText
+                type="title"
+                backgroundColor={screenBackgroundColor}
+                style={[
+                  styles.feedToggleLabel,
+                  {
+                    color: feedAccentColor,
+                  },
+                ]}
               >
-                <AccessibleText
-                  type="title"
-                  backgroundColor={screenBackgroundColor}
-                  style={[
-                    styles.feedToggleLabel,
-                    {
-                      color: feedAccentColor,
-                    },
-                  ]}
-                >
-                  {isFriendsFeed
-                    ? t("exploreFriends", { defaultValue: "Explore Friends" })
-                    : t("exploreGlobal", { defaultValue: "Explore Global" })}
-                </AccessibleText>
-              </TouchableOpacity>
+                {t("explore", { defaultValue: "Explore" })}
+              </AccessibleText>
 
               <TouchableOpacity
                 style={[
@@ -1978,9 +1958,16 @@ export default function ExploreScreen() {
                 ]}
                 onPress={openNotifications}
                 accessibilityRole="button"
-                accessibilityLabel={t("openNotifications", {
-                  defaultValue: "Open notifications",
-                })}
+                accessibilityLabel={
+                  unreadCount > 0
+                    ? t("openNotificationsWithCount", {
+                        count: unreadCount,
+                        defaultValue: `Open notifications. ${unreadCount} unread notifications`,
+                      })
+                    : t("openNotifications", {
+                        defaultValue: "Open notifications",
+                      })
+                }
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
                 <Ionicons
@@ -2292,14 +2279,24 @@ export default function ExploreScreen() {
             styles.notificationsOverlay,
             { backgroundColor: screenBackgroundColor },
           ]}
+          accessibilityViewIsModal={true}
         >
           <View style={styles.notificationsHeader}>
             <TouchableOpacity
               onPress={closeNotifications}
-              accessibilityLabel={t("close", { defaultValue: "Close" })}
+              accessibilityRole="button"
+              accessibilityLabel={t("closeNotifications", {
+                defaultValue: "Close notifications",
+              })}
               style={styles.notificationsBackButton}
             >
-              <Ionicons name="arrow-back" size={24} color={generalTextColor} />
+              <Ionicons
+                name="arrow-back"
+                size={24}
+                color={generalTextColor}
+                importantForAccessibility="no-hide-descendants"
+                accessibilityElementsHidden={true}
+              />
             </TouchableOpacity>
             <AccessibleText
               backgroundColor={screenBackgroundColor}
@@ -2549,8 +2546,18 @@ export default function ExploreScreen() {
                       activeOpacity={0.8}
                       onPress={() => handleNotificationPress(notif)}
                       accessibilityRole="button"
-                      accessibilityLabel={t("notificationsTitle", {
-                        defaultValue: "Notifications",
+                      accessibilityLabel={t("notificationItemLabel", {
+                        status: notif.isRead
+                          ? t("read", { defaultValue: "Read" })
+                          : t("unread", { defaultValue: "Unread" }),
+                        message: messageText,
+                        time: timestamp,
+                        defaultValue: `${
+                          notif.isRead ? "Read" : "Unread"
+                        }. ${messageText}. ${timestamp}`,
+                      })}
+                      accessibilityHint={t("doubleTapToOpenNotification", {
+                        defaultValue: "Double tap to open notification",
                       })}
                     >
                       <View style={styles.notificationBody}>
