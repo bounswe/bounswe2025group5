@@ -89,7 +89,7 @@
     "selectWasteItem": "Select Waste Item",
     "logQuantity": "Quantity",
     "logQuantityPlaceholder": "e.g., 2 items",
-    "customLogAmountLabel": "Or Enter a Custom Amount",
+    "customLogAmountLabel": "Or Enter a Custom Amount (grams)",
     "customLogAmountPlaceholder": "e.g., 200 grams",
     "noWasteItemsForGoal": "No waste items available for this goal yet.",
     "confirmLog": "Confirm Log",
