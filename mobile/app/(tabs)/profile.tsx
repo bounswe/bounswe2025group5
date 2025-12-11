@@ -76,11 +76,11 @@ const IMPACT_CONVERSION_RATES: Record<
 };
 
 const GLOBAL_WASTE_AVERAGE_KG: Record<string, number> = {
-  Plastic: 2.0,
-  Paper: 1.5,
-  Glass: 1.2,
-  Metal: 0.8,
-  Organic: 2.3,
+  Plastic: 2.7,
+  Paper: 3.8,
+  Glass: 1.1,
+  Metal: 0.9,
+  Organic: 10,
 };
 
 export default function ProfileScreen() {
