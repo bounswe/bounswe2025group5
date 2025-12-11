@@ -4,5 +4,6 @@ node_modules
 .vscode
 .idea
 copilot-instructions.md
+AGENTS.md
 mobile.apk
 .env

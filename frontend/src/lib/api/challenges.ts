@@ -1,25 +1,22 @@
 import { ApiClient } from './client';
 import { z } from 'zod';
 import { LeaderboardEntrySchema, type LeaderboardItem } from './schemas/leaderboard';
-
-export const ChallengeSchema = z.object({
-  id: z.number().int().optional(),
-  name: z.string().optional(),
-}).passthrough();
+import { WasteItemSchema, type WasteItem, 
+        type LogChallengeRequest,
+        LogChallengeResponseSchema, type LogChallengeResponse,
+        type CreateChallengeRequest,
+        CreateChallengeResponseSchema, type CreateChallengeResponse
+      } 
+from './schemas/challenges';
 
 export const AttendChallengeResponseSchema = z.object({ success: z.boolean().optional() }).passthrough();
 export const LeaveChallengeResponseSchema = z.object({ success: z.boolean().optional() }).passthrough();
 export const EndChallengeResponseSchema = z.object({ success: z.boolean().optional() }).passthrough();
-export const LogChallengeResponseSchema = z.object({
-    username: z.string().min(1),
-    challengeId: z.number().int(),
-    newTotalAmount: z.number().nullable().optional()
-}).passthrough();
 
 export const ChallengesApi = {
-  create: async (payload: Record<string, unknown>) => {
-    const res = await ApiClient.post<unknown>(`/api/challenges`, payload);
-    return ChallengeSchema.parse(res);
+  create: async (payload: CreateChallengeRequest) => {
+    const res = await ApiClient.post<CreateChallengeResponse>(`/api/challenges`, payload);
+    return CreateChallengeResponseSchema.parse(res);
   },
   end: async (id: number) => {
     const res = await ApiClient.patch<unknown>(`/api/challenges/${id}`);
@@ -33,13 +30,18 @@ export const ChallengesApi = {
     const res = await ApiClient.delete<unknown>(`/api/challenges/${challengeId}/attendees/${encodeURIComponent(username)}`);
     return LeaveChallengeResponseSchema.parse(res);
   },
-  logChallengeProgress: async (id: number, payload: Record<string, unknown>) => {
-    const res = await ApiClient.post<unknown>(`/api/challenges/${id}/log`, payload);
+  logChallengeProgress: async (id: number, payload: LogChallengeRequest) => {
+    const res = await ApiClient.post<LogChallengeResponse>(`/api/challenges/${id}/log`, payload);
     return LogChallengeResponseSchema.parse(res);
   },
   getLeaderboard: async (id: number): Promise<LeaderboardItem[]> => {
     const data = await ApiClient.get<LeaderboardItem[]>(`/api/challenges/${id}/leaderboard`);
     data.forEach(item => LeaderboardEntrySchema.parse(item));
+    return data;
+  },
+  getWasteItemsForChallenge: async (id: number): Promise<WasteItem[]> => {
+    const data = await ApiClient.get<WasteItem[]>(`/api/challenges/${id}/items`);
+    data.forEach(item => WasteItemSchema.parse(item));
     return data;
   }
 };
