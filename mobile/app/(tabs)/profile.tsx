@@ -1566,19 +1566,6 @@ export default function ProfileScreen() {
                             );
                           })}
 
-                          {/* Global average line (no inline label to avoid clash with y-axis labels) */}
-                          {globalAverageForWaste > 0 && (
-                            <Line
-                              x1={chartPadding}
-                              y1={chartPadding + globalAverageForWaste * scaleY}
-                              x2={chartWidth - chartPadding / 2}
-                              y2={chartPadding + globalAverageForWaste * scaleY}
-                              stroke="#FFC107"
-                              strokeWidth={2}
-                              strokeDasharray="6 6"
-                            />
-                          )}
-
                           {/* Bars */}
                           {invertedChartValues.map((value, idx) => {
                             const magnitude = Math.abs(value);
@@ -1622,6 +1609,19 @@ export default function ProfileScreen() {
                               </React.Fragment>
                             );
                           })}
+
+                          {/* Global average line drawn above bars */}
+                          {globalAverageForWaste > 0 && (
+                            <Line
+                              x1={chartPadding}
+                              y1={chartPadding + globalAverageForWaste * scaleY}
+                              x2={chartWidth - chartPadding / 2}
+                              y2={chartPadding + globalAverageForWaste * scaleY}
+                              stroke="#FFC107"
+                              strokeWidth={2}
+                              strokeDasharray="6 6"
+                            />
+                          )}
 
                           {/* X labels */}
                           {chartLabels.map((label, idx) => {
