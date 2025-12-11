@@ -93,7 +93,7 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
       setLogging((b) => ({ ...b, [challengeId]: true }));
       const response = await ChallengesApi.logChallengeProgress(challengeId, { username, quantity, itemId: itemId ?? undefined });
       if (response.newTotalAmount != null) {
-        setCurrentAmount(prev => prev + quantity); // consider this!!!! 
+        setCurrentAmount(response.newTotalAmount); // consider this!!!! 
       }
     } catch (e) {
       console.error(e);

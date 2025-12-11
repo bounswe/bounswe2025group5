@@ -3,22 +3,20 @@ import { z } from 'zod';
 import { LeaderboardEntrySchema, type LeaderboardItem } from './schemas/leaderboard';
 import { WasteItemSchema, type WasteItem, 
         type LogChallengeRequest,
-        LogChallengeResponseSchema, type LogChallengeResponse } 
+        LogChallengeResponseSchema, type LogChallengeResponse,
+        type CreateChallengeRequest,
+        CreateChallengeResponseSchema, type CreateChallengeResponse
+      } 
 from './schemas/challenges';
-
-export const ChallengeSchema = z.object({
-  id: z.number().int().optional(),
-  name: z.string().optional(),
-}).passthrough();
 
 export const AttendChallengeResponseSchema = z.object({ success: z.boolean().optional() }).passthrough();
 export const LeaveChallengeResponseSchema = z.object({ success: z.boolean().optional() }).passthrough();
 export const EndChallengeResponseSchema = z.object({ success: z.boolean().optional() }).passthrough();
 
 export const ChallengesApi = {
-  create: async (payload: Record<string, unknown>) => {
-    const res = await ApiClient.post<unknown>(`/api/challenges`, payload);
-    return ChallengeSchema.parse(res);
+  create: async (payload: CreateChallengeRequest) => {
+    const res = await ApiClient.post<CreateChallengeResponse>(`/api/challenges`, payload);
+    return CreateChallengeResponseSchema.parse(res);
   },
   end: async (id: number) => {
     const res = await ApiClient.patch<unknown>(`/api/challenges/${id}`);
