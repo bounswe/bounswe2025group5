@@ -80,17 +80,17 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
     }
   };
 
-  const logChallengeProgress = async (challengeId: number, username: string, amount: number) => {
-    if (isNaN(amount) || amount <= 0) {
+  const logChallengeProgress = async (challengeId: number, username: string, quantity: number, itemId: number) => {
+    if (isNaN(quantity) || quantity <= 0) {
       alert(t('challenges.invalidAmount', 'Please enter a positive amount'));
       return;
     }
     
     try {
       setLogging((b) => ({ ...b, [challengeId]: true }));
-      const response = await ChallengesApi.logChallengeProgress(challengeId, { username, amount });
+      const response = await ChallengesApi.logChallengeProgress(challengeId, { username, quantity, itemId });
       if (response.newTotalAmount != null) {
-        setCurrentAmount(prev => prev + amount); // consider this!!!! 
+        setCurrentAmount(prev => prev + quantity); // consider this!!!! 
       }
     } catch (e) {
       console.error(e);

@@ -27,3 +27,19 @@ export const WasteItemSchema = z.object({
 });
 
 export type WasteItem = z.infer<typeof WasteItemSchema>;
+
+export const LogChallengeRequestSchema = z.object({
+  username: z.string().min(1),
+  quantity: z.number().int(),
+  itemId: z.number().nullable().optional()
+});
+
+export type LogChallengeRequest = z.infer<typeof LogChallengeRequestSchema>;
+
+export const LogChallengeResponseSchema = z.object({
+  username: z.string().min(1),
+  challengeId: z.number().int(),
+  newTotalAmount: z.number().nullable().optional()
+});
+
+export type LogChallengeResponse = z.infer<typeof LogChallengeResponseSchema>;
