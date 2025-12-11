@@ -33,6 +33,10 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
   const selectedItemLabel = selectedItemId
     ? wasteItems.find((item) => item.id === selectedItemId)?.displayName ?? t('challenges.selectedItem', 'Selected item')
     : t('challenges.selectItem', 'Select waste item...');
+  const previewDescription =
+    challenge.description && challenge.description.length > 100
+      ? `${challenge.description.slice(0, 100)}...`
+      : challenge.description;
 
   useEffect(() => {
     let active = true;
@@ -117,8 +121,8 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
               <div className="flex-1 min-w-0">
                 <CardTitle className="text-base">{challenge.name}</CardTitle>
                 {challenge.description && (
-                  <CardDescription className="text-xs mt-1 line-clamp-2">
-                    {challenge.description}
+                  <CardDescription className="text-xs mt-1">
+                    {previewDescription}
                   </CardDescription>
                 )}
               </div>
