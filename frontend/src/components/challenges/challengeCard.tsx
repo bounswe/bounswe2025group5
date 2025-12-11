@@ -1,25 +1,20 @@
-import { useState, type SetStateAction } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import { ChallengesApi } from '@/lib/api/challenges';
 import { type ChallengeListItem } from '@/lib/api/schemas/challenges';
+import { cn } from "@/lib/utils"
+
+import { Check, ChevronsUpDown } from "lucide-react";
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, } from "@/components/ui/command"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+
 import Leaderboard from './Leaderboard';
 import RecyclingProgressVisualization from './RecyclingProgressVisualization';
-
-import { Check, ChevronsUpDown } from "lucide-react"
-import { cn } from "@/lib/utils"
 
 
 const frameworks = [

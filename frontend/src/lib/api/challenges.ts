@@ -1,6 +1,7 @@
 import { ApiClient } from './client';
 import { z } from 'zod';
 import { LeaderboardEntrySchema, type LeaderboardItem } from './schemas/leaderboard';
+import { WasteItemSchema, type WasteItem } from './schemas/challenges';
 
 export const ChallengeSchema = z.object({
   id: z.number().int().optional(),
@@ -40,6 +41,11 @@ export const ChallengesApi = {
   getLeaderboard: async (id: number): Promise<LeaderboardItem[]> => {
     const data = await ApiClient.get<LeaderboardItem[]>(`/api/challenges/${id}/leaderboard`);
     data.forEach(item => LeaderboardEntrySchema.parse(item));
+    return data;
+  },
+  getWasteItemsForChallenge: async (id: number): Promise<WasteItem[]> => {
+    const data = await ApiClient.get<WasteItem[]>(`/api/challenges/${id}/items`);
+    data.forEach(item => WasteItemSchema.parse(item));
     return data;
   }
 };
