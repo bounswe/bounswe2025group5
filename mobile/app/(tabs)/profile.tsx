@@ -361,11 +361,11 @@ export default function ProfileScreen() {
   );
 
   const chartWidth = useMemo(
-    () => Math.min(Dimensions.get("window").width * 0.98, 480),
+    () => Math.min(Dimensions.get("window").width * 0.92, 450),
     []
   );
-  const chartHeight = 260;
-  const chartPadding = 52;
+  const chartHeight = 240;
+  const chartPadding = 50;
   const xLabelY = chartHeight - chartPadding / 2 - 6;
   const xAxisTitleY = xLabelY + 16;
   const barAreaWidth = chartWidth - chartPadding * 2;
@@ -382,17 +382,54 @@ export default function ProfileScreen() {
     return max === 0 ? 1 : max;
   }, [invertedChartValues, globalAverageForWaste]);
 
+  // Calculate nice tick increment ensuring 3-5 non-zero ticks
+  // Allowed increments follow pattern: 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, ...
+  const { tickIncrement, numTicks } = useMemo(() => {
+    const baseIncrements = [0.1, 0.2, 0.3, 0.4, 0.5];
+    const generateIncrements = () => {
+      const increments: number[] = [];
+      for (let multiplier = 1; multiplier <= 1000; multiplier *= 10) {
+        for (const base of baseIncrements) {
+          increments.push(base * multiplier);
+        }
+      }
+      return increments;
+    };
+    const allowedIncrements = generateIncrements();
+    
+    // Find the best increment that gives us 3-5 non-zero ticks
+    for (const inc of allowedIncrements) {
+      const ticks = Math.ceil(maxMagnitude / inc);
+      if (ticks >= 3 && ticks <= 5) {
+        return { tickIncrement: inc, numTicks: ticks };
+      }
+    }
+    // Fallback: find smallest increment giving at least 3 ticks
+    for (const inc of allowedIncrements) {
+      const ticks = Math.ceil(maxMagnitude / inc);
+      if (ticks >= 3) {
+        return { tickIncrement: inc, numTicks: Math.min(ticks, 5) };
+      }
+    }
+    return { tickIncrement: 1, numTicks: 4 };
+  }, [maxMagnitude]);
+
+  // Compute the actual max for the chart
+  const chartMaxValue = useMemo(() => {
+    return tickIncrement * numTicks;
+  }, [tickIncrement, numTicks]);
+
   const scaleY =
-    maxMagnitude > 0
-      ? (chartHeight - chartPadding * 2) / maxMagnitude
+    chartMaxValue > 0
+      ? (chartHeight - chartPadding * 2) / chartMaxValue
       : 1;
 
   const chartTicks = useMemo(() => {
-    const steps = 4;
-    return new Array(steps + 1)
+    // numTicks non-zero ticks plus zero
+    return new Array(numTicks + 1)
       .fill(0)
-      .map((_, idx) => -(maxMagnitude * (idx / steps)));
-  }, [maxMagnitude]);
+      .map((_, idx) => -(idx * tickIncrement));
+  }, [tickIncrement, numTicks]);
 
   const columnWidth =
     invertedChartValues.length > 0
@@ -1560,7 +1597,7 @@ export default function ProfileScreen() {
                                 >
                                   {isZero
                                     ? "0"
-                                    : `-${Math.abs(value).toFixed(1)}`}
+                                    : Math.abs(value).toFixed(1)}
                                 </SvgText>
                               </React.Fragment>
                             );
@@ -1603,7 +1640,7 @@ export default function ProfileScreen() {
                                     fill={labelColor}
                                     textAnchor="middle"
                                   >
-                                    -{magnitude.toFixed(1)}
+                                    {magnitude.toFixed(1)}
                                   </SvgText>
                                 )}
                               </React.Fragment>
