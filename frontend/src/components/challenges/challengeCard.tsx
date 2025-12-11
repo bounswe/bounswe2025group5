@@ -30,6 +30,9 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
   const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
   const [wasteItems, setWasteItems] = useState<WasteItem[]>([]);
   const [itemsLoading, setItemsLoading] = useState(false);
+  const selectedItemLabel = selectedItemId
+    ? wasteItems.find((item) => item.id === selectedItemId)?.displayName ?? t('challenges.selectedItem', 'Selected item')
+    : t('challenges.selectItem', 'Select waste item...');
 
   useEffect(() => {
     let active = true;
@@ -229,11 +232,10 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
                             role="combobox"
                             aria-expanded={popupOpen}
                             className="w-full justify-between gap-2 px-3"
+                            aria-label={selectedItemLabel}
                           >
                             <span className="truncate text-left">
-                              {selectedItemId
-                                ? wasteItems.find((item) => item.id === selectedItemId)?.displayName ?? t('challenges.selectedItem', 'Selected item')
-                                : t('challenges.selectItem', 'Select waste item...')}
+                              {selectedItemLabel}
                             </span>
                             <ChevronsUpDown className="opacity-50" />
                           </Button>
@@ -296,7 +298,6 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
                           disabled={
                             !!logging[challenge.challengeId] ||
                             !!busy[challenge.challengeId] ||
-                            !logAmount ||
                             !selectedItemId
                           } 
                           onClick={() => logChallengeProgress(challenge.challengeId, username, Number(logAmount), selectedItemId)}
