@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChallengesApi } from '@/lib/api/challenges';
 import { type ChallengeListItem } from '@/lib/api/schemas/challenges';
@@ -6,10 +6,44 @@ import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/c
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Input } from '../ui/input';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Leaderboard from './Leaderboard';
 import RecyclingProgressVisualization from './RecyclingProgressVisualization';
+
+import { Check, ChevronsUpDown } from "lucide-react"
+import { cn } from "@/lib/utils"
+
+
+const frameworks = [
+  {
+    value: "next.js",
+    label: "Next.js",
+  },
+  {
+    value: "sveltekit",
+    label: "SvelteKit",
+  },
+  {
+    value: "nuxt.js",
+    label: "Nuxt.js",
+  },
+  {
+    value: "remix",
+    label: "Remix",
+  },
+  {
+    value: "astro",
+    label: "Astro",
+  },
+]
 
 export default function ChallengeCard({ challenge }: { challenge: ChallengeListItem }) {
   const { t } = useTranslation();
@@ -19,6 +53,9 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
   const [userInChallenge, setUserInChallenge] = useState<boolean>(challenge.userInChallenge);
   const [currentAmount, setCurrentAmount] = useState<number>(challenge.currentAmount ?? 0);
   const [logAmount, setLogAmount] = useState<string>('');
+
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("");
 
   // a user attends a challange with challengeId, meanwhile the challenge is set to busy
   const attend = async (challengeId: number, username: string) => {
@@ -187,13 +224,49 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
                   </PopoverTrigger>
                   <PopoverContent className="w-56">
                     <div className="space-y-3">
-                      <Input 
-                        type="number" 
-                        value={logAmount} 
-                        onChange={e => setLogAmount(e.target.value)} 
-                        className="h-9"
-                        placeholder={t('challenges.enterAmount', 'Enter amount')}
-                      />
+                      <Popover open={open} onOpenChange={setOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={open}
+                            className="w-[200px] justify-between"
+                          >
+                            {value
+                              ? frameworks.find((framework) => framework.value === value)?.label
+                              : "Select framework..."}
+                            <ChevronsUpDown className="opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[200px] p-0">
+                          <Command>
+                            <CommandInput placeholder="Search framework..." className="h-9" />
+                            <CommandList>
+                              <CommandEmpty>No framework found.</CommandEmpty>
+                              <CommandGroup>
+                                {frameworks.map((framework) => (
+                                  <CommandItem
+                                    key={framework.value}
+                                    value={framework.value}
+                                    onSelect={(currentValue) => {
+                                      setValue(currentValue === value ? "" : currentValue)
+                                      setOpen(false)
+                                    }}
+                                  >
+                                    {framework.label}
+                                    <Check
+                                      className={cn(
+                                        "ml-auto",
+                                        value === framework.value ? "opacity-100" : "opacity-0"
+                                      )}
+                                    />
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                       <Button 
                         size="sm" 
                         variant="default" 
