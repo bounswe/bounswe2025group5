@@ -15,6 +15,7 @@
     "kvkkAcknowledge": "I have read and acknowledged KVKK form",
     "backToLogIn": "Back to Log In",
     "errorFillCredentials": "Please fill in valid credentials",
+    "errorPasswordTooWeak": "Password is too weak. Please choose a stronger password.",
     "errorPasswordsDontMatch": "Passwords don't match",
     "errorAcknowledgeKvkk": "You must acknowledge the KVKK form",
     "errorInvalidCredentials": "Invalid username or password!",

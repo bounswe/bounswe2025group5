@@ -15,6 +15,7 @@
     "kvkkAcknowledge": "KVKK formunu okudum ve onaylıyorum",
     "backToLogIn": "Giriş Yapmaya Geri Dön",
     "errorFillCredentials": "Lütfen geçerli bilgiler girin",
+    "errorPasswordTooWeak": "Şifre çok zayıf. Lütfen daha güçlü bir şifre seçin.",
     "errorPasswordsDontMatch": "Şifreler eşleşmiyor",
     "errorAcknowledgeKvkk": "KVKK formunu onaylamalısınız",
     "errorInvalidCredentials": "Geçersiz kullanıcı adı veya şifre!",
