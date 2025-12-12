@@ -82,6 +82,13 @@ export default function EditProfileScreen() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
+  const [resetPasswordModalVisible, setResetPasswordModalVisible] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [resetPasswordError, setResetPasswordError] = useState<string | null>(null);
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
+
   const [errState, setErrState] = useState<ErrorState>({
     key: null,
     message: null,
@@ -338,6 +345,71 @@ export default function EditProfileScreen() {
     }
   };
 
+  const handleResetPasswordButton = () => {
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmNewPassword("");
+    setResetPasswordError(null);
+    setResetPasswordModalVisible(true);
+  };
+
+  const handleCancelResetPassword = () => {
+    setResetPasswordModalVisible(false);
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmNewPassword("");
+    setResetPasswordError(null);
+    setIsResettingPassword(false);
+  };
+
+  const handleConfirmResetPassword = async () => {
+    setResetPasswordError(null);
+
+    if (!currentPassword.trim() || !newPassword.trim() || !confirmNewPassword.trim()) {
+      setResetPasswordError(t("resetPasswordFieldsRequired"));
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      setResetPasswordError(t("resetPasswordNewPasswordsDoNotMatch"));
+      return;
+    }
+
+    if (!username) {
+      setResetPasswordError(t("errorUserNotIdentified"));
+      return;
+    }
+
+    setIsResettingPassword(true);
+    try {
+      const response = await apiRequest(`/api/reset-password`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          emailOrUsername: username,
+          oldPassword: currentPassword,
+          newPassword: newPassword,
+        }),
+      });
+
+      if (response.ok) {
+        setResetPasswordModalVisible(false);
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmNewPassword("");
+        Alert.alert(t("success"), t("resetPasswordSuccess"));
+      } else if (response.status === 401) {
+        setResetPasswordError(t("resetPasswordIncorrectPassword"));
+      } else {
+        setResetPasswordError(t("resetPasswordGenericError"));
+      }
+    } catch (error) {
+      setResetPasswordError(t("resetPasswordGenericError"));
+    } finally {
+      setIsResettingPassword(false);
+    }
+  };
+
   const onCancel = () => navigation.goBack();
 
   if (loadingProfile) {
@@ -492,6 +564,43 @@ export default function EditProfileScreen() {
               { color: isDarkMode ? "#F5F5F7" : "#1C1C1E" },
             ]}
           >
+            {t("resetPassword")}
+          </Text>
+          <Text
+            style={[
+              styles.deleteSectionSubtitle,
+              { color: isDarkMode ? "#C8C8CC" : "#4B4B4F" },
+            ]}
+          >
+            {t("resetPasswordDescription")}
+          </Text>
+          <TouchableOpacity
+            style={[
+              styles.deleteSectionButton,
+              { backgroundColor: isDarkMode ? "#0A84FF" : "#2196F3" },
+            ]}
+            onPress={handleResetPasswordButton}
+            disabled={savingBio || uploadingPhoto}
+          >
+            <Text style={styles.deleteSectionButtonText}>{t("resetPassword")}</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View
+          style={[
+            styles.deleteSection,
+            {
+              backgroundColor: isDarkMode ? "#1F1F22" : "#FFFFFF",
+              borderColor: isDarkMode ? "#3A3A3C" : "#E0E0E0",
+            },
+          ]}
+        >
+          <Text
+            style={[
+              styles.deleteSectionTitle,
+              { color: isDarkMode ? "#F5F5F7" : "#1C1C1E" },
+            ]}
+          >
             {t("deleteAccount")}
           </Text>
           <Text
@@ -621,6 +730,188 @@ export default function EditProfileScreen() {
                     {t("deleteAccountConfirmButton", {
                       defaultValue: "Yes, delete account",
                     })}
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Reset Password Modal */}
+      <Modal
+        visible={resetPasswordModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={handleCancelResetPassword}
+      >
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0,0,0,0.55)",
+            padding: 24,
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: isDarkMode ? "#1E1E1E" : "#fff",
+              padding: 24,
+              borderRadius: 16,
+              width: "100%",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: "bold",
+                marginBottom: 8,
+                color: isDarkMode ? "#FFF" : "#000",
+              }}
+            >
+              {t("resetPasswordModalTitle")}
+            </Text>
+            <Text
+              style={{
+                fontSize: 14,
+                marginBottom: 16,
+                color: isDarkMode ? "#D1D1D6" : "#4A4A4A",
+              }}
+            >
+              {t("resetPasswordDescription")}
+            </Text>
+
+            <Text
+              style={{
+                fontSize: 14,
+                fontWeight: "600",
+                marginBottom: 6,
+                color: isDarkMode ? "#D1D1D6" : "#333",
+              }}
+            >
+              {t("currentPassword")}
+            </Text>
+            <TextInput
+              style={{
+                borderWidth: 1,
+                borderColor: isDarkMode ? "#444" : "#CCC",
+                backgroundColor: isDarkMode ? "#2A2A2A" : "#FFF",
+                color: isDarkMode ? "#FFF" : "#000",
+                borderRadius: 8,
+                padding: 12,
+                marginBottom: 12,
+              }}
+              value={currentPassword}
+              onChangeText={setCurrentPassword}
+              placeholder={t("currentPasswordPlaceholder")}
+              placeholderTextColor={isDarkMode ? "#AAA" : "#888"}
+              secureTextEntry
+            />
+
+            <Text
+              style={{
+                fontSize: 14,
+                fontWeight: "600",
+                marginBottom: 6,
+                color: isDarkMode ? "#D1D1D6" : "#333",
+              }}
+            >
+              {t("newPassword")}
+            </Text>
+            <TextInput
+              style={{
+                borderWidth: 1,
+                borderColor: isDarkMode ? "#444" : "#CCC",
+                backgroundColor: isDarkMode ? "#2A2A2A" : "#FFF",
+                color: isDarkMode ? "#FFF" : "#000",
+                borderRadius: 8,
+                padding: 12,
+                marginBottom: 12,
+              }}
+              value={newPassword}
+              onChangeText={setNewPassword}
+              placeholder={t("newPasswordPlaceholder")}
+              placeholderTextColor={isDarkMode ? "#AAA" : "#888"}
+              secureTextEntry
+            />
+
+            <Text
+              style={{
+                fontSize: 14,
+                fontWeight: "600",
+                marginBottom: 6,
+                color: isDarkMode ? "#D1D1D6" : "#333",
+              }}
+            >
+              {t("confirmNewPassword")}
+            </Text>
+            <TextInput
+              style={{
+                borderWidth: 1,
+                borderColor: isDarkMode ? "#444" : "#CCC",
+                backgroundColor: isDarkMode ? "#2A2A2A" : "#FFF",
+                color: isDarkMode ? "#FFF" : "#000",
+                borderRadius: 8,
+                padding: 12,
+                marginBottom: 12,
+              }}
+              value={confirmNewPassword}
+              onChangeText={setConfirmNewPassword}
+              placeholder={t("confirmNewPasswordPlaceholder")}
+              placeholderTextColor={isDarkMode ? "#AAA" : "#888"}
+              secureTextEntry
+            />
+
+            {resetPasswordError && (
+              <Text style={{ color: Colors[theme].error, marginBottom: 12 }}>
+                {resetPasswordError}
+              </Text>
+            )}
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <TouchableOpacity
+                onPress={handleCancelResetPassword}
+                disabled={isResettingPassword}
+              >
+                <Text style={{ color: Colors[theme].tint, fontWeight: "bold" }}>
+                  {t("cancel")}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleConfirmResetPassword}
+                disabled={
+                  isResettingPassword ||
+                  !currentPassword.trim() ||
+                  !newPassword.trim() ||
+                  !confirmNewPassword.trim()
+                }
+                style={{
+                  paddingHorizontal: 16,
+                  paddingVertical: 10,
+                  borderRadius: 8,
+                  backgroundColor: isDarkMode ? "#0A84FF" : "#2196F3",
+                  opacity:
+                    isResettingPassword ||
+                    !currentPassword.trim() ||
+                    !newPassword.trim() ||
+                    !confirmNewPassword.trim()
+                      ? 0.6
+                      : 1,
+                  minWidth: 160,
+                  alignItems: "center",
+                }}
+              >
+                {isResettingPassword ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Text style={{ color: "#FFFFFF", fontWeight: "bold" }}>
+                    {t("resetPasswordButton")}
                   </Text>
                 )}
               </TouchableOpacity>
