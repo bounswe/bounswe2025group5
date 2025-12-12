@@ -88,6 +88,22 @@ export default function EditProfileScreen() {
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [resetPasswordError, setResetPasswordError] = useState<string | null>(null);
   const [isResettingPassword, setIsResettingPassword] = useState(false);
+  const [newPasswordStrength, setNewPasswordStrength] = useState({ label: 'Very weak', color: '#D32F2F', score: 0 });
+
+  const evaluatePasswordStrength = (value: string) => {
+    const score =
+      (value.length >= 8 ? 1 : 0) +
+      (/[A-Z]/.test(value) ? 1 : 0) +
+      (/[0-9]/.test(value) ? 1 : 0) +
+      (/[^A-Za-z0-9]/.test(value) ? 1 : 0) +
+      (value.length >= 12 ? 1 : 0);
+    if (!value) return { label: 'Very weak', color: '#D32F2F', score: 0 };
+    if (score <= 1) return { label: 'Very weak', color: '#D32F2F', score };
+    if (score === 2) return { label: 'Weak', color: '#F44336', score };
+    if (score === 3) return { label: 'Fair', color: '#FBC02D', score };
+    if (score === 4) return { label: 'Good', color: '#66BB6A', score };
+    return { label: 'Strong', color: '#2E7D32', score };
+  };
 
   const [errState, setErrState] = useState<ErrorState>({
     key: null,
@@ -350,6 +366,7 @@ export default function EditProfileScreen() {
     setNewPassword("");
     setConfirmNewPassword("");
     setResetPasswordError(null);
+    setNewPasswordStrength({ label: 'Very weak', color: '#D32F2F', score: 0 });
     setResetPasswordModalVisible(true);
   };
 
@@ -360,6 +377,7 @@ export default function EditProfileScreen() {
     setConfirmNewPassword("");
     setResetPasswordError(null);
     setIsResettingPassword(false);
+    setNewPasswordStrength({ label: 'Very weak', color: '#D32F2F', score: 0 });
   };
 
   const handleConfirmResetPassword = async () => {
@@ -372,6 +390,11 @@ export default function EditProfileScreen() {
 
     if (newPassword !== confirmNewPassword) {
       setResetPasswordError(t("resetPasswordNewPasswordsDoNotMatch"));
+      return;
+    }
+
+    if (newPasswordStrength.score <= 2) {
+      setResetPasswordError(t("errorPasswordTooWeak"));
       return;
     }
 
@@ -827,14 +850,34 @@ export default function EditProfileScreen() {
                 color: isDarkMode ? "#FFF" : "#000",
                 borderRadius: 8,
                 padding: 12,
-                marginBottom: 12,
+                marginBottom: 4,
               }}
               value={newPassword}
-              onChangeText={setNewPassword}
+              onChangeText={(value) => {
+                setNewPassword(value);
+                setNewPasswordStrength(evaluatePasswordStrength(value));
+              }}
               placeholder={t("newPasswordPlaceholder")}
               placeholderTextColor={isDarkMode ? "#AAA" : "#888"}
               secureTextEntry
             />
+            <View style={{ marginBottom: 12, alignItems: 'center' }}>
+              <View style={{ height: 4, borderRadius: 3, backgroundColor: '#E0E0E0', overflow: 'hidden', width: '50%' }}>
+                <View
+                  style={{
+                    height: '100%',
+                    borderRadius: 3,
+                    backgroundColor: newPasswordStrength.color,
+                    width: `${(newPasswordStrength.score / 5) * 100}%`,
+                  }}
+                />
+              </View>
+              <Text style={{ marginTop: 4, fontSize: 12, fontWeight: '600', textAlign: 'center', color: newPasswordStrength.color }}>
+                {t(newPasswordStrength.label.replace(' ', '').toLowerCase(), {
+                  defaultValue: newPasswordStrength.label,
+                })}
+              </Text>
+            </View>
 
             <Text
               style={{
