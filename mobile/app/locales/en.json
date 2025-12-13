@@ -25,6 +25,7 @@
     "exploreGlobal": "Explore Global",
     "goToLogin": "Go to Login",
     "searchPlaceholder": "Search for posts…",
+    "filterByWasteType": "Filter by Waste Type",
     "endOfFeed": "You've reached the end!",
     "noPostsAvailable": "No posts available",
     "pullToRefresh": "Pull down to refresh.",

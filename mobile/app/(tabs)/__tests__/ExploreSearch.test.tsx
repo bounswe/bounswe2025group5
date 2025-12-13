@@ -1,56 +1,61 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
+import React from "react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+} from "@testing-library/react-native";
 
-import ExploreScreen from '../explore';
-import { AuthContext } from '../../_layout';
-import { apiRequest } from '../../services/apiClient';
+import ExploreScreen from "../explore";
+import { AuthContext } from "../../_layout";
+import { apiRequest } from "../../services/apiClient";
 
 const mockNavigate = jest.fn();
 
-jest.mock('@react-navigation/native', () => {
-  const actual = jest.requireActual('@react-navigation/native');
+jest.mock("@react-navigation/native", () => {
+  const actual = jest.requireActual("@react-navigation/native");
   return {
     ...actual,
     useNavigation: () => ({ navigate: mockNavigate }),
     useFocusEffect: (cb: any) => {
-      const React = require('react');
+      const React = require("react");
       return React.useEffect(() => cb(), [cb]);
     },
   };
 });
 
-jest.mock('react-i18next', () => {
-  const actual = jest.requireActual('react-i18next');
+jest.mock("react-i18next", () => {
+  const actual = jest.requireActual("react-i18next");
   return {
     ...actual,
     useTranslation: () => ({
       t: (_k: string, opts?: any) => opts?.defaultValue ?? _k,
-      i18n: { language: 'en', resolvedLanguage: 'en' },
+      i18n: { language: "en", resolvedLanguage: "en" },
     }),
     initReactI18next: {
-      type: '3rdParty',
+      type: "3rdParty",
       init: jest.fn(),
     },
   };
 });
 
-jest.mock('@expo/vector-icons', () => {
+jest.mock("@expo/vector-icons", () => {
   const MockIcon = ({ name }: { name: string }) => {
-    const { Text } = require('react-native');
+    const { Text } = require("react-native");
     return <Text testID={`icon-${name}`}>{name}</Text>;
   };
   return { Ionicons: MockIcon };
 });
 
-jest.mock('@/components/AccessibleText', () => {
-  const React = require('react');
-  const { Text } = require('react-native');
+jest.mock("@/components/AccessibleText", () => {
+  const React = require("react");
+  const { Text } = require("react-native");
   return ({ children, ...props }: any) => <Text {...props}>{children}</Text>;
 });
 
-jest.mock('../../components/PostItem', () => {
-  const React = require('react');
-  const { View, Text } = require('react-native');
+jest.mock("../../components/PostItem", () => {
+  const React = require("react");
+  const { View, Text } = require("react-native");
   return ({ post }: any) => (
     <View testID={`post-${post.id}`}>
       <Text>{post.title}</Text>
@@ -59,11 +64,11 @@ jest.mock('../../components/PostItem', () => {
   );
 });
 
-jest.mock('../../services/apiClient', () => ({
+jest.mock("../../services/apiClient", () => ({
   apiRequest: jest.fn(),
 }));
 
-jest.mock('react-native/Libraries/Interaction/InteractionManager', () => ({
+jest.mock("react-native/Libraries/Interaction/InteractionManager", () => ({
   runAfterInteractions: (cb: any) => {
     cb?.();
     return { cancel: jest.fn() };
@@ -78,8 +83,8 @@ const renderWithAuth = () =>
   render(
     <AuthContext.Provider
       value={{
-        userType: 'user',
-        username: 'alice',
+        userType: "user",
+        username: "alice",
         setUserType: jest.fn(),
         setUsername: jest.fn(),
       }}
@@ -88,11 +93,11 @@ const renderWithAuth = () =>
     </AuthContext.Provider>
   );
 
-describe('Explore search', () => {
+describe("Explore search", () => {
   let consoleErrorSpy: jest.SpyInstance;
 
   beforeAll(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterAll(() => {
@@ -102,18 +107,22 @@ describe('Explore search', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockApiRequest.mockImplementation(async (path: string) => {
-      if (path.includes('/api/posts')) {
-        return { ok: true, status: 200, json: jest.fn().mockResolvedValue([]) } as any;
+      if (path.includes("/api/posts")) {
+        return {
+          ok: true,
+          status: 200,
+          json: jest.fn().mockResolvedValue([]),
+        } as any;
       }
-      if (path.includes('/api/forum/search/semantic')) {
+      if (path.includes("/api/forum/search/semantic")) {
         return {
           ok: true,
           status: 200,
           json: jest.fn().mockResolvedValue([
             {
               postId: 5,
-              creatorUsername: 'bob',
-              content: 'Search result content',
+              creatorUsername: "bob",
+              content: "Search result content",
               likes: 1,
               comments: [],
               photoUrl: null,
@@ -123,21 +132,138 @@ describe('Explore search', () => {
           ]),
         } as any;
       }
-      if (path.includes('/profile?username=')) {
-        return { ok: true, status: 200, json: jest.fn().mockResolvedValue({ photoUrl: null }) } as any;
+      if (path.includes("/profile?username=")) {
+        return {
+          ok: true,
+          status: 200,
+          json: jest.fn().mockResolvedValue({ photoUrl: null }),
+        } as any;
       }
-      return { ok: true, status: 200, json: jest.fn().mockResolvedValue([]) } as any;
+      return {
+        ok: true,
+        status: 200,
+        json: jest.fn().mockResolvedValue([]),
+      } as any;
     });
   });
 
-  it('executes search and renders results', async () => {
+  it("executes search and renders results", async () => {
     renderWithAuth();
 
-    const input = screen.getByPlaceholderText('searchPlaceholder');
-    fireEvent.changeText(input, 'eco');
-    fireEvent(input, 'submitEditing');
+    const input = screen.getByPlaceholderText("searchPlaceholder");
+    fireEvent.changeText(input, "eco");
+    fireEvent(input, "submitEditing");
 
-    expect(await screen.findByText('Search result content')).toBeTruthy();
-    expect(screen.getByText('bob')).toBeTruthy();
+    expect(await screen.findByText("Search result content")).toBeTruthy();
+    expect(screen.getByText("bob")).toBeTruthy();
+  });
+
+  it("renders waste type filter buttons", async () => {
+    renderWithAuth();
+
+    await waitFor(() => {
+      expect(screen.getByText("plastic")).toBeTruthy();
+      expect(screen.getByText("paper")).toBeTruthy();
+      expect(screen.getByText("glass")).toBeTruthy();
+      expect(screen.getByText("metal")).toBeTruthy();
+      expect(screen.getByText("organic")).toBeTruthy();
+    });
+  });
+
+  it("executes search when waste filter button is clicked", async () => {
+    renderWithAuth();
+
+    await waitFor(() => {
+      expect(screen.getByText("plastic")).toBeTruthy();
+    });
+
+    const plasticButton = screen.getByText("plastic");
+    fireEvent.press(plasticButton);
+
+    await waitFor(() => {
+      expect(mockApiRequest).toHaveBeenCalledWith(
+        expect.stringContaining("/api/forum/search/semantic?query=Plastic")
+      );
+    });
+
+    expect(await screen.findByText("Search result content")).toBeTruthy();
+  });
+
+  it("sets search query when waste filter is clicked", async () => {
+    renderWithAuth();
+
+    await waitFor(() => {
+      expect(screen.getByText("paper")).toBeTruthy();
+    });
+
+    const paperButton = screen.getByText("paper");
+    fireEvent.press(paperButton);
+
+    await waitFor(() => {
+      const input = screen.getByPlaceholderText("searchPlaceholder");
+      expect(input.props.value).toBe("Paper");
+    });
+  });
+
+  it("clears waste filter when back button is pressed", async () => {
+    renderWithAuth();
+
+    await waitFor(() => {
+      expect(screen.getByText("glass")).toBeTruthy();
+    });
+
+    // Click glass filter
+    const glassButton = screen.getByText("glass");
+    fireEvent.press(glassButton);
+
+    await waitFor(() => {
+      expect(mockApiRequest).toHaveBeenCalledWith(
+        expect.stringContaining("/api/forum/search/semantic?query=Glass")
+      );
+    });
+
+    // Find and press back button
+    const backButton = screen.getByTestId("icon-arrow-back");
+    expect(backButton.parent).toBeTruthy();
+    fireEvent.press(backButton.parent!);
+
+    await waitFor(() => {
+      const input = screen.getByPlaceholderText("searchPlaceholder");
+      expect(input.props.value).toBe("");
+    });
+  });
+
+  it("hides filter buttons when in search mode", async () => {
+    renderWithAuth();
+
+    await waitFor(() => {
+      expect(screen.getByText("metal")).toBeTruthy();
+    });
+
+    const input = screen.getByPlaceholderText("searchPlaceholder");
+    fireEvent.changeText(input, "test search");
+    fireEvent(input, "submitEditing");
+
+    await waitFor(() => {
+      expect(screen.queryByText("metal")).toBeFalsy();
+      expect(screen.queryByText("plastic")).toBeFalsy();
+    });
+  });
+
+  it("applies correct styling to active filter button", async () => {
+    renderWithAuth();
+
+    await waitFor(() => {
+      expect(screen.getByText("organic")).toBeTruthy();
+    });
+
+    const organicButton = screen.getByText("organic");
+    fireEvent.press(organicButton);
+
+    await waitFor(() => {
+      expect(mockApiRequest).toHaveBeenCalledWith(
+        expect.stringContaining("/api/forum/search/semantic?query=Organic")
+      );
+    });
   });
 });

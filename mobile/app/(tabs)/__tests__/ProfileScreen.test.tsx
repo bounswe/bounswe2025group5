@@ -89,11 +89,30 @@ jest.mock("react-native-chart-kit", () => ({
   },
 }));
 
-jest.mock("react-native-svg", () => ({
-  TSpan: () => null,
-}));
+jest.mock("react-native-svg", () => {
+  const React = require("react");
+  const { View, Text } = require("react-native");
+  const MockSvgComponent = ({ children, ...props }: any) => (
+    <View {...props}>{children}</View>
+  );
+  const MockText = ({ children, ...props }: any) => (
+    <Text {...props}>{children}</Text>
+  );
+  return {
+    __esModule: true,
+    default: MockSvgComponent,
+    Svg: MockSvgComponent,
+    Line: MockSvgComponent,
+    Rect: MockSvgComponent,
+    Text: MockText,
+    TSpan: MockText,
+  };
+});
 
-jest.mock("@expo/vector-icons/Ionicons", () => "Ionicons");
+jest.mock("@expo/vector-icons/Ionicons", () => {
+  const { Text } = require("react-native");
+  return ({ name, ...props }: any) => <Text {...props}>{name}</Text>;
+});
 
 jest.mock("../../components/PostItem", () => {
   const { View, Text } = require("react-native");
@@ -270,7 +289,6 @@ describe("ProfileScreen", () => {
             ]),
         });
       }
-      // Default profile fetch
       if (url.includes("/profile")) {
         return Promise.resolve({
           ok: true,
@@ -282,6 +300,18 @@ describe("ProfileScreen", () => {
             }),
         });
       }
+      if (url.includes("/posts")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([]),
+        });
+      }
+      if (url.includes("/badges")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([]),
+        });
+      }
       return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
     });
 
@@ -290,7 +320,9 @@ describe("ProfileScreen", () => {
       expect(screen.getByTestId("show-impact-button")).toBeTruthy()
     );
 
-    fireEvent.press(screen.getByTestId("show-impact-button"));
+    await act(async () => {
+      fireEvent.press(screen.getByTestId("show-impact-button"));
+    });
 
     await waitFor(() => {
       expect(screen.getByText("impactTitle")).toBeTruthy();
