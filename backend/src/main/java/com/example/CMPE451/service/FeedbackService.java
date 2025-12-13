@@ -20,6 +20,9 @@ public class FeedbackService {
     private FeedbackRepository feedbackRepository;
 
     @Autowired
+    private ActivityLogger activityLogger;
+
+    @Autowired
     private UserRepository userRepository;
 
     public List<FeedbackResponse> getUnSeenFeedbacks(String username) {
@@ -68,5 +71,27 @@ public class FeedbackService {
 
         feedback.setIsSeen(1);
         feedbackRepository.save(feedback);
+
+        activityLogger.logAction(
+                "Seen",
+                "Moderator", username,
+                "Feedback", feedbackId,
+                "User", feedback.getFeedbacker().getUsername(),
+                getFirst255Characters(feedback.getContent())
+        );
+    }
+
+    public static String getFirst255Characters(String text) {
+        if (text == null) {
+            return null;
+        }
+
+        int maxLength = 255;
+
+        if (text.length() > maxLength) {
+            return text.substring(0, maxLength);
+        } else {
+            return text;
+        }
     }
 }

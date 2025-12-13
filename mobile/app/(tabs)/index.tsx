@@ -354,6 +354,9 @@ export default function HomeScreen() {
     if (!regUsername.trim() || !regEmail.includes("@") || regPass.length < 8) {
       return showError("errorFillCredentials");
     }
+    if (passwordStrength.score <= 2) {
+      return showError("errorPasswordTooWeak");
+    }
     if (regPass !== confirmPassword) {
       return showError("errorPasswordsDontMatch");
     }
@@ -413,19 +416,35 @@ export default function HomeScreen() {
           />
         }
       >
-        <View style={styles.languageToggleContainer}>
+        <TouchableOpacity
+          style={styles.languageToggleContainer}
+          onPress={() => toggleLanguage(!isTurkish)}
+          accessible={true}
+          accessibilityRole="none"
+          accessibilityLabel={
+            isTurkish
+              ? "Current language: Turkish. Double tap to switch to English"
+              : "Current language: English. Double tap to switch to Turkish"
+          }
+        >
           <Text style={styles.languageLabel}>EN</Text>
-          <Switch
-            trackColor={{ false: "#767577", true: "#81b0ff" }}
-            thumbColor={isTurkish ? "#f5dd4b" : "#f4f3f4"}
-            ios_backgroundColor="#3e3e3e"
-            onValueChange={(value) => {
-              void toggleLanguage(value);
-            }}
-            value={isTurkish}
-          />
+          <View
+            pointerEvents="none"
+            importantForAccessibility="no-hide-descendants"
+            accessibilityElementsHidden={true}
+          >
+            <Switch
+              trackColor={{ false: "#767577", true: "#81b0ff" }}
+              thumbColor={isTurkish ? "#f5dd4b" : "#f4f3f4"}
+              ios_backgroundColor="#3e3e3e"
+              onValueChange={(value) => {
+                void toggleLanguage(value);
+              }}
+              value={isTurkish}
+            />
+          </View>
           <Text style={styles.languageLabel}>TR</Text>
-        </View>
+        </TouchableOpacity>
 
         {!showAuthFields && (
           <>

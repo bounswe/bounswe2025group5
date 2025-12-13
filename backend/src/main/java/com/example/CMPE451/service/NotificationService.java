@@ -16,7 +16,7 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
 
-    public Notification createNotification(User user, String type, String objectType, String actorId ,String objectId) {
+    public Notification createNotification(User user, String type, String objectType, String actorId ,String objectId, String preview) {
         Notification notification = new Notification();
         notification.setUser(user);
         notification.setActorId(actorId);
@@ -24,6 +24,7 @@ public class NotificationService {
         notification.setIsRead(false);
         notification.setObjectType(objectType);
         notification.setObjectId(objectId);
+        notification.setPreview(preview);
         return notificationRepository.save(notification);
     }
 
@@ -40,6 +41,7 @@ public class NotificationService {
                     dto.setCreatedAt(n.getCreatedAt());
                     dto.setObjectId(n.getObjectId());
                     dto.setObjectType(n.getObjectType());
+                    dto.setPreview(n.getPreview());
                     return dto;
                 })
                 .toList();
