@@ -2077,6 +2077,12 @@ export default function ExploreScreen() {
 
         {!inSearchMode && (
           <View style={styles.wasteFilterContainer}>
+            <AccessibleText
+              backgroundColor={screenBackgroundColor}
+              style={[styles.wasteFilterLabel, { color: generalTextColor }]}
+            >
+              {t("filterByWasteType", { defaultValue: "Filter by Waste Type" })}
+            </AccessibleText>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -3283,6 +3289,12 @@ const styles = StyleSheet.create({
   wasteFilterContainer: {
     paddingHorizontal: 16,
     marginBottom: 16,
+  },
+  wasteFilterLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 10,
+    opacity: 0.8,
   },
   wasteFilterScrollContent: {
     paddingVertical: 4,
