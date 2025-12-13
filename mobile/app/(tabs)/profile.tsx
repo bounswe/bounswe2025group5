@@ -1629,6 +1629,7 @@ export default function ProfileScreen() {
                         <Svg
                           width={chartWidth}
                           height={chartHeight}
+                          testID="bar-chart"
                           accessibilityLabel={t("impactTitle")}
                         >
                           {/* Axes */}
