@@ -21,8 +21,7 @@ import {
   Keyboard,
   Dimensions,
 } from "react-native";
-import { BarChart } from "react-native-chart-kit";
-import { TSpan } from "react-native-svg";
+import Svg, { Line, Rect, Text as SvgText } from "react-native-svg";
 // import ParallaxScrollView from "@/components/ParallaxScrollView";
 import AccessibleText from "@/components/AccessibleText";
 import {
@@ -74,6 +73,14 @@ const IMPACT_CONVERSION_RATES: Record<
   Glass: { factor: 0.042, unitKey: "energy" }, // Placeholder
   Metal: { factor: 1.5, unitKey: "ore" }, // Placeholder
   Organic: { factor: 0.5, unitKey: "compost" }, // Placeholder
+};
+
+const GLOBAL_WASTE_AVERAGE_KG: Record<string, number> = {
+  Plastic: 2.7,
+  Paper: 3.8,
+  Glass: 1.1,
+  Metal: 0.9,
+  Organic: 10,
 };
 
 export default function ProfileScreen() {
@@ -277,6 +284,16 @@ export default function ProfileScreen() {
   const commentInputPlaceholderColor = iconColor;
   const commentInputBackgroundColor = isDarkMode ? "#2C2C2E" : "#F0F2F5";
   const modalMaxHeight = Math.min(Dimensions.get("window").height * 0.7, 520);
+  const yAxisUnitLabel = t("chartYAxisUnit", {
+    defaultValue: "Waste Log (kg)",
+  });
+  const xAxisUnitLabel = t("chartXAxisUnit", { defaultValue: "Months" });
+  const globalAverageLabel = t("chartGlobalAverageLabel", {
+    defaultValue: "Global average",
+  });
+  const personalLegendLabel = t("chartPersonalLabel", {
+    defaultValue: "Your logs",
+  });
 
   const fetchImpactData = useCallback(async () => {
     if (!username) return;
@@ -329,6 +346,11 @@ export default function ProfileScreen() {
     [processedChartData]
   );
 
+  const invertedChartValues = useMemo(
+    () => chartValues.map((value) => -value),
+    [chartValues]
+  );
+
   const chartLabels = useMemo(
     () =>
       processedChartData.map((d) => {
@@ -337,6 +359,83 @@ export default function ProfileScreen() {
       }),
     [processedChartData, t]
   );
+
+  const chartWidth = useMemo(
+    () => Math.min(Dimensions.get("window").width * 0.92, 450),
+    []
+  );
+  const chartHeight = 240;
+  const chartPadding = 50;
+  const xLabelY = chartHeight - chartPadding / 2 - 6;
+  const xAxisTitleY = xLabelY + 16;
+  const barAreaWidth = chartWidth - chartPadding * 2;
+
+  const globalAverageForWaste =
+    GLOBAL_WASTE_AVERAGE_KG[selectedWasteType] ?? 0;
+
+  const maxMagnitude = useMemo(() => {
+    const candidates = [
+      ...invertedChartValues.map((v) => Math.abs(v)),
+      Math.abs(globalAverageForWaste),
+    ].filter((v) => Number.isFinite(v) && v >= 0);
+    const max = Math.max(...(candidates.length ? candidates : [1]));
+    return max === 0 ? 1 : max;
+  }, [invertedChartValues, globalAverageForWaste]);
+
+  // Calculate nice tick increment ensuring 3-5 non-zero ticks
+  // Allowed increments follow pattern: 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, ...
+  const { tickIncrement, numTicks } = useMemo(() => {
+    const baseIncrements = [0.1, 0.2, 0.3, 0.4, 0.5];
+    const generateIncrements = () => {
+      const increments: number[] = [];
+      for (let multiplier = 1; multiplier <= 1000; multiplier *= 10) {
+        for (const base of baseIncrements) {
+          increments.push(base * multiplier);
+        }
+      }
+      return increments;
+    };
+    const allowedIncrements = generateIncrements();
+    
+    // Find the best increment that gives us 3-5 non-zero ticks
+    for (const inc of allowedIncrements) {
+      const ticks = Math.ceil(maxMagnitude / inc);
+      if (ticks >= 3 && ticks <= 5) {
+        return { tickIncrement: inc, numTicks: ticks };
+      }
+    }
+    // Fallback: find smallest increment giving at least 3 ticks
+    for (const inc of allowedIncrements) {
+      const ticks = Math.ceil(maxMagnitude / inc);
+      if (ticks >= 3) {
+        return { tickIncrement: inc, numTicks: Math.min(ticks, 5) };
+      }
+    }
+    return { tickIncrement: 1, numTicks: 4 };
+  }, [maxMagnitude]);
+
+  // Compute the actual max for the chart
+  const chartMaxValue = useMemo(() => {
+    return tickIncrement * numTicks;
+  }, [tickIncrement, numTicks]);
+
+  const scaleY =
+    chartMaxValue > 0
+      ? (chartHeight - chartPadding * 2) / chartMaxValue
+      : 1;
+
+  const chartTicks = useMemo(() => {
+    // numTicks non-zero ticks plus zero
+    return new Array(numTicks + 1)
+      .fill(0)
+      .map((_, idx) => -(idx * tickIncrement));
+  }, [tickIncrement, numTicks]);
+
+  const columnWidth =
+    invertedChartValues.length > 0
+      ? barAreaWidth / invertedChartValues.length
+      : barAreaWidth;
+  const barWidth = Math.min(columnWidth * 0.5, 32);
 
   const totalImpact = useMemo(
     () => impactData.reduce((acc, curr) => acc + curr.totalWeight, 0) / 1000,
@@ -1448,51 +1547,203 @@ export default function ProfileScreen() {
                       {t("noData", { defaultValue: "No data available" })}
                     </AccessibleText>
                   ) : (
-                    <BarChart
-                      data={{
-                        labels: chartLabels,
-                        datasets: [
-                          {
-                            data: chartValues,
-                          },
-                        ],
-                      }}
-                      width={
-                        Math.min(Dimensions.get("window").width * 0.9, 360) - 40
-                      }
-                      height={220}
-                      yAxisLabel=""
-                      yAxisSuffix=""
-                      withHorizontalLabels={false}
-                      withInnerLines={false}
-                      fromZero
-                      chartConfig={{
-                        backgroundColor: cardBackgroundColor,
-                        backgroundGradientFrom: cardBackgroundColor,
-                        backgroundGradientTo: cardBackgroundColor,
-                        decimalPlaces: 1,
-                        color: (opacity = 1) => `rgba(76, 175, 80, 1)`,
-                        labelColor: (opacity = 1) => iconColor,
-                        style: {
-                          borderRadius: 16,
-                        },
-                        barPercentage: 0.7,
-                        fillShadowGradient: "#4CAF50",
-                        fillShadowGradientOpacity: 1,
-                        formatTopBarValue: ((value: number) => (
-                          <TSpan fontSize="14" fontWeight="bold" dy="-5">
-                            {value}
-                          </TSpan>
-                        )) as any,
-                      }}
-                      style={{
-                        marginVertical: 8,
-                        borderRadius: 16,
-                        alignSelf: "center",
-                        paddingRight: 0,
-                      }}
-                      showValuesOnTopOfBars
-                    />
+                    <>
+                      <View style={{ alignItems: "center" }}>
+                        <Svg
+                          width={chartWidth}
+                          height={chartHeight}
+                          accessibilityLabel={t("impactTitle")}
+                        >
+                          {/* Axes */}
+                          <Line
+                            x1={chartPadding}
+                            y1={chartPadding}
+                            x2={chartPadding}
+                            y2={chartHeight - chartPadding / 2}
+                            stroke={iconColor}
+                            strokeWidth={1.5}
+                          />
+                          <Line
+                            x1={chartPadding}
+                            y1={chartPadding}
+                            x2={chartWidth - chartPadding / 2}
+                            y2={chartPadding}
+                            stroke={iconColor}
+                            strokeWidth={1.5}
+                          />
+
+                          {/* Y axis ticks & labels (negative direction) */}
+                          {chartTicks.map((value, idx) => {
+                            const y = chartPadding + Math.abs(value) * scaleY;
+                            const isZero = Math.abs(value) < 0.0001;
+                            return (
+                              <React.Fragment key={`tick-${idx}`}>
+                                <Line
+                                  x1={chartPadding}
+                                  y1={y}
+                                  x2={chartWidth - chartPadding / 2}
+                                  y2={y}
+                                  stroke={iconColor}
+                                  strokeWidth={isZero ? 1.6 : 1}
+                                  strokeDasharray={isZero ? "2 6" : "6 8"}
+                                  strokeOpacity={isZero ? 0.5 : 0.35}
+                                />
+                                <SvgText
+                                  x={chartPadding - 8}
+                                  y={y + 4}
+                                  fontSize="11"
+                                  fill={iconColor}
+                                  textAnchor="end"
+                                >
+                                  {isZero
+                                    ? "0"
+                                    : Math.abs(value).toFixed(1)}
+                                </SvgText>
+                              </React.Fragment>
+                            );
+                          })}
+
+                          {/* Bars */}
+                          {invertedChartValues.map((value, idx) => {
+                            const magnitude = Math.abs(value);
+                            const barHeight = magnitude * scaleY;
+                            const x =
+                              chartPadding +
+                              idx * columnWidth +
+                              (columnWidth - barWidth) / 2;
+                            const y = chartPadding;
+                            const shouldShowValue = magnitude >= 0.05;
+                            const valueInsideBar = barHeight > 24;
+                            const labelY = valueInsideBar
+                              ? y + barHeight - 8
+                              : y + barHeight + 14;
+                            const labelColor = valueInsideBar
+                              ? "#FFFFFF"
+                              : generalTextColor;
+                            return (
+                              <React.Fragment key={`bar-${idx}`}>
+                                <Rect
+                                  x={x}
+                                  y={y}
+                                  width={barWidth}
+                                  height={barHeight}
+                                  fill="#4CAF50"
+                                  rx={4}
+                                  ry={4}
+                                />
+                                {shouldShowValue && (
+                                  <SvgText
+                                    x={x + barWidth / 2}
+                                    y={labelY}
+                                    fontSize="11"
+                                    fontWeight="600"
+                                    fill={labelColor}
+                                    textAnchor="middle"
+                                  >
+                                    {magnitude.toFixed(1)}
+                                  </SvgText>
+                                )}
+                              </React.Fragment>
+                            );
+                          })}
+
+                          {/* Global average line drawn above bars */}
+                          {globalAverageForWaste > 0 && (
+                            <Line
+                              x1={chartPadding}
+                              y1={chartPadding + globalAverageForWaste * scaleY}
+                              x2={chartWidth - chartPadding / 2}
+                              y2={chartPadding + globalAverageForWaste * scaleY}
+                              stroke="#FFC107"
+                              strokeWidth={2}
+                              strokeDasharray="6 6"
+                            />
+                          )}
+
+                          {/* X labels */}
+                          {chartLabels.map((label, idx) => {
+                            const x =
+                              chartPadding +
+                              idx * columnWidth +
+                              columnWidth / 2;
+                            return (
+                              <SvgText
+                                key={`xlabel-${idx}`}
+                                x={x}
+                                y={xLabelY}
+                                fontSize="11"
+                                fill={iconColor}
+                                textAnchor="middle"
+                              >
+                                {label}
+                              </SvgText>
+                            );
+                          })}
+
+                          {/* Axis unit labels */}
+                          <SvgText
+                            x={chartPadding - 14}
+                            y={chartPadding - 16}
+                            fontSize="12"
+                            fontWeight="600"
+                            fill={generalTextColor}
+                            textAnchor="start"
+                          >
+                            {yAxisUnitLabel}
+                          </SvgText>
+                          <SvgText
+                            x={chartWidth / 2}
+                            y={xAxisTitleY}
+                            fontSize="12"
+                            fontWeight="600"
+                            fill={generalTextColor}
+                            textAnchor="middle"
+                          >
+                            {xAxisUnitLabel}
+                          </SvgText>
+                        </Svg>
+                      </View>
+                      <View style={styles.chartLegendRow}>
+                        <View style={styles.legendItem}>
+                          <View
+                            style={[
+                              styles.legendSwatch,
+                              { backgroundColor: "#4CAF50" },
+                            ]}
+                          />
+                          <AccessibleText
+                            backgroundColor={cardBackgroundColor}
+                            style={[
+                              styles.legendLabel,
+                              { color: generalTextColor },
+                            ]}
+                          >
+                            {personalLegendLabel}
+                          </AccessibleText>
+                        </View>
+
+                        <View style={styles.legendItem}>
+                          <View
+                            style={[
+                              styles.legendSwatch,
+                              styles.legendSwatchDotted,
+                              { borderColor: "#FFC107" },
+                            ]}
+                          />
+                          <AccessibleText
+                            backgroundColor={cardBackgroundColor}
+                            style={[
+                              styles.legendLabel,
+                              { color: generalTextColor },
+                            ]}
+                          >
+                            {`${globalAverageLabel} (${globalAverageForWaste.toFixed(
+                              1
+                            )} kg)`}
+                          </AccessibleText>
+                        </View>
+                      </View>
+                    </>
                   )}
                 </View>
               )}
@@ -1952,8 +2203,8 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.6)",
   },
   progressModalCard: {
-    width: "90%",
-    maxWidth: 360,
+    width: "98%",
+    maxWidth: 520,
     borderRadius: 16,
     padding: 20,
     shadowColor: "#000",
@@ -1972,18 +2223,18 @@ const styles = StyleSheet.create({
   progressModalTitle: { fontSize: 20, fontWeight: "700" },
   impactDescription: {
     fontSize: 14,
-    marginBottom: 12,
+    marginBottom: 6,
     lineHeight: 20,
     opacity: 0.8,
   },
   totalImpactText: {
     fontSize: 16,
     fontWeight: "700",
-    marginBottom: 8,
+    marginBottom: 4,
     textAlign: "center",
   },
   progressModalCloseButton: { padding: 8, marginLeft: 12 },
-  chartArea: { marginTop: 8, alignItems: "center" },
+  chartArea: { marginTop: 6, marginBottom: 10, alignItems: "center" },
   chartEmptyText: { alignSelf: "center", marginTop: 32, fontSize: 14 },
   impactExplanationText: {
     marginTop: 16,
@@ -1992,6 +2243,24 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     paddingHorizontal: 8,
   },
+  chartLegendRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    flexWrap: "wrap",
+    marginTop: 8,
+  },
+  legendItem: { flexDirection: "row", alignItems: "center", marginHorizontal: 6, marginVertical: 4 },
+  legendSwatch: { width: 14, height: 14, borderRadius: 3, marginRight: 6 },
+  legendSwatchDotted: {
+    width: 24,
+    height: 0,
+    borderTopWidth: 2,
+    borderColor: "#FFC107",
+    borderStyle: "dotted",
+    marginRight: 6,
+  },
+  legendLabel: { fontSize: 12, fontWeight: "600" },
   wasteTypeSelector: { marginTop: 20 },
   wasteTypeLabel: { fontSize: 14, fontWeight: "600", marginBottom: 12 },
   wasteTypeChips: { flexDirection: "row", flexWrap: "wrap" },

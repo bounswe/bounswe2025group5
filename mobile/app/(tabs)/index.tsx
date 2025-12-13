@@ -354,6 +354,9 @@ export default function HomeScreen() {
     if (!regUsername.trim() || !regEmail.includes("@") || regPass.length < 8) {
       return showError("errorFillCredentials");
     }
+    if (passwordStrength.score <= 2) {
+      return showError("errorPasswordTooWeak");
+    }
     if (regPass !== confirmPassword) {
       return showError("errorPasswordsDontMatch");
     }
