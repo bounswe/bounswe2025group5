@@ -114,7 +114,10 @@
             "empty": "Not following anyone yet"
         },
         "follow": "Follow",
-        "unfollow": "Unfollow"
+        "unfollow": "Unfollow",
+        "badges": {
+            "cta": "See Badge Catalog"
+        }
     },
     "main": {
         "navbar": "Main"

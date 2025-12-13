@@ -114,7 +114,10 @@
             "empty": "Henüz kimse takip edilmiyor"
         },
         "follow": "Takip Et",
-        "unfollow": "Takibi Bırak"
+        "unfollow": "Takibi Bırak",
+        "badges": {
+            "cta": "Rozet Kataloğunu Gör"
+        }
     },
     "main" : {
         "navbar": "Ana Sayfa"

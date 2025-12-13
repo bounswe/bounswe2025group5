@@ -17,6 +17,7 @@ import type { FollowUserItem } from '@/lib/api/schemas/follow';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import userAvatar from '@/assets/user.png';
 import UserProfileDialog from '@/components/profile/userProfileDialog';
+import { useNavigate } from 'react-router-dom';
 
 export default function ProfileIndex() {
   const { t } = useTranslation();
@@ -39,6 +40,7 @@ export default function ProfileIndex() {
   const [followings, setFollowings] = useState<FollowUserItem[]>([]);
   const [followersLoading, setFollowersLoading] = useState(false);
   const [followingLoading, setFollowingLoading] = useState(false);
+  const navigate = useNavigate();
 
   // User profile dialog state
   const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
@@ -333,6 +335,9 @@ export default function ProfileIndex() {
                   </PopoverContent>
                 </Popover>
               </div>
+              <Button variant="tertiary" onClick={() => navigate('/badges')}>
+                {t('profile.badges.cta', 'See Badge Catalog')}
+              </Button>
             </div>
             <div className="flex-[2]"></div>
           </CardContent>
