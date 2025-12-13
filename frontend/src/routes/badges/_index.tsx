@@ -11,6 +11,18 @@ import type { Badge } from '@/lib/api/schemas/badge';
 import plasticSaverIcon from '@/assets/plastic-saver.png';
 import plasticHeroIcon from '@/assets/plastic-hero.png';
 import plasticLegendIcon from '@/assets/plastic-legend.png';
+import paperSaverIcon from '@/assets/paper-saver.png';
+import paperHeroIcon from '@/assets/paper-hero.png';
+import paperLegendIcon from '@/assets/paper-legend.png';
+import glassSaverIcon from '@/assets/glass-saver.png';
+import glassHeroIcon from '@/assets/glass-hero.png';
+import glassLegendIcon from '@/assets/glass-legend.png';
+import metalSaverIcon from '@/assets/metal-saver.png';
+import metalHeroIcon from '@/assets/metal-hero.png';
+import metalLegendIcon from '@/assets/metal-legend.png';
+import organicSaverIcon from '@/assets/organic-saver.png';
+import organicHeroIcon from '@/assets/organic-hero.png';
+import organicLegendIcon from '@/assets/organic-legend.png';
 
 type CatalogBadge = {
   key: string;
@@ -23,18 +35,18 @@ const catalog: CatalogBadge[] = [
   { key: 'badges.badgeNames.plasticSaver', descriptionKey: 'badges.badgeDescriptions.plasticSaver', category: 'waste', iconUrl: plasticSaverIcon },
   { key: 'badges.badgeNames.plasticHero', descriptionKey: 'badges.badgeDescriptions.plasticHero', category: 'waste', iconUrl: plasticHeroIcon },
   { key: 'badges.badgeNames.plasticLegend', descriptionKey: 'badges.badgeDescriptions.plasticLegend', category: 'waste', iconUrl: plasticLegendIcon },
-  { key: 'badges.badgeNames.paperSaver', descriptionKey: 'badges.badgeDescriptions.paperSaver', category: 'waste' },
-  { key: 'badges.badgeNames.paperHero', descriptionKey: 'badges.badgeDescriptions.paperHero', category: 'waste' },
-  { key: 'badges.badgeNames.paperLegend', descriptionKey: 'badges.badgeDescriptions.paperLegend', category: 'waste' },
-  { key: 'badges.badgeNames.glassSaver', descriptionKey: 'badges.badgeDescriptions.glassSaver', category: 'waste' },
-  { key: 'badges.badgeNames.glassHero', descriptionKey: 'badges.badgeDescriptions.glassHero', category: 'waste' },
-  { key: 'badges.badgeNames.glassLegend', descriptionKey: 'badges.badgeDescriptions.glassLegend', category: 'waste' },
-  { key: 'badges.badgeNames.metalSaver', descriptionKey: 'badges.badgeDescriptions.metalSaver', category: 'waste' },
-  { key: 'badges.badgeNames.metalHero', descriptionKey: 'badges.badgeDescriptions.metalHero', category: 'waste' },
-  { key: 'badges.badgeNames.metalLegend', descriptionKey: 'badges.badgeDescriptions.metalLegend', category: 'waste' },
-  { key: 'badges.badgeNames.organicSaver', descriptionKey: 'badges.badgeDescriptions.organicSaver', category: 'waste' },
-  { key: 'badges.badgeNames.organicHero', descriptionKey: 'badges.badgeDescriptions.organicHero', category: 'waste' },
-  { key: 'badges.badgeNames.organicLegend', descriptionKey: 'badges.badgeDescriptions.organicLegend', category: 'waste' },
+  { key: 'badges.badgeNames.paperSaver', descriptionKey: 'badges.badgeDescriptions.paperSaver', category: 'waste', iconUrl: paperSaverIcon },
+  { key: 'badges.badgeNames.paperHero', descriptionKey: 'badges.badgeDescriptions.paperHero', category: 'waste', iconUrl: paperHeroIcon },
+  { key: 'badges.badgeNames.paperLegend', descriptionKey: 'badges.badgeDescriptions.paperLegend', category: 'waste', iconUrl: paperLegendIcon },
+  { key: 'badges.badgeNames.glassSaver', descriptionKey: 'badges.badgeDescriptions.glassSaver', category: 'waste', iconUrl: glassSaverIcon },
+  { key: 'badges.badgeNames.glassHero', descriptionKey: 'badges.badgeDescriptions.glassHero', category: 'waste', iconUrl: glassHeroIcon },
+  { key: 'badges.badgeNames.glassLegend', descriptionKey: 'badges.badgeDescriptions.glassLegend', category: 'waste', iconUrl: glassLegendIcon },
+  { key: 'badges.badgeNames.metalSaver', descriptionKey: 'badges.badgeDescriptions.metalSaver', category: 'waste', iconUrl: metalSaverIcon },
+  { key: 'badges.badgeNames.metalHero', descriptionKey: 'badges.badgeDescriptions.metalHero', category: 'waste', iconUrl: metalHeroIcon },
+  { key: 'badges.badgeNames.metalLegend', descriptionKey: 'badges.badgeDescriptions.metalLegend', category: 'waste', iconUrl: metalLegendIcon },
+  { key: 'badges.badgeNames.organicSaver', descriptionKey: 'badges.badgeDescriptions.organicSaver', category: 'waste', iconUrl: organicSaverIcon },
+  { key: 'badges.badgeNames.organicHero', descriptionKey: 'badges.badgeDescriptions.organicHero', category: 'waste', iconUrl: organicHeroIcon },
+  { key: 'badges.badgeNames.organicLegend', descriptionKey: 'badges.badgeDescriptions.organicLegend', category: 'waste', iconUrl: organicLegendIcon },
 ];
 
 export default function BadgesIndex() {
