@@ -60,14 +60,6 @@ public class ReportService {
         report.setAction("Deletion");
         reportRepository.save(report);
 
-        activityLogger.logAction(
-                "Deletion",
-                "Moderator", username,
-                "Report", reportId,
-                "User", report.getReporter().getUsername(),
-                getFirst255Characters(report.getDescription())
-        );
-
         return new MarkResponse(true,reportId);
     }
 
