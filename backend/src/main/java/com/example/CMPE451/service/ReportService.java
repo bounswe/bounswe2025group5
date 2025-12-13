@@ -59,6 +59,15 @@ public class ReportService {
                 .orElseThrow(() -> new NotFoundException("Report not found with id :"+ reportId));
         report.setAction("Deletion");
         reportRepository.save(report);
+
+        activityLogger.logAction(
+                "Deletion",
+                "Moderator", username,
+                "Report", reportId,
+                "User", report.getReporter().getUsername(),
+                getFirst255Characters(report.getDescription())
+        );
+
         return new MarkResponse(true,reportId);
     }
 
@@ -73,7 +82,7 @@ public class ReportService {
         reportRepository.save(report);
 
         activityLogger.logAction(
-                "Create",
+                "Solved",
                 "Moderator", username,
                 "Report", reportId,
                 "User", report.getReporter().getUsername(),
