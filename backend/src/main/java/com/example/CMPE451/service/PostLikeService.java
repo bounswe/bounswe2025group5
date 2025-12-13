@@ -41,11 +41,19 @@ public class PostLikeService {
         PostLike like = new PostLike(user.getId(), postId);
         postLikeRepository.save(like);
 
+        String preview = null;
+        if (post.getPhotoUrl() != null) {
+            preview = post.getPhotoUrl();
+        }
+        else preview = post.getContent();
+
         activityLogger.logAction(
                 "Like",
                 "User", user.getUsername(),
                 "Post", post.getPostId(),
-                "User", post.getUser().getUsername()
+                "User", post.getUser().getUsername(),
+                getFirst255Characters(preview)
+
         );
 
         return Map.of("success", true);
@@ -86,5 +94,19 @@ public class PostLikeService {
                 post.getLikes(),
                 likedByUsers
         );
+    }
+
+    public static String getFirst255Characters(String text) {
+        if (text == null) {
+            return null;
+        }
+
+        int maxLength = 255;
+
+        if (text.length() > maxLength) {
+            return text.substring(0, maxLength);
+        } else {
+            return text;
+        }
     }
 }

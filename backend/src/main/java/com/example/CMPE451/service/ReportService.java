@@ -8,6 +8,7 @@ import com.example.CMPE451.model.request.CreateReportRequest;
 import com.example.CMPE451.model.response.CreateReportResponse;
 import com.example.CMPE451.model.response.GetReportResponse;
 import com.example.CMPE451.model.response.MarkResponse;
+import com.example.CMPE451.repository.PostRepository;
 import com.example.CMPE451.repository.ReportRepository;
 import com.example.CMPE451.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class ReportService {
 
     private final ReportRepository reportRepository;
     private final UserRepository userRepository;
+    private final ActivityLogger activityLogger;
 
     private void checkModeratorAccess(String username) {
         User user = userRepository.findByUsername(username)
@@ -69,6 +71,15 @@ public class ReportService {
             report.setAction("ClosedWithoutChange");
         }
         reportRepository.save(report);
+
+        activityLogger.logAction(
+                "Create",
+                "Moderator", null,
+                "Report", reportId,
+                "User", report.getReporter().getUsername(),
+                getFirst255Characters(report.getDescription())
+        );
+
         return new MarkResponse(true,reportId);
     }
 
@@ -83,5 +94,19 @@ public class ReportService {
                 report.getObjectId(),
                 report.getCreatedAt()
         );
+    }
+
+    public static String getFirst255Characters(String text) {
+        if (text == null) {
+            return null;
+        }
+
+        int maxLength = 255;
+
+        if (text.length() > maxLength) {
+            return text.substring(0, maxLength);
+        } else {
+            return text;
+        }
     }
 }

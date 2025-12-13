@@ -236,6 +236,7 @@ CREATE TABLE IF NOT EXISTS `notifications` (
   `actor_id` varchar(255) DEFAULT NULL,
   `object_type` varchar(255),
   `object_id` varchar(255),
+  `preview` varchar(255),
   `is_read` tinyint(1) DEFAULT '0',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`notification_id`),
