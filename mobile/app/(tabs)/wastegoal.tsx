@@ -115,6 +115,18 @@ const formatWasteType = (value: string | undefined | null) => {
     .trim();
 };
 
+const isCustomWasteItem = (item: WasteItemOption) => {
+  const normalizedName = (item.displayName || '').trim().toLowerCase();
+  const normalizedTypeName = (item.type?.name || '').trim().toLowerCase();
+  return normalizedName.includes('custom') || normalizedTypeName.includes('custom');
+};
+
+const getDefaultWasteItemId = (items: WasteItemOption[]): string | null => {
+  const firstStandardItem = items.find((item) => !isCustomWasteItem(item));
+  if (firstStandardItem) return String(firstStandardItem.id);
+  return items[0] ? String(items[0].id) : null;
+};
+
 export default function WasteGoalScreen() {
   const navigation = useNavigation<Navigation>();
 
@@ -185,6 +197,12 @@ export default function WasteGoalScreen() {
     }, [username])
   );
 
+  const getCustomWasteItemForGoal = (goalId?: number | null) => {
+    if (!goalId) return null;
+    const itemsForGoal = wasteItemsByGoal[goalId] ?? [];
+    return itemsForGoal.find((item) => isCustomWasteItem(item)) ?? null;
+  };
+
   const getGoals = async () => {
 
     if (!username) return;
@@ -253,25 +271,21 @@ export default function WasteGoalScreen() {
     return true;
   };
 
-  const validateLogInput = (): boolean => {
+  const validateLogInput = (
+    selectedItem: WasteItemOption | null,
+    trimmedQuantity: string,
+    trimmedCustomAmount: string
+  ): boolean => {
     setLogFormError(null);
-    if (!selectedWasteItemId) {
+    const hasCustomAmount = Boolean(trimmedCustomAmount);
+
+    if (!selectedItem) {
       setLogFormError('errorSelectWasteItem');
       return false;
     }
-    const trimmedQuantity = logEntryQuantity.trim();
-    const trimmedCustomAmount = customLogAmount.trim();
 
     if (!trimmedQuantity && !trimmedCustomAmount) {
       setLogFormError('errorLogQuantityPositive');
-      return false;
-    }
-
-    const selectedItem = wasteItemsForCurrentGoal.find(
-      (item) => String(item.id) === String(selectedWasteItemId)
-    );
-    if (!selectedItem) {
-      setLogFormError('errorSelectWasteItem');
       return false;
     }
 
@@ -283,7 +297,7 @@ export default function WasteGoalScreen() {
       }
     }
 
-    if (trimmedCustomAmount) {
+    if (hasCustomAmount) {
       const parsedCustomAmount = parseFloat(trimmedCustomAmount);
       if (!Number.isFinite(parsedCustomAmount) || parsedCustomAmount <= 0) {
         setLogFormError('errorLogQuantityPositive');
@@ -302,6 +316,22 @@ export default function WasteGoalScreen() {
   const wasteItemsForCurrentGoal = currentGoalForLog?.goalId
     ? wasteItemsByGoal[currentGoalForLog.goalId] ?? []
     : [];
+
+  const visibleWasteItemsForCurrentGoal = wasteItemsForCurrentGoal.filter(
+    (item) => !isCustomWasteItem(item)
+  );
+
+  const customWasteItemForCurrentGoal = getCustomWasteItemForGoal(
+    currentGoalForLog?.goalId ?? null
+  );
+
+  const pickerSelectedValue = visibleWasteItemsForCurrentGoal.find(
+    (item) => String(item.id) === String(selectedWasteItemId)
+  )
+    ? selectedWasteItemId ?? ''
+    : visibleWasteItemsForCurrentGoal[0]
+    ? String(visibleWasteItemsForCurrentGoal[0].id)
+    : '';
 
   const fetchWasteItemsForGoal = async (goalId: number) => {
     setFetchingWasteItems(true);
@@ -325,7 +355,7 @@ export default function WasteGoalScreen() {
         : [];
 
       setWasteItemsByGoal((prev) => ({ ...prev, [goalId]: parsedItems }));
-      setSelectedWasteItemId(parsedItems.length > 0 ? String(parsedItems[0].id) : null);
+      setSelectedWasteItemId(getDefaultWasteItemId(parsedItems));
       setLogFormError(null);
     } catch (err) {
       console.error('Error fetching waste items for goal:', err);
@@ -342,35 +372,47 @@ export default function WasteGoalScreen() {
       Alert.alert(t('error'), t('errorGoalInfoMissing'));
       return;
     }
-    if (!validateLogInput()) return;
 
     const goalIdToLog = currentGoalForLog.goalId;
     if (!goalIdToLog) {
       Alert.alert(t('error'), t('errorInvalidGoalId'));
       return;
     }
-    const itemId = selectedWasteItemId ? parseInt(selectedWasteItemId, 10) : NaN;
+    const trimmedQuantity = logEntryQuantity.trim();
+    const trimmedCustomAmount = customLogAmount.trim();
+    const hasCustomAmount = Boolean(trimmedCustomAmount);
+
+    const itemsForGoal = wasteItemsByGoal[goalIdToLog] ?? [];
+    const customItem = getCustomWasteItemForGoal(goalIdToLog);
+    const selectedItemFromState =
+      itemsForGoal.find((item) => String(item.id) === String(selectedWasteItemId)) ?? null;
+    const effectiveSelectedItem =
+      hasCustomAmount && customItem ? customItem : selectedItemFromState;
+
+    if (
+      hasCustomAmount &&
+      customItem &&
+      String(selectedWasteItemId) !== String(customItem.id)
+    ) {
+      setSelectedWasteItemId(String(customItem.id));
+    }
+
+    if (!validateLogInput(effectiveSelectedItem, trimmedQuantity, trimmedCustomAmount)) return;
+
+    const itemId = effectiveSelectedItem ? parseInt(String(effectiveSelectedItem.id), 10) : NaN;
     if (!Number.isInteger(itemId)) {
       setLogFormError('errorSelectWasteItem');
       return;
     }
-    const trimmedQuantity = logEntryQuantity.trim();
-    const trimmedCustomAmount = customLogAmount.trim();
 
     let parsedQuantity: number;
-    if (trimmedCustomAmount) {
+    if (hasCustomAmount) {
       const parsedCustom = parseFloat(trimmedCustomAmount);
       if (!Number.isFinite(parsedCustom)) {
         setLogFormError('errorLogQuantityPositive');
         return;
       }
-      const itemsForGoal = currentGoalForLog.goalId
-        ? wasteItemsByGoal[currentGoalForLog.goalId] ?? []
-        : [];
-      const selectedItem = itemsForGoal.find(
-        (item) => String(item.id) === String(selectedWasteItemId)
-      );
-      const itemWeightInGrams = selectedItem ? Number(selectedItem.weightInGrams) : NaN;
+      const itemWeightInGrams = Number(effectiveSelectedItem?.weightInGrams);
       if (!Number.isFinite(itemWeightInGrams) || itemWeightInGrams <= 0) {
         setLogFormError('errorCustomAmountConversion');
         return;
@@ -559,7 +601,7 @@ export default function WasteGoalScreen() {
     if (goal?.goalId) {
       const cachedItems = wasteItemsByGoal[goal.goalId];
       if (cachedItems && cachedItems.length > 0) {
-        setSelectedWasteItemId(String(cachedItems[0].id));
+        setSelectedWasteItemId(getDefaultWasteItemId(cachedItems));
       } else {
         setSelectedWasteItemId(null);
         fetchWasteItemsForGoal(goal.goalId);
@@ -779,15 +821,20 @@ export default function WasteGoalScreen() {
                 <AccessibleText backgroundColor={modalContentBgColor} style={styles.inputLabel}>{t('selectWasteItem')}</AccessibleText>
                 {fetchingWasteItems ? (
                   <ActivityIndicator style={styles.loadingSpinner} color={isDarkMode ? '#FFFFFF' : '#000000'} />
-                ) : wasteItemsForCurrentGoal.length > 0 ? (
+                ) : visibleWasteItemsForCurrentGoal.length > 0 ? (
                   <View style={[styles.pickerContainer, { borderColor: inputBorderColor, backgroundColor: pickerBackgroundColor }]}>
                     <Picker
-                      selectedValue={selectedWasteItemId ?? ''}
-                      onValueChange={(value) => setSelectedWasteItemId(value)}
+                      selectedValue={pickerSelectedValue}
+                      onValueChange={(value) => {
+                        setSelectedWasteItemId(value);
+                        if (customLogAmount.trim().length > 0) {
+                          setCustomLogAmount('');
+                        }
+                      }}
                       style={[styles.picker, { color: pickerItemColor }]}
                       itemStyle={{ color: pickerItemColor, backgroundColor: pickerBackgroundColor }}
                     >
-                      {wasteItemsForCurrentGoal.map((item) => {
+                      {visibleWasteItemsForCurrentGoal.map((item) => {
                         const weightValue = Number(item.weightInGrams);
                         const formattedWeight = Number.isFinite(weightValue)
                           ? (Number.isInteger(weightValue) ? weightValue.toFixed(0) : weightValue.toFixed(1))
@@ -803,6 +850,10 @@ export default function WasteGoalScreen() {
                       })}
                     </Picker>
                   </View>
+                ) : customWasteItemForCurrentGoal ? (
+                  <AccessibleText backgroundColor={modalContentBgColor} style={[styles.modalFormErrorText, { color: errorTextColor }]}>
+                    {t('customLogAmountLabel')}
+                  </AccessibleText>
                 ) : (
                   <AccessibleText backgroundColor={modalContentBgColor} style={[styles.modalFormErrorText, { color: errorTextColor }]}>{t('noWasteItemsForGoal')}</AccessibleText>
                 )}
@@ -810,7 +861,12 @@ export default function WasteGoalScreen() {
                 <TextInput
                   style={[styles.input, { borderColor: inputBorderColor, color: inputTextColor, backgroundColor: pickerBackgroundColor }]}
                   value={logEntryQuantity}
-                  onChangeText={setLogEntryQuantity}
+                  onChangeText={(value) => {
+                    setLogEntryQuantity(value);
+                    if (value.trim().length > 0 && customLogAmount) {
+                      setCustomLogAmount('');
+                    }
+                  }}
                   keyboardType="numeric"
                   placeholder={t('logQuantityPlaceholder')}
                   placeholderTextColor={placeholderTextColor}
@@ -819,9 +875,29 @@ export default function WasteGoalScreen() {
                 <TextInput
                   style={[styles.input, { borderColor: inputBorderColor, color: inputTextColor, backgroundColor: pickerBackgroundColor }]}
                   value={customLogAmount}
-                  onChangeText={setCustomLogAmount}
+                  onChangeText={(value) => {
+                    setCustomLogAmount(value);
+                    const trimmedValue = value.trim();
+                    if (trimmedValue.length > 0) {
+                      if (logEntryQuantity) {
+                        setLogEntryQuantity('');
+                      }
+                      if (customWasteItemForCurrentGoal) {
+                        setSelectedWasteItemId(String(customWasteItemForCurrentGoal.id));
+                      }
+                    } else if (
+                      customWasteItemForCurrentGoal &&
+                      String(selectedWasteItemId) === String(customWasteItemForCurrentGoal.id)
+                    ) {
+                      const fallbackSource =
+                        visibleWasteItemsForCurrentGoal.length > 0
+                          ? visibleWasteItemsForCurrentGoal
+                          : wasteItemsForCurrentGoal;
+                      const fallbackId = getDefaultWasteItemId(fallbackSource);
+                      setSelectedWasteItemId(fallbackId);
+                    }
+                  }}
                   keyboardType="numeric"
-                  editable={false}
                   placeholder={t('customLogAmountPlaceholder')}
                   placeholderTextColor={placeholderTextColor}
                 />
@@ -843,7 +919,11 @@ export default function WasteGoalScreen() {
                   <TouchableOpacity
                     style={styles.saveButton}
                     onPress={handleAddWasteLog}
-                    disabled={loading || fetchingWasteItems || wasteItemsForCurrentGoal.length === 0}
+                    disabled={
+                      loading ||
+                      fetchingWasteItems ||
+                      (visibleWasteItemsForCurrentGoal.length === 0 && !customWasteItemForCurrentGoal)
+                    }
                   >
                     <Text style={styles.buttonText}>{loading ? t('saving') : t('confirmLog')}</Text>
                   </TouchableOpacity>

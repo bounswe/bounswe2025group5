@@ -89,11 +89,30 @@ jest.mock("react-native-chart-kit", () => ({
   },
 }));
 
-jest.mock("react-native-svg", () => ({
-  TSpan: () => null,
-}));
+jest.mock("react-native-svg", () => {
+  const React = require("react");
+  const { View, Text } = require("react-native");
+  const MockSvgComponent = ({ children, ...props }: any) => (
+    <View {...props}>{children}</View>
+  );
+  const MockText = ({ children, ...props }: any) => (
+    <Text {...props}>{children}</Text>
+  );
+  return {
+    __esModule: true,
+    default: MockSvgComponent,
+    Svg: MockSvgComponent,
+    Line: MockSvgComponent,
+    Rect: MockSvgComponent,
+    Text: MockText,
+    TSpan: MockText,
+  };
+});
 
-jest.mock("@expo/vector-icons/Ionicons", () => "Ionicons");
+jest.mock("@expo/vector-icons/Ionicons", () => {
+  const { Text } = require("react-native");
+  return ({ name, ...props }: any) => <Text {...props}>{name}</Text>;
+});
 
 jest.mock("../../components/PostItem", () => {
   const { View, Text } = require("react-native");
@@ -228,16 +247,6 @@ describe("ProfileScreen", () => {
     });
   });
 
-  it("navigates to badges screen", async () => {
-    renderWithAuth();
-    await waitFor(() =>
-      expect(screen.getByTestId("my-badges-button")).toBeTruthy()
-    );
-
-    fireEvent.press(screen.getByTestId("my-badges-button"));
-    expect(mockNavigate).toHaveBeenCalledWith("badges");
-  });
-
   it("navigates to edit profile screen", async () => {
     renderWithAuth();
     await waitFor(() =>
@@ -280,7 +289,6 @@ describe("ProfileScreen", () => {
             ]),
         });
       }
-      // Default profile fetch
       if (url.includes("/profile")) {
         return Promise.resolve({
           ok: true,
@@ -292,6 +300,18 @@ describe("ProfileScreen", () => {
             }),
         });
       }
+      if (url.includes("/posts")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([]),
+        });
+      }
+      if (url.includes("/badges")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([]),
+        });
+      }
       return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
     });
 
@@ -300,7 +320,9 @@ describe("ProfileScreen", () => {
       expect(screen.getByTestId("show-impact-button")).toBeTruthy()
     );
 
-    fireEvent.press(screen.getByTestId("show-impact-button"));
+    await act(async () => {
+      fireEvent.press(screen.getByTestId("show-impact-button"));
+    });
 
     await waitFor(() => {
       expect(screen.getByText("impactTitle")).toBeTruthy();
@@ -356,6 +378,386 @@ describe("ProfileScreen", () => {
       expect(screen.getByTestId("post-item-2")).toBeTruthy();
       expect(screen.getByText("Post 1")).toBeTruthy();
       expect(screen.getByText("Post 2")).toBeTruthy();
+    });
+  });
+
+  it("displays badges when available", async () => {
+    (apiRequest as jest.Mock).mockImplementation((url) => {
+      if (url.includes("/badges")) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve([
+              { badgeName: "First Post" },
+              { badgeName: "Eco Warrior" },
+              { badgeName: "Recycler" },
+            ]),
+        });
+      }
+      if (url.includes("/profile")) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              biography: "Test Bio",
+              photoUrl: "http://example.com/avatar.png",
+            }),
+        });
+      }
+      if (url.includes("/posts")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([]),
+        });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+    });
+
+    renderWithAuth();
+
+    await waitFor(() => {
+      expect(screen.getByText("badges")).toBeTruthy();
+      expect(screen.getByText("firstPost")).toBeTruthy();
+      expect(screen.getByText("ecoWarrior")).toBeTruthy();
+      expect(screen.getByText("recycler")).toBeTruthy();
+    });
+  });
+
+  it("shows loading state for badges", async () => {
+    (apiRequest as jest.Mock).mockImplementation((url) => {
+      if (url.includes("/badges")) {
+        return new Promise(() => {}); // Never resolves to keep loading state
+      }
+      if (url.includes("/profile")) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              biography: "Test Bio",
+              photoUrl: "http://example.com/avatar.png",
+            }),
+        });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+    });
+
+    renderWithAuth();
+
+    await waitFor(() => {
+      expect(screen.getByText("loadingBadges")).toBeTruthy();
+    });
+  });
+
+  it("shows no badges message when user has no badges", async () => {
+    (apiRequest as jest.Mock).mockImplementation((url) => {
+      if (url.includes("/badges")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([]),
+        });
+      }
+      if (url.includes("/profile")) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              biography: "Test Bio",
+              photoUrl: "http://example.com/avatar.png",
+            }),
+        });
+      }
+      if (url.includes("/posts")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([]),
+        });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+    });
+
+    renderWithAuth();
+
+    await waitFor(() => {
+      expect(screen.queryByText("badges")).not.toBeTruthy();
+    });
+  });
+
+  it("handles badge fetch error gracefully", async () => {
+    (apiRequest as jest.Mock).mockImplementation((url) => {
+      if (url.includes("/badges")) {
+        return Promise.resolve({
+          ok: false,
+          status: 500,
+        });
+      }
+      if (url.includes("/profile")) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              biography: "Test Bio",
+              photoUrl: "http://example.com/avatar.png",
+            }),
+        });
+      }
+      if (url.includes("/posts")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([]),
+        });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+    });
+
+    renderWithAuth();
+
+    await waitFor(() => {
+      // When badges fail to load, the no badges message should be shown
+      expect(screen.queryByText("badges")).not.toBeTruthy();
+    });
+  });
+
+  it("fetches followers list when followers button is pressed", async () => {
+    (apiRequest as jest.Mock).mockImplementation((url) => {
+      if (url.includes("/profile")) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              biography: "Test Bio",
+              photoUrl: "http://example.com/avatar.png",
+              followersCount: 5,
+              followingCount: 3,
+            }),
+        });
+      }
+      if (url.includes("/followers")) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve([
+              { username: "follower1", photoUrl: null },
+              {
+                username: "follower2",
+                photoUrl: "http://example.com/photo.png",
+              },
+            ]),
+        });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+    });
+
+    renderWithAuth();
+
+    await waitFor(() => {
+      expect(screen.getByText("followers")).toBeTruthy();
+    });
+
+    const followersButton = screen.getAllByText("followers")[0];
+    fireEvent.press(followersButton.parent!);
+
+    await waitFor(() => {
+      expect(screen.getByText("follower1")).toBeTruthy();
+      expect(screen.getByText("follower2")).toBeTruthy();
+    });
+  });
+
+  it("shows error when followers fetch fails", async () => {
+    (apiRequest as jest.Mock).mockImplementation((url) => {
+      if (url.includes("/profile")) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              biography: "Test Bio",
+              photoUrl: "http://example.com/avatar.png",
+              followersCount: 5,
+            }),
+        });
+      }
+      if (url.includes("/followers")) {
+        return Promise.resolve({
+          ok: false,
+          status: 500,
+        });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+    });
+
+    renderWithAuth();
+
+    await waitFor(() => {
+      expect(screen.getByText("followers")).toBeTruthy();
+    });
+
+    const followersButton = screen.getAllByText("followers")[0];
+    fireEvent.press(followersButton.parent!);
+
+    await waitFor(() => {
+      expect(screen.getByText("followersLoadError")).toBeTruthy();
+    });
+  });
+
+  it("fetches following list when following button is pressed", async () => {
+    (apiRequest as jest.Mock).mockImplementation((url) => {
+      if (url.includes("/profile")) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              biography: "Test Bio",
+              photoUrl: "http://example.com/avatar.png",
+              followersCount: 5,
+              followingCount: 3,
+            }),
+        });
+      }
+      if (url.includes("/followings")) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve([
+              { username: "following1", photoUrl: null },
+              {
+                username: "following2",
+                photoUrl: "http://example.com/photo.png",
+              },
+            ]),
+        });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+    });
+
+    renderWithAuth();
+
+    await waitFor(() => {
+      expect(screen.getByText("following")).toBeTruthy();
+    });
+
+    const followingButton = screen.getAllByText("following")[0];
+    fireEvent.press(followingButton.parent!);
+
+    await waitFor(() => {
+      expect(screen.getByText("following1")).toBeTruthy();
+      expect(screen.getByText("following2")).toBeTruthy();
+    });
+  });
+
+  it("shows error when following fetch fails", async () => {
+    (apiRequest as jest.Mock).mockImplementation((url) => {
+      if (url.includes("/profile")) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              biography: "Test Bio",
+              photoUrl: "http://example.com/avatar.png",
+              followingCount: 3,
+            }),
+        });
+      }
+      if (url.includes("/followings")) {
+        return Promise.resolve({
+          ok: false,
+          status: 500,
+        });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+    });
+
+    renderWithAuth();
+
+    await waitFor(() => {
+      expect(screen.getByText("following")).toBeTruthy();
+    });
+
+    const followingButton = screen.getAllByText("following")[0];
+    fireEvent.press(followingButton.parent!);
+
+    await waitFor(() => {
+      expect(screen.getByText("followingLoadError")).toBeTruthy();
+    });
+  });
+
+  it("shows no followers message when followers list is empty", async () => {
+    (apiRequest as jest.Mock).mockImplementation((url) => {
+      if (url.includes("/profile")) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              biography: "Test Bio",
+              photoUrl: "http://example.com/avatar.png",
+              followersCount: 0,
+            }),
+        });
+      }
+      if (url.includes("/followers")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([]),
+        });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+    });
+
+    renderWithAuth();
+
+    await waitFor(() => {
+      expect(screen.getByText("followers")).toBeTruthy();
+    });
+
+    const followersButton = screen.getAllByText("followers")[0];
+    fireEvent.press(followersButton.parent!);
+
+    await waitFor(() => {
+      expect(screen.getByText("noFollowers")).toBeTruthy();
+    });
+  });
+
+  it("shows not following anyone message when following list is empty", async () => {
+    (apiRequest as jest.Mock).mockImplementation((url) => {
+      if (url.includes("/profile")) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              biography: "Test Bio",
+              photoUrl: "http://example.com/avatar.png",
+              followingCount: 0,
+            }),
+        });
+      }
+      if (url.includes("/followings")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([]),
+        });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+    });
+
+    renderWithAuth();
+
+    await waitFor(() => {
+      expect(screen.getByText("following")).toBeTruthy();
+    });
+
+    const followingButton = screen.getAllByText("following")[0];
+    fireEvent.press(followingButton.parent!);
+
+    await waitFor(() => {
+      expect(screen.getByText("notFollowingAnyone")).toBeTruthy();
     });
   });
 });

@@ -228,4 +228,218 @@ describe('EditProfileScreen', () => {
             routes: [{ name: '(tabs)' }],
         });
     });
+
+    describe('Reset Password Modal', () => {
+        beforeEach(() => {
+            (apiRequest as jest.Mock).mockImplementation((url: string, options?: any) => {
+                if (url.includes('/profile?') && !options) {
+                    return Promise.resolve({
+                        ok: true,
+                        json: () => Promise.resolve({ biography: 'Bio', photoUrl: null }),
+                    });
+                }
+                return Promise.resolve({ ok: false });
+            });
+        });
+
+        it('opens reset password modal when button is pressed', async () => {
+            const { getAllByText, getByPlaceholderText } = render(
+                <AuthContext.Provider value={authValue}>
+                    <EditProfileScreen />
+                </AuthContext.Provider>
+            );
+
+            await waitFor(() => expect(getAllByText('Reset Password').length).toBeGreaterThan(0));
+
+            const resetButtons = getAllByText('Reset Password');
+            fireEvent.press(resetButtons[resetButtons.length - 1]);
+
+            await waitFor(() => {
+                expect(getByPlaceholderText(/Enter your current password/i)).toBeTruthy();
+                expect(getByPlaceholderText(/Enter your new password/i)).toBeTruthy();
+                expect(getByPlaceholderText(/Confirm your new password/i)).toBeTruthy();
+            });
+        });
+
+        it('shows password strength indicator when typing new password', async () => {
+            const { getAllByText, getByPlaceholderText, getByText } = render(
+                <AuthContext.Provider value={authValue}>
+                    <EditProfileScreen />
+                </AuthContext.Provider>
+            );
+
+            await waitFor(() => expect(getAllByText('Reset Password').length).toBeGreaterThan(0));
+
+            const resetButtons = getAllByText('Reset Password');
+            fireEvent.press(resetButtons[resetButtons.length - 1]);
+
+            const newPasswordInput = await waitFor(() =>
+                getByPlaceholderText(/Enter your new password/i)
+            );
+
+            // Test weak password - label shows "Very weak" as defaultValue
+            fireEvent.changeText(newPasswordInput, 'weak');
+            await waitFor(() => expect(getByText('Very weak')).toBeTruthy());
+
+            // Test fair password (8+ chars with uppercase and number)
+            fireEvent.changeText(newPasswordInput, 'Password1');
+            await waitFor(() => expect(getByText('Fair')).toBeTruthy());
+
+            // Test strong password (12+ chars with uppercase, number, special char)
+            fireEvent.changeText(newPasswordInput, 'StrongPass123!');
+            await waitFor(() => expect(getByText('Strong')).toBeTruthy());
+        });
+
+        it('shows error when trying to change to a weak password', async () => {
+            const { getAllByText, getByPlaceholderText, getByText } = render(
+                <AuthContext.Provider value={authValue}>
+                    <EditProfileScreen />
+                </AuthContext.Provider>
+            );
+
+            await waitFor(() => expect(getAllByText('Reset Password').length).toBeGreaterThan(0));
+
+            const resetButtons = getAllByText('Reset Password');
+            fireEvent.press(resetButtons[resetButtons.length - 1]);
+
+            const currentPasswordInput = await waitFor(() =>
+                getByPlaceholderText(/Enter your current password/i)
+            );
+            const newPasswordInput = getByPlaceholderText(/Enter your new password/i);
+            const confirmPasswordInput = getByPlaceholderText(/Confirm your new password/i);
+
+            fireEvent.changeText(currentPasswordInput, 'oldpassword');
+            fireEvent.changeText(newPasswordInput, 'weak');
+            fireEvent.changeText(confirmPasswordInput, 'weak');
+
+            fireEvent.press(getByText('Change Password'));
+
+            await waitFor(() =>
+                expect(getByText('Password is too weak. Please choose a stronger password.')).toBeTruthy()
+            );
+        });
+
+        it('shows error when new passwords do not match', async () => {
+            const { getAllByText, getByPlaceholderText, getByText } = render(
+                <AuthContext.Provider value={authValue}>
+                    <EditProfileScreen />
+                </AuthContext.Provider>
+            );
+
+            await waitFor(() => expect(getAllByText('Reset Password').length).toBeGreaterThan(0));
+
+            const resetButtons = getAllByText('Reset Password');
+            fireEvent.press(resetButtons[resetButtons.length - 1]);
+
+            const currentPasswordInput = await waitFor(() =>
+                getByPlaceholderText(/Enter your current password/i)
+            );
+            const newPasswordInput = getByPlaceholderText(/Enter your new password/i);
+            const confirmPasswordInput = getByPlaceholderText(/Confirm your new password/i);
+
+            fireEvent.changeText(currentPasswordInput, 'oldpassword');
+            fireEvent.changeText(newPasswordInput, 'StrongPass123!');
+            fireEvent.changeText(confirmPasswordInput, 'DifferentPass456!');
+
+            fireEvent.press(getByText('Change Password'));
+
+            await waitFor(() =>
+                expect(getByText('New passwords do not match.')).toBeTruthy()
+            );
+        });
+
+        it('successfully changes password with strong password', async () => {
+            (apiRequest as jest.Mock).mockImplementation((url: string, options?: any) => {
+                if (url.includes('/profile?') && !options) {
+                    return Promise.resolve({
+                        ok: true,
+                        json: () => Promise.resolve({ biography: 'Bio', photoUrl: null }),
+                    });
+                }
+                if (url.includes('/reset-password') && options?.method === 'PUT') {
+                    return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+                }
+                return Promise.resolve({ ok: false });
+            });
+
+            const { getAllByText, getByPlaceholderText, getByText } = render(
+                <AuthContext.Provider value={authValue}>
+                    <EditProfileScreen />
+                </AuthContext.Provider>
+            );
+
+            await waitFor(() => expect(getAllByText('Reset Password').length).toBeGreaterThan(0));
+
+            const resetButtons = getAllByText('Reset Password');
+            fireEvent.press(resetButtons[resetButtons.length - 1]);
+
+            const currentPasswordInput = await waitFor(() =>
+                getByPlaceholderText(/Enter your current password/i)
+            );
+            const newPasswordInput = getByPlaceholderText(/Enter your new password/i);
+            const confirmPasswordInput = getByPlaceholderText(/Confirm your new password/i);
+
+            fireEvent.changeText(currentPasswordInput, 'oldpassword');
+            fireEvent.changeText(newPasswordInput, 'StrongPass123!');
+            fireEvent.changeText(confirmPasswordInput, 'StrongPass123!');
+
+            fireEvent.press(getByText('Change Password'));
+
+            await waitFor(() =>
+                expect(apiRequest).toHaveBeenCalledWith(
+                    '/api/reset-password',
+                    expect.objectContaining({
+                        method: 'PUT',
+                        body: expect.stringContaining('"newPassword":"StrongPass123!"'),
+                    })
+                )
+            );
+
+            await waitFor(() =>
+                expect(Alert.alert).toHaveBeenCalledWith('Success', 'Password changed successfully!')
+            );
+        });
+
+        it('shows error when current password is incorrect', async () => {
+            (apiRequest as jest.Mock).mockImplementation((url: string, options?: any) => {
+                if (url.includes('/profile?') && !options) {
+                    return Promise.resolve({
+                        ok: true,
+                        json: () => Promise.resolve({ biography: 'Bio', photoUrl: null }),
+                    });
+                }
+                if (url.includes('/reset-password') && options?.method === 'PUT') {
+                    return Promise.resolve({ ok: false, status: 401 });
+                }
+                return Promise.resolve({ ok: false });
+            });
+
+            const { getAllByText, getByPlaceholderText, getByText } = render(
+                <AuthContext.Provider value={authValue}>
+                    <EditProfileScreen />
+                </AuthContext.Provider>
+            );
+
+            await waitFor(() => expect(getAllByText('Reset Password').length).toBeGreaterThan(0));
+
+            const resetButtons = getAllByText('Reset Password');
+            fireEvent.press(resetButtons[resetButtons.length - 1]);
+
+            const currentPasswordInput = await waitFor(() =>
+                getByPlaceholderText(/Enter your current password/i)
+            );
+            const newPasswordInput = getByPlaceholderText(/Enter your new password/i);
+            const confirmPasswordInput = getByPlaceholderText(/Confirm your new password/i);
+
+            fireEvent.changeText(currentPasswordInput, 'wrongpassword');
+            fireEvent.changeText(newPasswordInput, 'StrongPass123!');
+            fireEvent.changeText(confirmPasswordInput, 'StrongPass123!');
+
+            fireEvent.press(getByText('Change Password'));
+
+            await waitFor(() =>
+                expect(getByText('Current password is incorrect.')).toBeTruthy()
+            );
+        });
+    });
 });

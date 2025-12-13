@@ -39,4 +39,7 @@ public class Notification {
     @Column(name = "actor_id", nullable = false)
     private String actorId;
 
+    @Column(name = "preview")
+    private String preview;
+
 }

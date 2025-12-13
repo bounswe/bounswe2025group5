@@ -209,7 +209,15 @@
     "challenge" : {
         "navbar": "Etkinlikler"
     },
-    "logout": "Çıkış Yap",
+    "logout": {
+        "label": "Çıkış Yap",
+        "dialog": {
+            "title": "Çıkışı Onayla",
+            "description": "Çıkış yapmak istediğinizden emin misiniz? Hesabınıza erişmek için tekrar giriş yapmanız gerekecek.",
+            "cancel": "İptal",
+            "confirm": "Çıkış Yap"
+        }
+    },
     "mainpage": {
         "navbar": "Ana Sayfa",
         "challengesTitle": "Katıldığınız Etkinlikler",
@@ -399,12 +407,16 @@
             "like": "{{actor}} {{objectType}} beğendi",
             "comment": "{{actor}} {{objectType}} yorum yaptı",
             "follow": "{{actor}} sizi takip etmeye başladı",
+            "share": "{{actor}} {{objectType}} paylaştı",
+            "challenge": "Etkinlik sona erdi",
             "mention": "{{actor}} sizi bir {{objectType}} bahsetti",
             "default": "{{actor}} {{type}}"
         },
         "likedYourPost_suffix": "gönderinizi beğendi",
         "commentedOnYourPost_suffix": "gönderinize yorum yaptı",
-        "startedFollowing_suffix": "sizi takip etmeye başladı"
+        "startedFollowing_suffix": "sizi takip etmeye başladı",
+        "sharedYourPost_suffix": "gönderinizi paylaştı",
+        "challengeEnded_suffix": "sona erdi"
     },
     "feedback": {
         "buttonLabel": "Geri Bildirim Gönder",

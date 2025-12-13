@@ -35,12 +35,12 @@ export default function GoalCard({ goal }: { goal: WasteGoalItem }) {
           <Progress value={Math.min(progressPercent, 100)} className={cn(isExceeded && 'bg-red-200 [&>div]:bg-red-500')} />
         </div>
       </CardContent>
-      <CardFooter className="flex gap-2 justify-end">
-        <Button variant="outline" size="sm" data-action="log-waste" aria-label={t('goals.log', 'Log')}>
+      <CardFooter className="flex gap-2 justify-center">
+        <Button variant="default" size="sm" data-action="log-waste" aria-label={t('goals.log', 'Log')}>
           <PlusCircle /> {t('goals.log', 'Log')}
         </Button>
         <Button
-          variant="ghost"
+          variant="secondary"
           size="sm"
           data-action="edit-goal"
           aria-label={t('goals.edit', 'Edit')}
