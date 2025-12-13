@@ -149,11 +149,26 @@ export default function ProfileScreen() {
   const [commenterAvatars, setCommenterAvatars] = useState<{
     [username: string]: string | null;
   }>({});
+  const [badges, setBadges] = useState<string[]>([]);
+  const [badgesLoading, setBadgesLoading] = useState(false);
+  const [selectedBadge, setSelectedBadge] = useState<string | null>(null);
+  const [badgeModalVisible, setBadgeModalVisible] = useState(false);
   const isTurkish = (i18n.resolvedLanguage || i18n.language || "")
     .toLowerCase()
     .startsWith("tr");
   const toggleLanguage = (value: boolean) => {
     i18n.changeLanguage(value ? "tr-TR" : "en-US");
+  };
+
+  // Convert "PLASTIC SAVER" to "plasticSaver" for translation keys
+  const normalizeBadgeName = (badgeName: string): string => {
+    return badgeName
+      .toLowerCase()
+      .split(" ")
+      .map((word, index) =>
+        index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)
+      )
+      .join("");
   };
 
   const normalizeFollowList = useCallback((data: any): FollowUser[] => {
@@ -190,11 +205,7 @@ export default function ProfileScreen() {
       if (!res.ok) {
         if (!cancelled) {
           setFollowersList([]);
-          setFollowersError(
-            t("followersLoadError", {
-              defaultValue: "Could not load followers right now.",
-            })
-          );
+          setFollowersError(t("followersLoadError"));
         }
         return;
       }
@@ -205,11 +216,7 @@ export default function ProfileScreen() {
     } catch (e: any) {
       console.warn("Could not fetch followers list", e);
       if (!cancelled) {
-        setFollowersError(
-          t("followersLoadError", {
-            defaultValue: "Could not load followers right now.",
-          })
-        );
+        setFollowersError(t("followersLoadError"));
         setFollowersList([]);
       }
     } finally {
@@ -228,11 +235,7 @@ export default function ProfileScreen() {
       if (!res.ok) {
         if (!cancelled) {
           setFollowingList([]);
-          setFollowingsError(
-            t("followingLoadError", {
-              defaultValue: "Could not load following list right now.",
-            })
-          );
+          setFollowingsError(t("followingLoadError"));
         }
         return;
       }
@@ -243,17 +246,39 @@ export default function ProfileScreen() {
     } catch (e: any) {
       console.warn("Could not fetch following list", e);
       if (!cancelled) {
-        setFollowingsError(
-          t("followingLoadError", {
-            defaultValue: "Could not load following list right now.",
-          })
-        );
+        setFollowingsError(t("followingLoadError"));
         setFollowingList([]);
       }
     } finally {
       if (!cancelled) setLoadingFollowingModal(false);
     }
   }, [username, t, normalizeFollowList]);
+
+  const fetchBadges = useCallback(async () => {
+    if (!username) return;
+    setBadgesLoading(true);
+    try {
+      const encoded = encodeURIComponent(username);
+      const res = await apiRequest(
+        `/api/users/${encoded}/badges?username=${encoded}`
+      );
+      if (!res.ok) {
+        console.warn("Failed to fetch badges");
+        setBadges([]);
+        return;
+      }
+      const data = await res.json();
+      const badgeNames = Array.isArray(data)
+        ? data.map((b: any) => normalizeBadgeName(b.badgeName))
+        : [];
+      setBadges(badgeNames);
+    } catch (e: any) {
+      console.warn("Could not fetch badges", e);
+      setBadges([]);
+    } finally {
+      setBadgesLoading(false);
+    }
+  }, [username]);
 
   const handleFollowersPress = useCallback(() => {
     setFollowersModalVisible(true);
@@ -1075,10 +1100,19 @@ export default function ProfileScreen() {
         }
       })();
 
+      fetchBadges();
+
       return () => {
         isMounted = false;
       };
-    }, [userType, username, navigation, fetchUserPosts, hasLoadedProfile])
+    }, [
+      userType,
+      username,
+      navigation,
+      fetchUserPosts,
+      hasLoadedProfile,
+      fetchBadges,
+    ])
   );
 
   useEffect(() => {
@@ -1146,20 +1180,6 @@ export default function ProfileScreen() {
                     style={[styles.topButtonText, { color: buttonTextColor }]}
                   >
                     {t("logOut")}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.badgesContainer}>
-                <TouchableOpacity
-                  testID="my-badges-button"
-                  style={styles.badgesButton}
-                  onPress={() => navigation.navigate("badges")}
-                >
-                  <Text
-                    style={[styles.topButtonText, { color: buttonTextColor }]}
-                  >
-                    {t("myBadges")}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -1244,9 +1264,7 @@ export default function ProfileScreen() {
                   activeOpacity={0.8}
                   onPress={() => setAvatarModalVisible(true)}
                   accessibilityRole="imagebutton"
-                  accessibilityLabel={t("viewImageFullscreen", {
-                    defaultValue: "View profile image fullscreen",
-                  })}
+                  accessibilityLabel={t("viewImageFullscreen")}
                 >
                   <Image
                     testID="profile-avatar-image"
@@ -1265,9 +1283,7 @@ export default function ProfileScreen() {
                       style={styles.avatarModalCloseButton}
                       onPress={() => setAvatarModalVisible(false)}
                       accessibilityRole="button"
-                      accessibilityLabel={t("closeFullscreenImage", {
-                        defaultValue: "Close image",
-                      })}
+                      accessibilityLabel={t("closeFullscreenImage")}
                     >
                       <Ionicons name="close" size={28} color="#FFFFFF" />
                     </TouchableOpacity>
@@ -1343,6 +1359,69 @@ export default function ProfileScreen() {
               </View>
             </View>
           </View>
+
+          {/* ========================================================== */}
+          {/* BADGES SECTION                                             */}
+          {/* ========================================================== */}
+          {badgesLoading ? (
+            <View style={{ marginVertical: 12, alignItems: "center" }}>
+              <ActivityIndicator
+                size="small"
+                color={isDarkMode ? "#FFF" : "#000"}
+              />
+              <AccessibleText
+                backgroundColor={contentBackgroundColor}
+                style={{ marginTop: 4, fontSize: 12, opacity: 0.7 }}
+              >
+                {t("loadingBadges")}
+              </AccessibleText>
+            </View>
+          ) : badges.length > 0 ? (
+            <View style={{ marginVertical: 12 }}>
+              <AccessibleText
+                backgroundColor={contentBackgroundColor}
+                style={{ fontSize: 16, fontWeight: "700", marginBottom: 8 }}
+              >
+                {t("badges")}
+              </AccessibleText>
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+                {badges.map((badgeName, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => {
+                      setSelectedBadge(badgeName);
+                      setBadgeModalVisible(true);
+                    }}
+                    style={{
+                      backgroundColor: isDarkMode ? "#FF9800" : "#FFA726",
+                      paddingHorizontal: 12,
+                      paddingVertical: 6,
+                      borderRadius: 16,
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Ionicons
+                      name="medal"
+                      size={16}
+                      color="#FFFFFF"
+                      style={{ marginRight: 4 }}
+                    />
+                    <AccessibleText
+                      backgroundColor={isDarkMode ? "#FF9800" : "#FFA726"}
+                      style={{
+                        color: "#FFFFFF",
+                        fontSize: 12,
+                        fontWeight: "600",
+                      }}
+                    >
+                      {t(badgeName)}
+                    </AccessibleText>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          ) : null}
 
           <TouchableOpacity
             testID="show-impact-button"
@@ -1510,7 +1589,7 @@ export default function ProfileScreen() {
               <TouchableOpacity
                 onPress={() => setProgressModalVisible(false)}
                 style={styles.progressModalCloseButton}
-                accessibilityLabel={t("close", { defaultValue: "Close" })}
+                accessibilityLabel={t("close")}
               >
                 <Ionicons name="close" size={20} color={generalTextColor} />
               </TouchableOpacity>
@@ -1544,7 +1623,7 @@ export default function ProfileScreen() {
                       backgroundColor={cardBackgroundColor}
                       style={[styles.chartEmptyText, { color: iconColor }]}
                     >
-                      {t("noData", { defaultValue: "No data available" })}
+                      {t("noData")}
                     </AccessibleText>
                   ) : (
                     <>
@@ -1785,7 +1864,7 @@ export default function ProfileScreen() {
                           { color: isActive ? "#FFFFFF" : generalTextColor },
                         ]}
                       >
-                        {t(type.toLowerCase(), { defaultValue: type })}
+                        {t(type.toLowerCase())}
                       </AccessibleText>
                     </TouchableOpacity>
                   );
@@ -1852,7 +1931,7 @@ export default function ProfileScreen() {
                   color: iconColor,
                 }}
               >
-                {t("noFollowers", { defaultValue: "No followers" })}
+                {t("noFollowers")}
               </AccessibleText>
             ) : (
               <ScrollView
@@ -1977,9 +2056,7 @@ export default function ProfileScreen() {
                   color: iconColor,
                 }}
               >
-                {t("notFollowingAnyone", {
-                  defaultValue: "Not following anyone",
-                })}
+                {t("notFollowingAnyone")}
               </AccessibleText>
             ) : (
               <ScrollView
@@ -2046,6 +2123,81 @@ export default function ProfileScreen() {
             )}
           </View>
         </View>
+      )}
+
+      {/* Badge Details Modal */}
+      {badgeModalVisible && selectedBadge && (
+        <Modal
+          visible={badgeModalVisible}
+          onRequestClose={() => setBadgeModalVisible(false)}
+          transparent
+          animationType="fade"
+        >
+          <View style={styles.progressModalOverlay}>
+            <TouchableOpacity
+              style={styles.progressModalBackdrop}
+              activeOpacity={1}
+              onPress={() => setBadgeModalVisible(false)}
+            />
+            <View
+              style={[
+                styles.progressModalCard,
+                { backgroundColor: cardBackgroundColor },
+              ]}
+            >
+              <View style={styles.progressModalHeader}>
+                <AccessibleText
+                  backgroundColor={cardBackgroundColor}
+                  style={[
+                    styles.progressModalTitle,
+                    { color: generalTextColor },
+                  ]}
+                >
+                  {t("badgeDetails")}
+                </AccessibleText>
+                <TouchableOpacity
+                  onPress={() => setBadgeModalVisible(false)}
+                  style={styles.progressModalCloseButton}
+                  accessibilityLabel={t("close")}
+                >
+                  <Ionicons name="close" size={20} color={generalTextColor} />
+                </TouchableOpacity>
+              </View>
+
+              <View style={{ alignItems: "center", marginVertical: 20 }}>
+                <Ionicons
+                  name="medal"
+                  size={64}
+                  color={isDarkMode ? "#FF9800" : "#FFA726"}
+                />
+                <AccessibleText
+                  backgroundColor={cardBackgroundColor}
+                  style={{
+                    fontSize: 18,
+                    fontWeight: "700",
+                    color: generalTextColor,
+                    marginTop: 12,
+                  }}
+                >
+                  {t(selectedBadge)}
+                </AccessibleText>
+              </View>
+
+              <AccessibleText
+                backgroundColor={cardBackgroundColor}
+                style={{
+                  fontSize: 14,
+                  color: generalTextColor,
+                  lineHeight: 20,
+                  textAlign: "center",
+                  paddingHorizontal: 16,
+                }}
+              >
+                {t(`${selectedBadge}Desc`)}
+              </AccessibleText>
+            </View>
+          </View>
+        </Modal>
       )}
     </>
   );

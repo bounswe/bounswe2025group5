@@ -9,6 +9,7 @@ import {
   Text,
   Alert,
   ScrollView,
+  Modal,
 } from "react-native";
 // import ParallaxScrollView from '@/components/ParallaxScrollView';
 import AccessibleText from "@/components/AccessibleText";
@@ -36,6 +37,21 @@ export default function UserProfileScreen() {
   const [postsLoading, setPostsLoading] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
+  const [badges, setBadges] = useState<string[]>([]);
+  const [badgesLoading, setBadgesLoading] = useState(false);
+  const [selectedBadge, setSelectedBadge] = useState<string | null>(null);
+  const [badgeModalVisible, setBadgeModalVisible] = useState(false);
+
+  // Convert "PLASTIC SAVER" to "plasticSaver" for translation keys
+  const normalizeBadgeName = (badgeName: string): string => {
+    return badgeName
+      .toLowerCase()
+      .split(" ")
+      .map((word, index) =>
+        index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)
+      )
+      .join("");
+  };
 
   const fetchProfile = useCallback(
     async (uname?: string) => {
@@ -128,6 +144,32 @@ export default function UserProfileScreen() {
     }
   }, []);
 
+  const fetchBadges = useCallback(async (uname?: string) => {
+    if (!uname) return;
+    setBadgesLoading(true);
+    try {
+      const encoded = encodeURIComponent(uname);
+      const res = await apiRequest(
+        `/api/users/${encoded}/badges?username=${encoded}`
+      );
+      if (!res.ok) {
+        console.warn("Failed to fetch badges");
+        setBadges([]);
+        return;
+      }
+      const data = await res.json();
+      const badgeNames = Array.isArray(data)
+        ? data.map((b: any) => normalizeBadgeName(b.badgeName))
+        : [];
+      setBadges(badgeNames);
+    } catch (e: any) {
+      console.warn("Could not fetch badges", e);
+      setBadges([]);
+    } finally {
+      setBadgesLoading(false);
+    }
+  }, []);
+
   const handleFollowToggle = useCallback(async () => {
     if (userType !== "user" || !username || !usernameParam) {
       Alert.alert(
@@ -205,7 +247,8 @@ export default function UserProfileScreen() {
     }
     fetchProfile(uname);
     fetchPosts(uname);
-  }, [usernameParam, fetchProfile, fetchPosts, navigation]);
+    fetchBadges(uname);
+  }, [usernameParam, fetchProfile, fetchPosts, fetchBadges, navigation]);
 
   if (loading) {
     return (
@@ -353,6 +396,70 @@ export default function UserProfileScreen() {
 
         <View style={{ height: 10 }} />
 
+        {/* BADGES SECTION */}
+        {badgesLoading ? (
+          <View style={{ marginVertical: 12, alignItems: "center" }}>
+            <ActivityIndicator
+              size="small"
+              color={colorScheme === "dark" ? "#FFF" : "#000"}
+            />
+            <AccessibleText
+              backgroundColor={colorScheme === "dark" ? "#151718" : "#F0F2F5"}
+              style={{ marginTop: 4, fontSize: 12, opacity: 0.7 }}
+            >
+              {t("loadingBadges")}
+            </AccessibleText>
+          </View>
+        ) : badges.length > 0 ? (
+          <View style={{ marginVertical: 12 }}>
+            <AccessibleText
+              backgroundColor={colorScheme === "dark" ? "#151718" : "#F0F2F5"}
+              style={{ fontSize: 16, fontWeight: "700", marginBottom: 8 }}
+            >
+              {t("badges")}
+            </AccessibleText>
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+              {badges.map((badgeName, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => {
+                    setSelectedBadge(badgeName);
+                    setBadgeModalVisible(true);
+                  }}
+                  style={{
+                    backgroundColor:
+                      colorScheme === "dark" ? "#FF9800" : "#FFA726",
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    borderRadius: 16,
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <Ionicons
+                    name="medal"
+                    size={16}
+                    color="#FFFFFF"
+                    style={{ marginRight: 4 }}
+                  />
+                  <AccessibleText
+                    backgroundColor={
+                      colorScheme === "dark" ? "#FF9800" : "#FFA726"
+                    }
+                    style={{
+                      color: "#FFFFFF",
+                      fontSize: 12,
+                      fontWeight: "600",
+                    }}
+                  >
+                    {t(badgeName)}
+                  </AccessibleText>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        ) : null}
+
         <AccessibleText
           backgroundColor={colorScheme === "dark" ? "#151718" : "#F0F2F5"}
           style={{ fontSize: 18, fontWeight: "700", marginBottom: 12 }}
@@ -414,6 +521,93 @@ export default function UserProfileScreen() {
           ))
         )}
       </View>
+
+      {/* Badge Details Modal */}
+      {badgeModalVisible && selectedBadge && (
+        <Modal
+          visible={badgeModalVisible}
+          onRequestClose={() => setBadgeModalVisible(false)}
+          transparent
+          animationType="fade"
+        >
+          <View style={styles.modalOverlay}>
+            <TouchableOpacity
+              style={styles.modalBackdrop}
+              activeOpacity={1}
+              onPress={() => setBadgeModalVisible(false)}
+            />
+            <View
+              style={[
+                styles.modalCard,
+                {
+                  backgroundColor:
+                    colorScheme === "dark" ? "#1C1C1E" : "#FFFFFF",
+                },
+              ]}
+            >
+              <View style={styles.modalHeader}>
+                <AccessibleText
+                  backgroundColor={
+                    colorScheme === "dark" ? "#1C1C1E" : "#FFFFFF"
+                  }
+                  style={[
+                    styles.modalTitle,
+                    { color: colorScheme === "dark" ? "#E5E5E7" : "#1C1C1E" },
+                  ]}
+                >
+                  {t("badgeDetails")}
+                </AccessibleText>
+                <TouchableOpacity
+                  onPress={() => setBadgeModalVisible(false)}
+                  style={styles.closeButton}
+                  accessibilityLabel={t("close")}
+                >
+                  <Ionicons
+                    name="close"
+                    size={20}
+                    color={colorScheme === "dark" ? "#E5E5E7" : "#1C1C1E"}
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <View style={{ alignItems: "center", marginVertical: 20 }}>
+                <Ionicons
+                  name="medal"
+                  size={64}
+                  color={colorScheme === "dark" ? "#FF9800" : "#FFA726"}
+                />
+                <AccessibleText
+                  backgroundColor={
+                    colorScheme === "dark" ? "#1C1C1E" : "#FFFFFF"
+                  }
+                  style={{
+                    fontSize: 18,
+                    fontWeight: "700",
+                    color: colorScheme === "dark" ? "#E5E5E7" : "#1C1C1E",
+                    marginTop: 12,
+                  }}
+                >
+                  {t(selectedBadge)}
+                </AccessibleText>
+              </View>
+
+              <AccessibleText
+                backgroundColor={colorScheme === "dark" ? "#1C1C1E" : "#FFFFFF"}
+                style={{
+                  fontSize: 14,
+                  color: colorScheme === "dark" ? "#E5E5E7" : "#1C1C1E",
+                  lineHeight: 20,
+                  textAlign: "center",
+                  paddingHorizontal: 16,
+                  paddingBottom: 16,
+                }}
+              >
+                {t(`${selectedBadge}Desc`)}
+              </AccessibleText>
+            </View>
+          </View>
+        </Modal>
+      )}
     </ScrollView>
   );
 }
@@ -438,5 +632,45 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 8,
     alignItems: "center",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  modalBackdrop: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  modalCard: {
+    width: "90%",
+    maxWidth: 360,
+    borderRadius: 16,
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 8,
+    zIndex: 1,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 20,
+    paddingBottom: 12,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+  },
+  closeButton: {
+    padding: 8,
+    marginLeft: 12,
   },
 });
