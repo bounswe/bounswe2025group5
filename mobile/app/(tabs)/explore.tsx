@@ -2109,6 +2109,8 @@ export default function ExploreScreen() {
                   ]}
                   onPress={() => handleWasteFilterClick(wasteType)}
                   disabled={isSearching}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Filter by ${t(wasteType.toLowerCase())}`}
                 >
                   <AccessibleText
                     backgroundColor={
