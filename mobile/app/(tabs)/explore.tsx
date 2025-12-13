@@ -70,6 +70,8 @@ type NotificationItem = {
 
 type NotificationFetchError = Error & { status?: number };
 
+const WASTE_TYPES = ["Plastic", "Paper", "Glass", "Metal", "Organic"] as const;
+
 export default function ExploreScreen() {
   const navigation = useNavigation();
 
@@ -146,6 +148,9 @@ export default function ExploreScreen() {
   const notificationThumbnailFetchesRef = useRef<Set<number>>(new Set());
   const notificationCommentPreviewFetchesRef = useRef<Set<number>>(new Set());
   const notificationMarkingRef = useRef<Set<number>>(new Set());
+  const [selectedWasteFilter, setSelectedWasteFilter] = useState<string | null>(
+    null
+  );
 
   const colorScheme = useColorScheme();
   const screenBackgroundColor = colorScheme === "dark" ? "#151718" : "#F0F2F5";
@@ -1456,15 +1461,18 @@ export default function ExploreScreen() {
     }
   };
 
-  const performSearch = async () => {
-    const q = searchQuery.trim();
-    if (!q) return;
+  const executeSearch = async (query: string) => {
     try {
       setIsSearching(true);
       setSearchResults([]);
       setEditingCommentDetails(null);
+
       const res = await apiRequest(
-        `/api/forum/search/semantic?query=${encodeURIComponent(q)}&size=15`
+        `/api/forum/search/semantic?query=${encodeURIComponent(
+          query
+        )}&username=${encodeURIComponent(
+          username ?? ""
+        )}&lang=${encodeURIComponent(i18n.language)}`
       );
       if (!res.ok) throw new Error("Search failed");
       const data = await res.json();
@@ -1492,11 +1500,24 @@ export default function ExploreScreen() {
     }
   };
 
+  const handleWasteFilterClick = async (wasteType: string) => {
+    setSelectedWasteFilter(wasteType);
+    setSearchQuery(wasteType);
+    await executeSearch(wasteType);
+  };
+
+  const performSearch = async () => {
+    const q = searchQuery.trim();
+    if (!q) return;
+    await executeSearch(q);
+  };
+
   const handleBack = () => {
     setInSearchMode(false);
     setSearchQuery("");
     setSearchResults([]);
     setEditingCommentDetails(null);
+    setSelectedWasteFilter(null);
     if (expandedPostId) setExpandedPostId(null);
   };
 
@@ -2063,6 +2084,55 @@ export default function ExploreScreen() {
             editable={!isSearching && !editingCommentDetails}
           />
         </View>
+
+        {!inSearchMode && (
+          <View style={styles.wasteFilterContainer}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.wasteFilterScrollContent}
+            >
+              {WASTE_TYPES.map((wasteType) => (
+                <TouchableOpacity
+                  key={wasteType}
+                  style={[
+                    styles.wasteFilterButton,
+                    selectedWasteFilter === wasteType &&
+                      styles.wasteFilterButtonActive,
+                    {
+                      borderColor: iconColor,
+                      backgroundColor:
+                        selectedWasteFilter === wasteType
+                          ? feedAccentColor
+                          : "transparent",
+                    },
+                  ]}
+                  onPress={() => handleWasteFilterClick(wasteType)}
+                  disabled={isSearching}
+                >
+                  <AccessibleText
+                    backgroundColor={
+                      selectedWasteFilter === wasteType
+                        ? feedAccentColor
+                        : "transparent"
+                    }
+                    style={[
+                      styles.wasteFilterButtonText,
+                      {
+                        color:
+                          selectedWasteFilter === wasteType
+                            ? "#FFFFFF"
+                            : generalTextColor,
+                      },
+                    ]}
+                  >
+                    {t(wasteType.toLowerCase())}
+                  </AccessibleText>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
 
         {showInlineRefreshIndicator && (
           <ActivityIndicator
@@ -3218,4 +3288,28 @@ const styles = StyleSheet.create({
     backgroundColor: "#007AFF",
   },
   notificationPreviewCloseText: { color: "#FFFFFF", fontWeight: "600" },
+  wasteFilterContainer: {
+    paddingHorizontal: 16,
+    marginBottom: 16,
+  },
+  wasteFilterScrollContent: {
+    paddingVertical: 4,
+    gap: 8,
+  },
+  wasteFilterButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    marginRight: 8,
+    minWidth: 80,
+    alignItems: "center",
+  },
+  wasteFilterButtonActive: {
+    borderWidth: 0,
+  },
+  wasteFilterButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
 });
