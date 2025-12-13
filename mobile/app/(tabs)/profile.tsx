@@ -370,8 +370,7 @@ export default function ProfileScreen() {
   const xAxisTitleY = xLabelY + 16;
   const barAreaWidth = chartWidth - chartPadding * 2;
 
-  const globalAverageForWaste =
-    GLOBAL_WASTE_AVERAGE_KG[selectedWasteType] ?? 0;
+  const globalAverageForWaste = GLOBAL_WASTE_AVERAGE_KG[selectedWasteType] ?? 0;
 
   const maxMagnitude = useMemo(() => {
     const candidates = [
@@ -396,7 +395,7 @@ export default function ProfileScreen() {
       return increments;
     };
     const allowedIncrements = generateIncrements();
-    
+
     // Find the best increment that gives us 3-5 non-zero ticks
     for (const inc of allowedIncrements) {
       const ticks = Math.ceil(maxMagnitude / inc);
@@ -420,9 +419,7 @@ export default function ProfileScreen() {
   }, [tickIncrement, numTicks]);
 
   const scaleY =
-    chartMaxValue > 0
-      ? (chartHeight - chartPadding * 2) / chartMaxValue
-      : 1;
+    chartMaxValue > 0 ? (chartHeight - chartPadding * 2) / chartMaxValue : 1;
 
   const chartTicks = useMemo(() => {
     // numTicks non-zero ticks plus zero
@@ -1552,6 +1549,7 @@ export default function ProfileScreen() {
                         <Svg
                           width={chartWidth}
                           height={chartHeight}
+                          testID="bar-chart"
                           accessibilityLabel={t("impactTitle")}
                         >
                           {/* Axes */}
@@ -1595,9 +1593,7 @@ export default function ProfileScreen() {
                                   fill={iconColor}
                                   textAnchor="end"
                                 >
-                                  {isZero
-                                    ? "0"
-                                    : Math.abs(value).toFixed(1)}
+                                  {isZero ? "0" : Math.abs(value).toFixed(1)}
                                 </SvgText>
                               </React.Fragment>
                             );
@@ -2250,7 +2246,12 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     marginTop: 8,
   },
-  legendItem: { flexDirection: "row", alignItems: "center", marginHorizontal: 6, marginVertical: 4 },
+  legendItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginHorizontal: 6,
+    marginVertical: 4,
+  },
   legendSwatch: { width: 14, height: 14, borderRadius: 3, marginRight: 6 },
   legendSwatchDotted: {
     width: 24,
