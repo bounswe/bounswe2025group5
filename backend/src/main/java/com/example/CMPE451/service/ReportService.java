@@ -81,13 +81,26 @@ public class ReportService {
         }
         reportRepository.save(report);
 
-        activityLogger.logAction(
-                "Solved",
-                "Moderator", username,
-                "Report", reportId,
-                "User", report.getReporter().getUsername(),
-                getFirst255Characters(report.getDescription())
-        );
+        if (report.getAction().equals("ClosedWithoutChange")) {
+            activityLogger.logAction(
+                    "ClosedWithoutChange",
+                    "Moderator", username,
+                    "Report", reportId,
+                    "User", report.getReporter().getUsername(),
+                    getFirst255Characters(report.getDescription())
+            );
+        }
+
+        else if (report.getAction().equals("Deletion")) {
+            activityLogger.logAction(
+                    "Deletion",
+                    "Moderator", username,
+                    "Report", reportId,
+                    "User", report.getReporter().getUsername(),
+                    getFirst255Characters(report.getDescription())
+            );
+        }
+
 
         return new MarkResponse(true,reportId);
     }
