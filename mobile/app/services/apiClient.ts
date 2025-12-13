@@ -267,7 +267,7 @@ export interface SubmitReportPayload {
 export async function submitReport(payload: SubmitReportPayload): Promise<void> {
   const r = await apiRequest('/api/reports', {
     method: 'POST',
-    body: payload,
+    body: payload as any,
   });
   if (!r.ok) {
     throw new Error(await r.text());
