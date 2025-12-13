@@ -7,6 +7,11 @@ import { Spinner } from '@/components/ui/spinner';
 import { BadgeApi } from '@/lib/api/badges';
 import type { Badge } from '@/lib/api/schemas/badge';
 
+// Badge Icon Assets
+import plasticSaverIcon from '@/assets/plastic-saver.png';
+import plasticHeroIcon from '@/assets/plastic-hero.png';
+import plasticLegendIcon from '@/assets/plastic-legend.png';
+
 type CatalogBadge = {
   key: string;
   descriptionKey: string;
@@ -15,9 +20,9 @@ type CatalogBadge = {
 };
 
 const catalog: CatalogBadge[] = [
-  { key: 'badges.badgeNames.plasticSaver', descriptionKey: 'badges.badgeDescriptions.plasticSaver', category: 'waste'},
-  { key: 'badges.badgeNames.plasticHero', descriptionKey: 'badges.badgeDescriptions.plasticHero', category: 'waste' },
-  { key: 'badges.badgeNames.plasticLegend', descriptionKey: 'badges.badgeDescriptions.plasticLegend', category: 'waste' },
+  { key: 'badges.badgeNames.plasticSaver', descriptionKey: 'badges.badgeDescriptions.plasticSaver', category: 'waste', iconUrl: plasticSaverIcon },
+  { key: 'badges.badgeNames.plasticHero', descriptionKey: 'badges.badgeDescriptions.plasticHero', category: 'waste', iconUrl: plasticHeroIcon },
+  { key: 'badges.badgeNames.plasticLegend', descriptionKey: 'badges.badgeDescriptions.plasticLegend', category: 'waste', iconUrl: plasticLegendIcon },
   { key: 'badges.badgeNames.paperSaver', descriptionKey: 'badges.badgeDescriptions.paperSaver', category: 'waste' },
   { key: 'badges.badgeNames.paperHero', descriptionKey: 'badges.badgeDescriptions.paperHero', category: 'waste' },
   { key: 'badges.badgeNames.paperLegend', descriptionKey: 'badges.badgeDescriptions.paperLegend', category: 'waste' },
@@ -93,7 +98,7 @@ export default function BadgesIndex() {
         <GlassCard className="w-full">
           <div className="flex flex-col gap-6">
             <header className="space-y-2">
-              <h1 className="text-3xl font-semibold text-foreground">
+              <h1 className="text-3xl font-bold text-foreground/85">
                 {t('badges.title', 'Badge Catalog')}
               </h1>
               <p className="text-muted-foreground">
