@@ -73,7 +73,7 @@ public class FeedbackService {
         feedbackRepository.save(feedback);
 
         activityLogger.logAction(
-                "Create",
+                "Seen",
                 "Moderator", username,
                 "Feedback", feedbackId,
                 "User", feedback.getFeedbacker().getUsername(),
