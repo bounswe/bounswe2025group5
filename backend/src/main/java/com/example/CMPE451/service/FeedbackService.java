@@ -19,6 +19,8 @@ public class FeedbackService {
     @Autowired
     private FeedbackRepository feedbackRepository;
 
+    private ActivityLogger activityLogger;
+
     @Autowired
     private UserRepository userRepository;
 
@@ -68,5 +70,27 @@ public class FeedbackService {
 
         feedback.setIsSeen(1);
         feedbackRepository.save(feedback);
+
+        activityLogger.logAction(
+                "Create",
+                "Moderator", null,
+                "Feedback", feedbackId,
+                "User", feedback.getFeedbacker().getUsername(),
+                getFirst255Characters(feedback.getContent())
+        );
+    }
+
+    public static String getFirst255Characters(String text) {
+        if (text == null) {
+            return null;
+        }
+
+        int maxLength = 255;
+
+        if (text.length() > maxLength) {
+            return text.substring(0, maxLength);
+        } else {
+            return text;
+        }
     }
 }

@@ -51,7 +51,8 @@ public class FollowService {
                 "Follow",
                 "User", follower.getUsername(),
                 "User", follower.getUsername(),
-                "User", following.getUsername()
+                "User", following.getUsername(),
+                null
         );
 
         return new FollowingFeatureResponse(followerUser,followingUser,newFollowerCount);
