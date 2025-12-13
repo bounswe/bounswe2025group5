@@ -420,5 +420,58 @@
         "authError": "Geri bildirim göndermek için giriş yapmalısınız.",
         "forbiddenError": "Geri bildirim gönderme izniniz yok. Lütfen giriş yaptığınızdan emin olun.",
         "userNotFoundError": "Kullanıcı hesabı bulunamadı. Lütfen tekrar giriş yapmayı deneyin."
+    },
+    "badges": {
+        "title": "Rozet Kataloğu",
+        "subtitle": "WasteLess içinde kazanabileceğiniz rozetlere göz atın.",
+        "loginRequired": "Rozetlerinizi görmek için lütfen giriş yapın.",
+        "loadError": "Rozetler yüklenemedi.",
+        "filters": {
+            "all": "Tüm kategoriler"
+        },
+        "categories": {
+            "waste": "Atık",
+            "challenge": "Meydan okuma",
+            "social": "Sosyal",
+            "community": "Topluluk"
+        },
+        "status": {
+            "earned": "Kazanıldı",
+            "locked": "Kilitli"
+        },
+        "badgeNames": {
+            "plasticSaver": "Plastik Kurtarıcı",
+            "plasticHero": "Plastik Kahramanı",
+            "plasticLegend": "Plastik Efsanesi",
+            "paperSaver": "Kağıt Kurtarıcı",
+            "paperHero": "Kağıt Kahramanı",
+            "paperLegend": "Kağıt Efsanesi",
+            "glassSaver": "Cam Kurtarıcı",
+            "glassHero": "Cam Kahramanı",
+            "glassLegend": "Cam Efsanesi",
+            "metalSaver": "Metal Kurtarıcı",
+            "metalHero": "Metal Kahramanı",
+            "metalLegend": "Metal Efsanesi",
+            "organicSaver": "Organik Kurtarıcı",
+            "organicHero": "Organik Kahramanı",
+            "organicLegend": "Organik Efsanesi"
+        },
+        "badgeDescriptions": {
+            "plasticSaver": "1.000g (1kg) plastik atık kaydetme rozeti",
+            "plasticHero": "5.000g (5kg) plastik atık kaydetme rozeti",
+            "plasticLegend": "10.000g (10kg) plastik atık kaydetme rozeti",
+            "paperSaver": "1.000g (1kg) kağıt atık kaydetme rozeti",
+            "paperHero": "5.000g (5kg) kağıt atık kaydetme rozeti",
+            "paperLegend": "10.000g (10kg) kağıt atık kaydetme rozeti",
+            "glassSaver": "1.000g (1kg) cam atık kaydetme rozeti",
+            "glassHero": "5.000g (5kg) cam atık kaydetme rozeti",
+            "glassLegend": "10.000g (10kg) cam atık kaydetme rozeti",
+            "metalSaver": "1.000g (1kg) metal atık kaydetme rozeti",
+            "metalHero": "5.000g (5kg) metal atık kaydetme rozeti",
+            "metalLegend": "10.000g (10kg) metal atık kaydetme rozeti",
+            "organicSaver": "1.000g (1kg) organik atık kaydetme rozeti",
+            "organicHero": "5.000g (5kg) organik atık kaydetme rozeti",
+            "organicLegend": "10.000g (10kg) organik atık kaydetme rozeti"
+        }
     }
 }
