@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge as Pill } from '@/components/ui/badge';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
 
 type BadgeCardProps = {
@@ -29,27 +30,37 @@ export function BadgeCard({
     : t('badges.status.locked', 'Locked');
 
   return (
-    <Card className={cn('bg-background/90 border border-border/60 shadow-lg', className)}>
-      <CardHeader className="flex flex-row justify-between gap-3 space-y-0">
-        <div className="flex gap-3 items-start">
-          <div className="h-20 w-20 sm:w-24 rounded-xl bg-primary/10 grid place-items-center border border-border/60 text-base font-semibold text-primary-foreground overflow-hidden">
-            {iconUrl ? (
-              <img src={iconUrl} alt={`${title} icon`} className="h-full w-full object-cover" />
-            ) : (
-              title.charAt(0).toUpperCase()
-            )}
-          </div>
-          <div className="space-y-1">
-            <CardTitle className="text-lg">{title}</CardTitle>
-            <CardDescription className="text-sm text-muted-foreground">{description}</CardDescription>
-            <div className="flex gap-2">
-              <Pill variant="outline">{categoryLabel}</Pill>
+    <Card
+      className={cn(
+        'bg-background/90 border border-border/60 shadow-lg transition',
+        !earned && 'opacity-60 saturate-20',
+        className
+      )}
+      aria-label={`${title} (${statusLabel})`}
+    >
+      <CardHeader className="flex flex-row justify-between items-start gap-3 space-y-0">
+        <div className="flex flex-col items-center text-center flex-1">
+          {iconUrl ? (
+            <img
+              src={iconUrl}
+              alt={`${title} icon`}
+              className="object-contain rounded-2xl"
+            />
+          ) : (
+            <div className="rounded-2xl bg-primary/10 grid place-items-center text-8xl font-semibold text-primary-foreground">
+              {title.charAt(0).toUpperCase()}
             </div>
+          )}
+          <CardTitle className="mt-3 text-lg text-foreground">{title}</CardTitle>
+          <div className="flex gap-2 mt-2">
+            <Pill variant="tertiary">{categoryLabel}</Pill>
+            <Pill variant={earned ? 'default' : 'destructive'}>{statusLabel}</Pill>
           </div>
         </div>
-        <Pill variant={earned ? 'tertiary' : 'secondary'}>{statusLabel}</Pill>
       </CardHeader>
-      <CardContent className="text-xs text-muted-foreground"></CardContent>
+      <CardContent className="text-sm text-muted-foreground">
+        {description}
+      </CardContent>
     </Card>
   );
 }

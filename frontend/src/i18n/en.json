@@ -430,14 +430,14 @@
     "badges": {
         "title": "Badge Catalog",
         "subtitle": "Preview the badges you can earn in WasteLess.",
-            "loginRequired": "Please sign in to view your badges.",
+        "loginRequired": "Please sign in to view your badges.",
         "loadError": "Failed to load badges.",
         "filters": {
             "all": "All categories"
         },
         "categories": {
-            "waste": "Waste",
-            "challenge": "Challenge",
+            "waste": "Goals",
+            "challenge": "Challenges",
             "social": "Social",
             "community": "Community"
         },
@@ -460,7 +460,8 @@
             "metalLegend": "Metal Legend",
             "organicSaver": "Organic Saver",
             "organicHero": "Organic Hero",
-            "organicLegend": "Organic Legend"
+            "organicLegend": "Organic Legend",
+            "topChallenger": "Top Challenger"
         },
         "badgeDescriptions": {
             "plasticSaver": "Log 1,000g (1kg) of plastic waste to earn this badge.",
@@ -477,7 +478,8 @@
             "metalLegend": "Log 10,000g (10kg) of metal waste to earn this badge.",
             "organicSaver": "Log 1,000g (1kg) of organic waste to earn this badge.",
             "organicHero": "Log 5,000g (5kg) of organic waste to earn this badge.",
-            "organicLegend": "Log 10,000g (10kg) of organic waste to earn this badge."
+            "organicLegend": "Log 10,000g (10kg) of organic waste to earn this badge.",
+            "topChallenger": "Finish a challenge in the top 3 of the leaderboard to earn this badge."
         }
     }
 }

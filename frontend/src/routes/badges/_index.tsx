@@ -8,21 +8,22 @@ import { BadgeApi } from '@/lib/api/badges';
 import type { Badge } from '@/lib/api/schemas/badge';
 
 // Badge Icon Assets
-import plasticSaverIcon from '@/assets/plastic-saver.png';
-import plasticHeroIcon from '@/assets/plastic-hero.png';
-import plasticLegendIcon from '@/assets/plastic-legend.png';
-import paperSaverIcon from '@/assets/paper-saver.png';
-import paperHeroIcon from '@/assets/paper-hero.png';
-import paperLegendIcon from '@/assets/paper-legend.png';
-import glassSaverIcon from '@/assets/glass-saver.png';
-import glassHeroIcon from '@/assets/glass-hero.png';
-import glassLegendIcon from '@/assets/glass-legend.png';
-import metalSaverIcon from '@/assets/metal-saver.png';
-import metalHeroIcon from '@/assets/metal-hero.png';
-import metalLegendIcon from '@/assets/metal-legend.png';
-import organicSaverIcon from '@/assets/organic-saver.png';
-import organicHeroIcon from '@/assets/organic-hero.png';
-import organicLegendIcon from '@/assets/organic-legend.png';
+import plasticSaverIcon from '@/assets/badges/plastic-saver.png';
+import plasticHeroIcon from '@/assets/badges/plastic-hero.png';
+import plasticLegendIcon from '@/assets/badges/plastic-legend.png';
+import paperSaverIcon from '@/assets/badges/paper-saver.png';
+import paperHeroIcon from '@/assets/badges/paper-hero.png';
+import paperLegendIcon from '@/assets/badges/paper-legend.png';
+import glassSaverIcon from '@/assets/badges/glass-saver.png';
+import glassHeroIcon from '@/assets/badges/glass-hero.png';
+import glassLegendIcon from '@/assets/badges/glass-legend.png';
+import metalSaverIcon from '@/assets/badges/metal-saver.png';
+import metalHeroIcon from '@/assets/badges/metal-hero.png';
+import metalLegendIcon from '@/assets/badges/metal-legend.png';
+import organicSaverIcon from '@/assets/badges/organic-saver.png';
+import organicHeroIcon from '@/assets/badges/organic-hero.png';
+import organicLegendIcon from '@/assets/badges/organic-legend.png';
+import topChallengerIcon from '@/assets/badges/top-challenger.png';
 
 type CatalogBadge = {
   key: string;
@@ -47,6 +48,7 @@ const catalog: CatalogBadge[] = [
   { key: 'badges.badgeNames.organicSaver', descriptionKey: 'badges.badgeDescriptions.organicSaver', category: 'waste', iconUrl: organicSaverIcon },
   { key: 'badges.badgeNames.organicHero', descriptionKey: 'badges.badgeDescriptions.organicHero', category: 'waste', iconUrl: organicHeroIcon },
   { key: 'badges.badgeNames.organicLegend', descriptionKey: 'badges.badgeDescriptions.organicLegend', category: 'waste', iconUrl: organicLegendIcon },
+  { key: 'badges.badgeNames.topChallenger', descriptionKey: 'badges.badgeDescriptions.topChallenger', category: 'challenge', iconUrl: topChallengerIcon },
 ];
 
 export default function BadgesIndex() {
@@ -150,7 +152,7 @@ export default function BadgesIndex() {
                 {t('badges.empty', 'No badges to show yet.')}
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {filtered.map((badge) => (
                   <BadgeCard
                     key={badge.key}

@@ -430,8 +430,8 @@
             "all": "Tüm kategoriler"
         },
         "categories": {
-            "waste": "Atık",
-            "challenge": "Meydan okuma",
+            "waste": "Hedefler",
+            "challenge": "Etkinlikler",
             "social": "Sosyal",
             "community": "Topluluk"
         },
@@ -454,24 +454,26 @@
             "metalLegend": "Metal Efsanesi",
             "organicSaver": "Organik Kurtarıcı",
             "organicHero": "Organik Kahramanı",
-            "organicLegend": "Organik Efsanesi"
+            "organicLegend": "Organik Efsanesi",
+            "topChallenger": "Zirve Yarışçısı"
         },
         "badgeDescriptions": {
-            "plasticSaver": "1.000g (1kg) plastik atık kaydetme rozeti",
-            "plasticHero": "5.000g (5kg) plastik atık kaydetme rozeti",
-            "plasticLegend": "10.000g (10kg) plastik atık kaydetme rozeti",
-            "paperSaver": "1.000g (1kg) kağıt atık kaydetme rozeti",
-            "paperHero": "5.000g (5kg) kağıt atık kaydetme rozeti",
-            "paperLegend": "10.000g (10kg) kağıt atık kaydetme rozeti",
-            "glassSaver": "1.000g (1kg) cam atık kaydetme rozeti",
-            "glassHero": "5.000g (5kg) cam atık kaydetme rozeti",
-            "glassLegend": "10.000g (10kg) cam atık kaydetme rozeti",
-            "metalSaver": "1.000g (1kg) metal atık kaydetme rozeti",
-            "metalHero": "5.000g (5kg) metal atık kaydetme rozeti",
-            "metalLegend": "10.000g (10kg) metal atık kaydetme rozeti",
-            "organicSaver": "1.000g (1kg) organik atık kaydetme rozeti",
-            "organicHero": "5.000g (5kg) organik atık kaydetme rozeti",
-            "organicLegend": "10.000g (10kg) organik atık kaydetme rozeti"
+            "plasticSaver": "Bu rozeti kazanmak için hedeflerde 1.000g (1kg) plastik atık kayıt edin.",
+            "plasticHero": "Bu rozeti kazanmak için hedeflerde 5.000g (5kg) plastik atık kayıt edin.",
+            "plasticLegend": "Bu rozeti kazanmak için hedeflerde 10.000g (10kg) plastik atık kayıt edin.",
+            "paperSaver": "Bu rozeti kazanmak için hedeflerde 1.000g (1kg) kağıt atık kayıt edin.",
+            "paperHero": "Bu rozeti kazanmak için hedeflerde 5.000g (5kg) kağıt atık kayıt edin.",
+            "paperLegend": "Bu rozeti kazanmak için hedeflerde 10.000g (10kg) kağıt atık kayıt edin.",
+            "glassSaver": "Bu rozeti kazanmak için hedeflerde 1.000g (1kg) cam atık kayıt edin.",
+            "glassHero": "Bu rozeti kazanmak için hedeflerde 5.000g (5kg) cam atık kayıt edin.",
+            "glassLegend": "Bu rozeti kazanmak için hedeflerde 10.000g (10kg) cam atık kayıt edin.",
+            "metalSaver": "Bu rozeti kazanmak için hedeflerde 1.000g (1kg) metal atık kayıt edin.",
+            "metalHero": "Bu rozeti kazanmak için hedeflerde 5.000g (5kg) metal atık kayıt edin.",
+            "metalLegend": "Bu rozeti kazanmak için hedeflerde 10.000g (10kg) metal atık kayıt edin.",
+            "organicSaver": "Bu rozeti kazanmak için hedeflerde 1.000g (1kg) organik atık kayıt edin.",
+            "organicHero": "Bu rozeti kazanmak için hedeflerde 5.000g (5kg) organik atık kayıt edin.",
+            "organicLegend": "Bu rozeti kazanmak için hedeflerde 10.000g (10kg) organik atık kayıt edin.",
+            "topChallenger": "Herhangi bir etkinliği liderlik tablosunda ilk 3’te tamamlayın."
         }
     }
 }
