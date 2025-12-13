@@ -74,7 +74,7 @@ public class ReportService {
 
         activityLogger.logAction(
                 "Create",
-                "Moderator", null,
+                "Moderator", username,
                 "Report", reportId,
                 "User", report.getReporter().getUsername(),
                 getFirst255Characters(report.getDescription())

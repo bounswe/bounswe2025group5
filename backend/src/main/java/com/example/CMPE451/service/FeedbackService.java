@@ -19,6 +19,7 @@ public class FeedbackService {
     @Autowired
     private FeedbackRepository feedbackRepository;
 
+    @Autowired
     private ActivityLogger activityLogger;
 
     @Autowired
@@ -73,7 +74,7 @@ public class FeedbackService {
 
         activityLogger.logAction(
                 "Create",
-                "Moderator", null,
+                "Moderator", username,
                 "Feedback", feedbackId,
                 "User", feedback.getFeedbacker().getUsername(),
                 getFirst255Characters(feedback.getContent())
