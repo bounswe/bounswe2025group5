@@ -236,6 +236,7 @@ CREATE TABLE IF NOT EXISTS `notifications` (
   `actor_id` varchar(255) DEFAULT NULL,
   `object_type` varchar(255),
   `object_id` varchar(255),
+  `preview` varchar(255),
   `is_read` tinyint(1) DEFAULT '0',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`notification_id`),
@@ -621,3 +622,91 @@ DELIMITER $$
         DELIMITER ;
 
 
+DELIMITER $$
+
+        -- ==========================================================================================
+-- TRIGGER: Check for Badges after INSERTING a log
+-- ==========================================================================================
+        CREATE TRIGGER `check_badge_after_insert`
+            AFTER INSERT ON `waste_log`
+            FOR EACH ROW
+        BEGIN
+            DECLARE current_type_id INT;
+    DECLARE current_type_name VARCHAR(255);
+    DECLARE total_weight DOUBLE;
+    DECLARE badge_name VARCHAR(255);
+
+            SELECT t.type_id, UPPER(t.name)
+            INTO current_type_id, current_type_name
+            FROM `waste_item` i
+                     JOIN `waste_type` t ON i.type_id = t.type_id
+            WHERE i.item_id = NEW.item_id;
+
+            SELECT IFNULL(SUM(wi.weight_in_grams * wl.quantity), 0)
+            INTO total_weight
+            FROM `waste_log` wl
+                     JOIN `waste_item` wi ON wl.item_id = wi.item_id
+            WHERE wl.user_id = NEW.user_id
+              AND wi.type_id = current_type_id;
+
+            IF total_weight > 1000 THEN
+        SET badge_name = CONCAT(current_type_name, ' SAVER');
+        INSERT IGNORE INTO `badge` (name, user_id) VALUES (badge_name, NEW.user_id);
+        END IF;
+
+        IF total_weight > 5000 THEN
+        SET badge_name = CONCAT(current_type_name, ' HERO');
+        INSERT IGNORE INTO `badge` (name, user_id) VALUES (badge_name, NEW.user_id);
+    END IF;
+
+    IF total_weight > 10000 THEN
+        SET badge_name = CONCAT(current_type_name, ' LEGEND');
+        INSERT IGNORE INTO `badge` (name, user_id) VALUES (badge_name, NEW.user_id);
+END IF;
+
+    END$$
+
+
+    -- ==========================================================================================
+-- TRIGGER: Check for Badges after UPDATING a log
+-- ==========================================================================================
+    CREATE TRIGGER `check_badge_after_update`
+        AFTER UPDATE ON `waste_log`
+        FOR EACH ROW
+    BEGIN
+        DECLARE current_type_id INT;
+    DECLARE current_type_name VARCHAR(255);
+    DECLARE total_weight DOUBLE;
+    DECLARE badge_name VARCHAR(255);
+
+        SELECT t.type_id, UPPER(t.name)
+        INTO current_type_id, current_type_name
+        FROM `waste_item` i
+                 JOIN `waste_type` t ON i.type_id = t.type_id
+        WHERE i.item_id = NEW.item_id;
+
+        SELECT IFNULL(SUM(wi.weight_in_grams * wl.quantity), 0)
+        INTO total_weight
+        FROM `waste_log` wl
+                 JOIN `waste_item` wi ON wl.item_id = wi.item_id
+        WHERE wl.user_id = NEW.user_id
+          AND wi.type_id = current_type_id;
+
+        IF total_weight > 1000 THEN
+        SET badge_name = CONCAT(current_type_name, ' SAVER');
+        INSERT IGNORE INTO `badge` (name, user_id) VALUES (badge_name, NEW.user_id);
+    END IF;
+
+    IF total_weight > 5000 THEN
+        SET badge_name = CONCAT(current_type_name, ' HERO');
+        INSERT IGNORE INTO `badge` (name, user_id) VALUES (badge_name, NEW.user_id);
+END IF;
+
+    IF total_weight > 10000 THEN
+        SET badge_name = CONCAT(current_type_name, ' LEGEND');
+        INSERT IGNORE INTO `badge` (name, user_id) VALUES (badge_name, NEW.user_id);
+END IF;
+
+    END$$
+
+    DELIMITER ;

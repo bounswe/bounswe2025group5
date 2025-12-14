@@ -115,11 +115,18 @@ public class PostService {
                 .map(GetFollowersResponse::getUsername)
                 .toList();
 
+        String preview = null;
+        if (post.getPhotoUrl() != null) {
+            preview = post.getPhotoUrl();
+        }
+        else preview = post.getContent();
+
         activityLogger.logAction(
                 "Create",
                 "User", user.getUsername(),
                 "Post", savedPost.getPostId(),
-                "Users", followerUsernames
+                "Users", followerUsernames,
+                getFirst255Characters(preview)
         );
 
         return new CreateOrEditPostResponse(
@@ -369,7 +376,19 @@ public class PostService {
         List<Post> posts = postRepository.findAllById(postIds);
         return convertToGetPostsResponse(posts, user.getId());
     }
+    public static String getFirst255Characters(String text) {
+        if (text == null) {
+            return null;
+        }
 
+        int maxLength = 255;
+
+        if (text.length() > maxLength) {
+            return text.substring(0, maxLength);
+        } else {
+            return text;
+        }
+    }
 
 
 }

@@ -43,7 +43,7 @@ public class UserController {
     }
 
     @GetMapping("/{username}/badges")
-    public ResponseEntity<List<BadgeResponse>> getBadges(@RequestParam String username) {
+    public ResponseEntity<List<BadgeResponse>> getBadges(@PathVariable("username") String username) {
         List<BadgeResponse> response = userService.getBadges(username);
         return ResponseEntity.ok(response);    }
 

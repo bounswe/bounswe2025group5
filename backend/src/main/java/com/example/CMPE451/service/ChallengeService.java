@@ -78,7 +78,8 @@ public class ChallengeService {
                 "End",
                 null, null,
                 "Challenge", challenge.getChallengeId(),
-                "Users", users
+                "Users", users,
+                challenge.getName()
         );
 
         return new EndChallengeResponse(challenge.getChallengeId(), true);
