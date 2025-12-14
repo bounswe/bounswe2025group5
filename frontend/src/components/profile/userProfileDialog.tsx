@@ -234,6 +234,11 @@ export default function UserProfileDialog({
                     </Label>
                   </div>
                 </div>
+                <BadgeShowcase
+                  username={username}
+                  maxEarnedToShow={3}
+                  iconClassName="min-h-[3rem] min-w-[3rem] sm:min-h-[5rem] sm:min-w-[5rem]"
+                />
                 {!isOwnProfile && (
                   <Button
                     type="button"
@@ -252,11 +257,6 @@ export default function UserProfileDialog({
                     )}
                   </Button>
                 )}
-                <BadgeShowcase
-                  username={username}
-                  maxEarnedToShow={3}
-                  iconClassName="min-h-[3rem] min-w-[3rem] sm:min-h-[5rem] sm:min-w-[5rem]"
-                />
               </div>
               <div className="flex-[2]" />
             </div>
