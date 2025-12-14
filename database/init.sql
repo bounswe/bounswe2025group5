@@ -93,7 +93,7 @@ CREATE TABLE `challenges` (
 
                   PRIMARY KEY (`challenge_id`),
                   CONSTRAINT `fk_challenge_waste_type`
-                      FOREIGN KEY (`type`) REFERENCES `waste_types`(`id`)
+                      FOREIGN KEY (`type`) REFERENCES `waste_type`(`type_id`)
                           ON DELETE RESTRICT
                           ON UPDATE CASCADE
 )
