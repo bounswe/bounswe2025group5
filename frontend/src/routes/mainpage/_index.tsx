@@ -86,11 +86,12 @@ export default function MainpageIndex() {
   };
 
   return (
-    <div className="container mx-auto px-4 pb-10">
+    <div className="container mx-auto px-4 pb-0 pt-8 ">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ScrollPanel
           title={t('mainpage.challengesTitle', 'Your Challenges')}
           description={t('mainpage.challengesDesc', 'Challenges you are currently attending')}
+          className="max-h-[84vh] overflow-y-auto"
         >
           {challenges.length === 0 ? (
             <div className="text-muted-foreground">{t('mainpage.noChallenges', 'No active challenges')}</div>
@@ -106,6 +107,7 @@ export default function MainpageIndex() {
         <ScrollPanel
           title={t('mainpage.feedTitle', 'Following Feed')}
           description={t('mainpage.feedDesc', 'Recent posts from accounts you follow')}
+          className="max-h-[84vh] overflow-y-auto"
         >
           {posts.length === 0 ? (
             <div className="text-muted-foreground">{t('mainpage.noPosts', 'No posts yet')}</div>

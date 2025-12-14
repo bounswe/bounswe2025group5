@@ -51,7 +51,8 @@ public class CommentService {
                 "Create",
                 "User", user.getUsername(),
                 "Comment", postId,
-                "User", post.getUser().getUsername()
+                "User", post.getUser().getUsername(),
+                request.getUsername()
         );
 
         return convertToResponse(savedComment);

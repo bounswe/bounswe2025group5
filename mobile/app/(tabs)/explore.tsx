@@ -70,6 +70,8 @@ type NotificationItem = {
 
 type NotificationFetchError = Error & { status?: number };
 
+const WASTE_TYPES = ["Plastic", "Paper", "Glass", "Metal", "Organic"] as const;
+
 export default function ExploreScreen() {
   const navigation = useNavigation();
 
@@ -80,7 +82,6 @@ export default function ExploreScreen() {
   const username = authContext?.username;
 
   const [posts, setPosts] = useState<Post[]>([]);
-  const [isFriendsFeed, setIsFriendsFeed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [lastPostId, setLastPostId] = useState<number | null>(null);
@@ -147,6 +148,9 @@ export default function ExploreScreen() {
   const notificationThumbnailFetchesRef = useRef<Set<number>>(new Set());
   const notificationCommentPreviewFetchesRef = useRef<Set<number>>(new Set());
   const notificationMarkingRef = useRef<Set<number>>(new Set());
+  const [selectedWasteFilter, setSelectedWasteFilter] = useState<string | null>(
+    null
+  );
 
   const colorScheme = useColorScheme();
   const screenBackgroundColor = colorScheme === "dark" ? "#151718" : "#F0F2F5";
@@ -187,10 +191,8 @@ export default function ExploreScreen() {
     colorScheme === "dark" ? "#2F2F31" : "#D9D9D9";
   const notificationAvatarTextColor =
     colorScheme === "dark" ? "#F5F5F7" : "#111111";
-  const feedAccentColor = isFriendsFeed ? "#2E7D32" : "#1976D2";
-  const feedAccentShadow = isFriendsFeed
-    ? "rgba(30, 94, 48, 0.2)"
-    : "rgba(13, 71, 161, 0.2)";
+  const feedAccentColor = "#1976D2";
+  const feedAccentShadow = "rgba(13, 71, 161, 0.2)";
   const resolvedPreviewImageUri = previewPost?.photoUrl
     ? previewPost.photoUrl.startsWith("http")
       ? previewPost.photoUrl
@@ -202,12 +204,6 @@ export default function ExploreScreen() {
       (navigation as any).navigate("index");
     }
   }, [userType, username, navigation]);
-
-  useEffect(() => {
-    if (userType === "guest" && isFriendsFeed) {
-      setIsFriendsFeed(false);
-    }
-  }, [userType, isFriendsFeed]);
 
   const mapApiItemToPost = (item: any): Post => ({
     id: item.postId,
@@ -1045,7 +1041,9 @@ export default function ExploreScreen() {
         const cachedBody = getPostContentFromState(postId);
         if (cachedBody) {
           setNotificationPostBodies((prev) =>
-            prev[postId] === cachedBody ? prev : { ...prev, [postId]: cachedBody }
+            prev[postId] === cachedBody
+              ? prev
+              : { ...prev, [postId]: cachedBody }
           );
         }
         if (cached) {
@@ -1081,13 +1079,19 @@ export default function ExploreScreen() {
           (typeof data?.text === "string" && data.text) ||
           null;
         setNotificationThumbnails((prev) =>
-          prev[postId] === resolved ? prev : { ...prev, [postId]: resolved ?? null }
+          prev[postId] === resolved
+            ? prev
+            : { ...prev, [postId]: resolved ?? null }
         );
         if (rawContent) {
           setNotificationPostBodies((prev) =>
-            prev[postId] === rawContent ? prev : { ...prev, [postId]: rawContent }
+            prev[postId] === rawContent
+              ? prev
+              : { ...prev, [postId]: rawContent }
           );
-        } else if (!Object.prototype.hasOwnProperty.call(notificationPostBodies, postId)) {
+        } else if (
+          !Object.prototype.hasOwnProperty.call(notificationPostBodies, postId)
+        ) {
           setNotificationPostBodies((prev) => ({ ...prev, [postId]: null }));
         }
       } catch (err) {
@@ -1105,7 +1109,11 @@ export default function ExploreScreen() {
         notificationThumbnailFetchesRef.current.delete(postId);
       }
     },
-    [getPhotoUrlForPostFromState, getPostContentFromState, notificationPostBodies]
+    [
+      getPhotoUrlForPostFromState,
+      getPostContentFromState,
+      notificationPostBodies,
+    ]
   );
 
   const fetchNotificationCommentPreview = useCallback(
@@ -1198,11 +1206,7 @@ export default function ExploreScreen() {
       }
       fetchNotificationPostThumbnail(postId);
     });
-  }, [
-    notifications,
-    fetchNotificationPostThumbnail,
-    notificationThumbnails,
-  ]);
+  }, [notifications, fetchNotificationPostThumbnail, notificationThumbnails]);
 
   useEffect(() => {
     if (!notifications.length) return;
@@ -1455,15 +1459,18 @@ export default function ExploreScreen() {
     }
   };
 
-  const performSearch = async () => {
-    const q = searchQuery.trim();
-    if (!q) return;
+  const executeSearch = async (query: string) => {
     try {
       setIsSearching(true);
       setSearchResults([]);
       setEditingCommentDetails(null);
+
       const res = await apiRequest(
-        `/api/forum/search/semantic?query=${encodeURIComponent(q)}&size=15`
+        `/api/forum/search/semantic?query=${encodeURIComponent(
+          query
+        )}&username=${encodeURIComponent(
+          username ?? ""
+        )}&lang=${encodeURIComponent(i18n.language)}`
       );
       if (!res.ok) throw new Error("Search failed");
       const data = await res.json();
@@ -1471,13 +1478,6 @@ export default function ExploreScreen() {
       if (processedResults.length > 0) {
         processedResults = await attachAvatarsToPosts(processedResults);
       }
-      // if (username && userType === "user" && processedResults.length > 0) {
-      //   // processedResults = await fetchLikeStatusesForPosts(processedResults, username);
-      //   processedResults = await fetchSavedStatusesForPosts(
-      //     processedResults,
-      //     username
-      //   );
-      // }
       setSearchResults(processedResults);
       setInSearchMode(true);
       if (expandedPostId) setExpandedPostId(null);
@@ -1490,11 +1490,24 @@ export default function ExploreScreen() {
     }
   };
 
+  const handleWasteFilterClick = async (wasteType: string) => {
+    setSelectedWasteFilter(wasteType);
+    setSearchQuery(wasteType);
+    await executeSearch(wasteType);
+  };
+
+  const performSearch = async () => {
+    const q = searchQuery.trim();
+    if (!q) return;
+    await executeSearch(q);
+  };
+
   const handleBack = () => {
     setInSearchMode(false);
     setSearchQuery("");
     setSearchResults([]);
     setEditingCommentDetails(null);
+    setSelectedWasteFilter(null);
     if (expandedPostId) setExpandedPostId(null);
   };
 
@@ -1947,29 +1960,18 @@ export default function ExploreScreen() {
             </AccessibleText>
           ) : (
             <>
-              <TouchableOpacity
-                style={styles.feedToggle}
-                onPress={() => setIsFriendsFeed((prev) => !prev)}
-                accessibilityRole="button"
-                accessibilityLabel={t("toggleFeed", {
-                  defaultValue: "Toggle feed",
-                })}
+              <AccessibleText
+                type="title"
+                backgroundColor={screenBackgroundColor}
+                style={[
+                  styles.feedToggleLabel,
+                  {
+                    color: feedAccentColor,
+                  },
+                ]}
               >
-                <AccessibleText
-                  type="title"
-                  backgroundColor={screenBackgroundColor}
-                  style={[
-                    styles.feedToggleLabel,
-                    {
-                      color: feedAccentColor,
-                    },
-                  ]}
-                >
-                  {isFriendsFeed
-                    ? t("exploreFriends", { defaultValue: "Explore Friends" })
-                    : t("exploreGlobal", { defaultValue: "Explore Global" })}
-                </AccessibleText>
-              </TouchableOpacity>
+                {t("explore", { defaultValue: "Explore" })}
+              </AccessibleText>
 
               <TouchableOpacity
                 style={[
@@ -1978,9 +1980,16 @@ export default function ExploreScreen() {
                 ]}
                 onPress={openNotifications}
                 accessibilityRole="button"
-                accessibilityLabel={t("openNotifications", {
-                  defaultValue: "Open notifications",
-                })}
+                accessibilityLabel={
+                  unreadCount > 0
+                    ? t("openNotificationsWithCount", {
+                        count: unreadCount,
+                        defaultValue: `Open notifications. ${unreadCount} unread notifications`,
+                      })
+                    : t("openNotifications", {
+                        defaultValue: "Open notifications",
+                      })
+                }
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
                 <Ionicons
@@ -2065,6 +2074,63 @@ export default function ExploreScreen() {
             editable={!isSearching && !editingCommentDetails}
           />
         </View>
+
+        {!inSearchMode && (
+          <View style={styles.wasteFilterContainer}>
+            <AccessibleText
+              backgroundColor={screenBackgroundColor}
+              style={[styles.wasteFilterLabel, { color: generalTextColor }]}
+            >
+              {t("filterByWasteType", { defaultValue: "Filter by Waste Type" })}
+            </AccessibleText>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.wasteFilterScrollContent}
+            >
+              {WASTE_TYPES.map((wasteType) => (
+                <TouchableOpacity
+                  key={wasteType}
+                  style={[
+                    styles.wasteFilterButton,
+                    selectedWasteFilter === wasteType &&
+                      styles.wasteFilterButtonActive,
+                    {
+                      borderColor: iconColor,
+                      backgroundColor:
+                        selectedWasteFilter === wasteType
+                          ? feedAccentColor
+                          : "transparent",
+                    },
+                  ]}
+                  onPress={() => handleWasteFilterClick(wasteType)}
+                  disabled={isSearching}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Filter by ${t(wasteType.toLowerCase())}`}
+                >
+                  <AccessibleText
+                    backgroundColor={
+                      selectedWasteFilter === wasteType
+                        ? feedAccentColor
+                        : "transparent"
+                    }
+                    style={[
+                      styles.wasteFilterButtonText,
+                      {
+                        color:
+                          selectedWasteFilter === wasteType
+                            ? "#FFFFFF"
+                            : generalTextColor,
+                      },
+                    ]}
+                  >
+                    {t(wasteType.toLowerCase())}
+                  </AccessibleText>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
 
         {showInlineRefreshIndicator && (
           <ActivityIndicator
@@ -2292,14 +2358,24 @@ export default function ExploreScreen() {
             styles.notificationsOverlay,
             { backgroundColor: screenBackgroundColor },
           ]}
+          accessibilityViewIsModal={true}
         >
           <View style={styles.notificationsHeader}>
             <TouchableOpacity
               onPress={closeNotifications}
-              accessibilityLabel={t("close", { defaultValue: "Close" })}
+              accessibilityRole="button"
+              accessibilityLabel={t("closeNotifications", {
+                defaultValue: "Close notifications",
+              })}
               style={styles.notificationsBackButton}
             >
-              <Ionicons name="arrow-back" size={24} color={generalTextColor} />
+              <Ionicons
+                name="arrow-back"
+                size={24}
+                color={generalTextColor}
+                importantForAccessibility="no-hide-descendants"
+                accessibilityElementsHidden={true}
+              />
             </TouchableOpacity>
             <AccessibleText
               backgroundColor={screenBackgroundColor}
@@ -2463,10 +2539,12 @@ export default function ExploreScreen() {
                           normalizedNotifType === "create")));
                   const isLikePost =
                     normalizedNotifType === "like" &&
-                    (normalizedNotifObject === "post" || !normalizedNotifObject);
+                    (normalizedNotifObject === "post" ||
+                      !normalizedNotifObject);
                   const isCreatePost =
                     normalizedNotifType === "create" &&
-                    (normalizedNotifObject === "post" || !normalizedNotifObject);
+                    (normalizedNotifObject === "post" ||
+                      !normalizedNotifObject);
                   const isChallengeEnd =
                     normalizedNotifType === "end" &&
                     normalizedNotifObject === "challenge";
@@ -2490,7 +2568,9 @@ export default function ExploreScreen() {
                       : null;
                   const shouldShowThumbnail =
                     isPostRelated &&
-                    Boolean(resolvedThumbnailUri && resolvedThumbnailUri.length);
+                    Boolean(
+                      resolvedThumbnailUri && resolvedThumbnailUri.length
+                    );
                   const shouldReserveThumbnailSpace =
                     isPostRelated && !hasFetchedThumbnail;
                   let messageText = notif.message?.trim()?.length
@@ -2498,7 +2578,10 @@ export default function ExploreScreen() {
                     : t("notificationFallbackMessage", {
                         defaultValue: "You have a new notification.",
                       });
-                  if ((isLikePost || isCreatePost) && derivedPostIdForThumb !== null) {
+                  if (
+                    (isLikePost || isCreatePost) &&
+                    derivedPostIdForThumb !== null
+                  ) {
                     const bodyFromState = getPostContentFromState(
                       derivedPostIdForThumb
                     );
@@ -2511,7 +2594,10 @@ export default function ExploreScreen() {
                       const shouldTruncate =
                         normalizedBody.length > maxPostBodyExcerptLength;
                       const excerpt = shouldTruncate
-                        ? `${normalizedBody.slice(0, maxPostBodyExcerptLength - 1)}…`
+                        ? `${normalizedBody.slice(
+                            0,
+                            maxPostBodyExcerptLength - 1
+                          )}…`
                         : normalizedBody;
                       messageText = `${messageText}: "${excerpt}"`;
                     }
@@ -2525,7 +2611,9 @@ export default function ExploreScreen() {
                       ) ??
                       null;
                     if (commentPreview && commentPreview.trim().length) {
-                      const normalized = commentPreview.trim().replace(/\s+/g, " ");
+                      const normalized = commentPreview
+                        .trim()
+                        .replace(/\s+/g, " ");
                       const shouldTruncate =
                         normalized.length > maxCommentExcerptLength;
                       const excerpt = shouldTruncate
@@ -2549,8 +2637,18 @@ export default function ExploreScreen() {
                       activeOpacity={0.8}
                       onPress={() => handleNotificationPress(notif)}
                       accessibilityRole="button"
-                      accessibilityLabel={t("notificationsTitle", {
-                        defaultValue: "Notifications",
+                      accessibilityLabel={t("notificationItemLabel", {
+                        status: notif.isRead
+                          ? t("read", { defaultValue: "Read" })
+                          : t("unread", { defaultValue: "Unread" }),
+                        message: messageText,
+                        time: timestamp,
+                        defaultValue: `${
+                          notif.isRead ? "Read" : "Unread"
+                        }. ${messageText}. ${timestamp}`,
+                      })}
+                      accessibilityHint={t("doubleTapToOpenNotification", {
+                        defaultValue: "Double tap to open notification",
                       })}
                     >
                       <View style={styles.notificationBody}>
@@ -2574,15 +2672,15 @@ export default function ExploreScreen() {
                                 },
                               ]}
                             />
-                          <AccessibleText
-                            backgroundColor={notificationCardBackground}
-                            style={[
-                              styles.notificationMessage,
-                              { color: generalTextColor },
-                            ]}
-                          >
+                            <AccessibleText
+                              backgroundColor={notificationCardBackground}
+                              style={[
+                                styles.notificationMessage,
+                                { color: generalTextColor },
+                              ]}
+                            >
                               {messageText}
-                          </AccessibleText>
+                            </AccessibleText>
                           </View>
                           {timestamp ? (
                             <AccessibleText
@@ -2596,7 +2694,8 @@ export default function ExploreScreen() {
                             </AccessibleText>
                           ) : null}
                         </View>
-                        {(shouldShowThumbnail || shouldReserveThumbnailSpace) && (
+                        {(shouldShowThumbnail ||
+                          shouldReserveThumbnailSpace) && (
                           <View
                             style={[
                               styles.notificationThumbnailWrapper,
@@ -3187,4 +3286,34 @@ const styles = StyleSheet.create({
     backgroundColor: "#007AFF",
   },
   notificationPreviewCloseText: { color: "#FFFFFF", fontWeight: "600" },
+  wasteFilterContainer: {
+    paddingHorizontal: 16,
+    marginBottom: 16,
+  },
+  wasteFilterLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 10,
+    opacity: 0.8,
+  },
+  wasteFilterScrollContent: {
+    paddingVertical: 4,
+    gap: 8,
+  },
+  wasteFilterButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    marginRight: 8,
+    minWidth: 80,
+    alignItems: "center",
+  },
+  wasteFilterButtonActive: {
+    borderWidth: 0,
+  },
+  wasteFilterButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
 });
