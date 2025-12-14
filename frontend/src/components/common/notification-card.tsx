@@ -126,20 +126,15 @@ export default function NotificationCard({
                 {getNotificationMessage().text}
               </span>
             </p>
-            {(notification.postMessage || notification.commentContent || notification.challengeTitle) && (
+            {(notification.preview || notification.postMessage || notification.commentContent || notification.challengeTitle) && (
               <div className="mt-2 p-2 rounded-md bg-muted/50 border border-border/50">
-                {notification.postMessage && (
+                {/* Use preview field from backend (preferred), fallback to legacy fields */}
+                {(notification.preview || notification.postMessage || notification.commentContent) && (
                   <p className="text-xs text-muted-foreground line-clamp-2 italic">
-                    "{notification.postMessage.length > 80 
-                      ? `${notification.postMessage.slice(0, 80)}...` 
-                      : notification.postMessage}"
-                  </p>
-                )}
-                {notification.commentContent && (
-                  <p className="text-xs text-muted-foreground line-clamp-2 italic">
-                    "{notification.commentContent.length > 80 
-                      ? `${notification.commentContent.slice(0, 80)}...` 
-                      : notification.commentContent}"
+                    "{(() => {
+                      const content = notification.preview || notification.postMessage || notification.commentContent || '';
+                      return content.length > 80 ? `${content.slice(0, 80)}...` : content;
+                    })()}"
                   </p>
                 )}
                 {notification.challengeTitle && (

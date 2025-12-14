@@ -8,9 +8,10 @@ export const NotificationSchema = z.object({
   createdAt: z.string(), // ISO timestamp string
   objectId: z.string().nullable(),
   objectType: z.string().nullable(),
-  postMessage: z.string().optional(), // Optional post message preview (populated client-side)
+  preview: z.string().nullable().optional(), // Preview content from backend (post content, comment content, etc.)
+  postMessage: z.string().optional(), // Optional post message preview (populated client-side) - DEPRECATED, use preview
   challengeTitle: z.string().optional(), // Optional challenge title (populated client-side)
-  commentContent: z.string().optional(), // Optional comment content (populated client-side)
+  commentContent: z.string().optional(), // Optional comment content (populated client-side) - DEPRECATED, use preview
 }).passthrough();
 
 export type Notification = z.infer<typeof NotificationSchema>;

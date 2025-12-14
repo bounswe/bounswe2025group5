@@ -8,9 +8,7 @@ import {
 } from '@/components/ui/popover';
 import { useTranslation } from 'react-i18next';
 import { NotificationsApi } from '@/lib/api/notifications';
-import { PostsApi } from '@/lib/api/posts';
 import { UsersApi } from '@/lib/api/users';
-import { CommentsApi } from '@/lib/api/comments';
 import NotificationCard from './notification-card';
 import NotificationDetailDialog from './NotificationDetailDialog';
 import type { Notification } from '@/lib/api/schemas/notifications';
@@ -37,74 +35,12 @@ export default function NotificationIcon() {
   });
 
   const enrichNotificationsWithContent = async (notificationsList: Notification[]) => {
-    // Filter notifications that need enrichment
-    const postNotifications = notificationsList.filter(
-      n => (n.type === 'Like' || n.type === 'Create' || n.type === 'Comment') && 
-           n.objectType?.toLowerCase() === 'post' && 
-           n.objectId
-    );
-
+    // Backend now provides preview field for post and comment notifications
+    // We only need to enrich challenge notifications with the challenge title
     const challengeNotifications = notificationsList.filter(
       n => n.type === 'End' && 
            n.objectType?.toLowerCase() === 'challenge' && 
            n.objectId
-    );
-
-    const commentNotifications = notificationsList.filter(
-      n => n.type === 'Create' && 
-           n.objectType?.toLowerCase() === 'comment' && 
-           n.objectId
-    );
-
-    // Fetch post details for post-related notifications (in parallel)
-    const enrichedPosts = await Promise.allSettled(
-      postNotifications.map(async (notification) => {
-        try {
-          const post = await PostsApi.getById(parseInt(notification.objectId!), username || undefined);
-          return {
-            ...notification,
-            postMessage: post.content || undefined,
-          };
-        } catch (error) {
-          console.error(`Failed to fetch post ${notification.objectId}:`, error);
-          return notification; // Return original notification if fetch fails
-        }
-      })
-    );
-
-    // Fetch comment details for comment notifications (in parallel)
-    // Note: objectId is the postId for comment notifications, not commentId
-    const enrichedComments = await Promise.allSettled(
-      commentNotifications.map(async (notification) => {
-        try {
-          const postId = parseInt(notification.objectId!);
-          const commentsResponse = await CommentsApi.list(postId);
-          
-          // Find the most recent comment from the actor
-          const actorComments = commentsResponse.comments.filter(
-            c => c.creatorUsername === notification.actorId
-          );
-          
-          if (actorComments.length > 0) {
-            // Sort by createdAt and get the most recent
-            const sortedComments = actorComments.sort((a, b) => {
-              const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-              const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-              return dateB - dateA;
-            });
-            
-            return {
-              ...notification,
-              commentContent: sortedComments[0].content || undefined,
-            };
-          }
-          
-          return notification;
-        } catch (error) {
-          console.error(`Failed to fetch comments for post ${notification.objectId}:`, error);
-          return notification;
-        }
-      })
     );
 
     // Fetch challenge details for challenge-ending notifications (in parallel)
@@ -128,18 +64,6 @@ export default function NotificationIcon() {
     // Create a map of enriched notifications
     const enrichedMap = new Map<number, Notification>();
     
-    enrichedPosts.forEach((result, index) => {
-      if (result.status === 'fulfilled') {
-        enrichedMap.set(postNotifications[index].id, result.value);
-      }
-    });
-
-    enrichedComments.forEach((result, index) => {
-      if (result.status === 'fulfilled') {
-        enrichedMap.set(commentNotifications[index].id, result.value);
-      }
-    });
-
     enrichedChallenges.forEach((result, index) => {
       if (result.status === 'fulfilled') {
         enrichedMap.set(challengeNotifications[index].id, result.value);
@@ -163,7 +87,8 @@ export default function NotificationIcon() {
       const data = await NotificationsApi.list(username);
       console.log('Notifications received:', data);
       
-      // Enrich notifications with post messages and challenge titles
+      // Enrich notifications (only challenge notifications need enrichment now)
+      // Post and comment previews are already provided by the backend in the 'preview' field
       const enrichedData = await enrichNotificationsWithContent(data);
       
       // Merge new notifications with existing ones, avoiding duplicates
