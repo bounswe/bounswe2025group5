@@ -67,7 +67,8 @@ export function BadgeShowcase({
         earnedBadgeNames.has(normalize(badge.key)) ||
         earnedBadgeNames.has(translatedMatch(badge.key))
     );
-    return earned.slice(0, Math.min(maxEarnedToShow, earned.length || maxEarnedToShow));
+    const sortedByPriority = [...earned].sort((a, b) => a.priority - b.priority);
+    return sortedByPriority.slice(0, Math.min(maxEarnedToShow, sortedByPriority.length || maxEarnedToShow));
   }, [earnedBadgeNames, maxEarnedToShow, t]);
 
   if (!username) return null;

@@ -256,7 +256,6 @@ export default function UserProfileDialog({
                   username={username}
                   maxEarnedToShow={3}
                   iconClassName="min-h-[3rem] min-w-[3rem] sm:min-h-[5rem] sm:min-w-[5rem]"
-                  gapClassName="gap-4"
                 />
               </div>
               <div className="flex-[2]" />
