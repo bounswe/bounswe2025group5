@@ -7,6 +7,7 @@ import { BadgeApi } from '@/lib/api/badges';
 import type { Badge } from '@/lib/api/schemas/badge';
 import { badgeCatalog } from '@/lib/badges/catalog';
 import { cn } from '@/lib/utils';
+import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/components/ui/hover-card';
 
 type BadgeShowcaseProps = {
   username: string | null;
@@ -17,7 +18,22 @@ type BadgeShowcaseProps = {
   gapClassName?: string;
 };
 
-const normalize = (val: string) => val.trim().toLowerCase();
+const normalize = (val: string) => {
+  const trimmed = val.trim();
+  const withoutNamespace = trimmed.includes('.')
+    ? trimmed.split('.').pop() ?? trimmed
+    : trimmed;
+
+  return withoutNamespace
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+};
+
+const normalizedCatalog = badgeCatalog.map((badge) => ({
+  ...badge,
+  normalizedKey: normalize(badge.key.split('.').pop() ?? badge.key),
+}));
 
 export function BadgeShowcase({
   username,
@@ -61,15 +77,12 @@ export function BadgeShowcase({
   }, [username, t]);
 
   const showcaseBadges = useMemo(() => {
-    const translatedMatch = (key: string) => normalize(t(key, { defaultValue: key }));
-    const earned = badgeCatalog.filter(
-      (badge) =>
-        earnedBadgeNames.has(normalize(badge.key)) ||
-        earnedBadgeNames.has(translatedMatch(badge.key))
+    const earned = normalizedCatalog.filter((badge) =>
+      earnedBadgeNames.has(badge.normalizedKey)
     );
     const sortedByPriority = [...earned].sort((a, b) => a.priority - b.priority);
     return sortedByPriority.slice(0, Math.min(maxEarnedToShow, sortedByPriority.length || maxEarnedToShow));
-  }, [earnedBadgeNames, maxEarnedToShow, t]);
+  }, [earnedBadgeNames, maxEarnedToShow]);
 
   if (!username) return null;
 
@@ -87,27 +100,38 @@ export function BadgeShowcase({
             const title = t(badge.key, { defaultValue: badge.key });
             const alt = `${title} is ${t('badges.status.earned', 'Earned')}`;
             return (
-              <div key={badge.key} className="flex items-center justify-center">
-                {badge.iconUrl ? (
-                  <img
-                    src={badge.iconUrl}
-                    alt={alt}
-                    className={cn(
-                      'h-15 w-20 sm:h-15 sm:w-20 min-h-[8rem] min-w-[8rem] sm:min-h-[10rem] sm:min-w-[10rem] object-contain flex-shrink-0',
-                      iconClassName
-                    )}
-                  />
-                ) : (
-                  <div
-                    className={cn(
-                      'h-15 w-20 sm:h-15 sm:w-20 min-h-[8rem] min-w-[8rem] sm:min-h-[10rem] sm:min-w-[10rem] rounded-full bg-primary/10 grid place-items-center text-2xl font-semibold text-primary-foreground',
-                      iconClassName
-                    )}
-                  >
-                    {title.charAt(0)}
-                  </div>
-                )}
-                <span className="sr-only">{title}</span>
+              <div key={badge.key}>
+                <HoverCard>
+                  <HoverCardTrigger asChild>
+                    <div className="relative inline-flex items-center justify-center">
+                      {badge.iconUrl ? (
+                        <img
+                          src={badge.iconUrl}
+                          alt={alt}
+                          className={cn(
+                            'h-15 w-20 sm:h-15 sm:w-20 min-h-[8rem] min-w-[8rem] sm:min-h-[10rem] sm:min-w-[10rem] object-contain flex-shrink-0',
+                            iconClassName
+                          )}
+                        />
+                      ) : (
+                        <div
+                          className={cn(
+                            'h-15 w-20 sm:h-15 sm:w-20 min-h-[8rem] min-w-[8rem] sm:min-h-[10rem] sm:min-w-[10rem] rounded-full bg-primary/10 grid place-items-center text-2xl font-semibold text-primary-foreground',
+                            iconClassName
+                          )}
+                        >
+                          {title.charAt(0)}
+                        </div>
+                      )}
+                      <span className="sr-only">{title}</span>
+                    </div>
+                  </HoverCardTrigger>
+                  <HoverCardContent className="z-[60]">
+                    <div className="text-muted-foreground text-center font-semibold px-2">
+                      {t(badge.descriptionKey, { defaultValue: badge.descriptionKey })}
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
               </div>
             );
           })}
