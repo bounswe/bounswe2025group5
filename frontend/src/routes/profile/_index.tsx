@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from 'react-router-dom';
 
 import { Card, CardContent } from "@/components/ui/card";
 import GlassCard from "@/components/ui/glass-card";
@@ -48,8 +47,6 @@ export default function ProfileIndex() {
   // User profile dialog state
   const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
-
-  const navigate = useNavigate();
 
   // Pull username from token payload stored in localStorage via API client refresh
   const storedUsername = useMemo(() => {
