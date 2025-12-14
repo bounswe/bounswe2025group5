@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import EditProfile from '@/components/profile/edit_profile';
 import { UsersApi } from '@/lib/api/users';
+import { AuthApi } from '@/lib/api/auth';
 
 const formatTemplate = (template: string, vars?: Record<string, unknown>) =>
   template.replace(/\{\{?\s*(\w+)\s*\}?\}/g, (_, token) => String(vars?.[token] ?? ''));
@@ -29,7 +30,6 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-// ✅ Popover mock to avoid portals / Radix behavior in tests
 vi.mock('@/components/ui/popover', () => ({
   Popover: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   PopoverTrigger: ({ children }: { children: React.ReactNode }) => <>{children}</>,
@@ -42,6 +42,20 @@ vi.mock('@/lib/api/users', () => ({
     updateProfile: vi.fn(),
     uploadProfilePhoto: vi.fn(),
   },
+}));
+
+vi.mock('@/lib/api/auth', () => ({
+  AuthApi: {
+    resetPassword: vi.fn(),
+  },
+}));
+
+vi.mock('@/hooks/usePasswordStrength', () => ({
+  usePasswordStrength: (password: string) => ({
+    score: password ? 4 : 0,
+    isStrong: Boolean(password),
+    feedback: undefined,
+  }),
 }));
 
 describe('EditProfile', () => {
@@ -102,5 +116,70 @@ describe('EditProfile', () => {
       expect(UsersApi.uploadProfilePhoto).toHaveBeenCalledWith('demo', file)
     );
     expect(onPhotoSaved).toHaveBeenCalledWith('https://example.com/avatar.png');
+  });
+
+  it('shows validation error when new password is too short', async () => {
+    const user = userEvent.setup();
+    render(<EditProfile username="demo" initialBio="" initialPhotoUrl={null} />);
+
+    await user.click(screen.getByRole('button', { name: 'profile.edit' }));
+    await user.click(screen.getByRole('tab', { name: /reset password/i }));
+
+    await user.type(screen.getByLabelText(/current password/i), 'oldpass');
+    await user.type(screen.getByLabelText(/^new password$/i), '123');
+    await user.type(screen.getByLabelText(/confirm new password/i), '123');
+
+    await user.click(screen.getByRole('button', { name: /update password/i }));
+
+    expect(AuthApi.resetPassword).not.toHaveBeenCalled();
+    expect(
+      await screen.findByText(/password must be at least 8 characters/i)
+    ).toBeInTheDocument();
+  });
+
+  it('submits reset password and shows success', async () => {
+    const user = userEvent.setup();
+    vi.mocked(AuthApi.resetPassword).mockResolvedValue({ success: true });
+
+    render(<EditProfile username="demo" initialBio="" initialPhotoUrl={null} />);
+
+    await user.click(screen.getByRole('button', { name: 'profile.edit' }));
+    await user.click(screen.getByRole('tab', { name: /reset password/i }));
+
+    await user.type(screen.getByLabelText(/current password/i), 'OldPass!123');
+    await user.type(screen.getByLabelText(/^new password$/i), 'NewPass!123');
+    await user.type(screen.getByLabelText(/confirm new password/i), 'NewPass!123');
+
+    await user.click(screen.getByRole('button', { name: /update password/i }));
+
+    await waitFor(() =>
+      expect(AuthApi.resetPassword).toHaveBeenCalledWith('demo', 'OldPass!123', 'NewPass!123')
+    );
+    expect(screen.getByText('Password updated successfully.')).toBeInTheDocument();
+    expect(screen.getByLabelText(/^new password$/i)).toHaveValue('');
+    expect(screen.getByLabelText(/confirm new password/i)).toHaveValue('');
+  });
+
+  it('shows backend error when reset password fails', async () => {
+    const user = userEvent.setup();
+    vi.mocked(AuthApi.resetPassword).mockRejectedValue(new Error('Current password is incorrect'));
+
+    render(<EditProfile username="demo" initialBio="" initialPhotoUrl={null} />);
+
+    await user.click(screen.getByRole('button', { name: 'profile.edit' }));
+    await user.click(screen.getByRole('tab', { name: /reset password/i }));
+
+    await user.type(screen.getByLabelText(/current password/i), 'wrong');
+    await user.type(screen.getByLabelText(/^new password$/i), 'NewPass!123');
+    await user.type(screen.getByLabelText(/confirm new password/i), 'NewPass!123');
+
+    await user.click(screen.getByRole('button', { name: /update password/i }));
+
+    await waitFor(() =>
+      expect(AuthApi.resetPassword).toHaveBeenCalledWith('demo', 'wrong', 'NewPass!123')
+    );
+    expect(
+      screen.getByText('Current password is incorrect')
+    ).toBeInTheDocument();
   });
 });

@@ -92,7 +92,7 @@ export default function EditProfile({ username, initialBio, initialPhotoUrl, onB
             return;
         }
         if (newPassword.length < MIN_PASSWORD_LENGTH) {
-            setResetError(t('profile.resetPassword.error.tooShort', { min: MIN_PASSWORD_LENGTH }));
+            setResetError(t('profile.resetPassword.error.tooShort', { min: MIN_PASSWORD_LENGTH, defaultValue: 'Password must be at least {{min}} characters.' }));
             return;
         }
         if (!isNewPasswordStrong) {
