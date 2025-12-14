@@ -138,7 +138,7 @@ export default function EditProfile({ username, initialBio, initialPhotoUrl, onB
                     {t('profile.edit')}
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[min(95vw,460px)] p-6 max-h-[80vh] overflow-y-auto">
+            <PopoverContent side="bottom" align="center" avoidCollisions={false} className="w-[min(95vw,460px)] p-6 max-h-[80vh] overflow-y-auto">
                 <Tabs defaultValue="account" className="space-y-6 min-h-[455px]">
                     <TabsList className="grid w-full grid-cols-2">
                         <TabsTrigger value="account">{t('profile.account.details', 'Account Details')}</TabsTrigger>
