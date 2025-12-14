@@ -12,6 +12,7 @@ import type { ProfileResponse } from '@/lib/api/schemas/profile';
 import type { PostItem } from '@/lib/api/schemas/posts';
 import PostCard from '@/components/feedpage/post-card';
 import userAvatar from '@/assets/user.png';
+import { BadgeShowcase } from '@/components/badges/badge-showcase';
 
 interface UserProfileDialogProps {
   username: string | null;
@@ -44,7 +45,6 @@ export default function UserProfileDialog({
   const [isFollowLoading, setIsFollowLoading] = useState(!hasOverrides);
   const [isFollowActionLoading, setIsFollowActionLoading] = useState(false);
 
-  // ✅ use window.localStorage so tests/JSDOM don’t crash
   const currentUser =
     typeof window !== 'undefined' ? window.localStorage.getItem('username') : null;
   const isOwnProfile = currentUser === username;
@@ -185,10 +185,10 @@ export default function UserProfileDialog({
             {t('profile.notFound')}
           </div>
         ) : (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 mt-4">
             <div className="flex items-start gap-8">
               <div className="flex-[2]" />
-              <div className="flex flex-col items-center gap-3 flex-[2]">
+              <div className="flex flex-col items-center gap-3 w-[15rem]">
                 <Avatar className="w-16 h-16">
                   <AvatarImage
                     src={profile.photoUrl || userAvatar}
@@ -252,6 +252,12 @@ export default function UserProfileDialog({
                     )}
                   </Button>
                 )}
+                <BadgeShowcase
+                  username={username}
+                  maxEarnedToShow={3}
+                  iconClassName="min-h-[3rem] min-w-[3rem] sm:min-h-[5rem] sm:min-w-[5rem]"
+                  gapClassName="gap-4"
+                />
               </div>
               <div className="flex-[2]" />
             </div>

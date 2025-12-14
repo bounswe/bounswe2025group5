@@ -19,9 +19,7 @@ import type { SavedPostItem } from "@/lib/api/schemas/users";
 import type { PostItem } from "@/lib/api/schemas/posts";
 import { FollowApi } from '@/lib/api/follow';
 import type { FollowUserItem } from '@/lib/api/schemas/follow';
-import { BadgeApi } from '@/lib/api/badges';
-import type { Badge } from '@/lib/api/schemas/badge';
-import { badgeCatalog } from '@/lib/badges/catalog';
+import { BadgeShowcase } from '@/components/badges/badge-showcase';
 
 import userAvatar from '@/assets/user.png';
 
@@ -51,14 +49,7 @@ export default function ProfileIndex() {
   const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
 
-   // Badges states
-  const [badgesLoading, setBadgesLoading] = useState(true);
-  const [badgesError, setBadgesError] = useState<string | null>(null);
-  const [earnedBadgeNames, setEarnedBadgeNames] = useState<Set<string>>(new Set());
-  const badgeCatalogList = badgeCatalog;
-
   const navigate = useNavigate();
-  const normalize = (val: string) => val.trim().toLowerCase();
 
   // Pull username from token payload stored in localStorage via API client refresh
   const storedUsername = useMemo(() => {
@@ -98,25 +89,6 @@ export default function ProfileIndex() {
       }
     })();
   }, [storedUsername]);
-
-  useEffect(() => {
-    if (!storedUsername) {
-      setBadgesLoading(false);
-      return;
-    }
-    (async () => {
-      try {
-        setBadgesLoading(true);
-        const res = await BadgeApi.getBadges(storedUsername);
-        setEarnedBadgeNames(new Set(res.map((b: Badge) => normalize(b.badgeName))));
-        setBadgesError(null);
-      } catch (e) {
-        setBadgesError(e instanceof Error ? e.message : t('badges.loadError', 'Failed to load badges.'));
-      } finally {
-        setBadgesLoading(false);
-      }
-    })();
-  }, [storedUsername, t]);
 
   const loadMyPosts = async () => {
     try {
@@ -214,15 +186,6 @@ export default function ProfileIndex() {
     setFollowersOpen(false);
     setFollowingOpen(false);
   };
-
-  const showcaseBadges = useMemo(() => {
-    const translatedMatch = (key: string) => normalize(t(key, { defaultValue: key }));
-    const earned = badgeCatalogList.filter((badge) =>
-      earnedBadgeNames.has(normalize(badge.key)) || earnedBadgeNames.has(translatedMatch(badge.key))
-    );
-    return earned.slice(0, 3);
-  }, [badgeCatalogList, earnedBadgeNames, t]);
-
 
   return (
     <div className="min-h-screen p-4">
@@ -377,41 +340,12 @@ export default function ProfileIndex() {
                 </Popover>
               </div>
               <div className="w-full mt-8">
-                {badgesLoading ? (
-                  <div className="flex justify-center py-4">
-                    <Spinner className="h-4 w-4" />
-                  </div>
-                ) : badgesError ? (
-                  <div className="text-sm text-destructive">{badgesError}</div>
-                ) : showcaseBadges.length >= 3 ? (
-                  <div className="flex items-center justify-center">
-                    {showcaseBadges.map((badge) => {
-                      const title = t(badge.key, { defaultValue: badge.key });
-                      const alt = `${title} is ${t('badges.status.earned', 'Earned')}`;
-                      return (
-                        <div key={badge.key} className="flex items-center justify-center">
-                          {badge.iconUrl ? (
-                            <img
-                              src={badge.iconUrl}
-                              alt={alt}
-                              className="min-h-[3rem] min-w-[3rem] sm:min-h-[5rem] sm:min-w-[5rem] object-contain flex-shrink-0"
-                            />
-                          ) : (
-                            <div className="min-h-[3rem] min-w-[3rem] sm:min-h-[5rem] sm:min-w-[5rem] rounded-full bg-primary/10 grid place-items-center text-2xl font-semibold text-primary-foreground">
-                              {title.charAt(0)}
-                            </div>
-                          )}
-                          <span className="sr-only">{title}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : null}
-                <div className="flex items-center justify-center">
-                  <Button variant="ghost" size="sm" onClick={() => navigate('/badges')}>
-                    {t('profile.badges.cta', 'See Badge Catalog')}
-                  </Button>
-                </div>
+                <BadgeShowcase
+                  username={storedUsername}
+                  maxEarnedToShow={3}
+                  showCatalogButton
+                  iconClassName="min-h-[3rem] min-w-[3rem] sm:min-h-[5rem] sm:min-w-[5rem]"
+                />
               </div>
             </div>
             <div className="flex-[2]"></div>
