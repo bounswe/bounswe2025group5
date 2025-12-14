@@ -79,6 +79,10 @@
         "navbar": "Profile",
         "title": "Your Profile",
         "description": "Manage your profile information",
+        "account": {
+            "details": "Account Details",
+            "password": "Reset Password"
+        },
         "username": "Username",
         "userLabel": "User {{username}}",
         "biography": "Biography",
@@ -97,6 +101,25 @@
         "editImage": "Edit Image",
         "userProfile": "User profile",
         "userProfileTitle": "{{username}}'s profile",
+        "resetPassword": {
+            "subtitle": "Set a new password to keep your account secure.",
+            "currentLabel": "Current password",
+            "newLabel": "New password",
+            "confirmLabel": "Confirm new password",
+            "placeholder": "Choose a strong password",
+            "requirements": "Use at least 8 characters. Mix letters, numbers, and symbols, and avoid common patterns.",
+            "update": "Update password",
+            "updating": "Updating...",
+            "success": "Password updated successfully.",
+            "error": {
+                "tooShort": "Password must be at least {{min}} characters.",
+                "tooWeak": "Password is too weak. Aim for 'Good' or higher.",
+                "passwordsDontMatch": "Passwords do not match",
+                "samePassword": "New password must be different from the current one.",
+                "usernameMissing": "We could not find your username. Please log in again.",
+                "generic": "Could not change password. Please try again."
+            }
+        },
         "error": {
             "loadFailed": "Failed to load profile"
         },

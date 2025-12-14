@@ -14,7 +14,11 @@ export const AuthApi = {
       '/api/users',
       { email, username, password }
     ),
+  resetPassword: (emailOrUsername: string, oldPassword: string, newPassword: string) =>
+    ApiClient.put<{ success?: boolean; message?: string }>(
+      '/api/reset-password',
+      { emailOrUsername, oldPassword, newPassword }
+    ),
 };
 
 export { setTokens, setAuthMetadata };
-

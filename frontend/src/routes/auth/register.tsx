@@ -9,7 +9,7 @@ import GlassCard from "@/components/ui/glass-card";
 import { useTranslation } from "react-i18next";
 import { usePasswordStrength } from "@/hooks/usePasswordStrength";
 import PasswordStrengthMeter from "@/components/common/password-strength-meter";
-import { Alert, AlertDescription } from "@/components/ui/alert"; // added
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const MIN_PASSWORD_LENGTH = 8;
 

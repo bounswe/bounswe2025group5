@@ -79,6 +79,10 @@
         "navbar": "Profil",
         "title": "Profiliniz",
         "description": "Profil bilgilerinizi yönetin",
+        "account": {
+            "details": "Hesap Detayları",
+            "password": "Şifre Sıfırla"
+        },
         "username": "Kullanıcı adı",
         "userLabel": "Kullanıcı {{username}}",
         "biography": "Biyografi",
@@ -97,6 +101,25 @@
         "editImage": "Resmi Düzenle",
         "userProfile": "Kullanıcı profili",
         "userProfileTitle": "{{username}}'in profili",
+        "resetPassword": {
+            "subtitle": "Hesabınızı güvende tutmak için yeni bir şifre belirleyin.",
+            "currentLabel": "Mevcut şifre",
+            "newLabel": "Yeni şifre",
+            "confirmLabel": "Yeni şifreyi onayla",
+            "placeholder": "Güçlü bir şifre seçin",
+            "requirements": "En az 8 karakter kullanın. Harf, rakam ve sembolleri karıştırın, yaygın desenlerden kaçının.",
+            "update": "Şifreyi güncelle",
+            "updating": "Güncelleniyor...",
+            "success": "Şifre başarıyla güncellendi.",
+            "error": {
+                "tooShort": "Şifre en az {{min}} karakter olmalı.",
+                "tooWeak": "Şifre çok zayıf. 'İyi' veya üzeri olmalı.",
+                "passwordsDontMatch": "Şifreler eşleşmiyor",
+                "samePassword": "Yeni şifre mevcut şifreden farklı olmalı.",
+                "usernameMissing": "Kullanıcı adınızı bulamadık. Lütfen tekrar giriş yapın.",
+                "generic": "Şifre değiştirilemedi. Lütfen tekrar deneyin."
+            }
+        },
         "error": {
             "loadFailed": "Profil yüklenemedi"
         },
