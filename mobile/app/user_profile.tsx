@@ -269,6 +269,7 @@ export default function UserProfileScreen() {
         backgroundColor: colorScheme === "dark" ? "#151718" : "#F0F2F5",
       }}
       keyboardShouldPersistTaps="handled"
+      contentContainerStyle={{ paddingBottom: 88 }}
     >
       <View
         style={{
