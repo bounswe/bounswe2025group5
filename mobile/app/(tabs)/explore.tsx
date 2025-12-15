@@ -544,6 +544,18 @@ export default function ExploreScreen() {
       });
     }
 
+    if (normalizedType === "closedwithoutchange" && normalizedObject === "report") {
+      return t("notificationReportClosedWithoutChange", {
+        defaultValue: "Your report has been reviewed and closed without changes",
+      });
+    }
+
+    if (normalizedType === "deletion" && normalizedObject === "report") {
+      return t("notificationReportDeletion", {
+        defaultValue: "Your report has been reviewed and the content was removed",
+      });
+    }
+
     try {
       return JSON.stringify(
         rawPayload ?? { type, objectType, actorId, objectId }
@@ -722,7 +734,11 @@ export default function ExploreScreen() {
   const shouldDisplayNotificationAvatar = (notif: NotificationItem) => {
     const normalizedType = notif.type?.toLowerCase();
     const normalizedObject = notif.objectType?.toLowerCase();
-    return !(normalizedType === "end" && normalizedObject === "challenge");
+    // Hide avatar for challenge end and moderator report notifications
+    if (normalizedType === "end" && normalizedObject === "challenge") return false;
+    if (normalizedType === "closedwithoutchange" && normalizedObject === "report") return false;
+    if (normalizedType === "deletion" && normalizedObject === "report") return false;
+    return true;
   };
 
   const closePostPreview = () => {
