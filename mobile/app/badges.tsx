@@ -138,6 +138,13 @@ export default function BadgesScreen() {
         >
           {displayName}
         </AccessibleText>
+        <AccessibleText
+          backgroundColor={isDarkMode ? '#1F2933' : '#FFFFFF'}
+          style={[styles.badgeDesc, { color: isDarkMode ? '#CBD5E1' : '#4B5563' }]}
+          numberOfLines={3}
+        >
+          {translationKey ? t(`${translationKey}Desc`) : ''}
+        </AccessibleText>
       </View>
     );
   };
@@ -219,6 +226,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#111827',
     textAlign: 'center',
+  },
+  badgeDesc: {
+    fontSize: 12,
+    lineHeight: 16,
+    textAlign: 'center',
+    paddingHorizontal: 6,
   },
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   emptyText: { fontSize: 16, fontStyle: 'italic' },
