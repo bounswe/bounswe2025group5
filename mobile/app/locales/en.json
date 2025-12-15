@@ -412,6 +412,8 @@
     "viewAllBadges": "View all",
     "settings": "Settings",
     "language": "Language:",
+    "sendFeedback": "Send feedback",
+    "feedbackComingSoon": "Feedback form coming soon.",
     "badgeDetails": "Badge Details"
   }
 }

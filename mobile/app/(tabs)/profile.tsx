@@ -1357,6 +1357,23 @@ export default function ProfileScreen() {
                   </TouchableOpacity>
 
                   <TouchableOpacity
+                    style={styles.settingsMenuButton}
+                    onPress={() => {
+                      setSettingsMenuOpen(false);
+                      Alert.alert(
+                        t("sendFeedback"),
+                        t("feedbackComingSoon", {
+                          defaultValue: "Feedback form coming soon.",
+                        })
+                      );
+                    }}
+                  >
+                    <Text style={[styles.settingsMenuButtonText, { color: generalTextColor }]}>
+                      {t("sendFeedback")}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
                     style={[styles.settingsMenuButton, styles.settingsMenuLogout]}
                     onPress={() => {
                       setSettingsMenuOpen(false);
