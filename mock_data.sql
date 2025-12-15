@@ -18,7 +18,7 @@ INSERT INTO `waste_type` (`type_id`, `name`) VALUES
 -- ------------------------------------------------------
 INSERT INTO `users` (`user_id`, `email`, `username`, `password_hash`, `total_xp`, `is_moderator`, `is_admin`) VALUES 
 (1, 'cengiz@example.com', 'Cengiz Bilal', '$2a$10$kgh6oleQOEDuoJV0JLe2POfLRGB8XEOkRyuez.x5t0jindLdR3EKG', 100, 1, 1),
-(2, 'kerim@example.com', 'kerim', '$2a$10$/m50zCCrHnfF3ftYXQgIMezdBs15zhAhbHnd3xnz7u1cgjzBbsgHu', 50, 0, 0),
+(2, 'kerim@example.com', 'kerim', '$2a$10$/m50zCCrHnfF3ftYXQgIMezdBs15zhAhbHnd3xnz7u1cgjzBbsgHu', 50, 1, 0),
 (9, 'bartu@example.com', 'CuriousBartu', '$2a$10$G0gV5.a1gn2EkIAeoVxmMOndgr057ZA/ZhB3dyGCidolGPG9Odob.', 20, 1, 0),
 (14, 'edmonds@example.com', 'edmonds_j', '$2a$10$gAyT4.F0G7FgS8nB5znSU.y/gwZ07oHKORjYS9OgRfI8TmxgCsJVC', 0, 0, 0),
 (84, 'alice@example.com', 'Alice', '$2a$10$96zEEQ.m3x3pmHFYSVAky.YH2n95u2jLUOviARflQZuxWJXXOitAy', 10, 0, 0);
