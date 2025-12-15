@@ -31,7 +31,7 @@ const WASTE_TYPE_OPTIONS = [
   { value: "ORGANIC", translationKey: "organic" },
 ] as const;
 
-const DEFAULT_WASTE_TYPE_VALUE = WASTE_TYPE_OPTIONS[0].value;
+const DEFAULT_WASTE_TYPE_VALUE = "";
 
 type Challenge = {
   challengeId: number;
@@ -257,6 +257,15 @@ export default function ChallengesScreen() {
       setCreateError(t("challengeDescRequired"));
       return;
     }
+
+    const normalizedWasteType = challengeWasteType.trim();
+    const isValidWasteType = WASTE_TYPE_OPTIONS.some(
+      (option) => option.value === normalizedWasteType
+    );
+    if (!isValidWasteType) {
+      setCreateError(t("errorSelectWasteType"));
+      return;
+    }
     if (
       !challengeAmount.trim() ||
       isNaN(parseFloat(challengeAmount)) ||
@@ -289,7 +298,7 @@ export default function ChallengesScreen() {
         amount: parseFloat(challengeAmount),
         startDate: startDate.toISOString().split("T")[0], // Format: YYYY-MM-DD
         endDate: endDate.toISOString().split("T")[0], // Format: YYYY-MM-DD
-        type: challengeWasteType.trim(),
+        type: normalizedWasteType,
       };
 
       const res = await apiRequest("/api/challenges", { //UPDATE
@@ -478,7 +487,7 @@ export default function ChallengesScreen() {
           : [];
 
         setWasteItemsForChallenge(parsedItems);
-        setSelectedWasteItemId(parsedItems[0] ? String(parsedItems[0].id) : null);
+        setSelectedWasteItemId(null);
       })
       .catch((err) => {
         console.error("Error fetching waste items for challenge:", err);
@@ -963,7 +972,7 @@ export default function ChallengesScreen() {
               style={[
                 styles.pickerContainer,
                 {
-                  borderColor: colors.borderColor,
+                  borderColor: colors.inputBorder,
                   backgroundColor: colors.inputBackground,
                 },
               ]}
@@ -971,15 +980,27 @@ export default function ChallengesScreen() {
               <Picker
                 selectedValue={challengeWasteType}
                 onValueChange={(value) => setChallengeWasteType(String(value))}
-                style={[styles.picker, { color: colors.text }]}
+                style={[
+                  styles.picker,
+                  {
+                    color: challengeWasteType ? colors.text : colors.textSubtle,
+                    backgroundColor: colors.inputBackground,
+                  },
+                ]}
                 itemStyle={{ color: colors.text }}
                 dropdownIconColor={colors.text}
               >
+                <Picker.Item
+                  label={t("selectWasteType")}
+                  value=""
+                  color={colors.textSubtle}
+                />
                 {WASTE_TYPE_OPTIONS.map((option) => (
                   <Picker.Item
                     key={option.value}
                     label={t(option.translationKey)}
                     value={option.value}
+                    color={colors.text}
                   />
                 ))}
               </Picker>
@@ -1089,7 +1110,7 @@ export default function ChallengesScreen() {
             </ThemedText>
 
             {logError && (
-              <ThemedText style={[styles.error, { color: "#FF6B6B" }]}>
+              <ThemedText style={[styles.error, { color: colors.error }]}>
                 {logError}
               </ThemedText>
             )}
@@ -1104,7 +1125,7 @@ export default function ChallengesScreen() {
                 style={[
                   styles.pickerContainer,
                   {
-                    borderColor: colors.borderColor,
+                    borderColor: colors.inputBorder,
                     backgroundColor: colors.inputBackground,
                   },
                 ]}
@@ -1112,10 +1133,21 @@ export default function ChallengesScreen() {
                 <Picker
                   selectedValue={selectedWasteItemId ?? ""}
                   onValueChange={(value) => setSelectedWasteItemId(String(value))}
-                  style={[styles.picker, { color: colors.text }]}
+                  style={[
+                    styles.picker,
+                    {
+                      color: selectedWasteItemId ? colors.text : colors.textSubtle,
+                      backgroundColor: colors.inputBackground,
+                    },
+                  ]}
                   itemStyle={{ color: colors.text }}
                   dropdownIconColor={colors.text}
                 >
+                  <Picker.Item
+                    label={t("selectWasteItem")}
+                    value=""
+                    color={colors.textSubtle}
+                  />
                   {wasteItemsForChallenge.map((item) => {
                     const weightValue = Number(item.weightInGrams);
                     const formattedWeight = Number.isFinite(weightValue)
@@ -1131,6 +1163,7 @@ export default function ChallengesScreen() {
                         key={item.id}
                         label={label}
                         value={String(item.id)}
+                        color={colors.text}
                       />
                     );
                   })}
@@ -1206,7 +1239,7 @@ export default function ChallengesScreen() {
             </ThemedText>
 
             {logsError && (
-              <ThemedText style={[styles.error, { color: "#FF6B6B" }]}>
+              <ThemedText style={[styles.error, { color: colors.error }]}>
                 {logsError}
               </ThemedText>
             )}
@@ -1425,11 +1458,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 6,
     marginBottom: 18,
+    justifyContent: "center",
     overflow: "hidden",
   },
   picker: {
-    height: 48,
+    height: 50,
     width: "100%",
+    borderRadius: 6,
+    borderWidth: 0,
+    borderColor: "transparent",
   },
   textArea: {
     height: 120,
