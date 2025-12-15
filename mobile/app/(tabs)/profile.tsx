@@ -263,9 +263,12 @@ export default function ProfileScreen() {
       }
       const data = await res.json();
       const badgeNames = Array.isArray(data)
-        ? data.map((b: any) =>
-            normalizeBadgeTranslationKey(b.badgeName || "")
-          )
+        ? data
+            .slice()
+            .reverse()
+            .map((b: any) =>
+              normalizeBadgeTranslationKey(b.badgeName || "")
+            )
         : [];
       setBadges(badgeNames);
     } catch (e: any) {
