@@ -413,39 +413,53 @@ export default function UserProfileScreen() {
             >
               {t("badges")}
             </AccessibleText>
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-              {badges.map((badgeName, index) => {
-                const badgeImage = getBadgeImageSource(badgeName);
+            {(() => {
+              const displayedBadges = badges.slice(0, 4);
 
-                return (
-                  <TouchableOpacity
-                    key={index}
-                    onPress={() => {
-                      setSelectedBadge(badgeName);
-                      setBadgeModalVisible(true);
-                    }}
+              return (
+                <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+                  {displayedBadges.map((badgeName, index) => {
+                    const badgeImage = getBadgeImageSource(badgeName);
+
+                    return (
+                      <TouchableOpacity
+                        key={index}
+                        onPress={() => {
+                          setSelectedBadge(badgeName);
+                          setBadgeModalVisible(true);
+                        }}
+                        accessibilityRole="button"
+                        accessibilityLabel={t(badgeName)}
+                        style={styles.badgePill}
+                      >
+                        {badgeImage ? (
+                          <Image
+                            source={badgeImage}
+                            style={styles.badgePillImage}
+                            resizeMode="contain"
+                          />
+                        ) : (
+                          <Ionicons
+                            name="medal"
+                            size={48}
+                            color={colorScheme === "dark" ? "#FBBF24" : "#FB8C00"}
+                            style={{ marginRight: 0 }}
+                          />
+                        )}
+                      </TouchableOpacity>
+                    );
+                  })}
+                  <View
+                    style={styles.badgePlaceholder}
+                    accessible
                     accessibilityRole="button"
-                    accessibilityLabel={t(badgeName)}
-                    style={styles.badgePill}
+                    accessibilityLabel="More badges"
                   >
-                    {badgeImage ? (
-                      <Image
-                        source={badgeImage}
-                        style={styles.badgePillImage}
-                        resizeMode="contain"
-                      />
-                    ) : (
-                      <Ionicons
-                        name="medal"
-                        size={48}
-                        color={colorScheme === "dark" ? "#FBBF24" : "#FB8C00"}
-                        style={{ marginRight: 0 }}
-                      />
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
+                    <Text style={styles.badgePlaceholderText}>...</Text>
+                  </View>
+                </View>
+              );
+            })()}
           </View>
         ) : null}
 
@@ -644,6 +658,26 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   badgePillImage: { width: 64, height: 64 },
+  badgePlaceholder: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    borderWidth: 2,
+    borderColor: "rgba(255,255,255,0.9)",
+    backgroundColor: "transparent",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+  },
+  badgePlaceholderText: {
+    color: "rgba(255,255,255,0.9)",
+    fontSize: 26,
+    fontWeight: "700",
+    lineHeight: 30,
+  },
   badgeModalImage: { width: 160, height: 160 },
   modalOverlay: {
     flex: 1,
