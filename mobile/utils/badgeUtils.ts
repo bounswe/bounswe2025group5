@@ -56,12 +56,31 @@ export const getBadgeImageSource = (
 
 export const knownBadgeSlugs = Object.keys(badgeImageMap);
 
+// Priority mapping aligned with frontend badge catalog (lower number = higher priority)
+const badgePriority: Record<string, number> = {
+  "plastic-legend": 2,
+  "paper-legend": 3,
+  "glass-legend": 4,
+  "metal-legend": 5,
+  "organic-legend": 6,
+  "top-challenger": 1,
+  "plastic-hero": 7,
+  "paper-hero": 8,
+  "glass-hero": 9,
+  "metal-hero": 10,
+  "organic-hero": 11,
+  "plastic-saver": 12,
+  "paper-saver": 13,
+  "glass-saver": 14,
+  "metal-saver": 15,
+  "organic-saver": 16,
+  "first-like": 17,
+  "first-comment": 18,
+};
+
 const getBadgePriority = (badgeName: string): number => {
-  const lower = badgeName.toLowerCase();
-  if (lower.includes("legend")) return 0;
-  if (lower.includes("hero")) return 1;
-  if (lower.includes("saver")) return 2;
-  return 3;
+  const slug = normalizeBadgeSlug(badgeName);
+  return badgePriority[slug] ?? Number.MAX_SAFE_INTEGER;
 };
 
 export const sortBadgesByPriority = <T extends { badgeName: string }>(
