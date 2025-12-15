@@ -7,12 +7,12 @@ import {
   ActivityIndicator,
   Modal,
   StyleSheet,
-  Platform,
   useColorScheme,
   TextInput,
   Text,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 import { useAppColors } from "@/hooks/useAppColors";
 import { useSwitchColors } from "@/utils/colorUtils";
@@ -80,6 +80,8 @@ export default function ChallengesScreen() {
   // Use new global color system
   const colors = useAppColors();
   const switchColors = useSwitchColors();
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
 
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [loading, setLoading] = useState(false);
@@ -127,6 +129,7 @@ export default function ChallengesScreen() {
   const [selectedWasteItemId, setSelectedWasteItemId] = useState<string | null>(
     null
   );
+  const [wasteItemPickerVisible, setWasteItemPickerVisible] = useState(false);
 
   // Show Logs Modal states
   const [logsModalVisible, setLogsModalVisible] = useState(false);
@@ -144,6 +147,25 @@ export default function ChallengesScreen() {
     if (!Number.isFinite(value)) return "-";
     return Number.isInteger(value) ? value.toFixed(0) : value.toFixed(1);
   };
+
+  const formatWasteItemLabel = (item: WasteItemOption) => {
+    const weightValue = Number(item.weightInGrams);
+    const formattedWeight = Number.isFinite(weightValue)
+      ? Number.isInteger(weightValue)
+        ? weightValue.toFixed(0)
+        : weightValue.toFixed(1)
+      : null;
+    return formattedWeight
+      ? `${item.displayName} (${formattedWeight} g)`
+      : item.displayName;
+  };
+
+  const selectedWasteItem = selectedWasteItemId
+    ? wasteItemsForChallenge.find((item) => String(item.id) === selectedWasteItemId)
+    : null;
+  const selectedWasteItemLabel = selectedWasteItem
+    ? formatWasteItemLabel(selectedWasteItem)
+    : t("selectWasteItem");
 
   // Track current challenge type for modals
   const [currentChallengeType, setCurrentChallengeType] = useState<string>("");
@@ -1038,15 +1060,16 @@ export default function ChallengesScreen() {
                   backgroundColor: colors.inputBackground,
                 },
               ]}
-            >
-              <Picker
-                selectedValue={challengeWasteType}
-                onValueChange={(value) => setChallengeWasteType(String(value))}
-                style={[
-                  styles.picker,
-                  {
-                    color: challengeWasteType ? colors.text : colors.textSubtle,
-                    backgroundColor: colors.inputBackground,
+              >
+                <Picker
+                  selectedValue={challengeWasteType}
+                  onValueChange={(value) => setChallengeWasteType(String(value))}
+                  themeVariant={isDarkMode ? "dark" : "light"}
+                  style={[
+                    styles.picker,
+                    {
+                      color: challengeWasteType ? colors.text : colors.textSubtle,
+                      backgroundColor: colors.inputBackground,
                   },
                 ]}
                 itemStyle={{ color: colors.text }}
@@ -1182,56 +1205,147 @@ export default function ChallengesScreen() {
             </ThemedText>
             {fetchingWasteItems ? (
               <ActivityIndicator size="small" color={colors.activityIndicator} />
-            ) : wasteItemsForChallenge.length > 0 ? (
-              <View
-                style={[
-                  styles.pickerContainer,
-                  {
-                    borderColor: colors.inputBorder,
-                    backgroundColor: colors.inputBackground,
-                  },
-                ]}
-              >
-                <Picker
-                  testID="waste-item-picker"
-                  selectedValue={selectedWasteItemId ?? ""}
-                  onValueChange={(value) => setSelectedWasteItemId(String(value))}
+              ) : wasteItemsForChallenge.length > 0 ? (
+              <>
+                <TouchableOpacity
                   style={[
-                    styles.picker,
+                    styles.pickerContainer,
                     {
-                      color: selectedWasteItemId ? colors.text : colors.textSubtle,
+                      borderColor: colors.inputBorder,
                       backgroundColor: colors.inputBackground,
                     },
                   ]}
-                  itemStyle={{ color: colors.text }}
-                  dropdownIconColor={colors.text}
+                  activeOpacity={0.9}
+                  onPress={() => setWasteItemPickerVisible(true)}
                 >
-                  <Picker.Item
-                    label={t("selectWasteItem")}
-                    value=""
-                    color={colors.textSubtle}
-                  />
-                  {wasteItemsForChallenge.map((item) => {
-                    const weightValue = Number(item.weightInGrams);
-                    const formattedWeight = Number.isFinite(weightValue)
-                      ? Number.isInteger(weightValue)
-                        ? weightValue.toFixed(0)
-                        : weightValue.toFixed(1)
-                      : null;
-                    const label = formattedWeight
-                      ? `${item.displayName} (${formattedWeight} g)`
-                      : item.displayName;
-                    return (
+                  <View style={styles.pickerValueRow}>
+                    <ThemedText
+                      style={{
+                        color: selectedWasteItemId ? colors.text : colors.textSubtle,
+                        flex: 1,
+                      }}
+                    >
+                      {selectedWasteItemLabel}
+                    </ThemedText>
+                    <Ionicons name="chevron-down" size={18} color={colors.icon} />
+                  </View>
+                </TouchableOpacity>
+
+                <View pointerEvents="none" style={{ height: 0, width: 0, overflow: "hidden" }}>
+                  <Picker
+                    testID="waste-item-picker"
+                    selectedValue={selectedWasteItemId ?? ""}
+                    onValueChange={(value) => setSelectedWasteItemId(String(value))}
+                  >
+                    <Picker.Item label={t("selectWasteItem")} value="" />
+                    {wasteItemsForChallenge.map((item) => (
                       <Picker.Item
                         key={item.id}
-                        label={label}
+                        label={formatWasteItemLabel(item)}
                         value={String(item.id)}
-                        color={colors.text}
                       />
-                    );
-                  })}
-                </Picker>
-              </View>
+                    ))}
+                  </Picker>
+                </View>
+
+                <Modal
+                  visible={wasteItemPickerVisible}
+                  transparent
+                  animationType="fade"
+                  onRequestClose={() => setWasteItemPickerVisible(false)}
+                >
+                  <View style={styles.selectorOverlay}>
+                    <TouchableOpacity
+                      style={styles.selectorBackdrop}
+                      activeOpacity={1}
+                      onPress={() => setWasteItemPickerVisible(false)}
+                    />
+                    <View
+                      style={[
+                        styles.selectorCard,
+                        { backgroundColor: colors.modalBackground },
+                      ]}
+                    >
+                      <View style={styles.selectorHeader}>
+                        <ThemedText
+                          style={{ color: colors.text, fontWeight: "700", fontSize: 16 }}
+                        >
+                          {t("selectWasteItem")}
+                        </ThemedText>
+                        <TouchableOpacity
+                          onPress={() => setWasteItemPickerVisible(false)}
+                          accessibilityLabel={t("close")}
+                        >
+                          <Ionicons name="close" size={20} color={colors.icon} />
+                        </TouchableOpacity>
+                      </View>
+
+                      <FlatList
+                        data={wasteItemsForChallenge}
+                        keyExtractor={(item) => String(item.id)}
+                        style={{ maxHeight: 360 }}
+                        ItemSeparatorComponent={() => (
+                          <View
+                            style={{
+                              height: 1,
+                              backgroundColor: colors.borderColor,
+                              opacity: 0.6,
+                            }}
+                          />
+                        )}
+                        renderItem={({ item }) => {
+                          const isSelected =
+                            selectedWasteItemId === String(item.id);
+                          return (
+                            <TouchableOpacity
+                              onPress={() => {
+                                setSelectedWasteItemId(String(item.id));
+                                setWasteItemPickerVisible(false);
+                              }}
+                              style={[
+                                styles.selectorOption,
+                                {
+                                  backgroundColor: isSelected
+                                    ? colors.cardBackground
+                                    : colors.modalBackground,
+                                },
+                              ]}
+                            >
+                              <Text
+                                style={{
+                                  color: colors.text,
+                                  fontWeight: isSelected ? "700" : "500",
+                                }}
+                              >
+                                {formatWasteItemLabel(item)}
+                              </Text>
+                              {isSelected ? (
+                                <Ionicons
+                                  name="checkmark"
+                                  size={18}
+                                  color={colors.buttonPrimary}
+                                />
+                              ) : null}
+                            </TouchableOpacity>
+                          );
+                        }}
+                      />
+
+                      <TouchableOpacity
+                        style={[
+                          styles.selectorCancelButton,
+                          { borderColor: colors.borderColor },
+                        ]}
+                        onPress={() => setWasteItemPickerVisible(false)}
+                      >
+                        <ThemedText style={{ color: colors.text }}>
+                          {t("cancel")}
+                        </ThemedText>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </Modal>
+              </>
             ) : (
               <ThemedText style={[styles.error, { color: colors.textSecondary }]}>
                 {t("noWasteItemsForGoal")}
@@ -1565,6 +1679,8 @@ const styles = StyleSheet.create({
     marginBottom: 18,
     justifyContent: "center",
     overflow: "hidden",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
   picker: {
     height: 50,
@@ -1572,6 +1688,51 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     borderWidth: 0,
     borderColor: "transparent",
+  },
+  pickerValueRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  selectorOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
+  },
+  selectorBackdrop: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  selectorCard: {
+    width: "90%",
+    maxWidth: 420,
+    borderRadius: 12,
+    padding: 16,
+  },
+  selectorHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
+  selectorOption: {
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  selectorCancelButton: {
+    marginTop: 12,
+    paddingVertical: 10,
+    alignItems: "center",
+    borderWidth: 1,
+    borderRadius: 10,
   },
   textArea: {
     height: 120,
