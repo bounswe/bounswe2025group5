@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import i18n from '@/services/useClientTranslation';
+import i18n, { LANGUAGE_STORAGE_KEY } from '@/services/useClientTranslation';
 import TurkeyFlag from '@/assets/turkey.png';
 import UkFlag from '@/assets/united-kingdom.png';
 
@@ -10,6 +10,11 @@ export default function LanguageToggle() {
     const newLang = currentLang === 'tr' ? 'en' : 'tr';
     i18n.changeLanguage(newLang);
     setCurrentLang(newLang);
+    try {
+      localStorage.setItem(LANGUAGE_STORAGE_KEY, newLang);
+    } catch {
+      // ignore storage failures
+    }
   };
 
   return (
