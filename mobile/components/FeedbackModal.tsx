@@ -106,7 +106,7 @@ export function FeedbackModal({
   };
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose} testID="feedback-modal">
       <View style={styles.backdrop}>
         <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose} />
         <View style={[styles.card, { backgroundColor: surfaceColor, borderColor }]}>

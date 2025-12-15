@@ -1313,6 +1313,7 @@ export default function ProfileScreen() {
                 onPress={() => setSettingsMenuOpen((prev) => !prev)}
                 accessibilityRole="button"
                 accessibilityLabel={t("settings", { defaultValue: "Settings" })}
+                testID="settings-button"
               >
                 <Ionicons
                   name="settings-outline"
@@ -1382,6 +1383,7 @@ export default function ProfileScreen() {
                       setSettingsMenuOpen(false);
                       navigation.navigate("edit_profile");
                     }}
+                    testID="edit-profile-button"
                   >
                     <Text
                       style={[
@@ -1402,6 +1404,7 @@ export default function ProfileScreen() {
                       setSettingsMenuOpen(false);
                       setFeedbackModalVisible(true);
                     }}
+                    testID="feedback-button"
                   >
                     <Text
                       style={[
@@ -1422,6 +1425,7 @@ export default function ProfileScreen() {
                       setSettingsMenuOpen(false);
                       handleLogout();
                     }}
+                    testID="logout-button"
                   >
                     <Text
                       style={[
@@ -2334,6 +2338,7 @@ export default function ProfileScreen() {
         username={username}
         surfaceColor={cardBackgroundColor}
         textColor={generalTextColor}
+        
       />
     </>
   );
