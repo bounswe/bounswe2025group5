@@ -404,6 +404,10 @@
     "organicSaverDesc": "Log 1,000g (1kg) of organic waste to earn this badge.",
     "organicHeroDesc": "Log 5,000g (5kg) of organic waste to earn this badge.",
     "organicLegendDesc": "Log 10,000g (10kg) of organic waste to earn this badge.",
+    "firstComment": "First Comment",
+    "firstCommentDesc": "Leave your first comment to earn this badge.",
+    "firstLike": "First Like",
+    "firstLikeDesc": "Like a post for the first time to earn this badge.",
     "badgeDetails": "Badge Details"
   }
 }

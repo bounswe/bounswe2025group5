@@ -404,6 +404,10 @@
     "organicSaverDesc": "Bu rozeti kazanmak için 1.000g (1kg) organik atık kaydedin.",
     "organicHeroDesc": "Bu rozeti kazanmak için 5.000g (5kg) organik atık kaydedin.",
     "organicLegendDesc": "Bu rozeti kazanmak için 10.000g (10kg) organik atık kaydedin.",
+    "firstComment": "İlk Yorum",
+    "firstCommentDesc": "İlk yorumunu yaparak bu rozeti kazan.",
+    "firstLike": "İlk Beğeni",
+    "firstLikeDesc": "İlk kez bir gönderiyi beğenerek bu rozeti kazan.",
     "badgeDetails": "Rozet Detayları"
   }
 }
