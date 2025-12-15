@@ -1,22 +1,26 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { UsersApi } from "@/lib/api/users";
+
 import { Card, CardContent } from "@/components/ui/card";
 import GlassCard from "@/components/ui/glass-card";
 import { Spinner } from "@/components/ui/spinner";
 import DeleteAccount from "@/components/profile/delete_account";
 import EditProfile from "@/components/profile/edit_profile";
 import PostCard from "@/components/feedpage/post-card";
-import type { SavedPostItem } from "@/lib/api/schemas/users";
-import type { PostItem } from "@/lib/api/schemas/posts";
 import { Button } from "@/components/ui/button";
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import UserProfileDialog from '@/components/profile/userProfileDialog';
+
+import { UsersApi } from "@/lib/api/users";
+import type { SavedPostItem } from "@/lib/api/schemas/users";
+import type { PostItem } from "@/lib/api/schemas/posts";
 import { FollowApi } from '@/lib/api/follow';
 import type { FollowUserItem } from '@/lib/api/schemas/follow';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { BadgeShowcase } from '@/components/badges/badge-showcase';
+
 import userAvatar from '@/assets/user.png';
-import UserProfileDialog from '@/components/profile/userProfileDialog';
 
 export default function ProfileIndex() {
   const { t } = useTranslation();
@@ -33,7 +37,7 @@ export default function ProfileIndex() {
   const [_postsLoading, setPostsLoading] = useState(true);
   const [saveToggle, setSaveToggle] = useState(false);
 
-  // Followers/Following popover state
+  // Followers/Following popover states
   const [followersOpen, setFollowersOpen] = useState(false);
   const [followingOpen, setFollowingOpen] = useState(false);
   const [followers, setFollowers] = useState<FollowUserItem[]>([]);
@@ -201,10 +205,10 @@ export default function ProfileIndex() {
 
           {!loading && !error && (
             <>
-          <Card className="w-3/4 mx-auto">
+          <Card className="w-[45rem] mx-auto">
             <CardContent className="pt-6 flex items-center justify-between">
             <div className="flex-[2]"></div>
-            <div className="flex flex-col items-center text-center gap-4 flex-[2]">
+            <div className="flex flex-col items-center text-center gap-4 flex-[2] min-w-[15rem] mr-15">
               <div className="w-28 h-28 rounded-full overflow-hidden bg-muted border border-border">
                 {photoUrl ? (
                   <img
@@ -232,8 +236,7 @@ export default function ProfileIndex() {
                 <DeleteAccount />
               </div>
             </div>
-            <div className="flex-[1]"></div>
-            <div className="flex flex-col items-center gap-4 flex-[2]">
+            <div className="flex flex-col items-center gap-4 flex-[2] min-w-[15rem] border-l pl-30 mr-15">
               <div className="flex gap-6">
                 <Popover open={followersOpen} onOpenChange={handleFollowersOpen}>
                   <PopoverTrigger asChild>
@@ -335,6 +338,14 @@ export default function ProfileIndex() {
                     </div>
                   </PopoverContent>
                 </Popover>
+              </div>
+              <div className="w-full mt-8">
+                <BadgeShowcase
+                  username={storedUsername}
+                  maxEarnedToShow={3}
+                  showCatalogButton
+                  iconClassName="min-h-[3rem] min-w-[3rem] sm:min-h-[5rem] sm:min-w-[5rem]"
+                />
               </div>
             </div>
             <div className="flex-[2]"></div>

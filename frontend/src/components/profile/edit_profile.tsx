@@ -132,9 +132,9 @@ export default function EditProfile({ username, initialBio, initialPhotoUrl, onB
     };
 
     return (
-        <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
-            <DialogTrigger asChild>
-                <Button type="button" variant="outline">
+        <Popover open={profileOpen} onOpenChange={setProfileOpen}>
+            <PopoverTrigger asChild>
+                <Button type="button" variant="secondary" onClick={onEditProfile}>
                     {t('profile.edit')}
                 </Button>
             </DialogTrigger>

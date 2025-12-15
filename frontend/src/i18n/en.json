@@ -137,7 +137,10 @@
             "empty": "Not following anyone yet"
         },
         "follow": "Follow",
-        "unfollow": "Unfollow"
+        "unfollow": "Unfollow",
+        "badges": {
+            "cta": "See Badge Catalog"
+        }
     },
     "main": {
         "navbar": "Main"
@@ -486,5 +489,64 @@
         "authError": "You must be logged in to submit feedback.",
         "forbiddenError": "You don't have permission to submit feedback. Please ensure you're logged in.",
         "userNotFoundError": "User account not found. Please try logging in again."
+    },
+    "badges": {
+        "title": "Badge Catalog",
+        "subtitle": "Preview the badges you can earn in WasteLess.",
+        "loginRequired": "Please sign in to view your badges.",
+        "loadError": "Failed to load badges.",
+        "filters": {
+            "all": "All categories"
+        },
+        "categories": {
+            "waste": "Goals",
+            "challenge": "Challenges",
+            "social": "Social",
+            "community": "Community"
+        },
+        "status": {
+            "earned": "Earned",
+            "locked": "Locked"
+        },
+        "badgeNames": {
+            "plasticSaver": "Plastic Saver",
+            "plasticHero": "Plastic Hero",
+            "plasticLegend": "Plastic Legend",
+            "paperSaver": "Paper Saver",
+            "paperHero": "Paper Hero",
+            "paperLegend": "Paper Legend",
+            "glassSaver": "Glass Saver",
+            "glassHero": "Glass Hero",
+            "glassLegend": "Glass Legend",
+            "metalSaver": "Metal Saver",
+            "metalHero": "Metal Hero",
+            "metalLegend": "Metal Legend",
+            "organicSaver": "Organic Saver",
+            "organicHero": "Organic Hero",
+            "organicLegend": "Organic Legend",
+            "topChallenger": "Top Challenger",
+            "firstLike": "First Like",
+            "firstComment": "First Comment"
+        },
+        "badgeDescriptions": {
+            "plasticSaver": "Log 1,000g (1kg) of plastic waste to earn this badge.",
+            "plasticHero": "Log 5,000g (5kg) of plastic waste to earn this badge.",
+            "plasticLegend": "Log 10,000g (10kg) of plastic waste to earn this badge.",
+            "paperSaver": "Log 1,000g (1kg) of paper waste to earn this badge.",
+            "paperHero": "Log 5,000g (5kg) of paper waste to earn this badge.",
+            "paperLegend": "Log 10,000g (10kg) of paper waste to earn this badge.",
+            "glassSaver": "Log 1,000g (1kg) of glass waste to earn this badge.",
+            "glassHero": "Log 5,000g (5kg) of glass waste to earn this badge.",
+            "glassLegend": "Log 10,000g (10kg) of glass waste to earn this badge.",
+            "metalSaver": "Log 1,000g (1kg) of metal waste to earn this badge.",
+            "metalHero": "Log 5,000g (5kg) of metal waste to earn this badge.",
+            "metalLegend": "Log 10,000g (10kg) of metal waste to earn this badge.",
+            "organicSaver": "Log 1,000g (1kg) of organic waste to earn this badge.",
+            "organicHero": "Log 5,000g (5kg) of organic waste to earn this badge.",
+            "organicLegend": "Log 10,000g (10kg) of organic waste to earn this badge.",
+            "topChallenger": "Finish a challenge in the top 3 of the leaderboard to earn this badge.",
+            "firstLike": "Like a post to earn this badge.",
+            "firstComment": "Comment on a post to earn this badge."
+        }
     }
 }

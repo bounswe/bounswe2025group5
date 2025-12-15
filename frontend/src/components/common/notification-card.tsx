@@ -50,17 +50,22 @@ export default function NotificationCard({
       case 'Like':
         return { actor, text: `liked your ${objType}` };
       case 'Create':
-        // If objectType is comment, someone commented on your post
-        // If objectType is post, someone you follow shared a post
-        if (objType === 'comment') {
+        // If objectType is 'comment', it's a comment notification
+        // If objectType is 'post', it's a share notification
+        if (objectType?.toLowerCase() === 'comment') {
           return { actor, text: `commented on your post` };
-        } else {
+        } else if (objectType?.toLowerCase() === 'post') {
           return { actor, text: `shared a post` };
         }
+        return { actor, text: `interacted with your ${objType}` };
       case 'Follow':
         return { actor, text: 'started following you' };
       case 'End':
-        return { actor: '', text: 'Challenge has ended' };
+        // Challenge ended notification
+        if (objectType?.toLowerCase() === 'challenge') {
+          return { actor: 'Challenge', text: 'ended' };
+        }
+        return { actor, text: 'ended' };
       default:
         return { actor, text: 'interacted with your content' };
     }

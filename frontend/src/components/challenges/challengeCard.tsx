@@ -244,7 +244,7 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
                             <ChevronsUpDown className="opacity-50" />
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-[200px] p-0">
+                        <PopoverContent className="w-[200px] p-0 shadow-lg">
                           <Command className="w-full">
                             <CommandInput placeholder={t('challenges.searchItem', 'Search item...')} className="h-9 px-3" />
                             <CommandList>
