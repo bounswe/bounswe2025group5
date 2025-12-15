@@ -1,16 +1,17 @@
 import { useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useTranslation } from "react-i18next";
-import { UsersApi } from "@/lib/api/users";
-import { AuthApi } from "@/lib/api/auth";
+
 import PasswordStrengthMeter from "@/components/common/password-strength-meter";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { usePasswordStrength } from "@/hooks/usePasswordStrength";
+import { AuthApi } from "@/lib/api/auth";
+import { UsersApi } from "@/lib/api/users";
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -78,9 +79,6 @@ export default function EditProfile({ username, initialBio, initialPhotoUrl, onB
         }
     };
 
-    const onEditProfile = () => {
-        setProfileOpen(true);
-    };
     const { isStrong: isNewPasswordStrong } = usePasswordStrength(newPassword);
 
     const handleResetSubmit = async (e?: FormEvent) => {
@@ -132,13 +130,16 @@ export default function EditProfile({ username, initialBio, initialPhotoUrl, onB
     };
 
     return (
-        <Popover open={profileOpen} onOpenChange={setProfileOpen}>
-            <PopoverTrigger asChild>
-                <Button type="button" variant="outline" onClick={onEditProfile}>
+        <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
+            <DialogTrigger asChild>
+                <Button type="button" variant="outline">
                     {t('profile.edit')}
                 </Button>
-            </PopoverTrigger>
-            <PopoverContent side="bottom" align="center" avoidCollisions={false} className="w-[min(95vw,460px)] p-6 max-h-[80vh] overflow-y-auto">
+            </DialogTrigger>
+            <DialogContent className="w-[min(95vw,460px)] max-h-[85vh] overflow-y-auto p-6">
+                <DialogHeader className="pb-2">
+                    <DialogTitle>{t('profile.edit')}</DialogTitle>
+                </DialogHeader>
                 <Tabs defaultValue="account" className="space-y-6 min-h-[455px]">
                     <TabsList className="grid w-full grid-cols-2">
                         <TabsTrigger value="account">{t('profile.account.details', 'Account Details')}</TabsTrigger>
@@ -272,10 +273,9 @@ export default function EditProfile({ username, initialBio, initialPhotoUrl, onB
                                 </Button>
                             </div>
                         </form>
-
                     </TabsContent>
                 </Tabs>
-            </PopoverContent>
-        </Popover>
+            </DialogContent>
+        </Dialog>
     );
 }
