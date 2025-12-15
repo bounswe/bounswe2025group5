@@ -55,3 +55,37 @@ export const getBadgeImageSource = (
 };
 
 export const knownBadgeSlugs = Object.keys(badgeImageMap);
+
+const getBadgePriority = (badgeName: string): number => {
+  const lower = badgeName.toLowerCase();
+  if (lower.includes("legend")) return 0;
+  if (lower.includes("hero")) return 1;
+  if (lower.includes("saver")) return 2;
+  return 3;
+};
+
+export const sortBadgesByPriority = <T extends { badgeName: string }>(
+  list: T[]
+): T[] => {
+  return [...list]
+    .map((item, index) => ({ item, index }))
+    .sort((a, b) => {
+      const pa = getBadgePriority(a.item.badgeName);
+      const pb = getBadgePriority(b.item.badgeName);
+      if (pa !== pb) return pa - pb;
+      return a.index - b.index;
+    })
+    .map(({ item }) => item);
+};
+
+export const sortBadgeNamesByPriority = (names: string[]): string[] => {
+  return names
+    .map((name, index) => ({ name, index }))
+    .sort((a, b) => {
+      const pa = getBadgePriority(a.name);
+      const pb = getBadgePriority(b.name);
+      if (pa !== pb) return pa - pb;
+      return a.index - b.index;
+    })
+    .map(({ name }) => name);
+};

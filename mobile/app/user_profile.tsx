@@ -22,6 +22,7 @@ import { AuthContext } from "./_layout";
 import {
   getBadgeImageSource,
   normalizeBadgeTranslationKey,
+  sortBadgeNamesByPriority,
 } from "@/utils/badgeUtils";
 
 export default function UserProfileScreen() {
@@ -152,7 +153,9 @@ export default function UserProfileScreen() {
       }
       const data = await res.json();
       const badgeNames = Array.isArray(data)
-        ? data.map((b: any) => normalizeBadgeTranslationKey(b.badgeName || ""))
+        ? sortBadgeNamesByPriority(
+            data.map((b: any) => normalizeBadgeTranslationKey(b.badgeName || ""))
+          )
         : [];
       setBadges(badgeNames);
     } catch (e: any) {

@@ -17,6 +17,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import {
   getBadgeImageSource,
   normalizeBadgeTranslationKey,
+  sortBadgesByPriority,
 } from '@/utils/badgeUtils';
 
 
@@ -79,7 +80,7 @@ export default function BadgesScreen() {
 
         const data = await response.json();
         const list = Array.isArray(data) ? data : [];
-        setBadges(list);
+        setBadges(sortBadgesByPriority(list));
       } catch (err) {
         console.error('Error fetching badges:', err);
         // network errors often surface as "TypeError: Failed to fetch"

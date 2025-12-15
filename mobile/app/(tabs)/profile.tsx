@@ -38,6 +38,7 @@ import { ScrollView } from "react-native";
 import {
   getBadgeImageSource,
   normalizeBadgeTranslationKey,
+  sortBadgeNamesByPriority,
 } from "@/utils/badgeUtils";
 import FeedbackModal from "@/components/FeedbackModal";
 
@@ -265,8 +266,10 @@ export default function ProfileScreen() {
       }
       const data = await res.json();
       const badgeNames = Array.isArray(data)
-        ? data.map((b: any) =>
-            normalizeBadgeTranslationKey(b.badgeName || "")
+        ? sortBadgeNamesByPriority(
+            data.map((b: any) =>
+              normalizeBadgeTranslationKey(b.badgeName || "")
+            )
           )
         : [];
       setBadges(badgeNames);
