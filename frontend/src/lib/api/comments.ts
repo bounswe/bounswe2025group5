@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 export const CommentSchema = z.object({
   commentId: z.number().int().optional(),
+  postId: z.number().int().optional(),
   content: z.string(),
   username: z.string().optional(),
   creatorUsername: z.string().optional(),
@@ -32,6 +33,10 @@ export const CommentsApi = {
   },
   remove: async (commentId: number) => {
     return ApiClient.delete<{ success?: boolean }>(`/api/posts/comment/${commentId}`);
+  },
+  getById: async (commentId: number) => {
+    const res = await ApiClient.get<Comment>(`/api/posts/comment/${commentId}`);
+    return CommentSchema.parse(res);
   },
 };
 

@@ -55,6 +55,7 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameC
   // Image dialog state
   const [showImageDialog, setShowImageDialog] = useState(false);
   const [postImageSrc, setPostImageSrc] = useState(post.photoUrl);
+  const [showProfileImageDialog, setShowProfileImageDialog] = useState(false);
 
   // Report dialog state
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
@@ -260,7 +261,18 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameC
       <div className="px-3 pt-2 pb-1">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Avatar className="w-6 h-6">
+            <Avatar 
+              className="w-6 h-6 cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => setShowProfileImageDialog(true)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setShowProfileImageDialog(true);
+                }
+              }}
+            >
               <AvatarImage
                 src={creatorPhotoUrl || userAvatar}
                 alt={post.creatorUsername
@@ -504,6 +516,22 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameC
           username={post.creatorUsername}
         />
       )}
+
+      {/* Profile Photo Dialog */}
+      <ImageDialog
+        open={showProfileImageDialog}
+        onOpenChange={setShowProfileImageDialog}
+        imageUrl={userAvatar}
+        altText={
+          post.creatorUsername
+            ? t('profile.photoAlt', {
+                username: post.creatorUsername,
+                defaultValue: `${post.creatorUsername}'s profile photo`,
+              })
+            : t('profile.photoAltAnon', 'Profile photo')
+        }
+        username={post.creatorUsername}
+      />
     </Card>
   );
 }

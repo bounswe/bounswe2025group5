@@ -209,7 +209,15 @@
     "challenge" : {
         "navbar": "Etkinlikler"
     },
-    "logout": "Çıkış Yap",
+    "logout": {
+        "label": "Çıkış Yap",
+        "dialog": {
+            "title": "Çıkışı Onayla",
+            "description": "Çıkış yapmak istediğinizden emin misiniz? Hesabınıza erişmek için tekrar giriş yapmanız gerekecek.",
+            "cancel": "İptal",
+            "confirm": "Çıkış Yap"
+        }
+    },
     "mainpage": {
         "navbar": "Ana Sayfa",
         "challengesTitle": "Katıldığınız Etkinlikler",
@@ -259,6 +267,11 @@
         "invalidAmount": "Lütfen pozitif bir miktar girin",
         "enterAmount": "Miktar girin",
         "submit": "Gönder",
+        "selectItem": "Atık öğesi seçin...",
+        "selectedItem": "Seçilen öğe",
+        "searchItem": "Öğe ara...",
+        "loadingItems": "Öğeler yükleniyor...",
+        "noItems": "Atık öğesi bulunamadı",
         "type": "Tür",
         "status": "Durum",
         "dates": "Tarih",
@@ -405,5 +418,20 @@
         "likedYourPost_suffix": "gönderinizi beğendi",
         "commentedOnYourPost_suffix": "gönderinize yorum yaptı",
         "startedFollowing_suffix": "sizi takip etmeye başladı"
+    },
+    "feedback": {
+        "buttonLabel": "Geri Bildirim Gönder",
+        "title": "Geri Bildiriminizi Paylaşın",
+        "description": "Düşüncelerinizi, önerilerinizi veya sorunları paylaşarak bize yardımcı olun.",
+        "messageLabel": "Mesajınız",
+        "placeholder": "Ne düşündüğünüzü bize söyleyin...",
+        "charCount": "{{count}} / {{max}} karakter",
+        "submitting": "Gönderiliyor...",
+        "success": "Teşekkürler! Geri bildiriminiz başarıyla gönderildi.",
+        "error": "Geri bildirim gönderilemedi. Lütfen daha sonra tekrar deneyin.",
+        "emptyError": "Lütfen göndermeden önce geri bildiriminizi girin.",
+        "authError": "Geri bildirim göndermek için giriş yapmalısınız.",
+        "forbiddenError": "Geri bildirim gönderme izniniz yok. Lütfen giriş yaptığınızdan emin olun.",
+        "userNotFoundError": "Kullanıcı hesabı bulunamadı. Lütfen tekrar giriş yapmayı deneyin."
     }
 }

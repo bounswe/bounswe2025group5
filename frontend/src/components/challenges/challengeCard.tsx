@@ -1,15 +1,22 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import { ChallengesApi } from '@/lib/api/challenges';
-import { type ChallengeListItem } from '@/lib/api/schemas/challenges';
+import { type ChallengeListItem, type WasteItem } from '@/lib/api/schemas/challenges';
+import { cn } from "@/lib/utils"
+
+import { Check, ChevronsUpDown } from "lucide-react";
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Input } from '../ui/input';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, } from "@/components/ui/command"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Input } from '@/components/ui/input';
+
 import Leaderboard from './Leaderboard';
 import RecyclingProgressVisualization from './RecyclingProgressVisualization';
+
 
 export default function ChallengeCard({ challenge }: { challenge: ChallengeListItem }) {
   const { t } = useTranslation();
@@ -19,6 +26,41 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
   const [userInChallenge, setUserInChallenge] = useState<boolean>(challenge.userInChallenge);
   const [currentAmount, setCurrentAmount] = useState<number>(challenge.currentAmount ?? 0);
   const [logAmount, setLogAmount] = useState<string>('');
+  const [popupOpen, setPopupOpen] = useState(false);
+  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+  const [wasteItems, setWasteItems] = useState<WasteItem[]>([]);
+  const [itemsLoading, setItemsLoading] = useState(false);
+  const selectedItemLabel = selectedItemId
+    ? wasteItems.find((item) => item.id === selectedItemId)?.displayName ?? t('challenges.selectedItem', 'Selected item')
+    : t('challenges.selectItem', 'Select waste item...');
+  const previewDescription =
+    challenge.description && challenge.description.length > 100
+      ? `${challenge.description.slice(0, 100)}...`
+      : challenge.description;
+
+  useEffect(() => {
+    let active = true;
+    const loadItems = async () => {
+      try {
+        setItemsLoading(true);
+        const items = await ChallengesApi.getWasteItemsForChallenge(challenge.challengeId);
+        if (active) {
+          setWasteItems(items);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        if (active) {
+          setItemsLoading(false);
+        }
+      }
+    };
+
+    loadItems();
+    return () => {
+      active = false;
+    };
+  }, [challenge.challengeId]);
 
   // a user attends a challange with challengeId, meanwhile the challenge is set to busy
   const attend = async (challengeId: number, username: string) => {
@@ -48,17 +90,17 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
     }
   };
 
-  const logChallengeProgress = async (challengeId: number, username: string, amount: number) => {
-    if (isNaN(amount) || amount <= 0) {
+  const logChallengeProgress = async (challengeId: number, username: string, quantity: number, itemId?: number | null) => {
+    if (isNaN(quantity) || quantity <= 0) {
       alert(t('challenges.invalidAmount', 'Please enter a positive amount'));
       return;
     }
     
     try {
       setLogging((b) => ({ ...b, [challengeId]: true }));
-      const response = await ChallengesApi.logChallengeProgress(challengeId, { username, amount });
+      const response = await ChallengesApi.logChallengeProgress(challengeId, { username, quantity, itemId: itemId ?? undefined });
       if (response.newTotalAmount != null) {
-        setCurrentAmount(prev => prev + amount); // consider this!!!! 
+        setCurrentAmount(response.newTotalAmount); // consider this!!!! 
       }
     } catch (e) {
       console.error(e);
@@ -79,8 +121,8 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
               <div className="flex-1 min-w-0">
                 <CardTitle className="text-base">{challenge.name}</CardTitle>
                 {challenge.description && (
-                  <CardDescription className="text-xs mt-1 line-clamp-2">
-                    {challenge.description}
+                  <CardDescription className="text-xs mt-1">
+                    {previewDescription}
                   </CardDescription>
                 )}
               </div>
@@ -185,24 +227,88 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
                       {logging[challenge.challengeId] ? t('challenges.logging', 'Logging...') : t('challenges.log', 'Log')}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-56">
-                    <div className="space-y-3">
-                      <Input 
-                        type="number" 
-                        value={logAmount} 
-                        onChange={e => setLogAmount(e.target.value)} 
-                        className="h-9"
+                  <PopoverContent className="w-[250px] p-2 flex flex-col items-center">
+                    <div className="w-full space-y-3">
+                      <Popover open={popupOpen} onOpenChange={setPopupOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={popupOpen}
+                            className="w-full justify-between gap-2 px-3"
+                            aria-label={selectedItemLabel}
+                          >
+                            <span className="truncate text-left">
+                              {selectedItemLabel}
+                            </span>
+                            <ChevronsUpDown className="opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[200px] p-0">
+                          <Command className="w-full">
+                            <CommandInput placeholder={t('challenges.searchItem', 'Search item...')} className="h-9 px-3" />
+                            <CommandList>
+                              {itemsLoading ? (
+                                <div className="px-3 py-2 text-sm text-muted-foreground">
+                                  {t('challenges.loadingItems', 'Loading items...')}
+                                </div>
+                              ) : (
+                                <>
+                                  <CommandEmpty>{t('challenges.noItems', 'No waste items found')}</CommandEmpty>
+                                  <CommandGroup>
+                                    {wasteItems.map((item) => (
+                                      <CommandItem
+                                        key={item.id}
+                                        value={item.displayName}
+                                        onSelect={() => {
+                                          setSelectedItemId(item.id);
+                                          setPopupOpen(false);
+                                        }}
+                                      >
+                                    <div className="flex flex-col">
+                                      <span>{item.displayName}</span>
+                                      <span className="text-xs text-muted-foreground">
+                                        {item.type?.name}
+                                      </span>
+                                    </div>
+                                        <Check
+                                          className={cn(
+                                            "ml-auto",
+                                            selectedItemId === item.id ? "opacity-100" : "opacity-0"
+                                          )}
+                                        />
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </>
+                              )}
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={logAmount}
+                        onChange={(e) => setLogAmount(e.target.value)}
+                        className="w-full h-9"
                         placeholder={t('challenges.enterAmount', 'Enter amount')}
                       />
-                      <Button 
-                        size="sm" 
-                        variant="default" 
-                        className="w-full h-9 btn-log-submit" 
-                        disabled={!!logging[challenge.challengeId] || !!busy[challenge.challengeId]} 
-                        onClick={() => logChallengeProgress(challenge.challengeId, username, Number(logAmount))}
-                      >
-                        {logging[challenge.challengeId] ? t('challenges.logging', 'Logging...') : t('challenges.submit', 'Submit')}
-                      </Button>
+                      <div className="flex justify-center">
+                        <Button 
+                          size="sm" 
+                          variant="default" 
+                          className="w-25 h-9 btn-log-submit" 
+                          disabled={
+                            !!logging[challenge.challengeId] ||
+                            !!busy[challenge.challengeId] ||
+                            !selectedItemId
+                          } 
+                          onClick={() => logChallengeProgress(challenge.challengeId, username, Number(logAmount), selectedItemId)}
+                        >
+                          {logging[challenge.challengeId] ? t('challenges.logging', 'Logging...') : t('challenges.submit', 'Submit')}
+                        </Button>
+                      </div>
                     </div>
                   </PopoverContent>
                 </Popover>

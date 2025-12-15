@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/popover';
 import { useTranslation } from 'react-i18next';
 import { NotificationsApi } from '@/lib/api/notifications';
+import { UsersApi } from '@/lib/api/users';
 import NotificationCard from './notification-card';
 import NotificationDetailDialog from './NotificationDetailDialog';
 import type { Notification } from '@/lib/api/schemas/notifications';
@@ -33,6 +34,46 @@ export default function NotificationIcon() {
     return new Date(b.timestamp as string).getTime() - new Date(a.timestamp as string).getTime();
   });
 
+  const enrichNotificationsWithContent = async (notificationsList: Notification[]) => {
+    // Backend now provides preview field for post and comment notifications
+    // We only need to enrich challenge notifications with the challenge title
+    const challengeNotifications = notificationsList.filter(
+      n => n.type === 'End' && 
+           n.objectType?.toLowerCase() === 'challenge' && 
+           n.objectId
+    );
+
+    // Fetch challenge details for challenge-ending notifications (in parallel)
+    const enrichedChallenges = await Promise.allSettled(
+      challengeNotifications.map(async (notification) => {
+        try {
+          if (!username) return notification;
+          const challenges = await UsersApi.listChallenges(username);
+          const challenge = challenges.find(c => c.challengeId === parseInt(notification.objectId!));
+          return {
+            ...notification,
+            challengeTitle: challenge?.name || undefined,
+          };
+        } catch (error) {
+          console.error(`Failed to fetch challenge ${notification.objectId}:`, error);
+          return notification; // Return original notification if fetch fails
+        }
+      })
+    );
+
+    // Create a map of enriched notifications
+    const enrichedMap = new Map<number, Notification>();
+    
+    enrichedChallenges.forEach((result, index) => {
+      if (result.status === 'fulfilled') {
+        enrichedMap.set(challengeNotifications[index].id, result.value);
+      }
+    });
+
+    // Merge enriched data back into the full notification list
+    return notificationsList.map(n => enrichedMap.get(n.id) || n);
+  };
+
   const fetchNotifications = async (isBackgroundRefresh = false) => {
     if (!username) return;
     
@@ -46,10 +87,14 @@ export default function NotificationIcon() {
       const data = await NotificationsApi.list(username);
       console.log('Notifications received:', data);
       
+      // Enrich notifications (only challenge notifications need enrichment now)
+      // Post and comment previews are already provided by the backend in the 'preview' field
+      const enrichedData = await enrichNotificationsWithContent(data);
+      
       // Merge new notifications with existing ones, avoiding duplicates
       setNotifications(prevNotifications => {
         const existingIds = new Set(prevNotifications.map(n => n.id));
-        const newNotifications = data.filter(n => !existingIds.has(n.id));
+        const newNotifications = enrichedData.filter(n => !existingIds.has(n.id));
         
         // If this is a background refresh and we have new notifications, add them
         if (isBackgroundRefresh && newNotifications.length > 0) {
@@ -57,7 +102,7 @@ export default function NotificationIcon() {
         }
         
         // Otherwise, replace the entire list (for initial load)
-        return data;
+        return enrichedData;
       });
     } catch (err) {
       console.error('Failed to fetch notifications:', err);
