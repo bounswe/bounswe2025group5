@@ -16,6 +16,7 @@ vi.mock('react-i18next', () => ({
         'goals.navbar': 'Goals',
         'challenge.navbar': 'Challenges',
         'login.signup': 'Sign Up',
+        'login.login': 'Login',
         'navbar.logoAlt': 'WasteLess application logo',
       };
       return translations[key] || fallback || key;
@@ -234,8 +235,10 @@ describe('Navbar', () => {
       const signUpButton = screen.getByRole('button', { name: 'Sign Up' });
       await user.click(signUpButton);
       
-      // Navigation would occur in real app
-      expect(signUpButton).toBeInTheDocument();
+      // After navigation to /auth/register, the button changes to Login
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Login' })).toBeInTheDocument();
+      });
     });
   });
 
