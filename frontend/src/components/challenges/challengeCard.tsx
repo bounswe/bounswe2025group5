@@ -231,8 +231,19 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
                     >
                       {busy[challenge.challengeId] ? t('challenges.leaving', 'Leaving...') : t('challenges.leave', 'Leave')}
                     </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[250px] p-2 flex flex-col items-center">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button 
+                          size="sm" 
+                          variant="default" 
+                          className="h-8 px-4 text-xs btn-log"
+                          disabled={!!busy[challenge.challengeId] || !!logging[challenge.challengeId]}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {t('challenges.logProgress', 'Log Progress')}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[250px] p-2 flex flex-col items-center">
                     <div className="w-full space-y-3">
                       <Popover open={popupOpen} onOpenChange={setPopupOpen}>
                         <PopoverTrigger asChild>
@@ -317,6 +328,8 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
                     </div>
                   </PopoverContent>
                 </Popover>
+                  </>
+                )}
                 
                 <Leaderboard challengeId={challenge.challengeId} />
               </div>
