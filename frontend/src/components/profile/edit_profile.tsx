@@ -12,7 +12,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { usePasswordStrength } from "@/hooks/usePasswordStrength";
 import { AuthApi } from "@/lib/api/auth";
 import { UsersApi } from "@/lib/api/users";
-import userAvatar from "@/assets/user.png";
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -29,7 +28,7 @@ export default function EditProfile({ username, initialBio, initialPhotoUrl, onB
     const [profileOpen, setProfileOpen] = useState(false);
     const [bio, setBio] = useState<string | null>(initialBio ?? null);
     const [photoUrl, setPhotoUrl] = useState<string | null>(initialPhotoUrl ?? null);
-    const [profilePhotoSrc, setProfilePhotoSrc] = useState(initialPhotoUrl);
+    const [_profilePhotoSrc, setProfilePhotoSrc] = useState(initialPhotoUrl);
     const [saving, setSaving] = useState(false);
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
