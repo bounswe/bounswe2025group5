@@ -52,7 +52,7 @@ public class CommentService {
                 "User", user.getUsername(),
                 "Comment", postId,
                 "User", post.getUser().getUsername(),
-                request.getUsername()
+                request.getUsername(), user.getProfile().getPhotoUrl()
         );
 
         return convertToResponse(savedComment);
