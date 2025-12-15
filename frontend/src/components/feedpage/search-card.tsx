@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Search, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { cn } from '@/lib/utils';
 
 interface SearchCardProps {
   onSearch: (query: string) => void;
@@ -30,7 +31,7 @@ export default function SearchCard({ onSearch, onClear, isLoading = false, isAct
 
   return (
     <Card>
-      <CardContent>
+      <CardContent className="transition-all duration-300 ease-in-out">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex gap-2">
             <div className="flex-1 relative">
@@ -40,12 +41,13 @@ export default function SearchCard({ onSearch, onClear, isLoading = false, isAct
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t('search.placeholder')}
-                className="pl-10 animate-input"
+                className="pl-10 animate-input focus-visible:border-secondary focus-visible:ring-2 focus-visible:ring-secondary/20"
                 disabled={isLoading}
               />
             </div>
             <Button
               type="submit"
+              variant="secondary"
               disabled={!query.trim() || isLoading}
               className="min-w-[80px]"
             >
@@ -54,9 +56,9 @@ export default function SearchCard({ onSearch, onClear, isLoading = false, isAct
             {isActive && (
               <Button
                 type="button"
-                variant="outline"
+                variant="destructive"
                 onClick={handleClear}
-                className="flex items-center gap-2"
+                className="min-w-[80px]"
               >
                 <X className="h-4 w-4" />
                 {t('search.clear')}
@@ -65,13 +67,17 @@ export default function SearchCard({ onSearch, onClear, isLoading = false, isAct
           </div>
         </form>
         
-        {isActive && (
-          <div className="mt-3 pt-3 border-t">
-            <p className="text-sm text-emerald-700 font-medium">
+        <div 
+          className={`overflow-visible transition-all duration-300 ease-in-out ${
+            isActive ? 'max-h-20 opacity-100 mt-3 pt-1' : 'max-h-0 opacity-0'
+          }`}
+        >
+          <div className="flex items-center justify-center">
+            <p className="text-sm text-secondary font-medium mt-0.5">
               {t('search.results')}
             </p>
           </div>
-        )}
+        </div>
       </CardContent>
     </Card>
   );
