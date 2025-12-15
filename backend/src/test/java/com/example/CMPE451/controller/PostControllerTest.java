@@ -80,7 +80,7 @@ class PostControllerTest {
     @WithMockUser
     void testGetPosts() throws Exception {
         GetPostResponse post = new GetPostResponse(1, "Post content",
-                new Timestamp(System.currentTimeMillis()), 10, "testuser", null, 2, true, false);
+                new Timestamp(System.currentTimeMillis()), 10, "testuser", null, 2, true, false,"https://example.com");
         List<GetPostResponse> posts = List.of(post);
 
         given(postService.getPosts("testuser", 10, null)).willReturn(posts);
@@ -99,7 +99,7 @@ class PostControllerTest {
         MockMultipartFile photoFile =
                 new MockMultipartFile("photoFile", "photo.jpg", MediaType.IMAGE_JPEG_VALUE, "dummy".getBytes());
         CreateOrEditPostResponse response = new CreateOrEditPostResponse(
-                1, "New post", new Timestamp(System.currentTimeMillis()), "testuser", "photo.jpg");
+                1, "New post", new Timestamp(System.currentTimeMillis()), "testuser", "photo.jpg","https://example.com");
 
         given(postService.createPost("New post", "testuser", photoFile)).willReturn(response);
 
@@ -118,7 +118,7 @@ class PostControllerTest {
         MockMultipartFile photoFile =
                 new MockMultipartFile("photoFile", "photo.jpg", MediaType.IMAGE_JPEG_VALUE, "dummy".getBytes());
         CreateOrEditPostResponse response = new CreateOrEditPostResponse(
-                postId, "Edited post", new Timestamp(System.currentTimeMillis()), "testuser", "photo.jpg");
+            postId, "Edited post", new Timestamp(System.currentTimeMillis()), "testuser", "photo.jpg","https://example.com");
 
         given(postService.editPost(postId, "Edited post", "testuser", photoFile)).willReturn(response);
 
@@ -150,7 +150,7 @@ class PostControllerTest {
     @WithMockUser
     void testGetMostLikedPosts() throws Exception {
         GetPostResponse post = new GetPostResponse(1, "Popular post",
-                new Timestamp(System.currentTimeMillis()), 500, "popularUser", null, 20, true, true);
+                new Timestamp(System.currentTimeMillis()), 500, "popularUser", null, 20, true, true,"https://example.com");
         List<GetPostResponse> posts = List.of(post);
 
         given(postService.getMostLikedPosts(5, "popularUser")).willReturn(posts);
@@ -199,7 +199,7 @@ class PostControllerTest {
     @WithMockUser
     void testSearchPosts() throws Exception {
         GetPostResponse post = new GetPostResponse(1, "search result",
-                new Timestamp(System.currentTimeMillis()), 10, "testuser", null, 1, false, false);
+                new Timestamp(System.currentTimeMillis()), 10, "testuser", null, 1, false, false,"https://example.com");
         List<GetPostResponse> posts = List.of(post);
 
         given(postService.semanticSearch("query", "testuser")).willReturn(posts);

@@ -27,6 +27,7 @@ import java.time.Instant;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -79,11 +80,13 @@ class ReportControllerTest {
     @WithMockUser
     void testCreateReport() throws Exception {
         CreateReportRequest req = new CreateReportRequest();
+        // Setup request data if needed, e.g., req.setReason("spam");
 
         CreateReportResponse response = new CreateReportResponse(true);
 
         given(reportService.createReport(any(CreateReportRequest.class))).willReturn(response);
 
+        // Matches @PostMapping at /api/reports
         mvc.perform(post("/api/reports")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(req))
@@ -95,9 +98,11 @@ class ReportControllerTest {
     @Test
     @WithMockUser
     void testGetUnSolvedReports() throws Exception {
+        String username = "testUser";
+
         GetReportResponse report = new GetReportResponse(
                 1,
-                "testUser",
+                username,
                 "Spam",
                 "Bad content",
                 0,
@@ -108,9 +113,10 @@ class ReportControllerTest {
 
         List<GetReportResponse> responseList = List.of(report);
 
-        given(reportService.getUnreadReports()).willReturn(responseList);
+        given(reportService.getUnreadReports(eq(username))).willReturn(responseList);
 
-        mvc.perform(get("/api/reports/unread")
+        // Matches @GetMapping("/{username}/unread")
+        mvc.perform(get("/api/reports/{username}/unread", username)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(jsonGetReportResponseList.write(responseList).getJson()));
@@ -120,11 +126,13 @@ class ReportControllerTest {
     @WithMockUser
     void testSolveReport() throws Exception {
         int reportId = 1;
+        String username = "Alice";
         MarkResponse response = new MarkResponse(true, reportId);
 
-        given(reportService.markReportAsSolved(reportId)).willReturn(response);
+        given(reportService.markReportAsSolved(eq(reportId), eq(username))).willReturn(response);
 
-        mvc.perform(put("/api/reports/{id}/solve-flag", reportId)
+        // Matches @PutMapping("/{username}/{id}/solve-flag")
+        mvc.perform(put("/api/reports/{username}/{id}/solve-flag", username, reportId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(jsonMarkResponse.write(response).getJson()));
@@ -134,11 +142,13 @@ class ReportControllerTest {
     @WithMockUser
     void testMarkAsDeletion() throws Exception {
         int reportId = 2;
+        String username = "Alice";
         MarkResponse response = new MarkResponse(true, reportId);
 
-        given(reportService.markReportAsDeleted(reportId)).willReturn(response);
+        given(reportService.markReportAsDeleted(eq(reportId), eq(username))).willReturn(response);
 
-        mvc.perform(put("/api/reports/{id}/delete-flag", reportId)
+        // Matches @PutMapping("/{username}/{id}/delete-flag")
+        mvc.perform(put("/api/reports/{username}/{id}/delete-flag", username, reportId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(jsonMarkResponse.write(response).getJson()));
