@@ -26,6 +26,24 @@ type WasteMonthlyChartProps = {
   variant?: 'default' | 'compact';
 };
 
+type ImpactUnitKey = 'trees' | 'barrels' | 'energy' | 'ore' | 'compost';
+
+const IMPACT_UNIT_LABELS: Record<ImpactUnitKey, string> = {
+  trees: 'trees',
+  barrels: 'barrels of oil',
+  energy: 'kWh saved',
+  ore: 'kg of ore',
+  compost: 'kg of compost',
+};
+
+const IMPACT_CONVERSIONS: Record<string, { factorPerKg: number; unitKey: ImpactUnitKey }> = {
+  PAPER: { factorPerKg: 0.017, unitKey: 'trees' },
+  PLASTIC: { factorPerKg: 0.0163, unitKey: 'barrels' },
+  GLASS: { factorPerKg: 0.042, unitKey: 'energy' },
+  METAL: { factorPerKg: 1.5, unitKey: 'ore' },
+  ORGANIC: { factorPerKg: 0.5, unitKey: 'compost' },
+};
+
 export default function WasteMonthlyChart({ username, className, variant = 'default' }: WasteMonthlyChartProps) {
   const { t } = useTranslation();
   const isCompact = variant === 'compact';
@@ -56,6 +74,19 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
     () => monthlyData.reduce((sum, entry) => sum + entry.totalWeight, 0),
     [monthlyData]
   );
+
+  const impactInfo = useMemo(() => {
+    const conversion = IMPACT_CONVERSIONS[resolvedWasteType ?? wasteType];
+    if (!conversion) return null;
+    const amountKg = totalCollected / 1000;
+    if (!Number.isFinite(amountKg) || amountKg <= 0) return null;
+    const impactValue = amountKg * conversion.factorPerKg;
+    const unitLabel = t(`goals.impact.units.${conversion.unitKey}`, IMPACT_UNIT_LABELS[conversion.unitKey]);
+    return {
+      formattedImpact: formatNumber(impactValue, { maximumFractionDigits: 2 }),
+      unitLabel,
+    };
+  }, [resolvedWasteType, totalCollected, t, wasteType]);
 
   const peakMonth = useMemo(() => {
     if (monthlyData.length === 0) return null;
@@ -188,6 +219,20 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
               label={t('goals.monthlyPeak', 'Peak month')}
               value={peakMonth ? formatMonthLabel(peakMonth.year, peakMonth.month) : '--'}
               helper={peakMonth ? formatWeight(peakMonth.totalWeight) : t('goals.monthlyPeakEmpty', 'No logs yet')}
+              variant={isCompact ? 'compact' : 'default'}
+            />
+            <Metric
+              label={t('goals.monthlyImpactLabel', '12-month impact')}
+              value={
+                impactInfo
+                  ? `${impactInfo.formattedImpact} ${impactInfo.unitLabel}`
+                  : t('goals.summaryImpactEmptyValue', 'No savings yet')
+              }
+              helper={
+                impactInfo
+                  ? t('goals.monthlyImpactHelper', 'From your last 12 months')
+                  : undefined
+              }
               variant={isCompact ? 'compact' : 'default'}
             />
           </div>

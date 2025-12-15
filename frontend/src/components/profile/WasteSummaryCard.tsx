@@ -126,7 +126,7 @@ export default function WasteSummaryCard({ className, variant = 'default' }: Was
     }
     return t(
       'goals.summaryImpactDescription',
-      'You logged {{amount}} of {{wasteType}}, saving about {{impact}} {{unit}}.',
+      'All users logged {{amount}} of {{wasteType}}, saving about {{impact}} {{unit}}.',
       {
         amount: formatWeight(summary.totalAmount),
         wasteType: wasteTypeLabel,
