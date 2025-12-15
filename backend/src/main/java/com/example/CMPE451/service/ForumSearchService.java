@@ -187,7 +187,8 @@ public class ForumSearchService {
                 post.getPhotoUrl(),
                 post.getComments(),
                 isLiked,
-                isSaved
+                isSaved,
+                post.getUser().getProfile().getPhotoUrl()
         );
     }
 

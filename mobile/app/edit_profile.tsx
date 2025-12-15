@@ -517,6 +517,9 @@ export default function EditProfileScreen() {
               )}
             </TouchableOpacity>
           )}
+          <Text style={[styles.avatarNote, { color: placeholderTextColor }]}>
+            {t("avatarSizeLimit")}
+          </Text>
         </View>
 
         <TextInput
@@ -993,6 +996,11 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     backgroundColor: "#ddd",
     marginBottom: 10,
+  },
+  avatarNote: {
+    marginTop: 8,
+    fontSize: 12,
+    textAlign: "center",
   },
   imagePickerButton: {
     flexDirection: "row",

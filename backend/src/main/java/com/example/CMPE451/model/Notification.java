@@ -42,4 +42,9 @@ public class Notification {
     @Column(name = "preview")
     private String preview;
 
+    @Column(name = "profile_picture")
+    private String profile_picture;
+
+
+
 }

@@ -52,7 +52,7 @@ public class FollowService {
                 "User", follower.getUsername(),
                 "User", follower.getUsername(),
                 "User", following.getUsername(),
-                null
+                null, follower.getProfile().getPhotoUrl()
         );
 
         return new FollowingFeatureResponse(followerUser,followingUser,newFollowerCount);
