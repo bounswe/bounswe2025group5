@@ -462,18 +462,35 @@ export default function UserProfileScreen() {
                     );
                   })}
                   <TouchableOpacity
-                    style={styles.viewAllBadge}
+                    style={[
+                      styles.viewAllBadge,
+                      {
+                        backgroundColor:
+                          colorScheme === "dark"
+                            ? "rgba(255,255,255,0.12)"
+                            : "rgba(0,0,0,0.06)",
+                        borderColor:
+                          colorScheme === "dark"
+                            ? "rgba(255,255,255,0.24)"
+                            : "rgba(0,0,0,0.14)",
+                      },
+                    ]}
                     accessible
                     accessibilityRole="button"
-                  accessibilityLabel={t("viewAllBadges", {
-                    defaultValue: "View all",
-                  })}
+                    accessibilityLabel={t("viewAllBadges", {
+                      defaultValue: "View all",
+                    })}
                     onPress={() =>
                       navigation.navigate("badges", { username: usernameParam })
                     }
                     activeOpacity={0.8}
                   >
-                    <Text style={styles.viewAllBadgeText}>
+                    <Text
+                      style={[
+                        styles.viewAllBadgeText,
+                        { color: colorScheme === "dark" ? "#FFFFFF" : "#111827" },
+                      ]}
+                    >
                       {t("viewAllBadges", { defaultValue: "View all" })}
                     </Text>
                   </TouchableOpacity>

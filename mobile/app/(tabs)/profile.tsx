@@ -1457,14 +1457,29 @@ export default function ProfileScreen() {
                   );
                 })}
                 <TouchableOpacity
-                  style={styles.viewAllBadge}
+                  style={[
+                    styles.viewAllBadge,
+                    {
+                      backgroundColor: isDarkMode
+                        ? "rgba(255,255,255,0.12)"
+                        : "rgba(0,0,0,0.06)",
+                      borderColor: isDarkMode
+                        ? "rgba(255,255,255,0.24)"
+                        : "rgba(0,0,0,0.14)",
+                    },
+                  ]}
                   accessible
                   accessibilityRole="button"
                   accessibilityLabel={t("viewAllBadges", { defaultValue: "View all" })}
                   onPress={() => navigation.navigate("badges")}
                   activeOpacity={0.8}
                 >
-                  <Text style={styles.viewAllBadgeText}>
+                  <Text
+                    style={[
+                      styles.viewAllBadgeText,
+                      { color: isDarkMode ? "#FFFFFF" : "#111827" },
+                    ]}
+                  >
                     {t("viewAllBadges", { defaultValue: "View all" })}
                   </Text>
                 </TouchableOpacity>
