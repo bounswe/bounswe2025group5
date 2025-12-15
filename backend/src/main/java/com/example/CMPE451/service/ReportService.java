@@ -79,7 +79,7 @@ public class ReportService {
                     "Moderator", username,
                     "Report", reportId,
                     "User", report.getReporter().getUsername(),
-                    getFirst255Characters(report.getDescription())
+                    getFirst255Characters(report.getDescription()), ""
             );
         }
 
@@ -89,7 +89,7 @@ public class ReportService {
                     "Moderator", username,
                     "Report", reportId,
                     "User", report.getReporter().getUsername(),
-                    getFirst255Characters(report.getDescription())
+                    getFirst255Characters(report.getDescription()),""
             );
         }
 
