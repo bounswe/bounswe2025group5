@@ -303,11 +303,11 @@ export default function UserProfileScreen() {
             </View>
           )}
 
-          <View style={{ marginLeft: 12, flexShrink: 1 }}>
+          <View style={styles.profileInfo}>
             <AccessibleText
               type="default"
               backgroundColor={colorScheme === "dark" ? "#151718" : "#F0F2F5"}
-              style={{ fontSize: 20 }}
+              style={{ fontSize: 20, textAlign: "left", alignSelf: "stretch" }}
             >
               {usernameParam}
             </AccessibleText>
@@ -315,14 +315,19 @@ export default function UserProfileScreen() {
             <AccessibleText
               type="default"
               backgroundColor={colorScheme === "dark" ? "#151718" : "#F0F2F5"}
-              style={{ marginTop: 4, fontStyle: bio ? "normal" : "italic" }}
-              numberOfLines={3}
+              style={{
+                marginTop: 4,
+                fontStyle: bio ? "normal" : "italic",
+                textAlign: "left",
+                alignSelf: "stretch",
+              }}
+              numberOfLines={2}
             >
               {bio || t("noBioYet")}
             </AccessibleText>
 
-            <View style={{ flexDirection: "row", marginTop: 8 }}>
-              <View style={{ marginRight: 16 }}>
+            <View style={styles.followRow}>
+              <View style={{ alignItems: "flex-start", minWidth: 64 }}>
                 <AccessibleText
                   backgroundColor={
                     colorScheme === "dark" ? "#151718" : "#F0F2F5"
@@ -340,7 +345,7 @@ export default function UserProfileScreen() {
                   {t("followers")}
                 </AccessibleText>
               </View>
-              <View>
+              <View style={{ alignItems: "flex-start", minWidth: 64 }}>
                 <AccessibleText
                   backgroundColor={
                     colorScheme === "dark" ? "#151718" : "#F0F2F5"
@@ -366,7 +371,6 @@ export default function UserProfileScreen() {
                   styles.followButton,
                   {
                     backgroundColor: isFollowing ? "#888" : "#007AFF",
-                    marginTop: 12,
                   },
                 ]}
                 onPress={handleFollowToggle}
@@ -658,12 +662,25 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     backgroundColor: "#ddd",
   },
+  profileInfo: {
+    flex: 1,
+    alignItems: "flex-start",
+    marginLeft: 12,
+  },
   loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
   followButton: {
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 8,
     alignItems: "center",
+    alignSelf: "flex-start",
+    minWidth: 160,
+  },
+  followRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 24,
+    marginTop: 8,
   },
   badgePill: {
     padding: 0,
