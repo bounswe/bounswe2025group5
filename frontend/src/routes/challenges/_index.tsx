@@ -15,6 +15,17 @@ export default function ChallengesIndex() {
   const [items, setItems] = useState<ChallengeListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Helper to check if challenge is ended or goal reached
+  const isEndedOrGoalReached = (ch: ChallengeListItem) => {
+    const isEnded = ch.status?.toUpperCase() === 'ENDED';
+    const goalReached = ch.amount != null && (ch.currentAmount ?? 0) >= ch.amount;
+    return isEnded || goalReached;
+  };
+  
+  // Separate active and ended challenges
+  const activeChallenges = items.filter(ch => !isEndedOrGoalReached(ch));
+  const endedChallenges = items.filter(ch => isEndedOrGoalReached(ch));
   const username = useMemo(() => {
     try {
       const raw = localStorage.getItem('username');
@@ -79,10 +90,34 @@ export default function ChallengesIndex() {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
-                {items.map((item) => (
-                  <ChallengeCard key={item.challengeId} challenge={item} />
-                ))}
+              <div className="space-y-8">
+                {/* Active Challenges */}
+                {activeChallenges.length > 0 && (
+                  <div>
+                    <h2 className="text-xl font-semibold text-primary mb-4">
+                      {t('challenges.active', 'Active Challenges')}
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+                      {activeChallenges.map((item) => (
+                        <ChallengeCard key={item.challengeId} challenge={item} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Ended Challenges */}
+                {endedChallenges.length > 0 && (
+                  <div>
+                    <h2 className="text-xl font-semibold text-muted-foreground mb-4">
+                      {t('challenges.ended', 'Ended Challenges')}
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+                      {endedChallenges.map((item) => (
+                        <ChallengeCard key={item.challengeId} challenge={item} />
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </GlassCard>
