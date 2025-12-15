@@ -1330,21 +1330,27 @@ export default function ProfileScreen() {
                       }
                     >
                       <Text style={styles.languageLabel}>EN</Text>
-                      <Switch
-                        trackColor={{ false: "#767577", true: "#81b0ff" }}
-                        thumbColor={
-                          isDarkMode
-                            ? isTurkish
+                      <View
+                        pointerEvents="none"
+                        importantForAccessibility="no-hide-descendants"
+                        accessibilityElementsHidden={true}
+                      >
+                        <Switch
+                          trackColor={{ false: "#767577", true: "#81b0ff" }}
+                          thumbColor={
+                            isDarkMode
+                              ? isTurkish
+                                ? "#f5dd4b"
+                                : "#f4f4f4"
+                              : isTurkish
                               ? "#f5dd4b"
                               : "#f4f4f4"
-                            : isTurkish
-                            ? "#f5dd4b"
-                            : "#f4f4f4"
-                        }
-                        ios_backgroundColor="#3e3e3e"
-                        onValueChange={toggleLanguage}
-                        value={isTurkish}
-                      />
+                          }
+                          ios_backgroundColor="#3e3e3e"
+                          onValueChange={toggleLanguage}
+                          value={isTurkish}
+                        />
+                      </View>
                       <Text style={styles.languageLabel}>TR</Text>
                     </TouchableOpacity>
                   </View>
