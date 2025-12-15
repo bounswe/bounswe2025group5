@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { UsersApi } from "@/lib/api/users";
 import { Card, CardContent } from "@/components/ui/card";
 import GlassCard from "@/components/ui/glass-card";
 import { Spinner } from "@/components/ui/spinner";
@@ -183,6 +184,7 @@ export default function ProfileIndex() {
     setFollowersOpen(false);
     setFollowingOpen(false);
   };
+
 
   return (
     <div className="min-h-screen p-4">

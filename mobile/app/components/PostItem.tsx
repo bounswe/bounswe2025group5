@@ -184,6 +184,7 @@ function PostItem({
   const openReportModalForPost = () => {
     setReportContext({
       type: "post",
+      objectId: post.id,
       title: post.title,
       snippet: post.content,
     });
@@ -202,6 +203,7 @@ function PostItem({
     }
     setReportContext({
       type: "comment",
+      objectId: comment.commentId,
       title: post.title,
       username: comment.username,
       snippet: comment.content,
