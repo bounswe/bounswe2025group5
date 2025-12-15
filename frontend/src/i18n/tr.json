@@ -205,7 +205,17 @@
         "summaryNoDataButtonLoading": "Yükleniyor...",
         "summaryScaleMax": "Ölçek max",
         "summaryTotal": "Toplam",
+        "summaryTitle": "Atık etki anlık görünümü",
+        "summaryImpactLabel": "Gerçek tasarruflar",
+        "summaryImpactHelper": "{{wasteType}} için {{amount}} kayıttan",
+        "summaryImpactEmpty": "Gerçek tasarruflarınızı görmek için atık kaydedin.",
+        "summaryImpactEmptyValue": "Henüz tasarruf yok",
+        "summaryImpactDescription": "Tüm kullanıcılar {{amount}} {{wasteType}} kaydederek yaklaşık {{impact}} {{unit}} kazandırdı.",
         "monthlyTitle": "12 Aylık Atık Trendleri",
+        "monthlyImpactLabel": "12 aylık etki",
+        "monthlyImpactHelper": "Son 12 ay kayıtlarınızdan",
+        "monthlyGlobalAverage": "Küresel ortalama ({{value}} kg)",
+        "recyclingNote": "Tasarrufları, kaydettiğiniz atığın geri dönüştürüldüğü varsayımıyla hesaplıyoruz.",
         "wasteType": "Atık türü",
         "save": "Kaydet",
         "cancel": "İptal",
@@ -218,7 +228,16 @@
         "createDesc": "Yeni bir atık hedefi oluşturun",
         "editTitle": "Atık hedefi düzenle",
         "editDesc": "Atık hedefinizi güncelleyin",
-        "create": "Atık hedefi oluştur"
+        "create": "Atık hedefi oluştur",
+        "impact": {
+            "units": {
+                "trees": "ağaç",
+                "barrels": "varil petrol",
+                "energy": "kWh enerji",
+                "ore": "kg cevher",
+                "compost": "kg kompost"
+            }
+        }
 
 
     },

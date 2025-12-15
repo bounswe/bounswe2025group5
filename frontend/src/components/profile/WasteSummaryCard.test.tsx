@@ -56,6 +56,10 @@ describe('WasteSummaryCard', () => {
 
     await waitFor(() => expect(WasteApi.summary).toHaveBeenCalled());
     expect(screen.getByLabelText('5 kg (Total collected)')).toBeInTheDocument();
+    expect(screen.getByText('0.08 barrels of oil')).toBeInTheDocument();
+    expect(
+      screen.getByText('You logged 5 kg of PLASTIC, saving about 0.08 barrels of oil.')
+    ).toBeInTheDocument();
   });
 
   it('submits a custom range when the form is valid', async () => {
