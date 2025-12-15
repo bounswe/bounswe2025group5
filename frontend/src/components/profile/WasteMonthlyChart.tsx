@@ -18,12 +18,39 @@ import {
   YAxis,
   Tooltip as RechartsTooltip,
   Cell,
+  ReferenceLine,
 } from 'recharts';
 
 type WasteMonthlyChartProps = {
   username?: string | null;
   className?: string;
   variant?: 'default' | 'compact';
+};
+
+type ImpactUnitKey = 'trees' | 'barrels' | 'energy' | 'ore' | 'compost';
+
+const IMPACT_UNIT_LABELS: Record<ImpactUnitKey, string> = {
+  trees: 'trees',
+  barrels: 'barrels of oil',
+  energy: 'kWh saved',
+  ore: 'kg of ore',
+  compost: 'kg of compost',
+};
+
+const IMPACT_CONVERSIONS: Record<string, { factorPerKg: number; unitKey: ImpactUnitKey }> = {
+  PAPER: { factorPerKg: 0.017, unitKey: 'trees' },
+  PLASTIC: { factorPerKg: 0.0163, unitKey: 'barrels' },
+  GLASS: { factorPerKg: 0.042, unitKey: 'energy' },
+  METAL: { factorPerKg: 1.5, unitKey: 'ore' },
+  ORGANIC: { factorPerKg: 0.5, unitKey: 'compost' },
+};
+
+const GLOBAL_WASTE_AVERAGE_KG: Record<string, number> = {
+  PLASTIC: 2.7,
+  PAPER: 3.8,
+  GLASS: 1.1,
+  METAL: 0.9,
+  ORGANIC: 10,
 };
 
 export default function WasteMonthlyChart({ username, className, variant = 'default' }: WasteMonthlyChartProps) {
@@ -57,15 +84,42 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
     [monthlyData]
   );
 
+  const globalAverageKg = useMemo(() => {
+    const key = resolvedWasteType || wasteType;
+    return GLOBAL_WASTE_AVERAGE_KG[key] ?? null;
+  }, [resolvedWasteType, wasteType]);
+
+  const globalAverageGrams = useMemo(
+    () => (globalAverageKg ? globalAverageKg * 1000 : null),
+    [globalAverageKg]
+  );
+
+  const impactInfo = useMemo(() => {
+    const conversion = IMPACT_CONVERSIONS[resolvedWasteType ?? wasteType];
+    if (!conversion) return null;
+    const amountKg = totalCollected / 1000;
+    if (!Number.isFinite(amountKg) || amountKg <= 0) return null;
+    const impactValue = amountKg * conversion.factorPerKg;
+    const unitLabel = t(`goals.impact.units.${conversion.unitKey}`, IMPACT_UNIT_LABELS[conversion.unitKey]);
+    return {
+      formattedImpact: formatNumber(impactValue, { maximumFractionDigits: 2 }),
+      unitLabel,
+    };
+  }, [resolvedWasteType, totalCollected, t, wasteType]);
+
   const peakMonth = useMemo(() => {
     if (monthlyData.length === 0) return null;
     return monthlyData.reduce((prev, curr) => (curr.totalWeight > prev.totalWeight ? curr : prev));
   }, [monthlyData]);
 
   const maxValue = useMemo(() => {
-    if (monthlyData.length === 0) return 0;
-    return Math.max(...monthlyData.map((entry) => entry.totalWeight));
-  }, [monthlyData]);
+    const values = monthlyData.map((entry) => entry.totalWeight);
+    if (globalAverageGrams) {
+      values.push(globalAverageGrams);
+    }
+    if (values.length === 0) return 0;
+    return Math.max(...values);
+  }, [globalAverageGrams, monthlyData]);
 
   const loadMonthly = useCallback(async () => {
     if (!fallbackUsername) {
@@ -101,6 +155,13 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
     label: entry.month,
     value: entry.totalWeight,
   }));
+
+  const globalAverageLabel =
+    globalAverageKg != null
+      ? t('goals.monthlyGlobalAverage', 'Global average ({{value}} kg)', {
+          value: formatNumber(globalAverageKg, { maximumFractionDigits: 1 }),
+        })
+      : null;
 
   return (
     <Card className={cn('w-full relative min-h-[380px]', className)}>
@@ -160,6 +221,20 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
                     background: 'var(--card)',
                   }}
                 />
+                {globalAverageGrams && (
+                  <ReferenceLine
+                    y={globalAverageGrams}
+                    stroke="#facc15"
+                    strokeDasharray="6 6"
+                    strokeWidth={2}
+                    label={{
+                      value: globalAverageLabel ?? '',
+                      position: 'right',
+                      fill: '#facc15',
+                      fontSize: 12,
+                    }}
+                  />
+                )}
                 <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={28}>
                   {chartData.map((entry, index) => (
                     <Cell key={index} fill={entry.value > 0 ? '#10b981' : '#d4d4d8'} />
@@ -169,6 +244,17 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
             </ResponsiveContainer>
           )}
         </div>
+
+        {globalAverageLabel && (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span
+              className="h-0 w-8 border-t-2 border-dashed"
+              style={{ borderColor: '#facc15' }}
+              aria-hidden
+            />
+            <span>{globalAverageLabel}</span>
+          </div>
+        )}
 
         <div className="absolute bottom-2 right-2">
           <AccordionTrigger className="hover:no-underline p-2 rounded-full hover:bg-accent transition-colors" />
@@ -190,7 +276,25 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
               helper={peakMonth ? formatWeight(peakMonth.totalWeight) : t('goals.monthlyPeakEmpty', 'No logs yet')}
               variant={isCompact ? 'compact' : 'default'}
             />
+            <Metric
+              label={t('goals.monthlyImpactLabel', '12-month impact')}
+              value={
+                impactInfo
+                  ? `${impactInfo.formattedImpact} ${impactInfo.unitLabel}`
+                  : t('goals.summaryImpactEmptyValue', 'No savings yet')
+              }
+              helper={
+                impactInfo
+                  ? t('goals.monthlyImpactHelper', 'From your last 12 months')
+                  : undefined
+              }
+              variant={isCompact ? 'compact' : 'default'}
+            />
           </div>
+
+          <p className="text-xs text-muted-foreground">
+            {t('goals.recyclingNote', 'We calculate savings assuming the waste you log is recycled.')}
+          </p>
 
           <form
             className={cn('grid gap-4', isCompact ? 'sm:grid-cols-2' : 'sm:grid-cols-[1fr_auto]')}

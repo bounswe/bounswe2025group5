@@ -110,11 +110,11 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
     }
   }
 
-  if (!response.ok) {
-    // Try to parse error message from response body
-    let errorMessage = `API Error: ${response.status} ${response.statusText}`;
-    try {
-      const errorData = await response.json();
+    if (!response.ok) {
+      // Try to parse error message from response body
+      let errorMessage = `API Error: ${response.status} ${response.statusText}`;
+      try {
+        const errorData = await response.json();
       if (errorData.message) {
         errorMessage = errorData.message;
       } else if (errorData.error) {
@@ -122,24 +122,25 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
       }
     } catch {
       // If parsing fails, use the default error message
-    }
-
-    if (response.status === 401) {
-      const method = (options.method || 'GET').toString().toUpperCase();
-      const isDeleteAccount = method === 'DELETE' && endpoint.startsWith('/api/users/');
-      const isLogin = endpoint === '/api/sessions';
-      
-      if (isDeleteAccount) {
-        throw new Error('Incorrect password');
       }
 
-      // Don't redirect on login failures - just throw the error
-      if (isLogin) {
-        throw new Error(errorMessage);
-      }
-      clearTokens();
-      if (!window.location.pathname.startsWith('/auth')) {
-        console.log('Redirecting to login due to unauthorized API response');
+      if (response.status === 401) {
+        const method = (options.method || 'GET').toString().toUpperCase();
+        const isDeleteAccount = method === 'DELETE' && endpoint.startsWith('/api/users/');
+        const isLogin = endpoint === '/api/sessions';
+        const isResetPassword = endpoint === '/api/reset-password';
+        
+        if (isDeleteAccount) {
+          throw new Error('Incorrect password');
+        }
+
+        // Don't redirect on login failures - just throw the error
+        if (isLogin || isResetPassword) {
+          throw new Error(errorMessage);
+        }
+        clearTokens();
+        if (!window.location.pathname.startsWith('/auth')) {
+          console.log('Redirecting to login due to unauthorized API response');
         window.location.href = '/auth/login';
       }
     }

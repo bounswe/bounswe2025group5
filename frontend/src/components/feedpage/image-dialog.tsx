@@ -7,6 +7,8 @@ import {
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
+import { useState } from 'react';
+import imageFallback from '@/assets/image-fallback.png';
 
 interface ImageDialogProps {
   open: boolean;
@@ -24,6 +26,7 @@ export default function ImageDialog({
   username,
 }: ImageDialogProps) {
   const { t } = useTranslation();
+  const [imageSrc, setImageSrc] = useState(imageUrl);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -58,7 +61,8 @@ export default function ImageDialog({
         </DialogTitle>
         <div className="flex items-center justify-center w-full h-full bg-[#1b1b1a] backdrop-blur-md">
           <img
-            src={imageUrl}
+            src={imageSrc}
+            onError={() => setImageSrc(imageFallback)}
             alt={altText}
             className="max-w-[85vw] max-h-[75vh] object-contain"
             style={{
