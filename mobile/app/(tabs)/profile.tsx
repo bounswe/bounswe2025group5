@@ -1345,7 +1345,7 @@ export default function ProfileScreen() {
                   </View>
 
                   <TouchableOpacity
-                    style={styles.settingsMenuButton}
+                    style={[styles.settingsMenuButton, styles.settingsMenuPrimary]}
                     onPress={() => {
                       setSettingsMenuOpen(false);
                       navigation.navigate("edit_profile");
@@ -1357,7 +1357,7 @@ export default function ProfileScreen() {
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    style={styles.settingsMenuButton}
+                    style={[styles.settingsMenuButton, styles.settingsMenuSecondary]}
                     onPress={() => {
                       setSettingsMenuOpen(false);
                       Alert.alert(
@@ -2374,6 +2374,14 @@ const styles = StyleSheet.create({
   settingsMenuButtonText: {
     fontSize: 14,
     fontWeight: "700",
+  },
+  settingsMenuPrimary: {
+    backgroundColor: "rgba(0,122,255,0.12)",
+    borderColor: "rgba(0,122,255,0.25)",
+  },
+  settingsMenuSecondary: {
+    backgroundColor: "rgba(255,152,0,0.12)",
+    borderColor: "rgba(255,152,0,0.25)",
   },
   settingsMenuLogout: {
     backgroundColor: "#E53935",
