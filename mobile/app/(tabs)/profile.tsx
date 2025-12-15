@@ -35,6 +35,10 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useTranslation } from "react-i18next";
 import PostItem from "../components/PostItem";
 import { ScrollView } from "react-native";
+import {
+  getBadgeImageSource,
+  normalizeBadgeTranslationKey,
+} from "@/utils/badgeUtils";
 
 type CommentData = {
   commentId: number;
@@ -160,17 +164,6 @@ export default function ProfileScreen() {
     i18n.changeLanguage(value ? "tr-TR" : "en-US");
   };
 
-  // Convert "PLASTIC SAVER" to "plasticSaver" for translation keys
-  const normalizeBadgeName = (badgeName: string): string => {
-    return badgeName
-      .toLowerCase()
-      .split(" ")
-      .map((word, index) =>
-        index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)
-      )
-      .join("");
-  };
-
   const normalizeFollowList = useCallback((data: any): FollowUser[] => {
     if (!Array.isArray(data)) return [];
     return data
@@ -269,7 +262,9 @@ export default function ProfileScreen() {
       }
       const data = await res.json();
       const badgeNames = Array.isArray(data)
-        ? data.map((b: any) => normalizeBadgeName(b.badgeName))
+        ? data.map((b: any) =>
+            normalizeBadgeTranslationKey(b.badgeName || "")
+          )
         : [];
       setBadges(badgeNames);
     } catch (e: any) {
@@ -1382,40 +1377,53 @@ export default function ProfileScreen() {
                 {t("badges")}
               </AccessibleText>
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-                {badges.map((badgeName, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    onPress={() => {
-                      setSelectedBadge(badgeName);
-                      setBadgeModalVisible(true);
-                    }}
-                    style={{
-                      backgroundColor: isDarkMode ? "#FF9800" : "#FFA726",
-                      paddingHorizontal: 12,
-                      paddingVertical: 6,
-                      borderRadius: 16,
-                      flexDirection: "row",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Ionicons
-                      name="medal"
-                      size={16}
-                      color="#FFFFFF"
-                      style={{ marginRight: 4 }}
-                    />
-                    <AccessibleText
-                      backgroundColor={isDarkMode ? "#FF9800" : "#FFA726"}
-                      style={{
-                        color: "#FFFFFF",
-                        fontSize: 12,
-                        fontWeight: "600",
+                {badges.map((badgeName, index) => {
+                  const badgeImage = getBadgeImageSource(badgeName);
+                  const chipBackground = isDarkMode ? "#1F2933" : "#FFFFFF";
+                  const chipBorder = isDarkMode ? "#2D3748" : "#E5E7EB";
+
+                  return (
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() => {
+                        setSelectedBadge(badgeName);
+                        setBadgeModalVisible(true);
                       }}
+                      style={[
+                        styles.badgePill,
+                        {
+                          backgroundColor: chipBackground,
+                          borderColor: chipBorder,
+                        },
+                      ]}
                     >
-                      {t(badgeName)}
-                    </AccessibleText>
-                  </TouchableOpacity>
-                ))}
+                      {badgeImage ? (
+                        <Image
+                          source={badgeImage}
+                          style={styles.badgePillImage}
+                          resizeMode="contain"
+                        />
+                      ) : (
+                        <Ionicons
+                          name="medal"
+                          size={18}
+                          color={isDarkMode ? "#FBBF24" : "#FB8C00"}
+                          style={{ marginRight: 8 }}
+                        />
+                      )}
+                      <AccessibleText
+                        backgroundColor={chipBackground}
+                        style={{
+                          color: generalTextColor,
+                          fontSize: 12,
+                          fontWeight: "600",
+                        }}
+                      >
+                        {t(badgeName)}
+                      </AccessibleText>
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
             </View>
           ) : null}
@@ -2161,11 +2169,25 @@ export default function ProfileScreen() {
               </View>
 
               <View style={{ alignItems: "center", marginVertical: 20 }}>
-                <Ionicons
-                  name="medal"
-                  size={64}
-                  color={isDarkMode ? "#FF9800" : "#FFA726"}
-                />
+                {(() => {
+                  const badgeImage = getBadgeImageSource(selectedBadge ?? "");
+                  if (badgeImage) {
+                    return (
+                      <Image
+                        source={badgeImage}
+                        style={styles.badgeModalImage}
+                        resizeMode="contain"
+                      />
+                    );
+                  }
+                  return (
+                    <Ionicons
+                      name="medal"
+                      size={64}
+                      color={isDarkMode ? "#FF9800" : "#FFA726"}
+                    />
+                  );
+                })()}
                 <AccessibleText
                   backgroundColor={cardBackgroundColor}
                   style={{
@@ -2245,6 +2267,15 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: "#FF9800",
   },
+  badgePill: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+  },
+  badgePillImage: { width: 28, height: 28, marginRight: 8 },
   topButtonText: { fontSize: 14, color: "#FFFFFF" },
   profileContainer: {
     flexDirection: "row",
@@ -2330,6 +2361,10 @@ const styles = StyleSheet.create({
   avatarModalImage: {
     width: "100%",
     height: "70%",
+  },
+  badgeModalImage: {
+    width: 160,
+    height: 160,
   },
   progressModalOverlay: {
     position: "absolute",

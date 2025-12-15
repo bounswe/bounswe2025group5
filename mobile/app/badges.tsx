@@ -4,6 +4,7 @@ import {
   View,
   FlatList,
   ActivityIndicator,
+  Image,
   useColorScheme,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -12,6 +13,11 @@ import AccessibleText from '@/components/AccessibleText';
 
 import { useTranslation } from 'react-i18next';
 import { apiRequest } from './services/apiClient';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import {
+  getBadgeImageSource,
+  normalizeBadgeTranslationKey,
+} from '@/utils/badgeUtils';
 
 
 // Badge interface
@@ -94,27 +100,44 @@ export default function BadgesScreen() {
 
   // Render each badge item
   const renderBadgeItem = ({ item }: { item: Badge }) => {
-    // Array of lively colors for badges
-    const badgeColors = [
-      '#FF6B6B', // Coral Red
-      '#4ECDC4', // Turquoise
-      '#FFD166', // Yellow
-      '#6A0572', // Purple
-      '#1A936F', // Green
-      '#3D5A80', // Navy Blue
-      '#E76F51', // Orange
-      '#8338EC', // Violet
-      '#06D6A0', // Mint
-      '#EF476F', // Pink
-    ];
-
-    // Get color based on badge name to keep it consistent
-    const colorIndex = item.badgeName.length % badgeColors.length;
-    const badgeColor = badgeColors[colorIndex];
+    const badgeImage = getBadgeImageSource(item.badgeName);
+    const translationKey = normalizeBadgeTranslationKey(item.badgeName);
+    const displayName = translationKey ? t(translationKey) : item.badgeName;
 
     return (
-      <View style={[styles.badgeCard, { backgroundColor: badgeColor }]}>
-        <AccessibleText backgroundColor={badgeColor} style={styles.badgeName}>{item.badgeName}</AccessibleText>
+      <View
+        style={[
+          styles.badgeCard,
+          { backgroundColor: isDarkMode ? '#1F2933' : '#FFFFFF' },
+        ]}
+      >
+        <View
+          style={[
+            styles.badgeImageWrapper,
+            { backgroundColor: isDarkMode ? '#111827' : '#F6F8FB' },
+          ]}
+        >
+          {badgeImage ? (
+            <Image
+              source={badgeImage}
+              style={styles.badgeImage}
+              resizeMode="contain"
+            />
+          ) : (
+            <Ionicons
+              name="medal"
+              size={48}
+              color={isDarkMode ? '#FBBF24' : '#FB8C00'}
+              accessibilityLabel={item.badgeName}
+            />
+          )}
+        </View>
+        <AccessibleText
+          backgroundColor={isDarkMode ? '#1F2933' : '#FFFFFF'}
+          style={[styles.badgeName, { color: textColor }]}
+        >
+          {displayName}
+        </AccessibleText>
       </View>
     );
   };
@@ -164,22 +187,38 @@ const styles = StyleSheet.create({
   listContainer: { paddingBottom: 20 },
   row: { flex: 1, justifyContent: 'space-between', marginBottom: 12 },
   badgeCard: {
-    padding: 16,
+    padding: 12,
     borderRadius: 16,
     width: '48%',
-    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.06)',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 10,
+  },
+  badgeImageWrapper: {
+    width: 120,
+    height: 120,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.05)',
+  },
+  badgeImage: {
+    width: '80%',
+    height: '80%',
   },
   badgeName: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: '#111827',
     textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 1,
   },
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   emptyText: { fontSize: 16, fontStyle: 'italic' },
