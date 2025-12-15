@@ -224,7 +224,7 @@ export default function ExploreScreen() {
     savedByUser: typeof item.saved === "boolean" ? item.saved : false,
     createdAt: item.createdAt ?? null,
     authorAvatarUrl:
-      item.profile_photo ?? item.profilePhoto ?? item.creatorPhotoUrl ?? null,
+      item.profile_picture ?? item.profile_photo ?? item.profilePhoto ?? item.creatorPhotoUrl ?? null,
   });
 
   const fetchLikeStatusesForPosts = async (

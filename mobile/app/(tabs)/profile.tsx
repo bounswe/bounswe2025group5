@@ -515,7 +515,7 @@ export default function ProfileScreen() {
     savedByUser: false,
     createdAt: item.createdAt ?? null,
     authorAvatarUrl:
-      item.profile_photo ?? item.profilePhoto ?? item.creatorPhotoUrl ?? null,
+      item.profile_picture ?? item.profile_photo ?? item.profilePhoto ?? item.creatorPhotoUrl ?? null,
   });
 
   const fetchLikeStatusesForPosts = async (
