@@ -152,10 +152,7 @@ export default function UserProfileScreen() {
       }
       const data = await res.json();
       const badgeNames = Array.isArray(data)
-        ? data
-            .slice()
-            .reverse()
-            .map((b: any) => normalizeBadgeTranslationKey(b.badgeName || ""))
+        ? data.map((b: any) => normalizeBadgeTranslationKey(b.badgeName || ""))
         : [];
       setBadges(badgeNames);
     } catch (e: any) {

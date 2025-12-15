@@ -79,7 +79,7 @@ export default function BadgesScreen() {
 
         const data = await response.json();
         const list = Array.isArray(data) ? data : [];
-        setBadges([...list].reverse());
+        setBadges(list);
       } catch (err) {
         console.error('Error fetching badges:', err);
         // network errors often surface as "TypeError: Failed to fetch"
