@@ -42,10 +42,10 @@ export default function FeedbackDialog({ open, onOpenChange }: FeedbackDialogPro
     try {
       const payload = {
         reporterName: username,
-        description: `[FEEDBACK] ${description.trim()}`,
+        description: `${description.trim()}`,
         type: 'OTHER',
         contentType: 'POST',
-        objectId: 0,
+        objectId: -1,
       };
       
       console.log('Submitting feedback:', payload);
