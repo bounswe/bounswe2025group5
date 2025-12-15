@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import {
   View,
   FlatList,
@@ -12,6 +12,7 @@ import {
   TextInput,
   Text,
 } from "react-native";
+import { Picker } from "@react-native-picker/picker";
 
 import { useAppColors } from "@/hooks/useAppColors";
 import { useSwitchColors } from "@/utils/colorUtils";
@@ -21,6 +22,16 @@ import { apiRequest } from "../services/apiClient";
 import { useTranslation } from "react-i18next";
 
 const ADMIN_TYPE_PLACEHOLDER = "admin";
+
+const WASTE_TYPE_OPTIONS = [
+  { value: "PLASTIC", translationKey: "plastic" },
+  { value: "PAPER", translationKey: "paper" },
+  { value: "GLASS", translationKey: "glass" },
+  { value: "METAL", translationKey: "metal" },
+  { value: "ORGANIC", translationKey: "organic" },
+] as const;
+
+const DEFAULT_WASTE_TYPE_VALUE = WASTE_TYPE_OPTIONS[0].value;
 
 type Challenge = {
   challengeId: number;
@@ -39,6 +50,16 @@ type LeaderboardEntry = {
   userId: number;
   username: string;
   logAmount: number;
+};
+
+type WasteItemOption = {
+  id: number;
+  displayName: string;
+  weightInGrams: number;
+  type?: {
+    id?: number;
+    name?: string;
+  };
 };
 
 type ChallengeLogInfo = {
@@ -86,7 +107,8 @@ export default function ChallengesScreen() {
   const [challengeName, setChallengeName] = useState("");
   const [challengeDescription, setChallengeDescription] = useState("");
   const [challengeAmount, setChallengeAmount] = useState("");
-  const [challengeWasteType, setChallengeWasteType] = useState("Plastic");
+  const [challengeWasteType, setChallengeWasteType] =
+    useState<string>(DEFAULT_WASTE_TYPE_VALUE);
   const [challengeDuration, setChallengeDuration] = useState("30");
   const [createError, setCreateError] = useState("");
 
@@ -98,6 +120,13 @@ export default function ChallengesScreen() {
   const [logAmount, setLogAmount] = useState("");
   const [logError, setLogError] = useState("");
   const [logLoading, setLogLoading] = useState(false);
+  const [fetchingWasteItems, setFetchingWasteItems] = useState(false);
+  const [wasteItemsForChallenge, setWasteItemsForChallenge] = useState<
+    WasteItemOption[]
+  >([]);
+  const [selectedWasteItemId, setSelectedWasteItemId] = useState<string | null>(
+    null
+  );
 
   // Show Logs Modal states
   const [logsModalVisible, setLogsModalVisible] = useState(false);
@@ -112,7 +141,7 @@ export default function ChallengesScreen() {
     setLoading(true);
     setError({ key: null, message: null });
 
-    try {
+    try { // UPDATE 
       // Use username endpoint to get user-specific challenges
       const res = await apiRequest(`/api/challenges/${username}`);
       if (!res.ok) {
@@ -147,7 +176,7 @@ export default function ChallengesScreen() {
       if (!username) {
         throw new Error(t("usernameRequiredForAttendance"));
       }
-      if (attend) {
+      if (attend) { // UPDATE
         const res = await apiRequest(
           `/api/challenges/${challengeId}/attendees`,
           {
@@ -161,7 +190,7 @@ export default function ChallengesScreen() {
           throw new Error(errorText || `Server error: ${res.status}`);
         }
       } else {
-        const res = await apiRequest(
+        const res = await apiRequest( // UPDATE
           `/api/challenges/${challengeId}/attendees/${encodeURIComponent(
             username
           )}`,
@@ -196,7 +225,7 @@ export default function ChallengesScreen() {
     const challenge = challenges.find((ch) => ch.challengeId === challengeId);
     setCurrentChallengeType(challenge?.type || "");
     try {
-      const res = await apiRequest(
+      const res = await apiRequest( // UPDATE
         `/api/challenges/${challengeId}/leaderboard`
       );
       if (!res.ok) {
@@ -233,7 +262,7 @@ export default function ChallengesScreen() {
       isNaN(parseFloat(challengeAmount)) ||
       parseFloat(challengeAmount) <= 0
     ) {
-      setCreateError(t("validTargetAmountRequired"));
+      setCreateError(t("validTargetPointsRequired"));
       return;
     }
     if (
@@ -263,7 +292,7 @@ export default function ChallengesScreen() {
         type: challengeWasteType.trim(),
       };
 
-      const res = await apiRequest("/api/challenges", {
+      const res = await apiRequest("/api/challenges", { //UPDATE
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -285,7 +314,7 @@ export default function ChallengesScreen() {
       setChallengeName("");
       setChallengeDescription("");
       setChallengeAmount("");
-      setChallengeWasteType("Plastic");
+      setChallengeWasteType(DEFAULT_WASTE_TYPE_VALUE);
       setChallengeDuration("30");
 
       // Refresh challenges list
@@ -311,7 +340,28 @@ export default function ChallengesScreen() {
       isNaN(parseFloat(logAmount)) ||
       parseFloat(logAmount) <= 0
     ) {
-      setLogError(t("validAmountRequired"));
+      setLogError(t("validAmountRequiredLog"));
+      return;
+    }
+
+    const selectedItemId = selectedWasteItemId
+      ? parseInt(String(selectedWasteItemId), 10)
+      : NaN;
+    if (!Number.isInteger(selectedItemId)) {
+      setLogError(t("errorSelectWasteItem"));
+      return;
+    }
+
+    const selectedItem =
+      wasteItemsForChallenge.find((item) => item.id === selectedItemId) ?? null;
+    if (!selectedItem) {
+      setLogError(t("errorSelectWasteItem"));
+      return;
+    }
+
+    const itemWeightInGrams = Number(selectedItem.weightInGrams);
+    if (!Number.isFinite(itemWeightInGrams) || itemWeightInGrams <= 0) {
+      setLogError(t("errorCustomAmountConversion"));
       return;
     }
 
@@ -319,12 +369,16 @@ export default function ChallengesScreen() {
     setLogError("");
 
     try {
+      const parsedGrams = parseFloat(logAmount);
+      const derivedQuantity = Math.max(1, Math.ceil(parsedGrams / itemWeightInGrams));
+
       const logData = {
         username: username,
-        amount: parseFloat(logAmount),
+        itemId: selectedItemId,
+        quantity: derivedQuantity,
       };
 
-      const res = await apiRequest(
+      const res = await apiRequest( // UPDATE
         `/api/challenges/${currentChallengeId}/log`,
         {
           method: "POST",
@@ -367,7 +421,7 @@ export default function ChallengesScreen() {
     setLogsError("");
 
     try {
-      const res = await apiRequest(
+      const res = await apiRequest( // UPDATE
         `/api/challenges/${challengeId}/logs/${username}`
       );
       if (!res.ok) {
@@ -393,6 +447,48 @@ export default function ChallengesScreen() {
     setLogAmount("");
     setLogError("");
     setLogModalVisible(true);
+    setSelectedWasteItemId(null);
+    setWasteItemsForChallenge([]);
+    setFetchingWasteItems(true);
+    apiRequest(`/api/challenges/${challengeId}/items`)
+      .then(async (response) => {
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText || `Failed to fetch waste items (${response.status})`);
+        }
+        const data = await response.json();
+        const parsedItems: WasteItemOption[] = Array.isArray(data)
+          ? data
+              .map((item: any) => ({
+                id:
+                  typeof item?.id === "number"
+                    ? item.id
+                    : typeof item?.itemId === "number"
+                    ? item.itemId
+                    : null,
+                displayName: item?.displayName ?? item?.name ?? "",
+                weightInGrams:
+                  typeof item?.weightInGrams === "number"
+                    ? item.weightInGrams
+                    : Number(item?.weightInGrams) || 0,
+                type: item?.type,
+              }))
+              .filter((item: any) => item.id !== null)
+              .map((item: any) => item as WasteItemOption)
+          : [];
+
+        setWasteItemsForChallenge(parsedItems);
+        setSelectedWasteItemId(parsedItems[0] ? String(parsedItems[0].id) : null);
+      })
+      .catch((err) => {
+        console.error("Error fetching waste items for challenge:", err);
+        setWasteItemsForChallenge([]);
+        setSelectedWasteItemId(null);
+        setLogError(t("errorWasteItemsFetch"));
+      })
+      .finally(() => {
+        setFetchingWasteItems(false);
+      });
   };
 
   const toggleExpand = (id: number) => {
@@ -863,20 +959,31 @@ export default function ChallengesScreen() {
             <ThemedText style={styles.inputLabel}>
               {t("wasteTypeLabel")}
             </ThemedText>
-            <TextInput
+            <View
               style={[
-                styles.input,
+                styles.pickerContainer,
                 {
                   borderColor: colors.borderColor,
-                  color: colors.text,
                   backgroundColor: colors.inputBackground,
                 },
               ]}
-              value={challengeWasteType}
-              onChangeText={setChallengeWasteType}
-              placeholder={t("wasteTypePlaceholder")}
-              placeholderTextColor={colors.textSubtle}
-            />
+            >
+              <Picker
+                selectedValue={challengeWasteType}
+                onValueChange={(value) => setChallengeWasteType(String(value))}
+                style={[styles.picker, { color: colors.text }]}
+                itemStyle={{ color: colors.text }}
+                dropdownIconColor={colors.text}
+              >
+                {WASTE_TYPE_OPTIONS.map((option) => (
+                  <Picker.Item
+                    key={option.value}
+                    label={t(option.translationKey)}
+                    value={option.value}
+                  />
+                ))}
+              </Picker>
+            </View>
 
             <ThemedText style={styles.inputLabel}>
               {t("targetAmountLabel")}
@@ -932,7 +1039,7 @@ export default function ChallengesScreen() {
                   setChallengeName("");
                   setChallengeDescription("");
                   setChallengeAmount("");
-                  setChallengeWasteType("Plastic");
+                  setChallengeWasteType(DEFAULT_WASTE_TYPE_VALUE);
                   setChallengeDuration("30");
                 }}
               >
@@ -984,6 +1091,54 @@ export default function ChallengesScreen() {
             {logError && (
               <ThemedText style={[styles.error, { color: "#FF6B6B" }]}>
                 {logError}
+              </ThemedText>
+            )}
+
+            <ThemedText style={styles.inputLabel}>
+              {t("selectWasteItem")}
+            </ThemedText>
+            {fetchingWasteItems ? (
+              <ActivityIndicator size="small" color={colors.activityIndicator} />
+            ) : wasteItemsForChallenge.length > 0 ? (
+              <View
+                style={[
+                  styles.pickerContainer,
+                  {
+                    borderColor: colors.borderColor,
+                    backgroundColor: colors.inputBackground,
+                  },
+                ]}
+              >
+                <Picker
+                  selectedValue={selectedWasteItemId ?? ""}
+                  onValueChange={(value) => setSelectedWasteItemId(String(value))}
+                  style={[styles.picker, { color: colors.text }]}
+                  itemStyle={{ color: colors.text }}
+                  dropdownIconColor={colors.text}
+                >
+                  {wasteItemsForChallenge.map((item) => {
+                    const weightValue = Number(item.weightInGrams);
+                    const formattedWeight = Number.isFinite(weightValue)
+                      ? Number.isInteger(weightValue)
+                        ? weightValue.toFixed(0)
+                        : weightValue.toFixed(1)
+                      : null;
+                    const label = formattedWeight
+                      ? `${item.displayName} (${formattedWeight} g)`
+                      : item.displayName;
+                    return (
+                      <Picker.Item
+                        key={item.id}
+                        label={label}
+                        value={String(item.id)}
+                      />
+                    );
+                  })}
+                </Picker>
+              </View>
+            ) : (
+              <ThemedText style={[styles.error, { color: colors.textSecondary }]}>
+                {t("noWasteItemsForGoal")}
               </ThemedText>
             )}
 
@@ -1265,6 +1420,16 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 18,
     fontSize: 16,
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderRadius: 6,
+    marginBottom: 18,
+    overflow: "hidden",
+  },
+  picker: {
+    height: 48,
+    width: "100%",
   },
   textArea: {
     height: 120,
