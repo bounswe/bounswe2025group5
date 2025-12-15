@@ -712,6 +712,51 @@ END IF;
     DELIMITER ;
 
 
+
+
+
+
+DELIMITER $$
+
+
+    CREATE TRIGGER `after_challenge_ended_award_badges`
+        AFTER UPDATE ON `challenges`
+        FOR EACH ROW
+    BEGIN
+        DECLARE done INT DEFAULT FALSE;
+    DECLARE top_user_id INT;
+
+    DECLARE cur CURSOR FOR
+        SELECT user_id
+        FROM `challenge_user`
+        WHERE `challenge_id` = NEW.challenge_id
+        ORDER BY `amount` DESC
+            LIMIT 3;
+
+        DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    IF OLD.status != 'Ended' AND NEW.status = 'Ended' THEN
+
+        OPEN cur;
+
+        read_loop: LOOP
+            FETCH cur INTO top_user_id;
+
+            IF done THEN
+                LEAVE read_loop;
+    END IF;
+    INSERT IGNORE INTO `badge` (name, user_id)
+            VALUES ('Top Challenger', top_user_id);
+
+END LOOP;
+
+    CLOSE cur;
+END IF;
+    END$$
+
+    DELIMITER ;
+
+
 DELIMITER $$
 
     CREATE TRIGGER `first_like`
@@ -759,46 +804,3 @@ END IF;
     END$$
 
 DELIMITER ;
-
-
-
-
-DELIMITER $$
-
-
-    CREATE TRIGGER `after_challenge_ended_award_badges`
-        AFTER UPDATE ON `challenges`
-        FOR EACH ROW
-    BEGIN
-        DECLARE done INT DEFAULT FALSE;
-    DECLARE top_user_id INT;
-
-    DECLARE cur CURSOR FOR
-        SELECT user_id
-        FROM `challenge_user`
-        WHERE `challenge_id` = NEW.challenge_id
-        ORDER BY `amount` DESC
-            LIMIT 3;
-
-        DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
-
-    IF OLD.status != 'Ended' AND NEW.status = 'Ended' THEN
-
-        OPEN cur;
-
-        read_loop: LOOP
-            FETCH cur INTO top_user_id;
-
-            IF done THEN
-                LEAVE read_loop;
-    END IF;
-    INSERT IGNORE INTO `badge` (name, user_id)
-            VALUES ('Top Challenger', top_user_id);
-
-END LOOP;
-
-    CLOSE cur;
-END IF;
-    END$$
-
-    DELIMITER ;

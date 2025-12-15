@@ -36,6 +36,12 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useTranslation } from "react-i18next";
 import PostItem from "../components/PostItem";
 import { ScrollView } from "react-native";
+import {
+  getBadgeImageSource,
+  normalizeBadgeTranslationKey,
+  sortBadgeNamesByPriority,
+} from "@/utils/badgeUtils";
+import FeedbackModal from "@/components/FeedbackModal";
 
 type CommentData = {
   commentId: number;
@@ -154,6 +160,8 @@ export default function ProfileScreen() {
   const [badgesLoading, setBadgesLoading] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<string | null>(null);
   const [badgeModalVisible, setBadgeModalVisible] = useState(false);
+  const [settingsMenuOpen, setSettingsMenuOpen] = useState(false);
+  const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
   const isTurkish = (i18n.resolvedLanguage || i18n.language || "")
     .toLowerCase()
     .startsWith("tr");
@@ -270,7 +278,11 @@ export default function ProfileScreen() {
       }
       const data = await res.json();
       const badgeNames = Array.isArray(data)
-        ? data.map((b: any) => normalizeBadgeName(b.badgeName))
+        ? sortBadgeNamesByPriority(
+            data.map((b: any) =>
+              normalizeBadgeTranslationKey(b.badgeName || "")
+            )
+          )
         : [];
       setBadges(badgeNames);
     } catch (e: any) {
@@ -1163,78 +1175,13 @@ export default function ProfileScreen() {
             { backgroundColor: contentBackgroundColor },
           ]}
         >
-          {/* ========================================================== */}
-          {/* TOP ACTIONS: BUTTONS LEFT, LANGUAGE TOGGLE RIGHT          */}
-          {/* ========================================================== */}
-          <View style={styles.topActionsContainer}>
-            <View style={styles.leftActionsStack}>
-              <View style={styles.logoutContainer}>
-                <TouchableOpacity
-                  testID="logout-button"
-                  onPress={handleLogout}
-                  style={styles.logoutButton}
-                >
-                  <Text
-                    style={[styles.topButtonText, { color: buttonTextColor }]}
-                  >
-                    {t("logOut")}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.editProfileContainer}>
-                <TouchableOpacity
-                  testID="edit-profile-button"
-                  style={styles.editButton}
-                  onPress={() => navigation.navigate("edit_profile")}
-                >
-                  <Text
-                    style={[styles.topButtonText, { color: buttonTextColor }]}
-                  >
-                    {t("editProfile")}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            <View style={styles.languageToggleOuterContainer}>
-              <TouchableOpacity
-                style={styles.languageToggleContainer}
-                onPress={() => toggleLanguage(!isTurkish)}
-                accessible={true}
-                accessibilityRole="none"
-                accessibilityLabel={
-                  isTurkish
-                    ? "Current language: Turkish. Double tap to switch to English"
-                    : "Current language: English. Double tap to switch to Turkish"
-                }
-              >
-                <Text style={styles.languageLabel}>EN</Text>
-                <View
-                  pointerEvents="none"
-                  importantForAccessibility="no-hide-descendants"
-                  accessibilityElementsHidden={true}
-                >
-                  <Switch
-                    trackColor={{ false: "#767577", true: "#81b0ff" }}
-                    thumbColor={
-                      isDarkMode
-                        ? isTurkish
-                          ? "#f5dd4b"
-                          : "#f4f4f4"
-                        : isTurkish
-                        ? "#f5dd4b"
-                        : "#f4f4f4"
-                    }
-                    ios_backgroundColor="#3e3e3e"
-                    onValueChange={toggleLanguage}
-                    value={isTurkish}
-                  />
-                </View>
-                <Text style={styles.languageLabel}>TR</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+          {settingsMenuOpen && (
+            <TouchableOpacity
+              style={styles.menuOverlay}
+              activeOpacity={1}
+              onPress={() => setSettingsMenuOpen(false)}
+            />
+          )}
 
           {profileUpdateBannerVisible && (
             <View
@@ -1301,7 +1248,7 @@ export default function ProfileScreen() {
                 color={avatarPlaceholderColor}
               />
             )}
-            <View style={{ marginLeft: 12, flexShrink: 1 }}>
+            <View style={styles.profileInfoWrapper}>
               <View style={styles.profileGreetingRow}>
                 <AccessibleText
                   testID="profile-username-text"
@@ -1356,6 +1303,108 @@ export default function ProfileScreen() {
                 </TouchableOpacity>
               </View>
             </View>
+            <View style={styles.settingsContainer}>
+              <TouchableOpacity
+                style={styles.settingsButton}
+                onPress={() => setSettingsMenuOpen((prev) => !prev)}
+                accessibilityRole="button"
+                accessibilityLabel={t("settings", { defaultValue: "Settings" })}
+              >
+                <Ionicons
+                  name="settings-outline"
+                  size={22}
+                  color={generalTextColor}
+                />
+              </TouchableOpacity>
+              {settingsMenuOpen && (
+                <View
+                  style={[
+                    styles.settingsMenu,
+                    {
+                      backgroundColor: cardBackgroundColor,
+                      borderColor: isDarkMode ? "#2D3748" : "#E5E7EB",
+                    },
+                  ]}
+                >
+                  <View style={styles.settingsMenuRow}>
+                    <Text style={[styles.menuLabel, { color: generalTextColor }]}>
+                      {t("language", { defaultValue: "Language" })}
+                    </Text>
+                    <TouchableOpacity
+                      style={styles.menuLanguageToggle}
+                      onPress={() => toggleLanguage(!isTurkish)}
+                      accessible={true}
+                      accessibilityRole="switch"
+                      accessibilityLabel={
+                        isTurkish
+                          ? "Current language: Turkish. Double tap to switch to English"
+                          : "Current language: English. Double tap to switch to Turkish"
+                      }
+                    >
+                      <Text style={styles.languageLabel}>EN</Text>
+                      <View
+                        pointerEvents="none"
+                        importantForAccessibility="no-hide-descendants"
+                        accessibilityElementsHidden={true}
+                      >
+                        <Switch
+                          trackColor={{ false: "#767577", true: "#81b0ff" }}
+                          thumbColor={
+                            isDarkMode
+                              ? isTurkish
+                                ? "#f5dd4b"
+                                : "#f4f4f4"
+                              : isTurkish
+                              ? "#f5dd4b"
+                              : "#f4f4f4"
+                          }
+                          ios_backgroundColor="#3e3e3e"
+                          onValueChange={toggleLanguage}
+                          value={isTurkish}
+                        />
+                      </View>
+                      <Text style={styles.languageLabel}>TR</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  <TouchableOpacity
+                    style={[styles.settingsMenuButton, styles.settingsMenuPrimary]}
+                    onPress={() => {
+                      setSettingsMenuOpen(false);
+                      navigation.navigate("edit_profile");
+                    }}
+                  >
+                    <Text style={[styles.settingsMenuButtonText, { color: generalTextColor }]}>
+                      {t("editProfile")}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.settingsMenuButton, styles.settingsMenuSecondary]}
+                    onPress={() => {
+                      setSettingsMenuOpen(false);
+                      setFeedbackModalVisible(true);
+                    }}
+                  >
+                    <Text style={[styles.settingsMenuButtonText, { color: generalTextColor }]}>
+                      {t("sendFeedback")}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.settingsMenuButton, styles.settingsMenuLogout]}
+                    onPress={() => {
+                      setSettingsMenuOpen(false);
+                      handleLogout();
+                    }}
+                  >
+                    <Text style={[styles.settingsMenuButtonText, { color: "#FFFFFF" }]}>
+                      {t("logOut")}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
           </View>
 
           {/* ========================================================== */}
@@ -1376,50 +1425,87 @@ export default function ProfileScreen() {
             </View>
           ) : badges.length > 0 ? (
             <View style={{ marginVertical: 12 }}>
-              <AccessibleText
-                backgroundColor={contentBackgroundColor}
-                style={{ fontSize: 16, fontWeight: "700", marginBottom: 8 }}
+          <AccessibleText
+            backgroundColor={contentBackgroundColor}
+            style={{ fontSize: 16, fontWeight: "700", marginBottom: 8 }}
+          >
+            {t("badges")}
+          </AccessibleText>
+          {(() => {
+            const displayedBadges = badges.slice(0, 3);
+
+            return (
+              <View
+                style={{
+                  flexDirection: "row",
+                  flexWrap: "wrap",
+                  gap: 8,
+                  alignItems: "center",
+                }}
               >
-                {t("badges")}
-              </AccessibleText>
-              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-                {badges.map((badgeName, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    onPress={() => {
-                      setSelectedBadge(badgeName);
-                      setBadgeModalVisible(true);
-                    }}
-                    style={{
-                      backgroundColor: isDarkMode ? "#FF9800" : "#FFA726",
-                      paddingHorizontal: 12,
-                      paddingVertical: 6,
-                      borderRadius: 16,
-                      flexDirection: "row",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Ionicons
-                      name="medal"
-                      size={16}
-                      color="#FFFFFF"
-                      style={{ marginRight: 4 }}
-                    />
-                    <AccessibleText
-                      backgroundColor={isDarkMode ? "#FF9800" : "#FFA726"}
-                      style={{
-                        color: "#FFFFFF",
-                        fontSize: 12,
-                        fontWeight: "600",
+                {displayedBadges.map((badgeName, index) => {
+                  const badgeImage = getBadgeImageSource(badgeName);
+
+                  return (
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() => {
+                        setSelectedBadge(badgeName);
+                        setBadgeModalVisible(true);
                       }}
+                      accessibilityRole="button"
+                      accessibilityLabel={t(badgeName)}
+                      style={styles.badgePill}
                     >
-                      {t(badgeName)}
-                    </AccessibleText>
-                  </TouchableOpacity>
-                ))}
+                      {badgeImage ? (
+                        <Image
+                          source={badgeImage}
+                          style={styles.badgePillImage}
+                          resizeMode="contain"
+                        />
+                      ) : (
+                        <Ionicons
+                          name="medal"
+                          size={48}
+                          color={isDarkMode ? "#FBBF24" : "#FB8C00"}
+                          style={{ marginRight: 0 }}
+                        />
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
+                <TouchableOpacity
+                  style={[
+                    styles.viewAllBadge,
+                    {
+                      backgroundColor: isDarkMode
+                        ? "rgba(255,255,255,0.12)"
+                        : "rgba(0,0,0,0.06)",
+                      borderColor: isDarkMode
+                        ? "rgba(255,255,255,0.24)"
+                        : "rgba(0,0,0,0.14)",
+                    },
+                  ]}
+                  accessible
+                  accessibilityRole="button"
+                  accessibilityLabel={t("viewAllBadges", { defaultValue: "View all" })}
+                  onPress={() => navigation.navigate("badges")}
+                  activeOpacity={0.8}
+                >
+                  <Text
+                    style={[
+                      styles.viewAllBadgeText,
+                      { color: isDarkMode ? "#FFFFFF" : "#111827" },
+                    ]}
+                  >
+                    {t("viewAllBadges", { defaultValue: "View all" })}
+                  </Text>
+                </TouchableOpacity>
               </View>
-            </View>
-          ) : null}
+            );
+          })()}
+        </View>
+      ) : null}
 
           <TouchableOpacity
             testID="show-impact-button"
@@ -2162,11 +2248,25 @@ export default function ProfileScreen() {
               </View>
 
               <View style={{ alignItems: "center", marginVertical: 20 }}>
-                <Ionicons
-                  name="medal"
-                  size={64}
-                  color={isDarkMode ? "#FF9800" : "#FFA726"}
-                />
+                {(() => {
+                  const badgeImage = getBadgeImageSource(selectedBadge ?? "");
+                  if (badgeImage) {
+                    return (
+                      <Image
+                        source={badgeImage}
+                        style={styles.badgeModalImage}
+                        resizeMode="contain"
+                      />
+                    );
+                  }
+                  return (
+                    <Ionicons
+                      name="medal"
+                      size={64}
+                      color={isDarkMode ? "#FF9800" : "#FFA726"}
+                    />
+                  );
+                })()}
                 <AccessibleText
                   backgroundColor={cardBackgroundColor}
                   style={{
@@ -2196,62 +2296,143 @@ export default function ProfileScreen() {
           </View>
         </Modal>
       )}
+      <FeedbackModal
+        visible={feedbackModalVisible}
+        onClose={() => setFeedbackModalVisible(false)}
+        username={username}
+        surfaceColor={cardBackgroundColor}
+        textColor={generalTextColor}
+      />
     </>
   );
 }
 
 const styles = StyleSheet.create({
   headerImage: { width: "100%", height: undefined, aspectRatio: 0.88 },
-  contentContainer: { flex: 1, padding: 16, marginTop: -20, zIndex: 2 },
-  topActionsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 12,
+  contentContainer: {
+    flex: 1,
+    padding: 16,
+    marginTop: -20,
+    zIndex: 2,
+    position: "relative",
   },
-  leftActionsStack: { flex: 1 },
-  logoutContainer: { alignItems: "flex-start", margin: 4 },
-  logoutButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 6,
-    borderRadius: 4,
-    backgroundColor: "#E53935",
+  menuOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
   },
-  languageToggleOuterContainer: { alignItems: "flex-end", margin: 4 },
-  languageToggleContainer: {
+  badgePill: {
+    padding: 0,
+    borderWidth: 0,
+    backgroundColor: "transparent",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  badgePillImage: { width: 64, height: 64 },
+  viewAllBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 16,
+    backgroundColor: "rgba(0,0,0,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.16)",
+    minWidth: 84,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  viewAllBadgeText: {
+    color: "#111827",
+    fontWeight: "700",
+    fontSize: 13,
+  },
+  topButtonText: { fontSize: 14, color: "#FFFFFF" },
+  settingsContainer: {
+    position: "relative",
+    alignItems: "flex-end",
+    alignSelf: "flex-start",
+    marginLeft: 12,
+    marginTop: 4,
+    zIndex: 2,
+  },
+  settingsButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.16)",
+  },
+  settingsMenu: {
+    position: "absolute",
+    top: 50,
+    right: 0,
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    width: 220,
+    gap: 10,
+    zIndex: 3,
+    shadowColor: "#000",
+    shadowOpacity: 0.12,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
+    elevation: 6,
+  },
+  settingsMenuRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(128,128,128,0.3)",
-    borderRadius: 20,
-    paddingHorizontal: 8,
-    paddingVertical: 0,
+    justifyContent: "space-between",
+    gap: 10,
   },
+  menuLabel: { fontSize: 14, fontWeight: "600" },
   languageLabel: {
     color: "#888",
     fontWeight: "bold",
-    marginHorizontal: 0,
     fontSize: 12,
   },
-  editProfileContainer: { alignItems: "flex-start", margin: 4 },
-  editButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 4,
-    backgroundColor: "#007AFF",
-  },
-  badgesContainer: { alignItems: "flex-start", margin: 4 },
-  badgesButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 4,
-    backgroundColor: "#FF9800",
-  },
-  topButtonText: { fontSize: 14, color: "#FFFFFF" },
-  profileContainer: {
+  menuLanguageToggle: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 6,
+  },
+  settingsMenuButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.08)",
+    backgroundColor: "rgba(255,255,255,0.06)",
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: 180,
+  },
+  settingsMenuButtonText: {
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  settingsMenuPrimary: {
+    backgroundColor: "rgba(0,122,255,0.12)",
+    borderColor: "rgba(0,122,255,0.25)",
+  },
+  settingsMenuSecondary: {
+    backgroundColor: "rgba(255,152,0,0.12)",
+    borderColor: "rgba(255,152,0,0.25)",
+  },
+  settingsMenuLogout: {
+    backgroundColor: "#E53935",
+    borderColor: "#E53935",
+  },
+  profileContainer: {
+    flexDirection: "row",
+    alignItems: "flex-start",
     marginBottom: 16,
   },
+  profileInfoWrapper: { marginLeft: 12, flex: 1, flexShrink: 1 },
   profilePic: {
     width: 100,
     height: 100,
@@ -2331,6 +2512,10 @@ const styles = StyleSheet.create({
   avatarModalImage: {
     width: "100%",
     height: "70%",
+  },
+  badgeModalImage: {
+    width: 160,
+    height: 160,
   },
   progressModalOverlay: {
     position: "absolute",
