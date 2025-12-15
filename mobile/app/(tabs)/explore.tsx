@@ -937,8 +937,11 @@ export default function ExploreScreen() {
     const normalizedObjectType = notif.objectType?.toLowerCase();
     const isChallengeEnd =
       normalizedType === "end" && normalizedObjectType === "challenge";
+    const isReportNotification =
+      (normalizedType === "closedwithoutchange" || normalizedType === "deletion") &&
+      normalizedObjectType === "report";
     markNotificationAsRead(notif);
-    if (isChallengeEnd) return;
+    if (isChallengeEnd || isReportNotification) return;
     const derivedPostId = deriveNotificationPostId(notif);
     const messageLower = notif.message?.toLowerCase() ?? "";
     const actorUsername =
