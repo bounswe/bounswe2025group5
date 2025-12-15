@@ -1158,19 +1158,135 @@ export default function ProfileScreen() {
             { backgroundColor: contentBackgroundColor },
           ]}
         >
-          {/* ========================================================== */}
-          {/* TOP ACTIONS: BUTTONS LEFT, LANGUAGE TOGGLE RIGHT          */}
-          {/* ========================================================== */}
-          <View style={styles.topActionsContainer}>
-            <View style={{ flex: 1 }} />
-            <View style={styles.settingsContainer}>
-              {settingsMenuOpen && (
+          {settingsMenuOpen && (
+            <TouchableOpacity
+              style={styles.menuOverlay}
+              activeOpacity={1}
+              onPress={() => setSettingsMenuOpen(false)}
+            />
+          )}
+
+          {profileUpdateBannerVisible && (
+            <View
+              style={[
+                styles.successBanner,
+                { backgroundColor: successBannerBgColor },
+              ]}
+            >
+              <AccessibleText
+                backgroundColor={successBannerBgColor}
+                style={[
+                  styles.successBannerText,
+                  { color: successBannerTextColor },
+                ]}
+              >
+                {t("successBioUpdated")}
+              </AccessibleText>
+            </View>
+          )}
+
+          <View style={styles.profileContainer}>
+            {avatarUri ? (
+              <>
                 <TouchableOpacity
-                  style={styles.menuOverlay}
-                  activeOpacity={1}
-                  onPress={() => setSettingsMenuOpen(false)}
-                />
-              )}
+                  activeOpacity={0.8}
+                  onPress={() => setAvatarModalVisible(true)}
+                  accessibilityRole="imagebutton"
+                  accessibilityLabel={t("viewImageFullscreen")}
+                >
+                  <Image
+                    testID="profile-avatar-image"
+                    source={{ uri: avatarUri }}
+                    style={styles.profilePic}
+                  />
+                </TouchableOpacity>
+                <Modal
+                  visible={isAvatarModalVisible}
+                  onRequestClose={() => setAvatarModalVisible(false)}
+                  transparent
+                  animationType="fade"
+                >
+                  <View style={styles.avatarModalBackdrop}>
+                    <TouchableOpacity
+                      style={styles.avatarModalCloseButton}
+                      onPress={() => setAvatarModalVisible(false)}
+                      accessibilityRole="button"
+                      accessibilityLabel={t("closeFullscreenImage")}
+                    >
+                      <Ionicons name="close" size={28} color="#FFFFFF" />
+                    </TouchableOpacity>
+                    <Image
+                      source={{ uri: avatarUri }}
+                      style={styles.avatarModalImage}
+                      resizeMode="contain"
+                    />
+                  </View>
+                </Modal>
+              </>
+            ) : (
+              <Ionicons
+                testID="profile-avatar-placeholder"
+                name="person-circle-outline"
+                size={100}
+                color={avatarPlaceholderColor}
+              />
+            )}
+            <View style={styles.profileInfoWrapper}>
+              <View style={styles.profileGreetingRow}>
+                <AccessibleText
+                  testID="profile-username-text"
+                  type="default"
+                  backgroundColor={contentBackgroundColor}
+                  style={{ fontSize: 20 }}
+                >
+                  {t("helloUser", { username })}
+                </AccessibleText>
+              </View>
+              <AccessibleText
+                testID="profile-bio-text"
+                type="default"
+                backgroundColor={contentBackgroundColor}
+                style={{ marginTop: 4, fontStyle: bio ? "normal" : "italic" }}
+                numberOfLines={3}
+              >
+                {bio || t("noBioYet")}
+              </AccessibleText>
+
+              <View style={{ flexDirection: "row", marginTop: 8 }}>
+                <TouchableOpacity
+                  style={{ marginRight: 16 }}
+                  onPress={handleFollowersPress}
+                >
+                  <AccessibleText
+                    backgroundColor={contentBackgroundColor}
+                    style={{ fontWeight: "700" }}
+                  >
+                    {followersCount ?? "-"}
+                  </AccessibleText>
+                  <AccessibleText
+                    backgroundColor={contentBackgroundColor}
+                    style={{ opacity: 0.8 }}
+                  >
+                    {t("followers")}
+                  </AccessibleText>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleFollowingPress}>
+                  <AccessibleText
+                    backgroundColor={contentBackgroundColor}
+                    style={{ fontWeight: "700" }}
+                  >
+                    {followingCount ?? "-"}
+                  </AccessibleText>
+                  <AccessibleText
+                    backgroundColor={contentBackgroundColor}
+                    style={{ opacity: 0.8 }}
+                  >
+                    {t("following")}
+                  </AccessibleText>
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View style={styles.settingsContainer}>
               <TouchableOpacity
                 style={styles.settingsButton}
                 onPress={() => setSettingsMenuOpen((prev) => !prev)}
@@ -1253,128 +1369,6 @@ export default function ProfileScreen() {
                   </TouchableOpacity>
                 </View>
               )}
-            </View>
-          </View>
-
-          {profileUpdateBannerVisible && (
-            <View
-              style={[
-                styles.successBanner,
-                { backgroundColor: successBannerBgColor },
-              ]}
-            >
-              <AccessibleText
-                backgroundColor={successBannerBgColor}
-                style={[
-                  styles.successBannerText,
-                  { color: successBannerTextColor },
-                ]}
-              >
-                {t("successBioUpdated")}
-              </AccessibleText>
-            </View>
-          )}
-
-          <View style={styles.profileContainer}>
-            {avatarUri ? (
-              <>
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  onPress={() => setAvatarModalVisible(true)}
-                  accessibilityRole="imagebutton"
-                  accessibilityLabel={t("viewImageFullscreen")}
-                >
-                  <Image
-                    testID="profile-avatar-image"
-                    source={{ uri: avatarUri }}
-                    style={styles.profilePic}
-                  />
-                </TouchableOpacity>
-                <Modal
-                  visible={isAvatarModalVisible}
-                  onRequestClose={() => setAvatarModalVisible(false)}
-                  transparent
-                  animationType="fade"
-                >
-                  <View style={styles.avatarModalBackdrop}>
-                    <TouchableOpacity
-                      style={styles.avatarModalCloseButton}
-                      onPress={() => setAvatarModalVisible(false)}
-                      accessibilityRole="button"
-                      accessibilityLabel={t("closeFullscreenImage")}
-                    >
-                      <Ionicons name="close" size={28} color="#FFFFFF" />
-                    </TouchableOpacity>
-                    <Image
-                      source={{ uri: avatarUri }}
-                      style={styles.avatarModalImage}
-                      resizeMode="contain"
-                    />
-                  </View>
-                </Modal>
-              </>
-            ) : (
-              <Ionicons
-                testID="profile-avatar-placeholder"
-                name="person-circle-outline"
-                size={100}
-                color={avatarPlaceholderColor}
-              />
-            )}
-            <View style={{ marginLeft: 12, flexShrink: 1 }}>
-              <View style={styles.profileGreetingRow}>
-                <AccessibleText
-                  testID="profile-username-text"
-                  type="default"
-                  backgroundColor={contentBackgroundColor}
-                  style={{ fontSize: 20 }}
-                >
-                  {t("helloUser", { username })}
-                </AccessibleText>
-              </View>
-              <AccessibleText
-                testID="profile-bio-text"
-                type="default"
-                backgroundColor={contentBackgroundColor}
-                style={{ marginTop: 4, fontStyle: bio ? "normal" : "italic" }}
-                numberOfLines={3}
-              >
-                {bio || t("noBioYet")}
-              </AccessibleText>
-
-              <View style={{ flexDirection: "row", marginTop: 8 }}>
-                <TouchableOpacity
-                  style={{ marginRight: 16 }}
-                  onPress={handleFollowersPress}
-                >
-                  <AccessibleText
-                    backgroundColor={contentBackgroundColor}
-                    style={{ fontWeight: "700" }}
-                  >
-                    {followersCount ?? "-"}
-                  </AccessibleText>
-                  <AccessibleText
-                    backgroundColor={contentBackgroundColor}
-                    style={{ opacity: 0.8 }}
-                  >
-                    {t("followers")}
-                  </AccessibleText>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={handleFollowingPress}>
-                  <AccessibleText
-                    backgroundColor={contentBackgroundColor}
-                    style={{ fontWeight: "700" }}
-                  >
-                    {followingCount ?? "-"}
-                  </AccessibleText>
-                  <AccessibleText
-                    backgroundColor={contentBackgroundColor}
-                    style={{ opacity: 0.8 }}
-                  >
-                    {t("following")}
-                  </AccessibleText>
-                </TouchableOpacity>
-              </View>
             </View>
           </View>
 
@@ -2258,50 +2252,20 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   headerImage: { width: "100%", height: undefined, aspectRatio: 0.88 },
-  contentContainer: { flex: 1, padding: 16, marginTop: -20, zIndex: 2 },
-  topActionsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 12,
+  contentContainer: {
+    flex: 1,
+    padding: 16,
+    marginTop: -20,
+    zIndex: 2,
     position: "relative",
   },
-  leftActionsStack: { flex: 1 },
-  logoutContainer: { alignItems: "flex-start", margin: 4 },
-  logoutButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 6,
-    borderRadius: 4,
-    backgroundColor: "#E53935",
-  },
-  languageToggleOuterContainer: { alignItems: "flex-end", margin: 4 },
-  languageToggleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(128,128,128,0.3)",
-    borderRadius: 20,
-    paddingHorizontal: 8,
-    paddingVertical: 0,
-  },
-  languageLabel: {
-    color: "#888",
-    fontWeight: "bold",
-    marginHorizontal: 0,
-    fontSize: 12,
-  },
-  editProfileContainer: { alignItems: "flex-start", margin: 4 },
-  editButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 4,
-    backgroundColor: "#007AFF",
-  },
-  badgesContainer: { alignItems: "flex-start", margin: 4 },
-  badgesButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 4,
-    backgroundColor: "#FF9800",
+  menuOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
   },
   badgePill: {
     padding: 0,
@@ -2331,6 +2295,10 @@ const styles = StyleSheet.create({
   settingsContainer: {
     position: "relative",
     alignItems: "flex-end",
+    alignSelf: "flex-start",
+    marginLeft: 12,
+    marginTop: 4,
+    zIndex: 2,
   },
   settingsButton: {
     width: 40,
@@ -2342,14 +2310,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.16)",
   },
-  menuOverlay: {
-    position: "absolute",
-    top: -16,
-    left: -16,
-    right: -16,
-    bottom: -16,
-    zIndex: 1,
-  },
   settingsMenu: {
     position: "absolute",
     top: 50,
@@ -2359,7 +2319,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     width: 220,
     gap: 10,
-    zIndex: 2,
+    zIndex: 3,
     shadowColor: "#000",
     shadowOpacity: 0.12,
     shadowOffset: { width: 0, height: 2 },
@@ -2373,6 +2333,11 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   menuLabel: { fontSize: 14, fontWeight: "600" },
+  languageLabel: {
+    color: "#888",
+    fontWeight: "bold",
+    fontSize: 12,
+  },
   menuLanguageToggle: {
     flexDirection: "row",
     alignItems: "center",
@@ -2399,9 +2364,10 @@ const styles = StyleSheet.create({
   },
   profileContainer: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     marginBottom: 16,
   },
+  profileInfoWrapper: { marginLeft: 12, flex: 1, flexShrink: 1 },
   profilePic: {
     width: 100,
     height: 100,
