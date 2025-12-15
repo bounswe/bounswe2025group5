@@ -755,3 +755,52 @@ END IF;
     END$$
 
     DELIMITER ;
+
+
+DELIMITER $$
+
+    CREATE TRIGGER `first_like`
+        AFTER INSERT ON `post_likes`
+        FOR EACH ROW
+    BEGIN
+        DECLARE like_count INT;
+
+    IF NOT EXISTS (SELECT 1 FROM `badge` WHERE user_id = NEW.user_id AND name = 'First Like') THEN
+
+        SELECT COUNT(*)
+        INTO like_count
+        FROM `post_likes`
+        WHERE `user_id` = NEW.user_id;
+
+        IF like_count = 1 THEN
+            INSERT INTO `badge` (name, user_id)
+            VALUES ('First Like', NEW.user_id);
+    END IF;
+END IF;
+    END$$
+
+    DELIMITER ;
+
+DELIMITER $$
+
+    CREATE TRIGGER `first_comment`
+        AFTER INSERT ON `comments`
+        FOR EACH ROW
+    BEGIN
+        DECLARE comment_count INT;
+
+    IF NOT EXISTS (SELECT 1 FROM `badge` WHERE user_id = NEW.user_id AND name = 'First Comment') THEN
+
+        SELECT COUNT(*)
+        INTO comment_count
+        FROM `comments`
+        WHERE `user_id` = NEW.user_id;
+
+        IF comment_count = 1 THEN
+            INSERT INTO `badge` (name, user_id)
+            VALUES ('First Comment', NEW.user_id);
+    END IF;
+END IF;
+    END$$
+
+DELIMITER ;
