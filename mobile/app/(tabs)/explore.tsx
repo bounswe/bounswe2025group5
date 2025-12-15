@@ -550,15 +550,25 @@ export default function ExploreScreen() {
     }
 
     if (normalizedType === "closedwithoutchange" && normalizedObject === "report") {
-      return t("notificationReportClosedWithoutChange", {
+      const preview = rawPayload?.preview;
+      const baseMessage = t("notificationReportClosedWithoutChange", {
         defaultValue: "Your report has been reviewed and closed without changes",
       });
+      if (preview && typeof preview === "string" && preview.trim().length > 0) {
+        return `${baseMessage}: "${preview.trim()}"`;
+      }
+      return baseMessage;
     }
 
     if (normalizedType === "deletion" && normalizedObject === "report") {
-      return t("notificationReportDeletion", {
+      const preview = rawPayload?.preview;
+      const baseMessage = t("notificationReportDeletion", {
         defaultValue: "Your report has been reviewed and the content was removed",
       });
+      if (preview && typeof preview === "string" && preview.trim().length > 0) {
+        return `${baseMessage}: "${preview.trim()}"`;
+      }
+      return baseMessage;
     }
 
     try {
