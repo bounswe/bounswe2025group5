@@ -45,6 +45,9 @@ const badgeImageMap: Record<string, ImageSourcePropType> = {
   "organic-hero": require("@/assets/images/organic-hero.png"),
   "organic-legend": require("@/assets/images/organic-legend.png"),
   "top-challenger": require("@/assets/images/top-challenger.png"),
+  "first-like": require("@/assets/images/first-like.png"),
+  "first-comment": require("@/assets/images/first-comment.png"),
+
 };
 
 export const getBadgeImageSource = (
