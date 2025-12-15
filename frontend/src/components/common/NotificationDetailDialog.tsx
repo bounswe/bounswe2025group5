@@ -138,6 +138,7 @@ export default function NotificationDetailDialog({
           </div>
         );
       case 'Comment':
+      case 'Create':
         return (
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10">
