@@ -125,7 +125,11 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
     <Card className={`w-full py-3 transition-all duration-300 ${
       getEndedStyle()
     } ${
-      userInChallenge ? 'ring-1 ring-primary shadow-[0_0_15px_rgba(26,138,65,0.3)]' : ''
+      userInChallenge 
+        ? (isEndedOrGoalReached && !goalReached)
+          ? 'ring-1 ring-destructive shadow-[0_0_15px_rgba(220,38,38,0.3)]'
+          : 'ring-1 ring-primary shadow-[0_0_15px_rgba(26,138,65,0.3)]'
+        : ''
     }`}>
       <Accordion type="single" collapsible className="w-full">
         <AccordionItem value="challenge-details" className="border-none">
