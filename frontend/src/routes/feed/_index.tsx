@@ -215,13 +215,6 @@ export default function FeedPage() {
             </div>
           </div>
 
-          {/* Loading Indicator */}
-          {isLoading && (
-            <div className="flex justify-center py-4 mb-4">
-              <Spinner className="h-6 w-6" />
-            </div>
-          )}
-
           {/* Error Message */}
           {error && (
             <div className="mb-4 p-4 bg-red-100 border border-red-300 rounded-lg">
@@ -245,7 +238,12 @@ export default function FeedPage() {
               <p className="text-red-700 text-sm">{searchError}</p>
             </div>
           )}
-
+          {/* Loading Indicator */}
+          {isLoading && (
+            <div className="flex justify-center py-4 mb-4">
+              <Spinner className="h-6 w-6" />
+            </div>
+          )}
           {/* Posts Feed */}
           {isTransitioning ? (
             /* Transitioning state - brief blank moment */
