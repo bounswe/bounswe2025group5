@@ -41,7 +41,16 @@ export default function Navbar({ className }: NavbarProps) {
         <img
           src={logo}
           alt={t ? t('navbar.logoAlt', 'WasteLess application logo') : 'WasteLess application logo'}
-          className="h-23 w-auto"
+          className="h-23 w-auto cursor-pointer transition-transform hover:scale-105 active:scale-95"
+          onClick={() => navigate(isAuthed ? '/mainpage' : '/')}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              navigate(isAuthed ? '/mainpage' : '/');
+            }
+          }}
         />
       </div>
 
@@ -63,7 +72,7 @@ export default function Navbar({ className }: NavbarProps) {
             </Button>
           );
         })}
-        {!isAuthed && (
+        {!isAuthed && location.pathname !== '/auth/register' && (
           <Button
             variant="ghost"
             size="sm"
@@ -71,6 +80,16 @@ export default function Navbar({ className }: NavbarProps) {
             className="text-white hover:bg-white/20 transition-colors"
           >
             {t('login.signup')}
+          </Button>
+        )}
+        {!isAuthed && location.pathname === '/auth/register' && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/auth/login')}
+            className="text-white hover:bg-white/20 transition-colors"
+          >
+            {t('login.login')}
           </Button>
         )}
         <div className="flex items-center gap-1 shrink-0">
