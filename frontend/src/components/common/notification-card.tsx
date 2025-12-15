@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, MessageCircle, UserPlus } from 'lucide-react';
+import { Heart, MessageCircle, UserPlus, Forward, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import type { Notification } from '@/lib/api/schemas/notifications';
@@ -50,9 +50,17 @@ export default function NotificationCard({
       case 'Like':
         return { actor, text: `liked your ${objType}` };
       case 'Create':
-        return { actor, text: `commented on your ${objType}` };
+        // If objectType is comment, someone commented on your post
+        // If objectType is post, someone you follow shared a post
+        if (objType === 'comment') {
+          return { actor, text: `commented on your post` };
+        } else {
+          return { actor, text: `shared a post` };
+        }
       case 'Follow':
         return { actor, text: 'started following you' };
+      case 'End':
+        return { actor: '', text: 'Challenge has ended' };
       default:
         return { actor, text: 'interacted with your content' };
     }
@@ -63,9 +71,22 @@ export default function NotificationCard({
       case 'Like':
         return <Heart className="h-3.5 w-3.5 text-red-500" />;
       case 'Create':
+        // If objectType is 'comment', show comment icon
+        // If objectType is 'post', show share icon
+        if (notification.objectType?.toLowerCase() === 'comment') {
+          return <MessageCircle className="h-3.5 w-3.5 text-blue-500" />;
+        } else if (notification.objectType?.toLowerCase() === 'post') {
+          return <Forward className="h-3.5 w-3.5 text-purple-500" />;
+        }
         return <MessageCircle className="h-3.5 w-3.5 text-blue-500" />;
       case 'Follow':
         return <UserPlus className="h-3.5 w-3.5 text-green-500" />;
+      case 'End':
+        // Challenge ended notification
+        if (notification.objectType?.toLowerCase() === 'challenge') {
+          return <Trophy className="h-3.5 w-3.5 text-yellow-500" />;
+        }
+        return null;
       default:
         return null;
     }
@@ -108,12 +129,34 @@ export default function NotificationCard({
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="text-sm leading-tight">
-              <span className="font-semibold">{getNotificationMessage().actor}</span>
-              {' '}
+              {getNotificationMessage().actor && (
+                <>
+                  <span className="font-semibold">{getNotificationMessage().actor}</span>
+                  {' '}
+                </>
+              )}
               <span className={cn(!notification.isRead && 'font-medium')}>
                 {getNotificationMessage().text}
               </span>
             </p>
+            {(notification.preview || notification.postMessage || notification.commentContent || notification.challengeTitle) && (
+              <div className="mt-2 p-2 rounded-md bg-muted/50 border border-border/50">
+                {/* Use preview field from backend (preferred), fallback to legacy fields */}
+                {(notification.preview || notification.postMessage || notification.commentContent) && (
+                  <p className="text-xs text-muted-foreground line-clamp-2 italic">
+                    "{(() => {
+                      const content = notification.preview || notification.postMessage || notification.commentContent || '';
+                      return content.length > 80 ? `${content.slice(0, 80)}...` : content;
+                    })()}"
+                  </p>
+                )}
+                {notification.challengeTitle && (
+                  <p className="text-xs font-medium text-primary">
+                    {notification.challengeTitle}
+                  </p>
+                )}
+              </div>
+            )}
             <div className="flex items-center justify-between mt-0.5">
               <p className="text-[10px] text-muted-foreground">
                 {formatTimeAgo(notification.createdAt)}

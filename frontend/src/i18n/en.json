@@ -79,6 +79,10 @@
         "navbar": "Profile",
         "title": "Your Profile",
         "description": "Manage your profile information",
+        "account": {
+            "details": "Account Details",
+            "password": "Reset Password"
+        },
         "username": "Username",
         "userLabel": "User {{username}}",
         "biography": "Biography",
@@ -97,6 +101,25 @@
         "editImage": "Edit Image",
         "userProfile": "User profile",
         "userProfileTitle": "{{username}}'s profile",
+        "resetPassword": {
+            "subtitle": "Set a new password to keep your account secure.",
+            "currentLabel": "Current password",
+            "newLabel": "New password",
+            "confirmLabel": "Confirm new password",
+            "placeholder": "Choose a strong password",
+            "requirements": "Use at least 8 characters. Mix letters, numbers, and symbols, and avoid common patterns.",
+            "update": "Update password",
+            "updating": "Updating...",
+            "success": "Password updated successfully.",
+            "error": {
+                "tooShort": "Password must be at least {{min}} characters.",
+                "tooWeak": "Password is too weak. Aim for 'Good' or higher.",
+                "passwordsDontMatch": "Passwords do not match",
+                "samePassword": "New password must be different from the current one.",
+                "usernameMissing": "We could not find your username. Please log in again.",
+                "generic": "Could not change password. Please try again."
+            }
+        },
         "error": {
             "loadFailed": "Failed to load profile"
         },
@@ -271,6 +294,11 @@
         "invalidAmount": "Please enter a positive amount",
         "enterAmount": "Enter amount",
         "submit": "Submit",
+        "selectItem": "Select waste item...",
+        "selectedItem": "Selected item",
+        "searchItem": "Search item...",
+        "loadingItems": "Loading items...",
+        "noItems": "No waste items found",
         "type": "Type",
         "status": "Status",
         "dates": "Dates",
@@ -413,11 +441,30 @@
             "like": "{{actor}} liked your {{objectType}}",
             "comment": "{{actor}} commented on your {{objectType}}",
             "follow": "{{actor}} started following you",
+            "share": "{{actor}} shared your {{objectType}}",
+            "challenge": "Challenge ended",
             "mention": "{{actor}} mentioned you in a {{objectType}}",
             "default": "{{actor}} {{type}}"
         },
         "likedYourPost_suffix": "liked your post",
         "commentedOnYourPost_suffix": "commented on your post",
-        "startedFollowing_suffix": "started following you"
+        "startedFollowing_suffix": "started following you",
+        "sharedYourPost_suffix": "shared your post",
+        "challengeEnded_suffix": "ended"
+    },
+    "feedback": {
+        "buttonLabel": "Send Feedback",
+        "title": "Share Your Feedback",
+        "description": "Help us improve by sharing your thoughts, suggestions, or reporting issues.",
+        "messageLabel": "Your Message",
+        "placeholder": "Tell us what you think...",
+        "charCount": "{{count}} / {{max}} characters",
+        "submitting": "Sending...",
+        "success": "Thank you! Your feedback has been submitted successfully.",
+        "error": "Failed to submit feedback. Please try again later.",
+        "emptyError": "Please enter your feedback before submitting.",
+        "authError": "You must be logged in to submit feedback.",
+        "forbiddenError": "You don't have permission to submit feedback. Please ensure you're logged in.",
+        "userNotFoundError": "User account not found. Please try logging in again."
     }
 }

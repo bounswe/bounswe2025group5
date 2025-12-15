@@ -4,12 +4,18 @@ import { StrictMode } from "react";
 import { BrowserRouter, useRoutes } from "react-router-dom";
 import routes from "~react-pages";
 import { LayoutResolver } from "./services/LayoutResolver";
+import { Toaster } from "./components/ui/sonner";
 import "./index.css";
 import "./services/useClientTranslation.tsx";
 
 function App() {
   const element = useRoutes(routes);
-  return <LayoutResolver>{element}</LayoutResolver>;
+  return (
+    <LayoutResolver>
+      {element}
+      <Toaster />
+    </LayoutResolver>
+  );
 }
 
 const container = document.getElementById("root");
