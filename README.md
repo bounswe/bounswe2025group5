@@ -96,8 +96,19 @@ Make sure you have **Docker** and **Docker Compose** installed on your computer.
     ```bash
     docker ps -as
     ```
+4. **Data Seeding**
+     ```bash
+   cat mock_data.sql | sudo docker exec -i <db_container_name> mysql -u <db_username> -p<db_password> waste_less
+    ```
+   Moderator Account:
+     - Username: kerim
+     - Password: gfiadbceh
+  
+   Normal Account:
+     - Username: Alice
+     - Password: 32434543
 
-4.  **Access the Application**
+6.  **Access the Application**
     Open your browser and navigate to:
     `http://localhost:3000`
 
