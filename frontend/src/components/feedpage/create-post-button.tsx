@@ -1,21 +1,20 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea.tsx';
 import { useTranslation } from 'react-i18next';
-import { Plus, Image } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Image } from 'lucide-react';
 import { PostsApi } from '@/lib/api/posts';
+import type { PostItem } from '@/lib/api/schemas/posts';
 
-interface CreatePostCardProps {
-  onPostCreated?: () => void;
+interface CreatePostButtonProps {
+  onPostCreated?: (newPost: PostItem) => void;
   className?: string;
 }
 
-export default function CreatePostCard({ onPostCreated, className }: CreatePostCardProps) {
+export default function CreatePostButton({ onPostCreated, className }: CreatePostButtonProps) {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -34,7 +33,7 @@ export default function CreatePostCard({ onPostCreated, className }: CreatePostC
         throw new Error('Username not found');
       }
 
-      await PostsApi.create({
+      const newPost = await PostsApi.create({
         content: postData.content,
         username,
         photoFile: postData.photoFile || undefined,
@@ -47,7 +46,7 @@ export default function CreatePostCard({ onPostCreated, className }: CreatePostC
       });
       
       setIsOpen(false);
-      onPostCreated?.();
+      onPostCreated?.(newPost);
     } catch (error) {
       console.error('Error creating post:', error);
     } finally {
@@ -63,34 +62,17 @@ export default function CreatePostCard({ onPostCreated, className }: CreatePostC
   };
 
   return (
-    <Card className={cn("", className)}>
-      <CardHeader className="pb-3">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center">
-            <Plus className="w-5 h-5 text-white" />
-          </div>
-          <div className="flex-1">
-            <h3 className="font-semibold text-emerald-900">{t('feed.createPost.title')}</h3>
-            <p className="text-sm text-muted-foreground">{t('feed.createPost.subtitle')}</p>
-          </div>
-        </div>
-      </CardHeader>
-      
-      <CardContent className="pt-0">
-        <Popover open={isOpen} onOpenChange={setIsOpen}>
-          <PopoverTrigger asChild>
-            <Button 
-              variant="outline" 
-              className="w-full justify-start text-muted-foreground hover:text-foreground transition-colors duration-200 h-10 px-4 py-2 transform-none scale-100 hover:scale-100"
-            >
-              <Plus className="w-4 h-4 mr-2 flex-shrink-0" />
-              <span className="truncate">{t('feed.createPost.placeholder')}</span>
-            </Button>
-          </PopoverTrigger>
-          
-          <PopoverContent className="w-96 p-0 shadow-lg" align="start">
-            <form onSubmit={handleSubmit} className="space-y-4 p-4">
-
+    <div className="flex justify-center">
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <Button variant="tertiary" className={className}>
+            {t('feed.createPost.placeholder')}
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('feed.createPost.title')}</DialogTitle>
+            <form onSubmit={handleSubmit} className="space-y-4 mt-4">
               {/* Kindness Reminder */}
               <div className="bg-tertiary/5 border border-primary/20 rounded-lg p-3">
                 <p className="text-sm text-tertiary font-medium">
@@ -150,9 +132,9 @@ export default function CreatePostCard({ onPostCreated, className }: CreatePostC
                 </Button>
               </div>
             </form>
-          </PopoverContent>
-        </Popover>
-      </CardContent>
-    </Card>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

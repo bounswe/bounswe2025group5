@@ -410,13 +410,17 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameC
       )}
 
       {/* Comment Section */}
-      {showComments && (
+      <div 
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+          showComments ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
         <CommentSection
           postId={post.postId}
           onCommentAdded={handleCommentAdded}
           onUsernameClick={onUsernameClick}
         />
-      )}
+      </div>
 
       {/* Bottom Padding */}
       <div className="pb-3"></div>

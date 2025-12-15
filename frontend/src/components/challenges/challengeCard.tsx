@@ -110,8 +110,27 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
     }
   };
 
+  const isEnded = challenge.status?.toUpperCase() === 'ENDED';
+  const goalReached = challenge.amount != null && currentAmount >= challenge.amount;
+  const isEndedOrGoalReached = isEnded || goalReached;
+  
+  // Determine background color for ended/goal-reached challenges
+  const getEndedStyle = () => {
+    if (!isEndedOrGoalReached) return '';
+    if (goalReached) return 'bg-primary/10 border-primary/20';
+    return 'bg-destructive/10 border-destructive/20';
+  };
+
   return (
-    <Card className="w-full py-3">
+    <Card className={`w-full py-3 transition-all duration-300 ${
+      getEndedStyle()
+    } ${
+      userInChallenge 
+        ? (isEndedOrGoalReached && !goalReached)
+          ? 'ring-1 ring-destructive shadow-[0_0_15px_rgba(220,38,38,0.3)]'
+          : 'ring-1 ring-primary shadow-[0_0_15px_rgba(26,138,65,0.3)]'
+        : ''
+    }`}>
       <Accordion type="single" collapsible className="w-full">
         <AccordionItem value="challenge-details" className="border-none">
           <div className="px-3 py-1.5 flex flex-col h-full">
@@ -187,7 +206,7 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
 
               {/* Action buttons */}
               <div className="flex gap-2 justify-center pt-3">
-                {!userInChallenge ? (
+                {!isEndedOrGoalReached && !userInChallenge && (
                   <Button 
                     size="sm" 
                     variant="default" 
@@ -200,34 +219,35 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
                   >
                     {busy[challenge.challengeId] ? t('challenges.attending', 'Attending...') : t('challenges.attend', 'Attend')}
                   </Button>
-                ) : (
-                  <Button 
-                    size="sm" 
-                    variant="destructive" 
-                    className="h-8 px-4 text-xs"
-                    disabled={!!busy[challenge.challengeId] || !!logging[challenge.challengeId]} 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      leave(challenge.challengeId, username);
-                    }}
-                  >
-                    {busy[challenge.challengeId] ? t('challenges.leaving', 'Leaving...') : t('challenges.leave', 'Leave')}
-                  </Button>
                 )}
                 
-                <Popover> 
-                  <PopoverTrigger asChild>
+                {!isEndedOrGoalReached && userInChallenge && (
+                  <>
                     <Button 
                       size="sm" 
-                      variant="secondary" 
+                      variant="destructive" 
                       className="h-8 px-4 text-xs"
-                      disabled={!!logging[challenge.challengeId] || !!busy[challenge.challengeId]}
-                      onClick={(e) => e.stopPropagation()}
+                      disabled={!!busy[challenge.challengeId] || !!logging[challenge.challengeId]} 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        leave(challenge.challengeId, username);
+                      }}
                     >
-                      {logging[challenge.challengeId] ? t('challenges.logging', 'Logging...') : t('challenges.log', 'Log')}
+                      {busy[challenge.challengeId] ? t('challenges.leaving', 'Leaving...') : t('challenges.leave', 'Leave')}
                     </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[250px] p-2 flex flex-col items-center">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button 
+                          size="sm" 
+                          variant="secondary" 
+                          className="h-8 px-4 text-xs"
+                          disabled={!!busy[challenge.challengeId] || !!logging[challenge.challengeId]}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {t('challenges.logProgress', 'Log Progress')}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[250px] p-2 flex flex-col items-center">
                     <div className="w-full space-y-3">
                       <Popover open={popupOpen} onOpenChange={setPopupOpen}>
                         <PopoverTrigger asChild>
@@ -312,6 +332,8 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
                     </div>
                   </PopoverContent>
                 </Popover>
+                  </>
+                )}
                 
                 <Leaderboard challengeId={challenge.challengeId} />
               </div>

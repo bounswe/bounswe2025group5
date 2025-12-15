@@ -97,8 +97,10 @@ export default function MainpageIndex() {
             <div className="text-muted-foreground">{t('mainpage.noChallenges', 'No active challenges')}</div>
           ) : (
             <div className="space-y-4 px-4">
-              {challenges.map((ch) => (
-                <ChallengeCard key={ch.challengeId} challenge={ch} />
+              {challenges.map((ch, index) => (
+                <div key={ch.challengeId} className="opacity-0 animate-fade-in" style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'forwards' }}>
+                  <ChallengeCard challenge={ch} />
+                </div>
               ))}
             </div>
           )}

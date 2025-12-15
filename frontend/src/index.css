@@ -348,4 +348,34 @@
   .btn-log-submit {
     @apply bg-tertiary hover:bg-tertiary/90 text-tertiary-foreground;
   }
+
+  /* Search Results Glow Animation */
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 30px rgba(14, 157, 207, 0.5);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(14, 156, 207, 0.661), 0 0 50px rgba(14, 157, 207, 0.4);
+    }
+  }
+  
+  .animate-pulse-glow {
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+
+  /* Post Fade In Animation */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fade-in {
+    animation: fadeInUp 0.5s ease-out;
+  }
 }
