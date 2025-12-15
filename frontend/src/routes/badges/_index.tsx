@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import GlassCard from '@/components/ui/glass-card';
-import { Badge as Pill } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { BadgeCard } from '@/components/badges/badge-card';
 import { Spinner } from '@/components/ui/spinner';
 import { BadgeApi } from '@/lib/api/badges';
@@ -10,6 +12,7 @@ import { badgeCatalog } from '@/lib/badges/catalog';
 
 export default function BadgesIndex() {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const [category, setCategory] = useState<string>('all');
   const [earnedBadges, setEarnedBadges] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -66,7 +69,16 @@ export default function BadgesIndex() {
   return (
     <div className="min-h-screen pt-32 pb-8 px-4">
       <div className="max-w-6xl mx-auto flex justify-center">
-        <GlassCard className="w-full">
+        <GlassCard className="w-full relative">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/profile')}
+            className="absolute top-2 left-2"
+            aria-label={t('common.goBack', 'Go back')}
+          >
+            <ArrowLeft className="h-6 w-6" />
+          </Button>
           <div className="flex flex-col gap-6">
             <header className="space-y-2">
               <h1 className="text-3xl font-bold text-foreground/85">
@@ -75,23 +87,22 @@ export default function BadgesIndex() {
               <p className="text-muted-foreground">
                 {t('badges.subtitle', 'Preview the badges you can earn in WasteLess.')}
               </p>
-              <div className="flex flex-wrap gap-2 pt-2">
+                <div className="flex flex-wrap gap-2 pt-2">
                 {categories.map(cat => (
-                  <button
+                  <Button
                     key={cat}
                     type="button"
                     onClick={() => setCategory(cat)}
-                    className="focus-visible:outline-none"
+                    variant={category === cat ? 'default' : 'outline'}
+                    size="sm"
                     aria-label={t('badges.filterBy', { category: cat, defaultValue: `Filter by ${cat}` })}
                   >
-                    <Pill variant={category === cat ? 'tertiary' : 'outline'}>
-                      {cat === 'all'
-                        ? t('badges.filters.all', 'All categories')
-                        : t(`badges.categories.${cat}`, {
-                            defaultValue: cat.charAt(0).toUpperCase() + cat.slice(1),
-                          })}
-                    </Pill>
-                  </button>
+                    {cat === 'all'
+                      ? t('badges.filters.all', 'All categories')
+                      : t(`badges.categories.${cat}`, {
+                          defaultValue: cat.charAt(0).toUpperCase() + cat.slice(1),
+                        })}
+                  </Button>
                 ))}
               </div>
             </header>
