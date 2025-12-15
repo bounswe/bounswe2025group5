@@ -109,14 +109,14 @@ export function BadgeShowcase({
                           src={badge.iconUrl}
                           alt={alt}
                           className={cn(
-                            'h-15 w-20 sm:h-15 sm:w-20 min-h-[8rem] min-w-[8rem] sm:min-h-[10rem] sm:min-w-[10rem] object-contain flex-shrink-0',
+                            'h-16 w-20 sm:h-16 sm:w-20 min-h-[8rem] min-w-[8rem] sm:min-h-[10rem] sm:min-w-[10rem] object-contain flex-shrink-0',
                             iconClassName
                           )}
                         />
                       ) : (
                         <div
                           className={cn(
-                            'h-15 w-20 sm:h-15 sm:w-20 min-h-[8rem] min-w-[8rem] sm:min-h-[10rem] sm:min-w-[10rem] rounded-full bg-primary/10 grid place-items-center text-2xl font-semibold text-primary-foreground',
+                            'h-16 w-20 sm:h-16 sm:w-20 min-h-[8rem] min-w-[8rem] sm:min-h-[10rem] sm:min-w-[10rem] rounded-full bg-primary/10 grid place-items-center text-2xl font-semibold text-primary-foreground',
                             iconClassName
                           )}
                         >
