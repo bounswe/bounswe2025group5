@@ -24,13 +24,6 @@ export default function Navbar({ className }: NavbarProps) {
   const location = useLocation();
   const isAuthed = typeof window !== 'undefined' && !!localStorage.getItem('authToken');
   const isModerator = isAuthed && isModeratorUser();
-  if (isAuthed) {
-    const index = navRoutes.findIndex(r => r.path === '/');
-    if (index !== -1) {
-      navRoutes[index].path = '/mainpage';
-      navRoutes[index].name = t('mainpage.navbar');
-    }
-  }
   if (isModerator && !navRoutes.some(route => route.path === '/moderator')) {
     navRoutes.push({ name: t('moderator.navbar', 'Moderation'), path: '/moderator' });
   }
