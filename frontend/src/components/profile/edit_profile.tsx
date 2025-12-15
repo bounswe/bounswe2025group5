@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { UsersApi } from "@/lib/api/users";
+import userAvatar from "@/assets/user.png";
 
 type EditProfileProps = {
     username: string | null;
@@ -18,6 +19,7 @@ export default function EditProfile({ username, initialBio, initialPhotoUrl, onB
     const [profileOpen, setProfileOpen] = useState(false);
     const [bio, setBio] = useState<string | null>(initialBio ?? null);
     const [photoUrl, setPhotoUrl] = useState<string | null>(initialPhotoUrl ?? null);
+    const [profilePhotoSrc, setProfilePhotoSrc] = useState(initialPhotoUrl);
     const [saving, setSaving] = useState(false);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const storedUsername = useMemo(() => username ?? (() => {
@@ -52,6 +54,7 @@ export default function EditProfile({ username, initialBio, initialPhotoUrl, onB
             const updated = await UsersApi.uploadProfilePhoto(storedUsername ?? "", file);
             const newUrl = updated.photoUrl ?? null;
             setPhotoUrl(newUrl);
+            setProfilePhotoSrc(newUrl);
             onPhotoSaved?.(newUrl);
         } catch (e) {
             console.error(e);
@@ -85,7 +88,8 @@ export default function EditProfile({ username, initialBio, initialPhotoUrl, onB
                 >
                     {photoUrl ? (
                         <img
-                            src={photoUrl}
+                            src={profilePhotoSrc || photoUrl}
+                            onError={() => setProfilePhotoSrc(userAvatar)}
                             alt={storedUsername ? t('profile.photoAlt', { username: storedUsername, defaultValue: `${storedUsername}'s profile photo` }) : t('profile.photoAltAnon', 'Profile photo')}
                             className="w-full h-full object-cover"
                         />

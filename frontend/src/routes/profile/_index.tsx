@@ -23,6 +23,7 @@ export default function ProfileIndex() {
   const [username, setUsername] = useState<string | null>(null);
   const [bio, setBio] = useState("");
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [profilePhotoSrc, setProfilePhotoSrc] = useState<string | null>(null);
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -73,6 +74,7 @@ export default function ProfileIndex() {
         const p = await UsersApi.getProfile(storedUsername);
         setBio(p.biography ?? "");
         setPhotoUrl(p.photoUrl ?? null);
+        setProfilePhotoSrc(p.photoUrl ?? null);
         setFollowerCount(p.followerCount ?? 0);
         setFollowingCount(p.followingCount ?? 0);
       } catch (e) {
@@ -208,7 +210,8 @@ export default function ProfileIndex() {
               <div className="w-28 h-28 rounded-full overflow-hidden bg-muted border border-border">
                 {photoUrl ? (
                   <img
-                    src={photoUrl}
+                    src={profilePhotoSrc || photoUrl}
+                    onError={() => setProfilePhotoSrc(userAvatar)}
                     alt={username ? t('profile.photoAlt', { username, defaultValue: `${username}'s profile photo` }) : t('profile.photoAltAnon', 'Profile photo')}
                     className="w-full h-full object-cover"
                   />
