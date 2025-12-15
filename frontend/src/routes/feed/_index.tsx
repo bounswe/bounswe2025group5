@@ -173,26 +173,43 @@ export default function FeedPage() {
               </Button>
             </div>
 
-            {/* Feed Type Selector */}
-            <div className="flex gap-2">
-              <Button
-                variant={feedType === 'latest' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFeedType('latest')}
-                disabled={isLoading}
-              >
-                {t('feed.latest')}
-              </Button>
-              <Button
-                variant={feedType === 'popular' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFeedType('popular')}
-                disabled={isLoading}
-                className="flex items-center gap-2"
-              >
-                <TrendingUp className="h-4 w-4" />
-                {t('feed.popular')}
-              </Button>
+            {/* Feed Type Selector and Waste Type Quick Search */}
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex gap-2">
+                <Button
+                  variant={feedType === 'latest' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setFeedType('latest')}
+                  disabled={isLoading}
+                >
+                  {t('feed.latest')}
+                </Button>
+                <Button
+                  variant={feedType === 'popular' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setFeedType('popular')}
+                  disabled={isLoading}
+                  className="flex items-center gap-2"
+                >
+                  <TrendingUp className="h-4 w-4" />
+                  {t('feed.popular')}
+                </Button>
+              </div>
+              
+              <div className="flex flex-wrap gap-2 justify-end">
+                {['PLASTIC', 'PAPER', 'GLASS', 'METAL', 'ORGANIC'].map((wasteType) => (
+                  <Button
+                    key={wasteType}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleSearch(wasteType)}
+                    disabled={isSearching}
+                    className="text-xs hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300"
+                  >
+                    {t(`wasteTypes.${wasteType}`)}
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
 
