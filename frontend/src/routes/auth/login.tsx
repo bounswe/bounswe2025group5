@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import GlassCard from "@/components/ui/glass-card";
 import { AlertCircle } from "lucide-react";
 
 export default function Login() {
@@ -40,21 +39,20 @@ export default function Login() {
   };
 
   return (
-    <GlassCard variant="default" className="mx-auto">
-      <div className="max-w-md min-w-80 mx-auto animate-fade-in">
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("login.title")}</CardTitle>
-            <CardDescription>
-              {t("login.description")}
-            </CardDescription>
-            <CardAction>
-              <Button variant="secondary" onClick={() => navigate('/auth/register')}>
-                {t("login.signup")}
-              </Button>
-            </CardAction>
-          </CardHeader>
-       <CardContent>
+    <div className="max-w-md min-w-80 mx-auto animate-fade-in">
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("login.title")}</CardTitle>
+          <CardDescription>
+            {t("login.description")}
+          </CardDescription>
+          <CardAction>
+            <Button variant="secondary" onClick={() => navigate('/auth/register')}>
+              {t("login.signup")}
+            </Button>
+          </CardAction>
+        </CardHeader>
+     <CardContent>
          <form id="login-form" onSubmit={handleSubmit} className="space-y-4">
           {error && (
             <Alert variant="destructive">
@@ -93,9 +91,8 @@ export default function Login() {
           {loading ? t("login.loading") : t("login.loginButton")}
         </Button>
       </CardFooter>
-        </Card>
-      </div>
-    </GlassCard>
+      </Card>
+    </div>
   );
 }
 

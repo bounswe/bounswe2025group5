@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import GlassCard from "@/components/ui/glass-card";
 import { useTranslation } from "react-i18next";
 import { usePasswordStrength } from "@/hooks/usePasswordStrength";
 import PasswordStrengthMeter from "@/components/common/password-strength-meter";
@@ -63,13 +62,12 @@ export default function Register() {
   };
 
   return (
-    <GlassCard className="mx-auto">
-      <div className="max-w-md min-w-80 mx-auto animate-fade-in">
-        <Card className="max-w-[20rem] min-h-[35rem]">
-          <CardHeader>
-            <CardTitle className="text-center">{t("register.title")}</CardTitle>
-          </CardHeader>
-          <CardContent>
+    <div className="max-w-md min-w-80 mx-auto animate-fade-in">
+      <Card className="max-w-[20rem] min-h-[35rem]">
+        <CardHeader>
+          <CardTitle className="text-center">{t("register.title")}</CardTitle>
+        </CardHeader>
+        <CardContent>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -142,10 +140,9 @@ export default function Register() {
             {t("register.login")}
           </Button>
         </p>
-          </CardContent>
-        </Card>
-      </div>
-    </GlassCard>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
