@@ -218,9 +218,8 @@ export default function ExploreScreen() {
           false,
     savedByUser: typeof item.saved === "boolean" ? item.saved : false,
     createdAt: item.createdAt ?? null,
-    authorAvatarUrl: item.creatorUsername
-      ? userAvatars[item.creatorUsername] ?? null
-      : null,
+    authorAvatarUrl:
+      item.profile_photo ?? item.profilePhoto ?? item.creatorPhotoUrl ?? null,
   });
 
   const fetchLikeStatusesForPosts = async (
@@ -343,7 +342,9 @@ export default function ExploreScreen() {
     postsToProcess: Post[]
   ): Promise<Post[]> => {
     if (!postsToProcess.length) return postsToProcess;
-    let hydrated = await attachAvatarsToPosts(postsToProcess);
+    // Profile photos are now included in the post response, no need to fetch separately
+    // let hydrated = await attachAvatarsToPosts(postsToProcess);
+    let hydrated = postsToProcess;
     if (username && userType === "user") {
       // hydrated = await fetchLikeStatusesForPosts(hydrated, username);
       // hydrated = await fetchSavedStatusesForPosts(hydrated, username);
@@ -1036,7 +1037,9 @@ export default function ExploreScreen() {
         const cachedBody = getPostContentFromState(postId);
         if (cachedBody) {
           setNotificationPostBodies((prev) =>
-            prev[postId] === cachedBody ? prev : { ...prev, [postId]: cachedBody }
+            prev[postId] === cachedBody
+              ? prev
+              : { ...prev, [postId]: cachedBody }
           );
         }
         if (cached) {
@@ -1072,13 +1075,19 @@ export default function ExploreScreen() {
           (typeof data?.text === "string" && data.text) ||
           null;
         setNotificationThumbnails((prev) =>
-          prev[postId] === resolved ? prev : { ...prev, [postId]: resolved ?? null }
+          prev[postId] === resolved
+            ? prev
+            : { ...prev, [postId]: resolved ?? null }
         );
         if (rawContent) {
           setNotificationPostBodies((prev) =>
-            prev[postId] === rawContent ? prev : { ...prev, [postId]: rawContent }
+            prev[postId] === rawContent
+              ? prev
+              : { ...prev, [postId]: rawContent }
           );
-        } else if (!Object.prototype.hasOwnProperty.call(notificationPostBodies, postId)) {
+        } else if (
+          !Object.prototype.hasOwnProperty.call(notificationPostBodies, postId)
+        ) {
           setNotificationPostBodies((prev) => ({ ...prev, [postId]: null }));
         }
       } catch (err) {
@@ -1096,7 +1105,11 @@ export default function ExploreScreen() {
         notificationThumbnailFetchesRef.current.delete(postId);
       }
     },
-    [getPhotoUrlForPostFromState, getPostContentFromState, notificationPostBodies]
+    [
+      getPhotoUrlForPostFromState,
+      getPostContentFromState,
+      notificationPostBodies,
+    ]
   );
 
   const fetchNotificationCommentPreview = useCallback(
@@ -1189,11 +1202,7 @@ export default function ExploreScreen() {
       }
       fetchNotificationPostThumbnail(postId);
     });
-  }, [
-    notifications,
-    fetchNotificationPostThumbnail,
-    notificationThumbnails,
-  ]);
+  }, [notifications, fetchNotificationPostThumbnail, notificationThumbnails]);
 
   useEffect(() => {
     if (!notifications.length) return;
@@ -1287,9 +1296,10 @@ export default function ExploreScreen() {
 
       let processedNewItems: Post[] = data.map(mapApiItemToPost);
 
-      if (processedNewItems.length > 0) {
-        processedNewItems = await attachAvatarsToPosts(processedNewItems);
-      }
+      // Profile photos are now included in the post response, no need to fetch separately
+      // if (processedNewItems.length > 0) {
+      //   processedNewItems = await attachAvatarsToPosts(processedNewItems);
+      // }
 
       // if (username && userType === "user" && processedNewItems.length > 0) {
       //   // processedNewItems = await fetchLikeStatusesForPosts(processedNewItems, username);
@@ -1459,9 +1469,10 @@ export default function ExploreScreen() {
       if (!res.ok) throw new Error("Search failed");
       const data = await res.json();
       let processedResults: Post[] = data.map(mapApiItemToPost);
-      if (processedResults.length > 0) {
-        processedResults = await attachAvatarsToPosts(processedResults);
-      }
+      // Profile photos are now included in the post response, no need to fetch separately
+      // if (processedResults.length > 0) {
+      //   processedResults = await attachAvatarsToPosts(processedResults);
+      // }
       // if (username && userType === "user" && processedResults.length > 0) {
       //   // processedResults = await fetchLikeStatusesForPosts(processedResults, username);
       //   processedResults = await fetchSavedStatusesForPosts(
@@ -2460,10 +2471,12 @@ export default function ExploreScreen() {
                           normalizedNotifType === "create")));
                   const isLikePost =
                     normalizedNotifType === "like" &&
-                    (normalizedNotifObject === "post" || !normalizedNotifObject);
+                    (normalizedNotifObject === "post" ||
+                      !normalizedNotifObject);
                   const isCreatePost =
                     normalizedNotifType === "create" &&
-                    (normalizedNotifObject === "post" || !normalizedNotifObject);
+                    (normalizedNotifObject === "post" ||
+                      !normalizedNotifObject);
                   const isChallengeEnd =
                     normalizedNotifType === "end" &&
                     normalizedNotifObject === "challenge";
@@ -2487,7 +2500,9 @@ export default function ExploreScreen() {
                       : null;
                   const shouldShowThumbnail =
                     isPostRelated &&
-                    Boolean(resolvedThumbnailUri && resolvedThumbnailUri.length);
+                    Boolean(
+                      resolvedThumbnailUri && resolvedThumbnailUri.length
+                    );
                   const shouldReserveThumbnailSpace =
                     isPostRelated && !hasFetchedThumbnail;
                   let messageText = notif.message?.trim()?.length
@@ -2495,7 +2510,10 @@ export default function ExploreScreen() {
                     : t("notificationFallbackMessage", {
                         defaultValue: "You have a new notification.",
                       });
-                  if ((isLikePost || isCreatePost) && derivedPostIdForThumb !== null) {
+                  if (
+                    (isLikePost || isCreatePost) &&
+                    derivedPostIdForThumb !== null
+                  ) {
                     const bodyFromState = getPostContentFromState(
                       derivedPostIdForThumb
                     );
@@ -2508,7 +2526,10 @@ export default function ExploreScreen() {
                       const shouldTruncate =
                         normalizedBody.length > maxPostBodyExcerptLength;
                       const excerpt = shouldTruncate
-                        ? `${normalizedBody.slice(0, maxPostBodyExcerptLength - 1)}…`
+                        ? `${normalizedBody.slice(
+                            0,
+                            maxPostBodyExcerptLength - 1
+                          )}…`
                         : normalizedBody;
                       messageText = `${messageText}: "${excerpt}"`;
                     }
@@ -2522,7 +2543,9 @@ export default function ExploreScreen() {
                       ) ??
                       null;
                     if (commentPreview && commentPreview.trim().length) {
-                      const normalized = commentPreview.trim().replace(/\s+/g, " ");
+                      const normalized = commentPreview
+                        .trim()
+                        .replace(/\s+/g, " ");
                       const shouldTruncate =
                         normalized.length > maxCommentExcerptLength;
                       const excerpt = shouldTruncate
@@ -2581,15 +2604,15 @@ export default function ExploreScreen() {
                                 },
                               ]}
                             />
-                          <AccessibleText
-                            backgroundColor={notificationCardBackground}
-                            style={[
-                              styles.notificationMessage,
-                              { color: generalTextColor },
-                            ]}
-                          >
+                            <AccessibleText
+                              backgroundColor={notificationCardBackground}
+                              style={[
+                                styles.notificationMessage,
+                                { color: generalTextColor },
+                              ]}
+                            >
                               {messageText}
-                          </AccessibleText>
+                            </AccessibleText>
                           </View>
                           {timestamp ? (
                             <AccessibleText
@@ -2603,7 +2626,8 @@ export default function ExploreScreen() {
                             </AccessibleText>
                           ) : null}
                         </View>
-                        {(shouldShowThumbnail || shouldReserveThumbnailSpace) && (
+                        {(shouldShowThumbnail ||
+                          shouldReserveThumbnailSpace) && (
                           <View
                             style={[
                               styles.notificationThumbnailWrapper,
