@@ -437,7 +437,7 @@ export default function UserProfileScreen() {
                     ) : (
                       <Ionicons
                         name="medal"
-                        size={24}
+                        size={48}
                         color={colorScheme === "dark" ? "#FBBF24" : "#FB8C00"}
                         style={{ marginRight: 0 }}
                       />
@@ -643,7 +643,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  badgePillImage: { width: 32, height: 32 },
+  badgePillImage: { width: 64, height: 64 },
   badgeModalImage: { width: 160, height: 160 },
   modalOverlay: {
     flex: 1,
