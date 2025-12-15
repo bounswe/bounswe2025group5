@@ -47,9 +47,8 @@ type Challenge = {
 };
 
 type LeaderboardEntry = {
-  userId: number;
   username: string;
-  logAmount: number;
+  points: number;
 };
 
 type WasteItemOption = {
@@ -63,7 +62,8 @@ type WasteItemOption = {
 };
 
 type ChallengeLogInfo = {
-  amount: number;
+  quantity: number;
+  item: string;
   timestamp: string;
 };
 
@@ -133,6 +133,17 @@ export default function ChallengesScreen() {
   const [challengeLogs, setChallengeLogs] = useState<ChallengeLogInfo[]>([]);
   const [logsLoading, setLogsLoading] = useState(false);
   const [logsError, setLogsError] = useState("");
+
+  const [wasteItemWeightsByName, setWasteItemWeightsByName] = useState<
+    Record<string, number>
+  >({});
+
+  const normalizeItemName = (name: string) => name.trim().toLowerCase();
+
+  const formatPoints = (value: number) => {
+    if (!Number.isFinite(value)) return "-";
+    return Number.isInteger(value) ? value.toFixed(0) : value.toFixed(1);
+  };
 
   // Track current challenge type for modals
   const [currentChallengeType, setCurrentChallengeType] = useState<string>("");
@@ -232,8 +243,16 @@ export default function ChallengesScreen() {
         const errorText = await res.text();
         throw new Error(errorText || `Server error: ${res.status}`);
       }
-      const data: LeaderboardEntry[] = await res.json();
-      data.sort((a, b) => b.logAmount - a.logAmount);
+      const raw = await res.json();
+      const data: LeaderboardEntry[] = Array.isArray(raw)
+        ? raw
+            .map((row: any) => ({
+              username: String(row?.username ?? ""),
+              points: Number(row?.points ?? row?.logAmount ?? row?.amount ?? 0),
+            }))
+            .filter((row: LeaderboardEntry) => Boolean(row.username))
+        : [];
+      data.sort((a, b) => b.points - a.points);
       setLeaderboard(data);
       setLeaderboardVisible(true);
     } catch (err) {
@@ -361,16 +380,9 @@ export default function ChallengesScreen() {
       return;
     }
 
-    const selectedItem =
-      wasteItemsForChallenge.find((item) => item.id === selectedItemId) ?? null;
-    if (!selectedItem) {
-      setLogError(t("errorSelectWasteItem"));
-      return;
-    }
-
-    const itemWeightInGrams = Number(selectedItem.weightInGrams);
-    if (!Number.isFinite(itemWeightInGrams) || itemWeightInGrams <= 0) {
-      setLogError(t("errorCustomAmountConversion"));
+    const enteredQuantity = Number.parseFloat(logAmount);
+    if (!Number.isFinite(enteredQuantity) || enteredQuantity <= 0) {
+      setLogError(t("validAmountRequiredLog"));
       return;
     }
 
@@ -378,13 +390,10 @@ export default function ChallengesScreen() {
     setLogError("");
 
     try {
-      const parsedGrams = parseFloat(logAmount);
-      const derivedQuantity = Math.max(1, Math.ceil(parsedGrams / itemWeightInGrams));
-
       const logData = {
         username: username,
         itemId: selectedItemId,
-        quantity: derivedQuantity,
+        quantity: enteredQuantity,
       };
 
       const res = await apiRequest( // UPDATE
@@ -428,19 +437,72 @@ export default function ChallengesScreen() {
     setCurrentChallengeType(challenge?.type || "");
     setLogsLoading(true);
     setLogsError("");
+    setWasteItemWeightsByName({});
 
     try {
-      const res = await apiRequest( // UPDATE
+      const logsResponse = await apiRequest(
         `/api/challenges/${challengeId}/logs/${username}`
       );
-      if (!res.ok) {
-        const errorData = await res.text();
-        throw new Error(`Failed to fetch logs: ${res.status} ${errorData}`);
+      if (!logsResponse.ok) {
+        const errorData = await logsResponse.text();
+        throw new Error(
+          `Failed to fetch logs: ${logsResponse.status} ${errorData}`
+        );
       }
 
-      const data = await res.json();
-      // Assuming the response structure contains logs array
-      const logs = data.logs as ChallengeLogInfo[];
+      const itemsResponse = await apiRequest(`/api/challenges/${challengeId}/items`);
+      if (!itemsResponse.ok) {
+        const errorData = await itemsResponse.text();
+        throw new Error(
+          `Failed to fetch waste items: ${itemsResponse.status} ${errorData}`
+        );
+      }
+
+      const [logsData, itemsData] = await Promise.all([
+        logsResponse.json(),
+        itemsResponse.json(),
+      ]);
+
+      const rawLogs = Array.isArray(logsData?.logs) ? logsData.logs : [];
+      const logs: ChallengeLogInfo[] = rawLogs
+        .map((log: any) => ({
+          // Keep "as retrieved": backend currently returns `quantity` as the logged amount.
+          quantity: Number(log?.quantity ?? log?.amount ?? 0),
+          item: String(log?.item ?? ""),
+          timestamp: String(log?.timestamp ?? ""),
+        }))
+        .filter((log: ChallengeLogInfo) => Boolean(log.timestamp));
+
+      const parsedItems: WasteItemOption[] = Array.isArray(itemsData)
+        ? itemsData
+            .map((item: any) => ({
+              id:
+                typeof item?.id === "number"
+                  ? item.id
+                  : typeof item?.itemId === "number"
+                  ? item.itemId
+                  : null,
+              displayName: item?.displayName ?? item?.name ?? "",
+              weightInGrams:
+                typeof item?.weightInGrams === "number"
+                  ? item.weightInGrams
+                  : Number(item?.weightInGrams) || 0,
+              type: item?.type,
+            }))
+            .filter((item: any) => item.id !== null)
+            .map((item: any) => item as WasteItemOption)
+        : [];
+
+      const weightsMap: Record<string, number> = {};
+      for (const item of parsedItems) {
+        const key = normalizeItemName(item.displayName);
+        const weight = Number(item.weightInGrams);
+        if (key && Number.isFinite(weight) && weight > 0) {
+          weightsMap[key] = weight;
+        }
+      }
+
+      setWasteItemWeightsByName(weightsMap);
       setChallengeLogs(logs);
       setLogsModalVisible(true);
     } catch (err) {
@@ -863,12 +925,12 @@ export default function ChallengesScreen() {
                     type="defaultSemiBold"
                     style={styles.lbHeaderCell}
                   >
-                    {t("remaining")}
+                    {t("points")}
                   </ThemedText>
                 </View>
                 <FlatList
                   data={leaderboard}
-                  keyExtractor={(item) => String(item.userId)}
+                  keyExtractor={(item, index) => `${item.username}-${index}`}
                   renderItem={({ item, index }) => (
                     <View
                       style={[
@@ -880,7 +942,7 @@ export default function ChallengesScreen() {
                         {index + 1}. {item.username}
                       </ThemedText>
                       <ThemedText type="default" style={styles.lbCell}>
-                        {item.logAmount}
+                        {item.points}
                       </ThemedText>
                     </View>
                   )}
@@ -1131,6 +1193,7 @@ export default function ChallengesScreen() {
                 ]}
               >
                 <Picker
+                  testID="waste-item-picker"
                   selectedValue={selectedWasteItemId ?? ""}
                   onValueChange={(value) => setSelectedWasteItemId(String(value))}
                   style={[
@@ -1254,6 +1317,33 @@ export default function ChallengesScreen() {
                 data={challengeLogs}
                 keyExtractor={(item, index) => index.toString()}
                 showsVerticalScrollIndicator={true}
+                ListHeaderComponent={
+                  <View
+                    style={[
+                      styles.lbHeaderRow,
+                      { borderBottomColor: colors.borderColor },
+                    ]}
+                  >
+                    <ThemedText
+                      type="defaultSemiBold"
+                      style={styles.lbHeaderCell}
+                    >
+                      {t("item")}
+                    </ThemedText>
+                    <ThemedText
+                      type="defaultSemiBold"
+                      style={styles.lbHeaderCell}
+                    >
+                      {t("amount")}
+                    </ThemedText>
+                    <ThemedText
+                      type="defaultSemiBold"
+                      style={styles.lbHeaderCell}
+                    >
+                      {t("points")}
+                    </ThemedText>
+                  </View>
+                }
                 renderItem={({ item }) => (
                   <View
                     style={[
@@ -1261,26 +1351,41 @@ export default function ChallengesScreen() {
                       { borderBottomColor: colors.borderColor },
                     ]}
                   >
-                    <View style={styles.logHeader}>
-                      <ThemedText
-                        style={[styles.logAmount, { color: colors.text }]}
-                      >
-                        {item.amount} {currentChallengeType}
+                    <View
+                      style={[
+                        styles.lbRow,
+                        { borderBottomColor: "transparent", paddingVertical: 6 },
+                      ]}
+                    >
+                      <ThemedText type="default" style={styles.lbCell}>
+                        {item.item || "-"}
                       </ThemedText>
-                      <ThemedText
-                        style={[
-                          styles.logDate,
-                          { color: colors.textSecondary },
-                        ]}
-                      >
-                        {new Date(item.timestamp).toLocaleDateString(
-                          i18n.language === "tr" ? "tr-TR" : "en-US"
-                        )}{" "}
-                        {new Date(item.timestamp).toLocaleTimeString(
-                          i18n.language === "tr" ? "tr-TR" : "en-US"
-                        )}
+                      <ThemedText type="default" style={styles.lbCell}>
+                        {Number.isFinite(item.quantity) ? item.quantity : "-"}
+                      </ThemedText>
+                      <ThemedText type="default" style={styles.lbCell}>
+                        {(() => {
+                          const weight = wasteItemWeightsByName[
+                            normalizeItemName(item.item)
+                          ];
+                          const points = Number.isFinite(weight)
+                            ? Number(item.quantity) * Number(weight)
+                            : NaN;
+                          return formatPoints(points);
+                        })()}
                       </ThemedText>
                     </View>
+
+                    <ThemedText
+                      style={[styles.logDate, { color: colors.textSecondary }]}
+                    >
+                      {new Date(item.timestamp).toLocaleDateString(
+                        i18n.language === "tr" ? "tr-TR" : "en-US"
+                      )}{" "}
+                      {new Date(item.timestamp).toLocaleTimeString(
+                        i18n.language === "tr" ? "tr-TR" : "en-US"
+                      )}
+                    </ThemedText>
                   </View>
                 )}
                 ListEmptyComponent={
