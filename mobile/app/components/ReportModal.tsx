@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   Modal,
   StyleSheet,
@@ -11,6 +12,12 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import AccessibleText from '@/components/AccessibleText';
 import { useTranslation } from 'react-i18next';
+import {
+  submitReport,
+  getStoredUsername,
+  ReportType,
+  ReportContentType,
+} from '../services/apiClient';
 
 const REPORT_OPTIONS = [
   { value: 'spam', labelKey: 'reportReasonSpam', defaultLabel: 'Spam' },
@@ -21,6 +28,7 @@ const REPORT_OPTIONS = [
 
 export type ReportContext = {
   type: 'post' | 'comment';
+  objectId: number;
   title?: string | null;
   username?: string | null;
   snippet?: string | null;
@@ -47,6 +55,7 @@ const ReportModal = ({
   const colorScheme = useColorScheme();
   const [details, setDetails] = useState('');
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const borderColor = colorScheme === 'dark' ? '#3A3A3C' : '#E4E4E7';
   const subtitleColor = colorScheme === 'dark' ? '#C8C8CC' : '#535353';
   const reasonBackground = colorScheme === 'dark' ? '#1F1F22' : '#F7F7FA';
@@ -62,23 +71,66 @@ const ReportModal = ({
     if (!visible) {
       setDetails('');
       setSelectedReason(null);
+      setIsSubmitting(false);
     }
   }, [visible]);
 
-  const handleSubmit = () => {
-    if (!selectedReason) return;
-    Alert.alert(
-      t('reportSentTitle', { defaultValue: 'Report submitted' }),
-      t('reportSentMessage', {
-        defaultValue: 'Thank you for letting us know. Our moderators will review it shortly.',
-      }),
-      [
-        {
-          text: t('close', { defaultValue: 'Close' }),
-          onPress: onClose,
-        },
-      ]
-    );
+  const handleSubmit = async () => {
+    if (!selectedReason || !context?.objectId) return;
+
+    setIsSubmitting(true);
+    try {
+      const reporterName = await getStoredUsername();
+      if (!reporterName) {
+        Alert.alert(
+          t('error', { defaultValue: 'Error' }),
+          t('loginRequiredToReport', { defaultValue: 'You must be logged in to submit a report.' })
+        );
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Map selected reason to API type
+      const typeMap: Record<string, ReportType> = {
+        spam: 'Spam',
+        hate: 'Hate Speech',
+        harm: 'Violence',
+        other: 'Other',
+      };
+      const reportType = typeMap[selectedReason] || 'Other';
+      const contentType: ReportContentType = context.type === 'comment' ? 'Comment' : 'Post';
+
+      await submitReport({
+        reporterName,
+        description: details.trim() || `${reportType} report`,
+        type: reportType,
+        contentType,
+        objectId: context.objectId,
+      });
+
+      Alert.alert(
+        t('reportSentTitle', { defaultValue: 'Report submitted' }),
+        t('reportSentMessage', {
+          defaultValue: 'Thank you for letting us know. Our moderators will review it shortly.',
+        }),
+        [
+          {
+            text: t('close', { defaultValue: 'Close' }),
+            onPress: onClose,
+          },
+        ]
+      );
+    } catch (error) {
+      console.error('Failed to submit report:', error);
+      Alert.alert(
+        t('error', { defaultValue: 'Error' }),
+        t('reportSubmitFailed', {
+          defaultValue: 'Failed to submit report. Please try again later.',
+        })
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const titleText =
@@ -231,24 +283,28 @@ const ReportModal = ({
             style={[
               styles.submitButton,
               {
-                backgroundColor: selectedReason ? accentColor : '#CCCCCC',
+                backgroundColor: selectedReason && !isSubmitting ? accentColor : '#CCCCCC',
               },
             ]}
             onPress={handleSubmit}
-            disabled={!selectedReason}
+            disabled={!selectedReason || isSubmitting}
             accessibilityRole="button"
-            accessibilityState={{ disabled: !selectedReason }}
+            accessibilityState={{ disabled: !selectedReason || isSubmitting }}
             accessibilityLabel={t('submitReport', { defaultValue: 'Submit report' })}
           >
-            <AccessibleText
-              backgroundColor={selectedReason ? accentColor : '#CCCCCC'}
-              style={[
-                styles.submitButtonText,
-                { color: selectedReason ? submitTextColor : '#FFFFFF' },
-              ]}
-            >
-              {t('sendReport', { defaultValue: 'Send Report' })}
-            </AccessibleText>
+            {isSubmitting ? (
+              <ActivityIndicator size="small" color={submitTextColor} />
+            ) : (
+              <AccessibleText
+                backgroundColor={selectedReason ? accentColor : '#CCCCCC'}
+                style={[
+                  styles.submitButtonText,
+                  { color: selectedReason ? submitTextColor : '#FFFFFF' },
+                ]}
+              >
+                {t('sendReport', { defaultValue: 'Send Report' })}
+              </AccessibleText>
+            )}
           </TouchableOpacity>
         </View>
       </View>
