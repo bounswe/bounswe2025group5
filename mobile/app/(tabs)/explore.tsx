@@ -549,6 +549,28 @@ export default function ExploreScreen() {
       });
     }
 
+    if (normalizedType === "closedwithoutchange" && normalizedObject === "report") {
+      const preview = rawPayload?.preview;
+      const baseMessage = t("notificationReportClosedWithoutChange", {
+        defaultValue: "Your report has been reviewed and closed without changes",
+      });
+      if (preview && typeof preview === "string" && preview.trim().length > 0) {
+        return `${baseMessage}: "${preview.trim()}"`;
+      }
+      return baseMessage;
+    }
+
+    if (normalizedType === "deletion" && normalizedObject === "report") {
+      const preview = rawPayload?.preview;
+      const baseMessage = t("notificationReportDeletion", {
+        defaultValue: "Your report has been reviewed and the content was removed",
+      });
+      if (preview && typeof preview === "string" && preview.trim().length > 0) {
+        return `${baseMessage}: "${preview.trim()}"`;
+      }
+      return baseMessage;
+    }
+
     try {
       return JSON.stringify(
         rawPayload ?? { type, objectType, actorId, objectId }
@@ -727,7 +749,11 @@ export default function ExploreScreen() {
   const shouldDisplayNotificationAvatar = (notif: NotificationItem) => {
     const normalizedType = notif.type?.toLowerCase();
     const normalizedObject = notif.objectType?.toLowerCase();
-    return !(normalizedType === "end" && normalizedObject === "challenge");
+    // Hide avatar for challenge end and moderator report notifications
+    if (normalizedType === "end" && normalizedObject === "challenge") return false;
+    if (normalizedType === "closedwithoutchange" && normalizedObject === "report") return false;
+    if (normalizedType === "deletion" && normalizedObject === "report") return false;
+    return true;
   };
 
   const closePostPreview = () => {
@@ -911,8 +937,11 @@ export default function ExploreScreen() {
     const normalizedObjectType = notif.objectType?.toLowerCase();
     const isChallengeEnd =
       normalizedType === "end" && normalizedObjectType === "challenge";
+    const isReportNotification =
+      (normalizedType === "closedwithoutchange" || normalizedType === "deletion") &&
+      normalizedObjectType === "report";
     markNotificationAsRead(notif);
-    if (isChallengeEnd) return;
+    if (isChallengeEnd || isReportNotification) return;
     const derivedPostId = deriveNotificationPostId(notif);
     const messageLower = notif.message?.toLowerCase() ?? "";
     const actorUsername =
