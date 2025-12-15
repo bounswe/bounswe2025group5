@@ -14,6 +14,8 @@ import organicSaverIcon from '@/assets/badges/organic-saver.png';
 import organicHeroIcon from '@/assets/badges/organic-hero.png';
 import organicLegendIcon from '@/assets/badges/organic-legend.png';
 import topChallengerIcon from '@/assets/badges/top-challenger.png';
+import firstLikeIcon from '@/assets/badges/first-like.png';
+import firstCommentIcon from '@/assets/badges/first-comment.png';
 
 export type BadgeCatalogItem = {
   key: string;
@@ -40,4 +42,6 @@ export const badgeCatalog: BadgeCatalogItem[] = [
   { key: 'badges.badgeNames.organicHero', descriptionKey: 'badges.badgeDescriptions.organicHero', category: 'waste', priority: 11, iconUrl: organicHeroIcon },
   { key: 'badges.badgeNames.organicLegend', descriptionKey: 'badges.badgeDescriptions.organicLegend', category: 'waste', priority: 5, iconUrl: organicLegendIcon },
   { key: 'badges.badgeNames.topChallenger', descriptionKey: 'badges.badgeDescriptions.topChallenger', category: 'challenge', priority: 6, iconUrl: topChallengerIcon },
+  { key: 'badges.badgeNames.firstLike', descriptionKey: 'badges.badgeDescriptions.firstLike', category: 'social', priority: 17, iconUrl: firstLikeIcon },
+  { key: 'badges.badgeNames.firstComment', descriptionKey: 'badges.badgeDescriptions.firstComment', category: 'social', priority: 18, iconUrl: firstCommentIcon },
 ];

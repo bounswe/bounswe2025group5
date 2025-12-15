@@ -481,7 +481,9 @@
             "organicSaver": "Organic Saver",
             "organicHero": "Organic Hero",
             "organicLegend": "Organic Legend",
-            "topChallenger": "Top Challenger"
+            "topChallenger": "Top Challenger",
+            "firstLike": "First Like",
+            "firstComment": "First Comment"
         },
         "badgeDescriptions": {
             "plasticSaver": "Log 1,000g (1kg) of plastic waste to earn this badge.",
@@ -499,7 +501,9 @@
             "organicSaver": "Log 1,000g (1kg) of organic waste to earn this badge.",
             "organicHero": "Log 5,000g (5kg) of organic waste to earn this badge.",
             "organicLegend": "Log 10,000g (10kg) of organic waste to earn this badge.",
-            "topChallenger": "Finish a challenge in the top 3 of the leaderboard to earn this badge."
+            "topChallenger": "Finish a challenge in the top 3 of the leaderboard to earn this badge.",
+            "firstLike": "Like a post to earn this badge.",
+            "firstComment": "Comment on a post to earn this badge."
         }
     }
 }

@@ -475,7 +475,9 @@
             "organicSaver": "Organik Kurtarıcı",
             "organicHero": "Organik Kahramanı",
             "organicLegend": "Organik Efsanesi",
-            "topChallenger": "Zirve Yarışçısı"
+            "topChallenger": "Zirve Yarışçısı",
+            "firstLike": "İlk Beğeni",
+            "firstComment": "İlk Yorum"
         },
         "badgeDescriptions": {
             "plasticSaver": "Bu rozeti kazanmak için hedeflerde 1.000g (1kg) plastik atık kayıt edin.",
@@ -493,7 +495,9 @@
             "organicSaver": "Bu rozeti kazanmak için hedeflerde 1.000g (1kg) organik atık kayıt edin.",
             "organicHero": "Bu rozeti kazanmak için hedeflerde 5.000g (5kg) organik atık kayıt edin.",
             "organicLegend": "Bu rozeti kazanmak için hedeflerde 10.000g (10kg) organik atık kayıt edin.",
-            "topChallenger": "Herhangi bir etkinliği liderlik tablosunda ilk 3’te tamamlayın."
+            "topChallenger": "Bu rozeti kazanmak için herhangi bir etkinliği liderlik tablosunda ilk 3’te tamamlayın.",
+            "firstLike": "Bu rozeti kazanmak için bir gönderiyi beğenin.",
+            "firstComment": "Bu rozeti kazanmak için bir gönderiye yorum yapın."
         }
     }
 }

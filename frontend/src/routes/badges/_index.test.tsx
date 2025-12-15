@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
 import BadgesIndex from './_index';
 
 const getBadgesMock = vi.fn();
@@ -76,8 +77,15 @@ beforeEach(() => {
 });
 
 describe('BadgesIndex route', () => {
+  const renderBadgesIndex = () =>
+    render(
+      <MemoryRouter>
+        <BadgesIndex />
+      </MemoryRouter>,
+    );
+
   it('prompts the user to log in when no username is available', async () => {
-    render(<BadgesIndex />);
+    renderBadgesIndex();
 
     await waitFor(() =>
       expect(screen.getByText('Please sign in to view your badges.')).toBeInTheDocument(),
@@ -93,7 +101,7 @@ describe('BadgesIndex route', () => {
     ]);
     const user = userEvent.setup();
 
-    render(<BadgesIndex />);
+    renderBadgesIndex();
 
     await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument());
     expect(getBadgesMock).toHaveBeenCalledWith('alice');
@@ -109,7 +117,7 @@ describe('BadgesIndex route', () => {
     localStorage.setItem('username', 'alice');
     getBadgesMock.mockRejectedValueOnce(new Error('Server unavailable'));
 
-    render(<BadgesIndex />);
+    renderBadgesIndex();
 
     await waitFor(() => expect(screen.getByText('Server unavailable')).toBeInTheDocument());
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
