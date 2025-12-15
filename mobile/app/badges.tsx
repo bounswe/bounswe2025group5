@@ -7,7 +7,7 @@ import {
   Image,
   useColorScheme,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { AuthContext } from './_layout';
 import AccessibleText from '@/components/AccessibleText';
 
@@ -35,6 +35,9 @@ export default function BadgesScreen() {
   const { t } = useTranslation();
 
   const navigation = useNavigation<any>(); 
+  const route = useRoute<any>();
+  const routeUsername = (route.params?.username as string | undefined) ?? null;
+  const targetUsername = routeUsername || username || null;
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -52,7 +55,7 @@ export default function BadgesScreen() {
 
   useEffect(() => {
     const fetchBadges = async () => {
-      if (!username) {
+      if (!targetUsername) {
         setBadges([]);
         setLoading(false);
         setError({ key: null, message: null });
@@ -63,7 +66,7 @@ export default function BadgesScreen() {
         setLoading(true);
 
         setError({ key: null, message: null });
-        const encodedUsername = encodeURIComponent(username);
+        const encodedUsername = encodeURIComponent(targetUsername);
         const response = await apiRequest(
           `/api/users/${encodedUsername}/badges?username=${encodedUsername}`
         );
@@ -96,7 +99,7 @@ export default function BadgesScreen() {
     };
 
     fetchBadges();
-  }, [username]);
+  }, [targetUsername]);
 
   // Render each badge item
   const renderBadgeItem = ({ item }: { item: Badge }) => {

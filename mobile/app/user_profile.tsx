@@ -460,10 +460,12 @@ export default function UserProfileScreen() {
                     style={styles.viewAllBadge}
                     accessible
                     accessibilityRole="button"
-                    accessibilityLabel={t("viewAllBadges", {
-                      defaultValue: "View all",
-                    })}
-                    onPress={() => navigation.navigate("badges")}
+                  accessibilityLabel={t("viewAllBadges", {
+                    defaultValue: "View all",
+                  })}
+                    onPress={() =>
+                      navigation.navigate("badges", { username: usernameParam })
+                    }
                     activeOpacity={0.8}
                   >
                     <Text style={styles.viewAllBadgeText}>
