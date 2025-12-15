@@ -1420,14 +1420,16 @@ export default function ProfileScreen() {
                   );
                 })}
                 <TouchableOpacity
-                  style={styles.badgePlaceholder}
+                  style={styles.viewAllBadge}
                   accessible
                   accessibilityRole="button"
-                  accessibilityLabel="More badges"
+                  accessibilityLabel={t("viewAllBadges", { defaultValue: "View all" })}
                   onPress={() => navigation.navigate("badges")}
-                  activeOpacity={0.7}
+                  activeOpacity={0.8}
                 >
-                  <Text style={styles.badgePlaceholderText}>...</Text>
+                  <Text style={styles.viewAllBadgeText}>
+                    {t("viewAllBadges", { defaultValue: "View all" })}
+                  </Text>
                 </TouchableOpacity>
               </View>
             );
@@ -2282,25 +2284,21 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   badgePillImage: { width: 64, height: 64 },
-  badgePlaceholder: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    borderWidth: 2,
-    borderColor: "rgba(255,255,255,0.9)",
-    backgroundColor: "transparent",
+  viewAllBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.12)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.4)",
+    minWidth: 84,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
   },
-  badgePlaceholderText: {
-    color: "rgba(255,255,255,0.9)",
-    fontSize: 26,
+  viewAllBadgeText: {
+    color: "#FFFFFF",
     fontWeight: "700",
-    lineHeight: 30,
+    fontSize: 13,
   },
   topButtonText: { fontSize: 14, color: "#FFFFFF" },
   profileContainer: {

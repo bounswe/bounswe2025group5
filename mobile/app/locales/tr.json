@@ -336,7 +336,7 @@
     "sendReport": "Raporu Gönder",
     "closeModal": "Pencereyi kapat",
     "submitReport": "Raporu gönder",
-    "showMyImpact": "Gezegene Etkimi Göster",
+    "showMyImpact": "Gezegene Etkim",
     "impactTitle": "Gezegene Etkim",
     "impactDescription_0": "Geri dönüşüm, çevremizi korumada hayati bir rol oynar. Atıkları azaltarak ve kaynakları koruyarak, gezegenimiz için sürdürülebilir bir gelecek inşa etmeye yardımcı oluyorsunuz.",
     "impactDescription_1": "Her küçük adım önemlidir! Atıklarınızı takip etme ve azaltma çabalarınız, gelecek nesiller için daha temiz ve sağlıklı bir Dünya'ya doğrudan katkıda bulunur.",
@@ -408,6 +408,7 @@
     "firstCommentDesc": "Hesabını açtıktan sonra yaptığın ilk yorumla hemen bu rozeti alırsın.",
     "firstLike": "İlk Beğeni",
     "firstLikeDesc": "Kayıt olduktan sonra beğendiğin ilk gönderide bu rozet tanımlanır.",
+    "viewAllBadges": "Tümü",
     "badgeDetails": "Rozet Detayları"
   }
 }
