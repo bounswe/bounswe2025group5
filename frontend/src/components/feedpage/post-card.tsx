@@ -20,6 +20,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import userAvatar from '@/assets/user.png';
+import imageFallback from '@/assets/image-fallback.png';
 import { useProfilePhoto } from '@/hooks/useProfilePhotos';
 import ReportAlarmButton from '@/components/common/ReportAlarmButton';
 import { Textarea } from '@/components/ui/textarea';
@@ -53,6 +54,7 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameC
 
   // Image dialog state
   const [showImageDialog, setShowImageDialog] = useState(false);
+  const [postImageSrc, setPostImageSrc] = useState(post.photoUrl);
   const [showProfileImageDialog, setShowProfileImageDialog] = useState(false);
 
   // Report dialog state
@@ -73,7 +75,8 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameC
     setIsSaved(post.saved || false);
     setLikeCount(post.likes || 0);
     setCommentCount(post.comments || 0);
-  }, [post.liked, post.saved, post.likes, post.comments]);
+    setPostImageSrc(post.photoUrl);
+  }, [post.liked, post.saved, post.likes, post.comments, post.photoUrl]);
 
   // Optimistic like toggle with revert on failure
   const handleLike = async () => {
@@ -230,7 +233,7 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameC
       {/* Post Image */}
       {post.photoUrl && (
         <div 
-          className="w-full aspect-square relative overflow-hidden cursor-pointer hover:opacity-95 transition-opacity"
+          className="w-full aspect-square relative overflow-hidden cursor-pointer hover:opacity-95 transition-opacity bg-muted flex items-center justify-center"
           onClick={() => setShowImageDialog(true)}
           role="button"
           tabIndex={0}
@@ -242,9 +245,13 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameC
           }}
         >
           <img
-            src={post.photoUrl}
+            src={postImageSrc || post.photoUrl}
+            onError={() => setPostImageSrc(imageFallback)}
             alt={t('post.imageAlt', { username: post.creatorUsername, defaultValue: `${post.creatorUsername}'s post image` })}
-            className="w-full h-full object-cover"
+            className={cn(
+              "w-full h-full",
+              postImageSrc === imageFallback ? "object-contain max-w-[20%] max-h-[20%]" : "object-cover"
+            )}
             loading="lazy"
           />
         </div>
