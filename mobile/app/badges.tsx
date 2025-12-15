@@ -196,7 +196,7 @@ export default function BadgesScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
-  listContainer: { paddingBottom: 20 },
+  listContainer: { paddingBottom: 80 },
   row: { flex: 1, justifyContent: 'space-between', marginBottom: 12 },
   badgeCard: {
     padding: 12,
