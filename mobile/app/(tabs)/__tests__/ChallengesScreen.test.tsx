@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import {
   render,
   screen,
@@ -144,18 +144,24 @@ const mockChallenges = [
 ];
 
 const mockLeaderboard = [
-  { userId: 1, username: "user1", logAmount: 50 },
-  { userId: 2, username: "user2", logAmount: 30 },
-  { userId: 3, username: "user3", logAmount: 20 },
+  { username: "user1", logAmount: 50 },
+  { username: "user2", logAmount: 30 },
+  { username: "user3", logAmount: 20 },
 ];
 
 const mockChallengeLogs = {
   logs: [
-    { amount: 10, timestamp: "2024-01-01T10:00:00Z" },
-    { amount: 15, timestamp: "2024-01-02T10:00:00Z" },
-    { amount: 20, timestamp: "2024-01-03T10:00:00Z" },
+    { quantity: 10, item: "Bottle", timestamp: "2024-01-01T10:00:00Z" },
+    { quantity: 15, item: "Cup", timestamp: "2024-01-02T10:00:00Z" },
+    { quantity: 20, item: "Bag", timestamp: "2024-01-03T10:00:00Z" },
   ],
 };
+
+const mockWasteItemsForChallenge = [
+  { id: 1, displayName: "Bottle", weightInGrams: 5 },
+  { id: 2, displayName: "Cup", weightInGrams: 2 },
+  { id: 3, displayName: "Bag", weightInGrams: 1 },
+];
 
 const createMockAuthContext = (
   userType: "user" | "guest" | null = "user",
@@ -471,7 +477,7 @@ describe("ChallengesScreen", () => {
 
       await waitFor(() => {
         // Should show amounts with "Plastic" unit instead of "kg"
-        expect(screen.getByText("remaining")).toBeTruthy();
+        expect(screen.getByText("points")).toBeTruthy();
       });
     });
 
@@ -545,6 +551,10 @@ describe("ChallengesScreen", () => {
         })
         .mockResolvedValueOnce({
           ok: true,
+          json: jest.fn().mockResolvedValue(mockWasteItemsForChallenge),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
           json: jest.fn().mockResolvedValue({}),
         })
         .mockResolvedValueOnce({
@@ -570,6 +580,9 @@ describe("ChallengesScreen", () => {
         ).toBeTruthy();
       });
 
+      const picker = screen.getByTestId("waste-item-picker");
+      fireEvent(picker, "valueChange", "1");
+
       const input = screen.getByPlaceholderText("enterAmountPlaceholder");
       fireEvent.changeText(input, "10");
 
@@ -582,7 +595,7 @@ describe("ChallengesScreen", () => {
           "/api/challenges/1/log",
           expect.objectContaining({
             method: "POST",
-            body: JSON.stringify({ username: "testuser", amount: 10 }),
+            body: JSON.stringify({ username: "testuser", itemId: 1, quantity: 10 }),
           })
         );
       });
@@ -599,6 +612,10 @@ describe("ChallengesScreen", () => {
         .mockResolvedValueOnce({
           ok: true,
           json: jest.fn().mockResolvedValue(mockChallengeLogs),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: jest.fn().mockResolvedValue(mockWasteItemsForChallenge),
         });
 
       renderWithAuth();
@@ -619,8 +636,10 @@ describe("ChallengesScreen", () => {
 
       await waitFor(() => {
         expect(screen.getByText("challengeLogs")).toBeTruthy();
-        // Should show amounts with "Plastic" unit
-        expect(screen.getByText(/10.*Plastic/)).toBeTruthy();
+        expect(screen.getByText("Bottle")).toBeTruthy();
+        expect(screen.getByText("10")).toBeTruthy();
+        // Points = quantity * weightInGrams -> 10 * 5 = 50
+        expect(screen.getByText("50")).toBeTruthy();
       });
     });
   });

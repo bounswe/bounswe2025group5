@@ -73,7 +73,7 @@ class UserControllerTest {
         GetSavedPostResponse post = new GetSavedPostResponse(
                 1, "content", 10, 5,
                 "alice", Timestamp.from(Instant.now()),
-                "url", true, true
+                "url", true, true,"https://example.com"
         );
 
         given(userService.getSavedPosts(username)).willReturn(List.of(post));
@@ -90,7 +90,7 @@ class UserControllerTest {
         String username = "bob";
         GetPostResponse post = new GetPostResponse(
                 1, "hello", Timestamp.from(Instant.now()),
-                20, "bob", "url", 3, true, true
+                20, "bob", "url", 3, true, true,"https://example.com"
         );
 
         given(userService.getPostsForUser(username)).willReturn(List.of(post));

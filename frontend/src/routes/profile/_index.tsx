@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { UsersApi } from "@/lib/api/users";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import GlassCard from "@/components/ui/glass-card";
 import { Spinner } from "@/components/ui/spinner";
 import DeleteAccount from "@/components/profile/delete_account";
@@ -181,28 +181,26 @@ export default function ProfileIndex() {
   };
 
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-foreground">
-        <Spinner />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-destructive">
-        {error}
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen p-4">
-      <div className="max-w-4xl mx-auto mt-24 space-y-6">
-        {/* Profile Info Card */}
-        <Card className="w-full">
-          <CardContent className="pt-6 flex items-center justify-between">
+      <div className="max-w-4xl mx-auto mt-28 space-y-6">
+        <GlassCard>
+          {loading && (
+            <div className="flex items-center justify-center min-h-[400px] text-foreground">
+              <Spinner />
+            </div>
+          )}
+
+          {error && !loading && (
+            <div className="flex items-center justify-center min-h-[400px] text-destructive">
+              {error}
+            </div>
+          )}
+
+          {!loading && !error && (
+            <>
+          <Card className="w-3/4 mx-auto">
+            <CardContent className="pt-6 flex items-center justify-between">
             <div className="flex-[2]"></div>
             <div className="flex flex-col items-center text-center gap-4 flex-[2]">
               <div className="w-28 h-28 rounded-full overflow-hidden bg-muted border border-border">
@@ -340,14 +338,13 @@ export default function ProfileIndex() {
           </CardContent>
         </Card>
 
-        {/* Posts Placeholder Card */}
-        <GlassCard>
-          <CardHeader>
-            <div className="flex items-start justify-between">
+          {/* Posts Section */}
+          <div className="pt-6">
+            <div className="flex items-start justify-between mb-6">
               <div className="flex-1">
-                <CardTitle>{saveToggle ? t('profile.savedPostsTitle', 'Saved Posts') : t('profile.postsTitle', 'Your Posts')}</CardTitle>
+                <h2 className="text-2xl font-semibold">{saveToggle ? t('profile.savedPostsTitle', 'Saved Posts') : t('profile.postsTitle', 'Your Posts')}</h2>
                 {(saveToggle ? t('profile.savedPostsDesc', 'Posts you have saved') : t('profile.postsDesc', 'Posts you have created')) && (
-                  <CardDescription>{saveToggle ? t('profile.savedPostsDesc', 'Posts you have saved') : t('profile.postsDesc', 'Posts you have created')}</CardDescription>
+                  <p className="text-sm text-muted-foreground mt-1">{saveToggle ? t('profile.savedPostsDesc', 'Posts you have saved') : t('profile.postsDesc', 'Posts you have created')}</p>
                 )}
               </div>
               <div className="ml-4">
@@ -356,11 +353,9 @@ export default function ProfileIndex() {
                 </Button>
               </div>
             </div>
-          </CardHeader>
-          <CardContent className="p-0">
             <div className="overflow-y-auto">
          {saveToggle ? (_postsLoading ? <div className="flex justify-center items-center min-h-[200px]"><Spinner /></div> : (posts.length === 0 ? (
-            <div className="text-muted-foreground">{t('profile.noPosts', 'No posts yet')}</div>
+            <div className="text-muted-foreground text-center py-8">{t('profile.noPosts', 'No posts yet')}</div>
           ) : (
             <div className="space-y-4 grid gap-4 sm:grid-cols-2">
               {posts.map((p) => (
@@ -368,7 +363,7 @@ export default function ProfileIndex() {
               ))}
             </div>
           ))) : (_postsLoading ? <div className="flex justify-center items-center min-h-[200px]"><Spinner /></div> : (myPosts.length === 0 ? (  
-            <div className="text-muted-foreground">{t('profile.noPosts', 'No posts yet')}</div>
+            <div className="text-muted-foreground text-center py-8">{t('profile.noPosts', 'No posts yet')}</div>
           ) : (
             <div className="space-y-4 grid gap-4 sm:grid-cols-2">
               {myPosts.map((p) => (
@@ -377,7 +372,9 @@ export default function ProfileIndex() {
             </div>
           )))}
             </div>
-          </CardContent>
+          </div>
+          </>
+          )}
         </GlassCard>
       </div>
 

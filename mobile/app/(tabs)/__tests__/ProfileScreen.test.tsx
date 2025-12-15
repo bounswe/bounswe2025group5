@@ -225,7 +225,11 @@ describe("ProfileScreen", () => {
 
   it("handles logout correctly", async () => {
     renderWithAuth();
+    await waitFor(() =>
+      expect(screen.getByTestId("settings-button")).toBeTruthy()
+    );
 
+    fireEvent.press(screen.getByTestId("settings-button"));
     await waitFor(() => {
       expect(screen.getByTestId("logout-button")).toBeTruthy();
     });
@@ -250,11 +254,36 @@ describe("ProfileScreen", () => {
   it("navigates to edit profile screen", async () => {
     renderWithAuth();
     await waitFor(() =>
+      expect(screen.getByTestId("settings-button")).toBeTruthy()
+    );
+
+    fireEvent.press(screen.getByTestId("settings-button"));
+
+    await waitFor(() =>
       expect(screen.getByTestId("edit-profile-button")).toBeTruthy()
     );
 
     fireEvent.press(screen.getByTestId("edit-profile-button"));
     expect(mockNavigate).toHaveBeenCalledWith("edit_profile");
+  });
+
+  it("opens feedback modal", async () => {
+    renderWithAuth();
+    await waitFor(() =>
+      expect(screen.getByTestId("settings-button")).toBeTruthy()
+    );
+
+    fireEvent.press(screen.getByTestId("settings-button"));
+
+    await waitFor(() =>
+      expect(screen.getByTestId("feedback-button")).toBeTruthy()
+    );
+
+    fireEvent.press(screen.getByTestId("feedback-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("feedback-modal")).toBeTruthy();
+    });
   });
 
   it("navigates to create post screen", async () => {
@@ -418,9 +447,9 @@ describe("ProfileScreen", () => {
 
     await waitFor(() => {
       expect(screen.getByText("badges")).toBeTruthy();
-      expect(screen.getByText("firstPost")).toBeTruthy();
-      expect(screen.getByText("ecoWarrior")).toBeTruthy();
-      expect(screen.getByText("recycler")).toBeTruthy();
+      expect(screen.getByLabelText("firstPost")).toBeTruthy();
+      expect(screen.getByLabelText("ecoWarrior")).toBeTruthy();
+      expect(screen.getByLabelText("recycler")).toBeTruthy();
     });
   });
 

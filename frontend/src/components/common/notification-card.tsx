@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, MessageCircle, UserPlus } from 'lucide-react';
+import { Heart, MessageCircle, UserPlus, Forward, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import type { Notification } from '@/lib/api/schemas/notifications';
@@ -50,9 +50,22 @@ export default function NotificationCard({
       case 'Like':
         return { actor, text: `liked your ${objType}` };
       case 'Create':
-        return { actor, text: `commented on your ${objType}` };
+        // If objectType is 'comment', it's a comment notification
+        // If objectType is 'post', it's a share notification
+        if (objectType?.toLowerCase() === 'comment') {
+          return { actor, text: `commented on your post` };
+        } else if (objectType?.toLowerCase() === 'post') {
+          return { actor, text: `shared a post` };
+        }
+        return { actor, text: `interacted with your ${objType}` };
       case 'Follow':
         return { actor, text: 'started following you' };
+      case 'End':
+        // Challenge ended notification
+        if (objectType?.toLowerCase() === 'challenge') {
+          return { actor: 'Challenge', text: 'ended' };
+        }
+        return { actor, text: 'ended' };
       default:
         return { actor, text: 'interacted with your content' };
     }
@@ -63,9 +76,22 @@ export default function NotificationCard({
       case 'Like':
         return <Heart className="h-3.5 w-3.5 text-red-500" />;
       case 'Create':
+        // If objectType is 'comment', show comment icon
+        // If objectType is 'post', show share icon
+        if (notification.objectType?.toLowerCase() === 'comment') {
+          return <MessageCircle className="h-3.5 w-3.5 text-blue-500" />;
+        } else if (notification.objectType?.toLowerCase() === 'post') {
+          return <Forward className="h-3.5 w-3.5 text-purple-500" />;
+        }
         return <MessageCircle className="h-3.5 w-3.5 text-blue-500" />;
       case 'Follow':
         return <UserPlus className="h-3.5 w-3.5 text-green-500" />;
+      case 'End':
+        // Challenge ended notification
+        if (notification.objectType?.toLowerCase() === 'challenge') {
+          return <Trophy className="h-3.5 w-3.5 text-yellow-500" />;
+        }
+        return null;
       default:
         return null;
     }

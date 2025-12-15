@@ -223,9 +223,12 @@ export default function ExploreScreen() {
           false,
     savedByUser: typeof item.saved === "boolean" ? item.saved : false,
     createdAt: item.createdAt ?? null,
-    authorAvatarUrl: item.creatorUsername
-      ? userAvatars[item.creatorUsername] ?? null
-      : null,
+    authorAvatarUrl:
+      item.profile_picture ??
+      item.profile_photo ??
+      item.profilePhoto ??
+      item.creatorPhotoUrl ??
+      null,
   });
 
   const fetchLikeStatusesForPosts = async (
@@ -348,7 +351,9 @@ export default function ExploreScreen() {
     postsToProcess: Post[]
   ): Promise<Post[]> => {
     if (!postsToProcess.length) return postsToProcess;
-    let hydrated = await attachAvatarsToPosts(postsToProcess);
+    // Profile photos are now included in the post response, no need to fetch separately
+    // let hydrated = await attachAvatarsToPosts(postsToProcess);
+    let hydrated = postsToProcess;
     if (username && userType === "user") {
       // hydrated = await fetchLikeStatusesForPosts(hydrated, username);
       // hydrated = await fetchSavedStatusesForPosts(hydrated, username);
@@ -1316,9 +1321,10 @@ export default function ExploreScreen() {
 
       let processedNewItems: Post[] = data.map(mapApiItemToPost);
 
-      if (processedNewItems.length > 0) {
-        processedNewItems = await attachAvatarsToPosts(processedNewItems);
-      }
+      // Profile photos are now included in the post response, no need to fetch separately
+      // if (processedNewItems.length > 0) {
+      //   processedNewItems = await attachAvatarsToPosts(processedNewItems);
+      // }
 
       // if (username && userType === "user" && processedNewItems.length > 0) {
       //   // processedNewItems = await fetchLikeStatusesForPosts(processedNewItems, username);
@@ -1491,9 +1497,17 @@ export default function ExploreScreen() {
       if (!res.ok) throw new Error("Search failed");
       const data = await res.json();
       let processedResults: Post[] = data.map(mapApiItemToPost);
-      if (processedResults.length > 0) {
-        processedResults = await attachAvatarsToPosts(processedResults);
-      }
+      // Profile photos are now included in the post response, no need to fetch separately
+      // if (processedResults.length > 0) {
+      //   processedResults = await attachAvatarsToPosts(processedResults);
+      // }
+      // if (username && userType === "user" && processedResults.length > 0) {
+      //   // processedResults = await fetchLikeStatusesForPosts(processedResults, username);
+      //   processedResults = await fetchSavedStatusesForPosts(
+      //     processedResults,
+      //     username
+      //   );
+      // }
       setSearchResults(processedResults);
       setInSearchMode(true);
       if (expandedPostId) setExpandedPostId(null);
