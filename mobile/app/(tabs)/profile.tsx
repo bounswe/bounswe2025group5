@@ -1420,7 +1420,7 @@ export default function ProfileScreen() {
             {t("badges")}
           </AccessibleText>
           {(() => {
-            const displayedBadges = badges.slice(0, 4);
+            const displayedBadges = badges.slice(0, 3);
 
             return (
               <View

@@ -419,7 +419,7 @@ export default function UserProfileScreen() {
               {t("badges")}
             </AccessibleText>
             {(() => {
-              const displayedBadges = badges.slice(0, 4);
+              const displayedBadges = badges.slice(0, 3);
 
               return (
                 <View
