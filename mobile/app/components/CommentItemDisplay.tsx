@@ -17,6 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import AccessibleText from '@/components/AccessibleText';
 import { useTranslation } from 'react-i18next';
+import CachedImage from '@/components/CachedImage';
 
 
 // Define the CommentData interface
@@ -136,7 +137,7 @@ function CommentItemDisplay({
       <View style={[styles.commentBubble, { backgroundColor: bubbleBackground, borderColor: bubbleBorderColor }]}>
         <View style={styles.commentTopRow}>
           {comment.avatarUrl ? (
-            <Image source={{ uri: comment.avatarUrl }} style={styles.commentAvatarImage} />
+            <CachedImage source={{ uri: comment.avatarUrl }} style={styles.commentAvatarImage} />
           ) : (
             <View style={[styles.commentAvatar, { backgroundColor: avatarBackground }]}>
               <AccessibleText backgroundColor={avatarBackground} style={[styles.commentAvatarText, { color: avatarTextColor }]}> 
