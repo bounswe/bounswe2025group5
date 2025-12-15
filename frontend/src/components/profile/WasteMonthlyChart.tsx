@@ -237,6 +237,10 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
             />
           </div>
 
+          <p className="text-xs text-muted-foreground">
+            {t('goals.recyclingNote', 'We calculate savings assuming the waste you log is recycled.')}
+          </p>
+
           <form
             className={cn('grid gap-4', isCompact ? 'sm:grid-cols-2' : 'sm:grid-cols-[1fr_auto]')}
             onSubmit={(event) => {

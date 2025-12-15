@@ -213,6 +213,7 @@
         "monthlyTitle": "12 Aylık Atık Trendleri",
         "monthlyImpactLabel": "12 aylık etki",
         "monthlyImpactHelper": "Son 12 ay kayıtlarınızdan",
+        "recyclingNote": "Tasarrufları, kaydettiğiniz atığın geri dönüştürüldüğü varsayımıyla hesaplıyoruz.",
         "wasteType": "Atık türü",
         "save": "Kaydet",
         "cancel": "İptal",

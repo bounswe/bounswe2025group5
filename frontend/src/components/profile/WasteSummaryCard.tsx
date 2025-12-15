@@ -218,19 +218,19 @@ export default function WasteSummaryCard({ className, variant = 'default' }: Was
               />
             </Field>
             <Field label={t('goals.summaryWasteType', 'Waste type')} htmlFor="summary-type">
-              <Input
+              <select
                 id="summary-type"
-                list="waste-type-options"
+                className="h-9 rounded-md border border-input bg-background px-3 text-sm"
                 value={form.wasteType}
                 onChange={(event) => setForm((prev) => ({ ...prev, wasteType: event.target.value }))}
-                placeholder={t('goals.summaryTypePlaceholder', 'e.g., PLASTIC')}
                 required
-              />
-              <datalist id="waste-type-options">
+              >
                 {WASTE_TYPE_OPTIONS.map((type) => (
-                  <option key={type} value={type} />
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
                 ))}
-              </datalist>
+              </select>
             </Field>
             <div className={cn('flex items-end', isCompact && 'md:col-span-2 lg:col-span-1')}>
               <Button
@@ -277,6 +277,10 @@ export default function WasteSummaryCard({ className, variant = 'default' }: Was
               variant={isCompact ? 'compact' : 'default'}
             />
             </div>
+
+          <p className="text-xs text-muted-foreground">
+            {t('goals.recyclingNote', 'We calculate savings assuming the waste you log is recycled.')}
+          </p>
 
           {summary && impactMessage && (
             <p className="text-sm text-muted-foreground">{impactMessage}</p>
