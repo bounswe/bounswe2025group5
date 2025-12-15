@@ -228,6 +228,7 @@
     "successBioUpdated": "Profil güncellendi!",
     "changeAvatar": "Avatarı Değiştir",
     "selectAvatar": "Avatar Seç",
+    "avatarSizeLimit": "Lütfen 2 MB'dan küçük bir görsel yükleyin.",
     "uploadPhoto": "Fotoğraf Yükle",
     "writeShortBio": "Kısa bir biyografi yazın…",
     "saveBio": "Profili Güncelle",

@@ -229,6 +229,7 @@
     "successBioUpdated": "Profile Updated!",
     "changeAvatar": "Change Avatar",
     "selectAvatar": "Select Avatar",
+    "avatarSizeLimit": "Please upload an image smaller than 2 MB.",
     "uploadPhoto": "Upload Photo",
     "writeShortBio": "Write a short bio…",
     "saveBio": "Update Profile",
