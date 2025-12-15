@@ -15,8 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -25,9 +25,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ChallengeController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -59,6 +62,7 @@ class ChallengeControllerTest {
     @Autowired
     private ChallengeService challengeService;
 
+    // JacksonTesters
     private JacksonTester<LogChallengeResponse> jsonLogResponse;
     private JacksonTester<UserChallengeLogsResponse> jsonUserLogsResponse;
     private JacksonTester<ChallengeResponse> jsonChallengeResponse;
@@ -83,10 +87,12 @@ class ChallengeControllerTest {
     @WithMockUser
     void testLogChallengeProgress() throws Exception {
         int challengeId = 1;
-        LogChallengeRequest req = new LogChallengeRequest("alice", 20.0);
+        LogChallengeRequest req = new LogChallengeRequest("alice", 20.0, 1);
         LogChallengeResponse response = new LogChallengeResponse("alice", challengeId, 50.0);
 
-        given(challengeService.logChallengeProgress(challengeId, req)).willReturn(response);
+        // FIXED: Use any() because the controller creates a new instance from JSON
+        given(challengeService.logChallengeProgress(eq(challengeId), any(LogChallengeRequest.class)))
+                .willReturn(response);
 
         mvc.perform(post("/api/challenges/{id}/log", challengeId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -103,7 +109,7 @@ class ChallengeControllerTest {
         String username = "bob";
         UserChallengeLogsResponse response = new UserChallengeLogsResponse(username, challengeId, List.of());
 
-        given(challengeService.getUserLogsForChallenge(challengeId, username)).willReturn(response);
+        given(challengeService.getUserLogsForChallenge(eq(challengeId), eq(username))).willReturn(response);
 
         mvc.perform(get("/api/challenges/{id}/logs/{username}", challengeId, username)
                         .accept(MediaType.APPLICATION_JSON))
@@ -115,10 +121,13 @@ class ChallengeControllerTest {
     @WithMockUser
     void testCreateChallenge() throws Exception {
         CreateChallengeRequest req = new CreateChallengeRequest();
+        // Setup req properties if needed
+
         ChallengeResponse response = new ChallengeResponse(1, "Challenge1", 100.0, "desc",
                 LocalDate.now(), LocalDate.now().plusDays(7), null, "type");
 
-        given(challengeService.createChallenge(req)).willReturn(response);
+        // FIXED: Use any() because deserialization creates a new instance
+        given(challengeService.createChallenge(any(CreateChallengeRequest.class))).willReturn(response);
 
         mvc.perform(post("/api/challenges")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -135,7 +144,7 @@ class ChallengeControllerTest {
         ChallengeInfoResponse info = new ChallengeInfoResponse(1, "Test", 10.0, "desc",
                 LocalDate.now(), LocalDate.now().plusDays(5), null, "type", 5.0, true);
 
-        given(challengeService.getAllChallenges(username)).willReturn(List.of(info));
+        given(challengeService.getAllChallenges(eq(username))).willReturn(List.of(info));
 
         mvc.perform(get("/api/challenges/{username}", username)
                         .accept(MediaType.APPLICATION_JSON))
@@ -149,7 +158,7 @@ class ChallengeControllerTest {
         int challengeId = 2;
         EndChallengeResponse response = new EndChallengeResponse(challengeId, true);
 
-        given(challengeService.endChallenge(challengeId)).willReturn(response);
+        given(challengeService.endChallenge(eq(challengeId))).willReturn(response);
 
         mvc.perform(patch("/api/challenges/{id}", challengeId)
                         .accept(MediaType.APPLICATION_JSON))
@@ -164,7 +173,7 @@ class ChallengeControllerTest {
         AttendChallengeRequest req = new AttendChallengeRequest();
         AttendChallengeResponse response = new AttendChallengeResponse("david", challengeId);
 
-        given(challengeService.attendChallenge(req, challengeId)).willReturn(response);
+        given(challengeService.attendChallenge(any(AttendChallengeRequest.class), eq(challengeId))).willReturn(response);
 
         mvc.perform(post("/api/challenges/{id}/attendees", challengeId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -181,7 +190,7 @@ class ChallengeControllerTest {
         String username = "emma";
         LeaveChallengeResponse response = new LeaveChallengeResponse(username, challengeId, true);
 
-        given(challengeService.leaveChallenge(username, challengeId)).willReturn(response);
+        given(challengeService.leaveChallenge(eq(username), eq(challengeId))).willReturn(response);
 
         mvc.perform(delete("/api/challenges/{challengeId}/attendees/{username}", challengeId, username)
                         .accept(MediaType.APPLICATION_JSON))
@@ -194,7 +203,7 @@ class ChallengeControllerTest {
     void testGetChallengeLeaderboard() throws Exception {
         int challengeId = 5;
         LeaderboardEntry entry = new LeaderboardEntry("john", 42.0);
-        given(challengeService.getLeaderboardForChallenge(challengeId)).willReturn(List.of(entry));
+        given(challengeService.getLeaderboardForChallenge(eq(challengeId))).willReturn(List.of(entry));
 
         mvc.perform(get("/api/challenges/{id}/leaderboard", challengeId)
                         .accept(MediaType.APPLICATION_JSON))
@@ -221,7 +230,7 @@ class ChallengeControllerTest {
         String username = "zoe";
         MyChallengeResponse challenge = new MyChallengeResponse(1, "MyCh", "desc", "type",
                 null, 100.0, 50.0, 10.0);
-        given(challengeService.getAttendedChallenges(username)).willReturn(List.of(challenge));
+        given(challengeService.getAttendedChallenges(eq(username))).willReturn(List.of(challenge));
 
         mvc.perform(get("/api/challenges/{username}/attended", username)
                         .accept(MediaType.APPLICATION_JSON))
