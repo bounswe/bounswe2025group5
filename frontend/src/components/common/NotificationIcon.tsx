@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,6 +21,7 @@ export default function NotificationIcon() {
   const [error, setError] = useState<string | null>(null);
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
   const [showDetailDialog, setShowDetailDialog] = useState(false);
+  const hasInitiallyFetched = useRef(false);
 
   const username = localStorage.getItem('username');
 
@@ -117,14 +118,15 @@ export default function NotificationIcon() {
 
   // Fetch notifications on mount (page refresh/login)
   useEffect(() => {
-    if (username) {
+    if (username && !hasInitiallyFetched.current) {
+      hasInitiallyFetched.current = true;
       fetchNotifications(false);
     }
   }, [username]);
 
   // Refresh notifications when popover is opened (background refresh)
   useEffect(() => {
-    if (username && isOpen) {
+    if (username && isOpen && hasInitiallyFetched.current) {
       fetchNotifications(true);
     }
   }, [isOpen]);
