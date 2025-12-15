@@ -13,5 +13,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
 
     List<Notification> findByUser(User user);
 
+    List<Notification> findByActorId(String actorId);
+
+
     List<Notification> findByUserOrderByCreatedAtDesc(User user);
 }

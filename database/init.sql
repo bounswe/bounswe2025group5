@@ -93,7 +93,7 @@ CREATE TABLE `challenges` (
 
                   PRIMARY KEY (`challenge_id`),
                   CONSTRAINT `fk_challenge_waste_type`
-                      FOREIGN KEY (`type`) REFERENCES `waste_types`(`id`)
+                      FOREIGN KEY (`type`) REFERENCES `waste_type`(`type_id`)
                           ON DELETE RESTRICT
                           ON UPDATE CASCADE
 )
@@ -140,6 +140,7 @@ CREATE TABLE IF NOT EXISTS  `posts` (
   `user_id` int NOT NULL,
   `content` varchar(1000) NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `profile_picture` varchar(255),
   `likes` int DEFAULT '0',
   `comments` int DEFAULT '0',
   `photo_url` varchar(255) DEFAULT NULL,
@@ -237,6 +238,7 @@ CREATE TABLE IF NOT EXISTS `notifications` (
   `object_type` varchar(255),
   `object_id` varchar(255),
   `preview` varchar(255),
+  `profile_picture` varchar(255),
   `is_read` tinyint(1) DEFAULT '0',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`notification_id`),
@@ -710,3 +712,97 @@ END IF;
     END$$
 
     DELIMITER ;
+
+
+
+
+
+
+DELIMITER $$
+
+
+    CREATE TRIGGER `after_challenge_ended_award_badges`
+        AFTER UPDATE ON `challenges`
+        FOR EACH ROW
+    BEGIN
+        DECLARE done INT DEFAULT FALSE;
+    DECLARE top_user_id INT;
+
+    DECLARE cur CURSOR FOR
+        SELECT user_id
+        FROM `challenge_user`
+        WHERE `challenge_id` = NEW.challenge_id
+        ORDER BY `amount` DESC
+            LIMIT 3;
+
+        DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    IF OLD.status != 'Ended' AND NEW.status = 'Ended' THEN
+
+        OPEN cur;
+
+        read_loop: LOOP
+            FETCH cur INTO top_user_id;
+
+            IF done THEN
+                LEAVE read_loop;
+    END IF;
+    INSERT IGNORE INTO `badge` (name, user_id)
+            VALUES ('Top Challenger', top_user_id);
+
+END LOOP;
+
+    CLOSE cur;
+END IF;
+    END$$
+
+    DELIMITER ;
+
+
+DELIMITER $$
+
+    CREATE TRIGGER `first_like`
+        AFTER INSERT ON `post_likes`
+        FOR EACH ROW
+    BEGIN
+        DECLARE like_count INT;
+
+    IF NOT EXISTS (SELECT 1 FROM `badge` WHERE user_id = NEW.user_id AND name = 'First Like') THEN
+
+        SELECT COUNT(*)
+        INTO like_count
+        FROM `post_likes`
+        WHERE `user_id` = NEW.user_id;
+
+        IF like_count = 1 THEN
+            INSERT INTO `badge` (name, user_id)
+            VALUES ('First Like', NEW.user_id);
+    END IF;
+END IF;
+    END$$
+
+    DELIMITER ;
+
+DELIMITER $$
+
+    CREATE TRIGGER `first_comment`
+        AFTER INSERT ON `comments`
+        FOR EACH ROW
+    BEGIN
+        DECLARE comment_count INT;
+
+    IF NOT EXISTS (SELECT 1 FROM `badge` WHERE user_id = NEW.user_id AND name = 'First Comment') THEN
+
+        SELECT COUNT(*)
+        INTO comment_count
+        FROM `comments`
+        WHERE `user_id` = NEW.user_id;
+
+        IF comment_count = 1 THEN
+            INSERT INTO `badge` (name, user_id)
+            VALUES ('First Comment', NEW.user_id);
+    END IF;
+END IF;
+    END$$
+
+DELIMITER ;

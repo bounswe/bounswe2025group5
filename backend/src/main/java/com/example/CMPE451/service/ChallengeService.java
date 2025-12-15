@@ -79,7 +79,7 @@ public class ChallengeService {
                 null, null,
                 "Challenge", challenge.getChallengeId(),
                 "Users", users,
-                challenge.getName()
+                challenge.getName(), ""
         );
 
         return new EndChallengeResponse(challenge.getChallengeId(), true);

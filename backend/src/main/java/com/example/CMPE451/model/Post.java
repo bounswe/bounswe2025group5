@@ -44,6 +44,10 @@ public class Post {
     @Column(name = "photo_url")
     private String photoUrl;
 
+    @Column(name = "profile_picture")
+    private String profile_picture;
+
+
 
     public Post(User user, String content, String photoUrl, Integer likes, Integer comments) {
         this.user = user;

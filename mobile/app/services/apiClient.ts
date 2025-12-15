@@ -247,3 +247,46 @@ export async function unfollowUser(targetUsername: string): Promise<void> {
   }
 }
 
+/** Get stored username from AsyncStorage */
+export async function getStoredUsername(): Promise<string | null> {
+  return AsyncStorage.getItem(USERNAME_KEY);
+}
+
+/** Report API */
+export type ReportType = 'Spam' | 'Hate Speech' | 'Violence' | 'Other';
+export type ReportContentType = 'Post' | 'Comment';
+
+export interface SubmitReportPayload {
+  reporterName: string;
+  description: string;
+  type: ReportType;
+  contentType: ReportContentType;
+  objectId: number;
+}
+
+export async function submitReport(payload: SubmitReportPayload): Promise<void> {
+  const r = await apiRequest('/api/reports', {
+    method: 'POST',
+    body: payload as any,
+  });
+  if (!r.ok) {
+    throw new Error(await r.text());
+  }
+}
+
+// Feedback API
+export type SubmitFeedbackPayload = {
+  feedbackerUsername: string;
+  contentType: string;
+  content: string;
+};
+
+export async function submitFeedback(payload: SubmitFeedbackPayload): Promise<void> {
+  const r = await apiRequest('/api/feedback', {
+    method: 'POST',
+    body: payload as any,
+  });
+  if (!r.ok) {
+    throw new Error(await r.text());
+  }
+}

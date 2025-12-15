@@ -52,7 +52,7 @@ public class PostLikeService {
                 "User", user.getUsername(),
                 "Post", post.getPostId(),
                 "User", post.getUser().getUsername(),
-                getFirst255Characters(preview)
+                getFirst255Characters(preview), user.getProfile().getPhotoUrl()
 
         );
 

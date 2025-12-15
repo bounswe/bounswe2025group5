@@ -69,7 +69,8 @@ public class UserService {
                             sp.getSavedAt(),
                             post.getPhotoUrl(),
                             isLiked,
-                            true
+                            true,
+                            post.getUser().getProfile().getPhotoUrl()
                     );
                 })
                 .collect(Collectors.toList());

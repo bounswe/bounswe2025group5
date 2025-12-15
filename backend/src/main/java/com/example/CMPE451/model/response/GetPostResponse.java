@@ -21,4 +21,6 @@ public class GetPostResponse {
     private Integer comments;
     private boolean liked;
     private boolean saved;
+    private String profile_picture;
+
 }
