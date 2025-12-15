@@ -158,7 +158,7 @@ export default function FeedPage() {
       <div className="max-w-6xl mx-auto flex justify-center">
         <GlassCard className="w-full">
           {/* Header */}
-          <div className="mb-8">
+          <div className="mb-4">
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-bold text-emerald-900">{t('feed.title')}</h1>
               <Button
@@ -198,20 +198,20 @@ export default function FeedPage() {
 
           {/* Error Message */}
           {error && (
-            <div className="mb-6 p-4 bg-red-100 border border-red-300 rounded-lg">
+            <div className="mb-4 p-4 bg-red-100 border border-red-300 rounded-lg">
               <p className="text-red-700 text-sm">{error}</p>
             </div>
           )}
 
           {/* Create Post Card */}
-          <div className="mb-6">
+          <div className="mb-2">
             <CreatePostCard 
               onPostCreated={loadInitialPosts}
             />
           </div>
 
           {/* Search Card */}
-          <div className="mb-6">
+          <div className="mb-2">
             <SearchCard
               onSearch={handleSearch}
               onClear={handleClearSearch}
@@ -222,7 +222,7 @@ export default function FeedPage() {
 
           {/* Search Error */}
           {searchError && (
-            <div className="mb-6 p-4 bg-red-100 border border-red-300 rounded-lg">
+            <div className="mb-4 p-4 bg-red-100 border border-red-300 rounded-lg">
               <p className="text-red-700 text-sm">{searchError}</p>
             </div>
           )}

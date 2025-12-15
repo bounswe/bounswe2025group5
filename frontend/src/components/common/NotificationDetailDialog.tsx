@@ -9,8 +9,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useTranslation } from 'react-i18next';
 import type { Notification } from '@/lib/api/schemas/notifications';
 import type { PostItem } from '@/lib/api/schemas/posts';
+import type { ChallengeListItem } from '@/lib/api/schemas/challenges';
 import { PostsApi } from '@/lib/api/posts';
+import { UsersApi } from '@/lib/api/users';
 import PostCard from '@/components/feedpage/post-card';
+import ChallengeCard from '@/components/challenges/challengeCard';
 import UserProfileDialog from '@/components/profile/userProfileDialog';
 import userAvatar from '@/assets/user.png';
 import { useProfilePhoto } from '@/hooks/useProfilePhotos';
@@ -28,6 +31,7 @@ export default function NotificationDetailDialog({
 }: NotificationDetailDialogProps) {
   const { t } = useTranslation();
   const [post, setPost] = useState<PostItem | null>(null);
+  const [challenge, setChallenge] = useState<ChallengeListItem | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showProfileDialog, setShowProfileDialog] = useState(false);
@@ -39,6 +43,7 @@ export default function NotificationDetailDialog({
   useEffect(() => {
     if (!notification || !open) {
       setPost(null);
+      setChallenge(null);
       setError(null);
       // Don't reset profile dialog state here - it might be opening
       return;
@@ -90,6 +95,21 @@ export default function NotificationDetailDialog({
               setPost(foundPost);
             } else {
               setError('Post not found');
+            }
+          }
+        } else if (notification.objectType?.toLowerCase() === 'challenge' && notification.objectId) {
+          // Fetch all challenges and find the specific one
+          const username = localStorage.getItem('username');
+          if (username) {
+            const challenges = await UsersApi.listChallenges(username);
+            const foundChallenge = challenges.find(
+              (c) => c.challengeId === parseInt(notification.objectId!)
+            );
+            
+            if (foundChallenge) {
+              setChallenge(foundChallenge);
+            } else {
+              setError('Challenge not found');
             }
           }
         }
@@ -177,6 +197,17 @@ export default function NotificationDetailDialog({
             </span>
           </div>
         );
+      case 'End':
+        if (notification.objectType?.toLowerCase() === 'challenge') {
+          return (
+            <div className="flex items-center gap-3">
+              <span className="font-semibold">
+                {t('notifications.challengeEnded_suffix')}
+              </span>
+            </div>
+          );
+        }
+        return 'Notification';
       default:
         return 'Notification';
     }
@@ -207,6 +238,9 @@ export default function NotificationDetailDialog({
                 }}
                 onUsernameClick={handleUsernameClick}
               />
+            )}
+            {!isLoading && !error && challenge && (
+              <ChallengeCard challenge={challenge} />
             )}
           </div>
         </DialogContent>

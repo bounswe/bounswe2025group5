@@ -77,7 +77,7 @@ public class FeedbackService {
                 "Moderator", username,
                 "Feedback", feedbackId,
                 "User", feedback.getFeedbacker().getUsername(),
-                getFirst255Characters(feedback.getContent())
+                getFirst255Characters(feedback.getContent()), ""
         );
     }
 

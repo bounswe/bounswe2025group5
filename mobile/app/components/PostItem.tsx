@@ -19,6 +19,7 @@ import { useNavigation } from "@react-navigation/native";
 import AccessibleText from "@/components/AccessibleText";
 import CommentItemDisplay from "./CommentItemDisplay";
 import ReportModal, { ReportContext } from "./ReportModal";
+import CachedImage from "@/components/CachedImage";
 
 import { useTranslation } from "react-i18next";
 import { apiUrl } from "../apiConfig";
@@ -265,7 +266,7 @@ function PostItem({
             accessibilityElementsHidden={true}
           >
             {authorAvatarUri ? (
-              <Image
+              <CachedImage
                 source={{ uri: authorAvatarUri }}
                 style={styles.postAuthorAvatarImage}
               />
@@ -325,10 +326,12 @@ function PostItem({
         {imageUri && (
           <>
             <View style={styles.imageWrapper}>
-              <Image
+              <CachedImage
                 source={{ uri: imageUri }}
                 style={styles.postImage}
-                accessibilityLabel={t("postImage", { defaultValue: "Post image" })}
+                accessibilityLabel={t("postImage", {
+                  defaultValue: "Post image",
+                })}
                 onError={(e) =>
                   console.warn(
                     "Explore: Image failed to load:",
@@ -397,7 +400,7 @@ function PostItem({
                   showsVerticalScrollIndicator={false}
                   centerContent
                 >
-                  <Image
+                  <CachedImage
                     source={{ uri: imageUri }}
                     style={[
                       styles.fullscreenImage,

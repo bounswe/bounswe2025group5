@@ -126,7 +126,7 @@ public class PostService {
                 "User", user.getUsername(),
                 "Post", savedPost.getPostId(),
                 "Users", followerUsernames,
-                getFirst255Characters(preview)
+                getFirst255Characters(preview), user.getProfile().getPhotoUrl()
         );
 
         return new CreateOrEditPostResponse(
@@ -134,7 +134,9 @@ public class PostService {
                 post.getContent(),
                 post.getCreatedAt(),
                 post.getUser().getUsername(),
-                post.getPhotoUrl()
+                post.getPhotoUrl(),
+                post.getProfile_picture()
+
         );
     }
 
@@ -196,7 +198,9 @@ public class PostService {
                 updatedPost.getContent(),
                 updatedPost.getCreatedAt(),
                 updatedPost.getUser().getUsername(),
-                updatedPost.getPhotoUrl()
+                updatedPost.getPhotoUrl(),
+                updatedPost.getProfile_picture()
+
         );
     }
 
@@ -293,6 +297,8 @@ public class PostService {
                     postResponse.setPhotoUrl(post.getPhotoUrl());
                     postResponse.setLiked(likedPostIds.contains(post.getPostId()));
                     postResponse.setSaved(savedPostIds.contains(post.getPostId()));
+                    postResponse.setProfile_picture(post.getProfile_picture());
+
                     return postResponse;
                 })
                 .collect(Collectors.toList());
@@ -325,6 +331,7 @@ public class PostService {
         postResponse.setPhotoUrl(post.getPhotoUrl());
         postResponse.setLiked(likedPostIds.contains(post.getPostId()));
         postResponse.setSaved(savedPostIds.contains(post.getPostId()));
+        postResponse.setProfile_picture(post.getProfile_picture());
 
         return postResponse;
     }

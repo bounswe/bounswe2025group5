@@ -14,4 +14,5 @@ public class NotificationResponse {
     private String objectId;
     private String objectType;
     private String preview;
+    private String profile_picture;
 }
