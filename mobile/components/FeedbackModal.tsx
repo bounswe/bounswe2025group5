@@ -108,7 +108,7 @@ export function FeedbackModal({
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.backdrop}>
-        <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose} />
+        <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose} />
         <View style={[styles.card, { backgroundColor: surfaceColor, borderColor }]}>
           <View style={styles.headerRow}>
             <AccessibleText
@@ -209,6 +209,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 16,
   },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.45)",
+  },
   card: {
     width: "100%",
     maxWidth: 420,
@@ -216,6 +224,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 16,
     gap: 12,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 16,
+    elevation: 12,
   },
   headerRow: {
     flexDirection: "row",
