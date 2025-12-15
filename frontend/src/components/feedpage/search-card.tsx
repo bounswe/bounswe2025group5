@@ -1,10 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Search, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { cn } from '@/lib/utils';
 
 interface SearchCardProps {
   onSearch: (query: string) => void;
@@ -16,11 +15,53 @@ interface SearchCardProps {
 export default function SearchCard({ onSearch, onClear, isLoading = false, isActive = false }: SearchCardProps) {
   const { t } = useTranslation();
   const [query, setQuery] = useState('');
+  const debounceTimerRef = useRef<number | null>(null);
+  const lastSearchedQueryRef = useRef<string>('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-trigger search after 1 second of inactivity
+  useEffect(() => {
+    // Clear existing timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    // If query is empty and search is active, deactivate search
+    if (query.trim() === '' && isActive) {
+      lastSearchedQueryRef.current = '';
+      onClear();
+      return;
+    }
+
+    // If query has content and is different from last search, set timer
+    if (query.trim() && query.trim() !== lastSearchedQueryRef.current) {
+      debounceTimerRef.current = setTimeout(() => {
+        lastSearchedQueryRef.current = query.trim();
+        onSearch(query.trim());
+        // Keep focus on input after search
+        inputRef.current?.focus();
+      }, 600);
+    }
+
+    // Cleanup timer on unmount or query change
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [query, isActive, onSearch, onClear]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (query.trim()) {
+    if (query.trim() && query.trim() !== lastSearchedQueryRef.current) {
+      // Cancel debounce timer and search immediately
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+      lastSearchedQueryRef.current = query.trim();
       onSearch(query.trim());
+      // Keep focus on input after search
+      inputRef.current?.focus();
     }
   };
 
@@ -37,12 +78,12 @@ export default function SearchCard({ onSearch, onClear, isLoading = false, isAct
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
+                ref={inputRef}
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t('search.placeholder')}
                 className="pl-10 animate-input focus-visible:border-secondary focus-visible:ring-2 focus-visible:ring-secondary/20"
-                disabled={isLoading}
               />
             </div>
             <Button

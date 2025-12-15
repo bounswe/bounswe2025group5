@@ -98,8 +98,10 @@ export default function ChallengesIndex() {
                       {t('challenges.active', 'Active Challenges')}
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
-                      {activeChallenges.map((item) => (
-                        <ChallengeCard key={item.challengeId} challenge={item} />
+                      {activeChallenges.map((item, index) => (
+                        <div key={item.challengeId} className="opacity-0 animate-fade-in" style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'forwards' }}>
+                          <ChallengeCard challenge={item} />
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -112,8 +114,10 @@ export default function ChallengesIndex() {
                       {t('challenges.ended', 'Ended Challenges')}
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
-                      {endedChallenges.map((item) => (
-                        <ChallengeCard key={item.challengeId} challenge={item} />
+                      {endedChallenges.map((item, index) => (
+                        <div key={item.challengeId} className="opacity-0 animate-fade-in" style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'forwards' }}>
+                          <ChallengeCard challenge={item} />
+                        </div>
                       ))}
                     </div>
                   </div>
