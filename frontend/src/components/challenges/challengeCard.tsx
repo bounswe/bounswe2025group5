@@ -235,8 +235,8 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
                       <PopoverTrigger asChild>
                         <Button 
                           size="sm" 
-                          variant="default" 
-                          className="h-8 px-4 text-xs btn-log"
+                          variant="secondary" 
+                          className="h-8 px-4 text-xs"
                           disabled={!!busy[challenge.challengeId] || !!logging[challenge.challengeId]}
                           onClick={(e) => e.stopPropagation()}
                         >
