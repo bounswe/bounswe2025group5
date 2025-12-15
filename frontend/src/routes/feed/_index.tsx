@@ -224,7 +224,7 @@ export default function FeedPage() {
 
           {/* Error Message */}
           {error && (
-            <div className="mb-6 p-4 bg-red-100 border border-red-300 rounded-lg">
+            <div className="mb-4 p-4 bg-red-100 border border-red-300 rounded-lg">
               <p className="text-red-700 text-sm">{error}</p>
             </div>
           )}
@@ -241,7 +241,7 @@ export default function FeedPage() {
 
           {/* Search Error */}
           {searchError && (
-            <div className="mb-6 p-4 bg-red-100 border border-red-300 rounded-lg">
+            <div className="mb-4 p-4 bg-red-100 border border-red-300 rounded-lg">
               <p className="text-red-700 text-sm">{searchError}</p>
             </div>
           )}
