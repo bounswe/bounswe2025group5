@@ -11,7 +11,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { ReportsApi } from '@/lib/api/reports';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FeedbackApi } from '@/lib/api/feedback';
 import { USERNAME_KEY } from '@/lib/api/client';
 import { toast } from 'sonner';
 
@@ -23,6 +24,7 @@ interface FeedbackDialogProps {
 export default function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
   const { t } = useTranslation();
   const [description, setDescription] = useState('');
+  const [contentType, setContentType] = useState('Compliment');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
@@ -41,15 +43,13 @@ export default function FeedbackDialog({ open, onOpenChange }: FeedbackDialogPro
 
     try {
       const payload = {
-        reporterName: username,
-        description: `[FEEDBACK] ${description.trim()}`,
-        type: 'OTHER',
-        contentType: 'POST',
-        objectId: 0,
+        content: description.trim(),
+        contentType: contentType,
+        feedbackerUsername: username,
       };
       
       console.log('Submitting feedback:', payload);
-      await ReportsApi.create(payload);
+      await FeedbackApi.create(payload);
 
       toast.success(t('feedback.success'));
       setDescription('');
@@ -93,6 +93,19 @@ export default function FeedbackDialog({ open, onOpenChange }: FeedbackDialogPro
         </DialogHeader>
 
         <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="feedback-type">{t('feedback.typeLabel', 'Type')}</Label>
+            <Select value={contentType} onValueChange={setContentType} disabled={isSubmitting}>
+              <SelectTrigger id="feedback-type" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="z-[100]">
+                <SelectItem value="Compliment">{t('feedback.types.compliment', 'Compliment')}</SelectItem>
+                <SelectItem value="Complaint">{t('feedback.types.complaint', 'Complaint')}</SelectItem>
+                <SelectItem value="Suggestion">{t('feedback.types.suggestion', 'Suggestion')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <div className="space-y-2">
             <Label htmlFor="feedback-message">{t('feedback.messageLabel')}</Label>
             <Textarea
