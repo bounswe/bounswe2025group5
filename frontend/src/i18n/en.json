@@ -215,6 +215,13 @@
         "summaryNoDataDescription": "Please select a start and end date and a waste type",
         "summaryNoDataButton": "Refresh data",
         "summaryNoDataButtonLoading": "Fetching...",
+        "summaryTotal": "Total collected",
+        "summaryScaleMax": "Scale max",
+        "summaryImpactLabel": "Real-world savings",
+        "summaryImpactHelper": "From {{amount}} of {{wasteType}}",
+        "summaryImpactEmpty": "Log waste to see your real-world savings.",
+        "summaryImpactEmptyValue": "No savings yet",
+        "summaryImpactDescription": "You logged {{amount}} of {{wasteType}}, saving about {{impact}} {{unit}}.",
         "monthlyTitle": "12-month waste trends",
         "wasteType": "Waste type",
         "save": "Save",
@@ -223,7 +230,16 @@
         "logWasteDescription": "Select an item and quantity to log.",
         "item": "Item",
         "quantity": "Quantity",
-        "log": "Log"
+        "log": "Log",
+        "impact": {
+            "units": {
+                "trees": "trees",
+                "barrels": "barrels of oil",
+                "energy": "kWh saved",
+                "ore": "kg of ore",
+                "compost": "kg of compost"
+            }
+        }
 
     },
     "wasteTypes": {
