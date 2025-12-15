@@ -1,12 +1,16 @@
 // create a modal to create a new challenge
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import { ChallengesApi } from '@/lib/api/challenges';
+import { WASTE_TYPES } from '@/lib/api/schemas/goals';
+
 import { Button } from '@/components/ui/button';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from '@/components/ui/spinner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function CreateChallenge() {
     const [title, setTitle] = useState('');
@@ -80,7 +84,18 @@ export default function CreateChallenge() {
                 </div>
                 <div>
                   <Label htmlFor="type" className="mb-1 block">{t("challenges.create.type")}</Label>
-                  <Input id="type" value={type} onChange={(e) => setType(e.target.value)} placeholder={t("challenges.create.typePlaceholder")} required />
+                  <Select value={type} onValueChange={setType}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={t("challenges.create.typePlaceholder")} />
+                    </SelectTrigger>
+                    <SelectContent className="z-[80]">
+                      {WASTE_TYPES.map((wasteType) => (
+                        <SelectItem key={wasteType.id} value={wasteType.name}>
+                          {wasteType.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label htmlFor="amount" className="mb-1 block">{t("challenges.create.amount")}</Label>
