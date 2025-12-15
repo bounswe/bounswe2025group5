@@ -417,7 +417,14 @@ export default function UserProfileScreen() {
               const displayedBadges = badges.slice(0, 4);
 
               return (
-                <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    flexWrap: "wrap",
+                    gap: 8,
+                    alignItems: "center",
+                  }}
+                >
                   {displayedBadges.map((badgeName, index) => {
                     const badgeImage = getBadgeImageSource(badgeName);
 
@@ -449,14 +456,16 @@ export default function UserProfileScreen() {
                       </TouchableOpacity>
                     );
                   })}
-                  <View
+                  <TouchableOpacity
                     style={styles.badgePlaceholder}
                     accessible
                     accessibilityRole="button"
                     accessibilityLabel="More badges"
+                    onPress={() => navigation.navigate("badges")}
+                    activeOpacity={0.7}
                   >
                     <Text style={styles.badgePlaceholderText}>...</Text>
-                  </View>
+                  </TouchableOpacity>
                 </View>
               );
             })()}
