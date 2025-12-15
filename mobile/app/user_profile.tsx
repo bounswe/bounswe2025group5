@@ -416,12 +416,6 @@ export default function UserProfileScreen() {
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
               {badges.map((badgeName, index) => {
                 const badgeImage = getBadgeImageSource(badgeName);
-                const chipBackground =
-                  colorScheme === "dark" ? "#1F2933" : "#FFFFFF";
-                const chipBorder =
-                  colorScheme === "dark" ? "#2D3748" : "#E5E7EB";
-                const chipTextColor =
-                  colorScheme === "dark" ? "#E5E5E7" : "#1C1C1E";
 
                 return (
                   <TouchableOpacity
@@ -432,13 +426,7 @@ export default function UserProfileScreen() {
                     }}
                     accessibilityRole="button"
                     accessibilityLabel={t(badgeName)}
-                    style={[
-                      styles.badgePill,
-                      {
-                        backgroundColor: chipBackground,
-                        borderColor: chipBorder,
-                      },
-                    ]}
+                    style={styles.badgePill}
                   >
                     {badgeImage ? (
                       <Image
@@ -649,13 +637,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   badgePill: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
-    flexDirection: "row",
+    padding: 0,
+    borderWidth: 0,
+    backgroundColor: "transparent",
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 1,
   },
   badgePillImage: { width: 32, height: 32 },
   badgeModalImage: { width: 160, height: 160 },

@@ -1378,9 +1378,7 @@ export default function ProfileScreen() {
               </AccessibleText>
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
                 {badges.map((badgeName, index) => {
-                  const badgeImage = getBadgeImageSource(badgeName);
-                  const chipBackground = isDarkMode ? "#1F2933" : "#FFFFFF";
-                  const chipBorder = isDarkMode ? "#2D3748" : "#E5E7EB";
+                const badgeImage = getBadgeImageSource(badgeName);
 
                 return (
                   <TouchableOpacity
@@ -1391,13 +1389,7 @@ export default function ProfileScreen() {
                     }}
                     accessibilityRole="button"
                     accessibilityLabel={t(badgeName)}
-                    style={[
-                      styles.badgePill,
-                      {
-                        backgroundColor: chipBackground,
-                        borderColor: chipBorder,
-                      },
-                    ]}
+                    style={styles.badgePill}
                   >
                     {badgeImage ? (
                       <Image
@@ -2260,13 +2252,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#FF9800",
   },
   badgePill: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
-    flexDirection: "row",
+    padding: 0,
+    borderWidth: 0,
+    backgroundColor: "transparent",
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 1,
   },
   badgePillImage: { width: 32, height: 32 },
   topButtonText: { fontSize: 14, color: "#FFFFFF" },
