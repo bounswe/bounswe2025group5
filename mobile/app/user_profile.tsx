@@ -430,6 +430,8 @@ export default function UserProfileScreen() {
                       setSelectedBadge(badgeName);
                       setBadgeModalVisible(true);
                     }}
+                    accessibilityRole="button"
+                    accessibilityLabel={t(badgeName)}
                     style={[
                       styles.badgePill,
                       {
@@ -447,21 +449,11 @@ export default function UserProfileScreen() {
                     ) : (
                       <Ionicons
                         name="medal"
-                        size={18}
+                        size={24}
                         color={colorScheme === "dark" ? "#FBBF24" : "#FB8C00"}
-                        style={{ marginRight: 8 }}
+                        style={{ marginRight: 0 }}
                       />
                     )}
-                    <AccessibleText
-                      backgroundColor={chipBackground}
-                      style={{
-                        color: chipTextColor,
-                        fontSize: 12,
-                        fontWeight: "600",
-                      }}
-                    >
-                      {t(badgeName)}
-                    </AccessibleText>
                   </TouchableOpacity>
                 );
               })}
@@ -657,14 +649,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   badgePill: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 14,
+    width: 56,
+    height: 56,
+    borderRadius: 16,
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     borderWidth: 1,
   },
-  badgePillImage: { width: 28, height: 28, marginRight: 8 },
+  badgePillImage: { width: 32, height: 32 },
   badgeModalImage: { width: 160, height: 160 },
   modalOverlay: {
     flex: 1,

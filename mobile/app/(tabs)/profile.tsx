@@ -1382,48 +1382,40 @@ export default function ProfileScreen() {
                   const chipBackground = isDarkMode ? "#1F2933" : "#FFFFFF";
                   const chipBorder = isDarkMode ? "#2D3748" : "#E5E7EB";
 
-                  return (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => {
-                        setSelectedBadge(badgeName);
-                        setBadgeModalVisible(true);
-                      }}
-                      style={[
-                        styles.badgePill,
-                        {
-                          backgroundColor: chipBackground,
-                          borderColor: chipBorder,
-                        },
-                      ]}
-                    >
-                      {badgeImage ? (
-                        <Image
-                          source={badgeImage}
-                          style={styles.badgePillImage}
-                          resizeMode="contain"
-                        />
-                      ) : (
-                        <Ionicons
-                          name="medal"
-                          size={18}
-                          color={isDarkMode ? "#FBBF24" : "#FB8C00"}
-                          style={{ marginRight: 8 }}
-                        />
-                      )}
-                      <AccessibleText
-                        backgroundColor={chipBackground}
-                        style={{
-                          color: generalTextColor,
-                          fontSize: 12,
-                          fontWeight: "600",
-                        }}
-                      >
-                        {t(badgeName)}
-                      </AccessibleText>
-                    </TouchableOpacity>
-                  );
-                })}
+                return (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => {
+                      setSelectedBadge(badgeName);
+                      setBadgeModalVisible(true);
+                    }}
+                    accessibilityRole="button"
+                    accessibilityLabel={t(badgeName)}
+                    style={[
+                      styles.badgePill,
+                      {
+                        backgroundColor: chipBackground,
+                        borderColor: chipBorder,
+                      },
+                    ]}
+                  >
+                    {badgeImage ? (
+                      <Image
+                        source={badgeImage}
+                        style={styles.badgePillImage}
+                        resizeMode="contain"
+                      />
+                    ) : (
+                      <Ionicons
+                        name="medal"
+                        size={24}
+                        color={isDarkMode ? "#FBBF24" : "#FB8C00"}
+                        style={{ marginRight: 0 }}
+                      />
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
               </View>
             </View>
           ) : null}
@@ -2268,14 +2260,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#FF9800",
   },
   badgePill: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 14,
+    width: 56,
+    height: 56,
+    borderRadius: 16,
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     borderWidth: 1,
   },
-  badgePillImage: { width: 28, height: 28, marginRight: 8 },
+  badgePillImage: { width: 32, height: 32 },
   topButtonText: { fontSize: 14, color: "#FFFFFF" },
   profileContainer: {
     flexDirection: "row",
