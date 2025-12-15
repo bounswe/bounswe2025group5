@@ -215,7 +215,7 @@ export default function UserProfileDialog({
                 </div>
               </div>
               <div className="flex-[1]" />
-              <div className="flex flex-col items-center gap-4 flex-[2]">
+              <div className="flex flex-col items-center gap-4 flex-[2] min-w-[15rem] border-l pl-40 mr-20">
                 <div className="flex gap-6">
                   <div className="flex flex-col items-center">
                     <span className="font-semibold text-2xl text-foreground">
@@ -234,29 +234,31 @@ export default function UserProfileDialog({
                     </Label>
                   </div>
                 </div>
+                <div className="flex flex-col items-center">
+                  {!isOwnProfile && (
+                    <Button
+                      type="button"
+                      variant={isFollowing ? 'destructive' : 'default'}
+                      size="default"
+                      onClick={handleFollowToggle}
+                      disabled={isFollowLoading || isFollowActionLoading}
+                      className="transition-colors"
+                    >
+                      {isFollowActionLoading ? (
+                        <Spinner className="h-4 w-4" />
+                      ) : isFollowing ? (
+                        t('profile.unfollow', 'Unfollow')
+                      ) : (
+                        t('profile.follow', 'Follow')
+                      )}
+                    </Button>
+                  )}
+                </div>
                 <BadgeShowcase
                   username={username}
                   maxEarnedToShow={3}
                   iconClassName="min-h-[3rem] min-w-[3rem] sm:min-h-[5rem] sm:min-w-[5rem]"
                 />
-                {!isOwnProfile && (
-                  <Button
-                    type="button"
-                    variant={isFollowing ? 'destructive' : 'default'}
-                    size="default"
-                    onClick={handleFollowToggle}
-                    disabled={isFollowLoading || isFollowActionLoading}
-                    className="w-full transition-colors"
-                  >
-                    {isFollowActionLoading ? (
-                      <Spinner className="h-4 w-4" />
-                    ) : isFollowing ? (
-                      t('profile.unfollow', 'Unfollow')
-                    ) : (
-                      t('profile.follow', 'Follow')
-                    )}
-                  </Button>
-                )}
               </div>
               <div className="flex-[2]" />
             </div>

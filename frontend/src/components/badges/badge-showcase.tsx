@@ -140,7 +140,7 @@ export function BadgeShowcase({
 
       {showCatalogButton && (
         <div className="flex items-center justify-center mt-2">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/badges')}>
+          <Button variant="outline" size="sm" onClick={() => navigate('/badges')}>
             {t('profile.badges.cta', 'See Badge Catalog')}
           </Button>
         </div>

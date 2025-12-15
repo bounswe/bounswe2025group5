@@ -203,10 +203,10 @@ export default function ProfileIndex() {
 
           {!loading && !error && (
             <>
-          <Card className="w-3/4 mx-auto">
+          <Card className="w-[45rem] mx-auto">
             <CardContent className="pt-6 flex items-center justify-between">
             <div className="flex-[2]"></div>
-            <div className="flex flex-col items-center text-center gap-4 flex-[2]">
+            <div className="flex flex-col items-center text-center gap-4 flex-[2] min-w-[15rem] mr-15">
               <div className="w-28 h-28 rounded-full overflow-hidden bg-muted border border-border">
                 {photoUrl ? (
                   <img
@@ -233,8 +233,7 @@ export default function ProfileIndex() {
                 <DeleteAccount />
               </div>
             </div>
-            <div className="flex-[1]"></div>
-            <div className="flex flex-col items-center gap-4 flex-[2] ">
+            <div className="flex flex-col items-center gap-4 flex-[2] min-w-[15rem] border-l pl-30 mr-15">
               <div className="flex gap-6">
                 <Popover open={followersOpen} onOpenChange={handleFollowersOpen}>
                   <PopoverTrigger asChild>
