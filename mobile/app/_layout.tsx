@@ -1,17 +1,22 @@
 // app/_layout.tsx
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useState, createContext } from 'react';
-import 'react-native-reanimated';
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
+import { useFonts } from "expo-font";
+import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
+import React, { useEffect, useState, createContext } from "react";
+import "react-native-reanimated";
 
-import './i18n'; 
+import "./i18n";
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { useColorScheme } from "@/hooks/useColorScheme";
+import { cleanExpiredCache } from "@/utils/imageCache";
 
-export type UserType = 'guest' | 'user' | null;
+export type UserType = "guest" | "user" | null;
 
 export type AuthContextType = {
   userType: UserType;
@@ -23,7 +28,7 @@ export type AuthContextType = {
 export const AuthContext = createContext<AuthContextType>({
   userType: null,
   setUserType: () => {},
-  username: '',
+  username: "",
   setUsername: () => {},
 });
 
@@ -33,11 +38,11 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
   const [userType, setUserType] = useState<UserType>(null);
-  const [username, setUsername] = useState<string>('');
+  const [username, setUsername] = useState<string>("");
 
   useEffect(() => {
     if (loaded) {
@@ -45,59 +50,54 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
+  // Clean expired image cache on app start
+  useEffect(() => {
+    cleanExpiredCache().catch((error) => {
+      console.warn("Failed to clean expired image cache:", error);
+    });
+  }, []);
+
   if (!loaded) {
     return null;
   }
 
-  const authContextValue = { userType, setUserType, username, setUsername};
+  const authContextValue = { userType, setUserType, username, setUsername };
 
   return (
     <AuthContext.Provider value={authContextValue}>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen 
-            name="edit_profile" 
-            options={{ 
-              presentation: 'modal', 
-            }} 
+          <Stack.Screen
+            name="edit_profile"
+            options={{
+              presentation: "modal",
+            }}
+          />
+          <Stack.Screen name="badges" options={{}} />
+          <Stack.Screen
+            name="user_profile"
+            options={{
+              title: "User Profile",
+            }}
           />
           <Stack.Screen
-            name="badges"
+            name="create_post"
             options={{
-            }}
-            />
-          <Stack.Screen 
-            name="user_profile" 
-            options={{ 
-              title: 'User Profile',
-            }} 
-          />
-          <Stack.Screen 
-            name="create_post" 
-            options={{ 
-              presentation: 'modal', 
-            }} 
-          />
-          <Stack.Screen 
-            name="posts" 
-            options={{ 
-            }} 
-          />
-          <Stack.Screen 
-            name="saved_posts"
-            options={{ 
+              presentation: "modal",
             }}
           />
-          <Stack.Screen 
-            name="edit_post_detail" 
-            options={{ 
-              presentation: 'modal', 
-            }} 
+          <Stack.Screen name="posts" options={{}} />
+          <Stack.Screen name="saved_posts" options={{}} />
+          <Stack.Screen
+            name="edit_post_detail"
+            options={{
+              presentation: "modal",
+            }}
           />
           <Stack.Screen name="+not-found" />
         </Stack>
-        <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+        <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
       </ThemeProvider>
     </AuthContext.Provider>
   );

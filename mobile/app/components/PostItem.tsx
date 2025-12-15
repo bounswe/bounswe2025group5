@@ -327,7 +327,9 @@ function PostItem({
               <CachedImage
                 source={{ uri: imageUri }}
                 style={styles.postImage}
-                accessibilityLabel={t("postImage", { defaultValue: "Post image" })}
+                accessibilityLabel={t("postImage", {
+                  defaultValue: "Post image",
+                })}
                 onError={(e) =>
                   console.warn(
                     "Explore: Image failed to load:",
