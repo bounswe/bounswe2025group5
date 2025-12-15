@@ -18,6 +18,7 @@ import {
   YAxis,
   Tooltip as RechartsTooltip,
   Cell,
+  ReferenceLine,
 } from 'recharts';
 
 type WasteMonthlyChartProps = {
@@ -42,6 +43,14 @@ const IMPACT_CONVERSIONS: Record<string, { factorPerKg: number; unitKey: ImpactU
   GLASS: { factorPerKg: 0.042, unitKey: 'energy' },
   METAL: { factorPerKg: 1.5, unitKey: 'ore' },
   ORGANIC: { factorPerKg: 0.5, unitKey: 'compost' },
+};
+
+const GLOBAL_WASTE_AVERAGE_KG: Record<string, number> = {
+  PLASTIC: 2.7,
+  PAPER: 3.8,
+  GLASS: 1.1,
+  METAL: 0.9,
+  ORGANIC: 10,
 };
 
 export default function WasteMonthlyChart({ username, className, variant = 'default' }: WasteMonthlyChartProps) {
@@ -75,6 +84,16 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
     [monthlyData]
   );
 
+  const globalAverageKg = useMemo(() => {
+    const key = resolvedWasteType || wasteType;
+    return GLOBAL_WASTE_AVERAGE_KG[key] ?? null;
+  }, [resolvedWasteType, wasteType]);
+
+  const globalAverageGrams = useMemo(
+    () => (globalAverageKg ? globalAverageKg * 1000 : null),
+    [globalAverageKg]
+  );
+
   const impactInfo = useMemo(() => {
     const conversion = IMPACT_CONVERSIONS[resolvedWasteType ?? wasteType];
     if (!conversion) return null;
@@ -94,9 +113,13 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
   }, [monthlyData]);
 
   const maxValue = useMemo(() => {
-    if (monthlyData.length === 0) return 0;
-    return Math.max(...monthlyData.map((entry) => entry.totalWeight));
-  }, [monthlyData]);
+    const values = monthlyData.map((entry) => entry.totalWeight);
+    if (globalAverageGrams) {
+      values.push(globalAverageGrams);
+    }
+    if (values.length === 0) return 0;
+    return Math.max(...values);
+  }, [globalAverageGrams, monthlyData]);
 
   const loadMonthly = useCallback(async () => {
     if (!fallbackUsername) {
@@ -132,6 +155,13 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
     label: entry.month,
     value: entry.totalWeight,
   }));
+
+  const globalAverageLabel =
+    globalAverageKg != null
+      ? t('goals.monthlyGlobalAverage', 'Global average ({{value}} kg)', {
+          value: formatNumber(globalAverageKg, { maximumFractionDigits: 1 }),
+        })
+      : null;
 
   return (
     <Card className={cn('w-full relative min-h-[380px]', className)}>
@@ -191,6 +221,20 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
                     background: 'var(--card)',
                   }}
                 />
+                {globalAverageGrams && (
+                  <ReferenceLine
+                    y={globalAverageGrams}
+                    stroke="#facc15"
+                    strokeDasharray="6 6"
+                    strokeWidth={2}
+                    label={{
+                      value: globalAverageLabel ?? '',
+                      position: 'right',
+                      fill: '#facc15',
+                      fontSize: 12,
+                    }}
+                  />
+                )}
                 <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={28}>
                   {chartData.map((entry, index) => (
                     <Cell key={index} fill={entry.value > 0 ? '#10b981' : '#d4d4d8'} />
@@ -200,6 +244,17 @@ export default function WasteMonthlyChart({ username, className, variant = 'defa
             </ResponsiveContainer>
           )}
         </div>
+
+        {globalAverageLabel && (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span
+              className="h-0 w-8 border-t-2 border-dashed"
+              style={{ borderColor: '#facc15' }}
+              aria-hidden
+            />
+            <span>{globalAverageLabel}</span>
+          </div>
+        )}
 
         <div className="absolute bottom-2 right-2">
           <AccordionTrigger className="hover:no-underline p-2 rounded-full hover:bg-accent transition-colors" />
