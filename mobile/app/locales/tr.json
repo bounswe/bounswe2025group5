@@ -412,8 +412,20 @@
     "viewAllBadges": "Tümünü görüntüle",
     "settings": "Ayarlar",
     "language": "Dil:",
-    "sendFeedback": "Geri Bildirim Gönder",
+    "sendFeedback": "Geri bildirim gönder",
     "feedbackComingSoon": "Geri bildirim formu yakında.",
+    "feedbackTypeSuggestion": "Öneri",
+    "feedbackTypeCompliment": "Teşekkür",
+    "feedbackTypeComplaint": "Şikayet",
+    "feedbackTypeLabel": "Tür",
+    "feedbackDetailsLabel": "Mesajın",
+    "feedbackPlaceholder": "Neyi sevdiğini veya geliştirmemizi istediğin şeyleri yaz.",
+    "feedbackSubmit": "Geri bildirim gönder",
+    "feedbackSentTitle": "Geri bildirim gönderildi",
+    "feedbackSentMessage": "Bizimle paylaştığın için teşekkürler.",
+    "feedbackSubmitFailed": "Geri bildirim gönderilemedi. Lütfen daha sonra tekrar dene.",
+    "feedbackLoginRequired": "Geri bildirim göndermek için lütfen giriş yap.",
+    "feedbackDetailsRequired": "Lütfen kısa bir açıklama yaz.",
     "badgeDetails": "Rozet Detayları"
   }
 }

@@ -39,6 +39,7 @@ import {
   getBadgeImageSource,
   normalizeBadgeTranslationKey,
 } from "@/utils/badgeUtils";
+import FeedbackModal from "@/components/FeedbackModal";
 
 type CommentData = {
   commentId: number;
@@ -158,6 +159,7 @@ export default function ProfileScreen() {
   const [selectedBadge, setSelectedBadge] = useState<string | null>(null);
   const [badgeModalVisible, setBadgeModalVisible] = useState(false);
   const [settingsMenuOpen, setSettingsMenuOpen] = useState(false);
+  const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
   const isTurkish = (i18n.resolvedLanguage || i18n.language || "")
     .toLowerCase()
     .startsWith("tr");
@@ -1363,12 +1365,7 @@ export default function ProfileScreen() {
                     style={[styles.settingsMenuButton, styles.settingsMenuSecondary]}
                     onPress={() => {
                       setSettingsMenuOpen(false);
-                      Alert.alert(
-                        t("sendFeedback"),
-                        t("feedbackComingSoon", {
-                          defaultValue: "Feedback form coming soon.",
-                        })
-                      );
+                      setFeedbackModalVisible(true);
                     }}
                   >
                     <Text style={[styles.settingsMenuButtonText, { color: generalTextColor }]}>
@@ -2266,6 +2263,13 @@ export default function ProfileScreen() {
           </View>
         </Modal>
       )}
+      <FeedbackModal
+        visible={feedbackModalVisible}
+        onClose={() => setFeedbackModalVisible(false)}
+        username={username}
+        surfaceColor={cardBackgroundColor}
+        textColor={generalTextColor}
+      />
     </>
   );
 }

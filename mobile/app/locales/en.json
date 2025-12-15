@@ -414,6 +414,18 @@
     "language": "Language:",
     "sendFeedback": "Send feedback",
     "feedbackComingSoon": "Feedback form coming soon.",
+    "feedbackTypeSuggestion": "Suggestion",
+    "feedbackTypeCompliment": "Compliment",
+    "feedbackTypeComplaint": "Complaint",
+    "feedbackTypeLabel": "Type",
+    "feedbackDetailsLabel": "Your message",
+    "feedbackPlaceholder": "Tell us what you like or what we should improve.",
+    "feedbackSubmit": "Send feedback",
+    "feedbackSentTitle": "Feedback sent",
+    "feedbackSentMessage": "Thanks for sharing your feedback with us.",
+    "feedbackSubmitFailed": "Could not send feedback. Please try again later.",
+    "feedbackLoginRequired": "Please log in to send feedback.",
+    "feedbackDetailsRequired": "Please enter a short description.",
     "badgeDetails": "Badge Details"
   }
 }
