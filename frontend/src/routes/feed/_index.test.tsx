@@ -29,9 +29,9 @@ vi.mock('@/lib/api/search', () => ({
 }));
 
 // Mock components
-vi.mock('@/components/feedpage/create-post-card', () => ({
+vi.mock('@/components/feedpage/create-post-button', () => ({
   default: ({ onPostCreated }: { onPostCreated: () => void }) => (
-    <div data-testid="create-post-card">
+    <div data-testid="create-post-button">
       <button onClick={onPostCreated}>Create Post</button>
     </div>
   ),
