@@ -157,6 +157,7 @@ export default function ProfileScreen() {
   const [badgesLoading, setBadgesLoading] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<string | null>(null);
   const [badgeModalVisible, setBadgeModalVisible] = useState(false);
+  const [settingsMenuOpen, setSettingsMenuOpen] = useState(false);
   const isTurkish = (i18n.resolvedLanguage || i18n.language || "")
     .toLowerCase()
     .startsWith("tr");
@@ -1161,72 +1162,97 @@ export default function ProfileScreen() {
           {/* TOP ACTIONS: BUTTONS LEFT, LANGUAGE TOGGLE RIGHT          */}
           {/* ========================================================== */}
           <View style={styles.topActionsContainer}>
-            <View style={styles.leftActionsStack}>
-              <View style={styles.logoutContainer}>
+            <View style={{ flex: 1 }} />
+            <View style={styles.settingsContainer}>
+              {settingsMenuOpen && (
                 <TouchableOpacity
-                  testID="logout-button"
-                  onPress={handleLogout}
-                  style={styles.logoutButton}
-                >
-                  <Text
-                    style={[styles.topButtonText, { color: buttonTextColor }]}
-                  >
-                    {t("logOut")}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.editProfileContainer}>
-                <TouchableOpacity
-                  testID="edit-profile-button"
-                  style={styles.editButton}
-                  onPress={() => navigation.navigate("edit_profile")}
-                >
-                  <Text
-                    style={[styles.topButtonText, { color: buttonTextColor }]}
-                  >
-                    {t("editProfile")}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            <View style={styles.languageToggleOuterContainer}>
+                  style={styles.menuOverlay}
+                  activeOpacity={1}
+                  onPress={() => setSettingsMenuOpen(false)}
+                />
+              )}
               <TouchableOpacity
-                style={styles.languageToggleContainer}
-                onPress={() => toggleLanguage(!isTurkish)}
-                accessible={true}
-                accessibilityRole="none"
-                accessibilityLabel={
-                  isTurkish
-                    ? "Current language: Turkish. Double tap to switch to English"
-                    : "Current language: English. Double tap to switch to Turkish"
-                }
+                style={styles.settingsButton}
+                onPress={() => setSettingsMenuOpen((prev) => !prev)}
+                accessibilityRole="button"
+                accessibilityLabel={t("settings", { defaultValue: "Settings" })}
               >
-                <Text style={styles.languageLabel}>EN</Text>
-                <View
-                  pointerEvents="none"
-                  importantForAccessibility="no-hide-descendants"
-                  accessibilityElementsHidden={true}
-                >
-                  <Switch
-                    trackColor={{ false: "#767577", true: "#81b0ff" }}
-                    thumbColor={
-                      isDarkMode
-                        ? isTurkish
-                          ? "#f5dd4b"
-                          : "#f4f4f4"
-                        : isTurkish
-                        ? "#f5dd4b"
-                        : "#f4f4f4"
-                    }
-                    ios_backgroundColor="#3e3e3e"
-                    onValueChange={toggleLanguage}
-                    value={isTurkish}
-                  />
-                </View>
-                <Text style={styles.languageLabel}>TR</Text>
+                <Ionicons
+                  name="settings-outline"
+                  size={22}
+                  color={generalTextColor}
+                />
               </TouchableOpacity>
+              {settingsMenuOpen && (
+                <View
+                  style={[
+                    styles.settingsMenu,
+                    {
+                      backgroundColor: cardBackgroundColor,
+                      borderColor: isDarkMode ? "#2D3748" : "#E5E7EB",
+                    },
+                  ]}
+                >
+                  <View style={styles.settingsMenuRow}>
+                    <Text style={[styles.menuLabel, { color: generalTextColor }]}>
+                      {t("language", { defaultValue: "Language" })}
+                    </Text>
+                    <TouchableOpacity
+                      style={styles.menuLanguageToggle}
+                      onPress={() => toggleLanguage(!isTurkish)}
+                      accessible={true}
+                      accessibilityRole="switch"
+                      accessibilityLabel={
+                        isTurkish
+                          ? "Current language: Turkish. Double tap to switch to English"
+                          : "Current language: English. Double tap to switch to Turkish"
+                      }
+                    >
+                      <Text style={styles.languageLabel}>EN</Text>
+                      <Switch
+                        trackColor={{ false: "#767577", true: "#81b0ff" }}
+                        thumbColor={
+                          isDarkMode
+                            ? isTurkish
+                              ? "#f5dd4b"
+                              : "#f4f4f4"
+                            : isTurkish
+                            ? "#f5dd4b"
+                            : "#f4f4f4"
+                        }
+                        ios_backgroundColor="#3e3e3e"
+                        onValueChange={toggleLanguage}
+                        value={isTurkish}
+                      />
+                      <Text style={styles.languageLabel}>TR</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  <TouchableOpacity
+                    style={styles.settingsMenuButton}
+                    onPress={() => {
+                      setSettingsMenuOpen(false);
+                      navigation.navigate("edit_profile");
+                    }}
+                  >
+                    <Text style={[styles.settingsMenuButtonText, { color: generalTextColor }]}>
+                      {t("editProfile")}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.settingsMenuButton, styles.settingsMenuLogout]}
+                    onPress={() => {
+                      setSettingsMenuOpen(false);
+                      handleLogout();
+                    }}
+                  >
+                    <Text style={[styles.settingsMenuButtonText, { color: "#FFFFFF" }]}>
+                      {t("logOut")}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
           </View>
 
@@ -2238,6 +2264,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-start",
     marginBottom: 12,
+    position: "relative",
   },
   leftActionsStack: { flex: 1 },
   logoutContainer: { alignItems: "flex-start", margin: 4 },
@@ -2301,6 +2328,75 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   topButtonText: { fontSize: 14, color: "#FFFFFF" },
+  settingsContainer: {
+    position: "relative",
+    alignItems: "flex-end",
+  },
+  settingsButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.16)",
+  },
+  menuOverlay: {
+    position: "absolute",
+    top: -16,
+    left: -16,
+    right: -16,
+    bottom: -16,
+    zIndex: 1,
+  },
+  settingsMenu: {
+    position: "absolute",
+    top: 50,
+    right: 0,
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    width: 220,
+    gap: 10,
+    zIndex: 2,
+    shadowColor: "#000",
+    shadowOpacity: 0.12,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
+    elevation: 6,
+  },
+  settingsMenuRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 10,
+  },
+  menuLabel: { fontSize: 14, fontWeight: "600" },
+  menuLanguageToggle: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  settingsMenuButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.08)",
+    backgroundColor: "rgba(255,255,255,0.06)",
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: 180,
+  },
+  settingsMenuButtonText: {
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  settingsMenuLogout: {
+    backgroundColor: "#E53935",
+    borderColor: "#E53935",
+  },
   profileContainer: {
     flexDirection: "row",
     alignItems: "center",

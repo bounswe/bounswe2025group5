@@ -409,7 +409,9 @@
     "firstCommentDesc": "Hesabını açtıktan sonra yaptığın ilk yorumla hemen bu rozeti alırsın.",
     "firstLike": "İlk Beğeni",
     "firstLikeDesc": "Kayıt olduktan sonra beğendiğin ilk gönderide bu rozet tanımlanır.",
-    "viewAllBadges": "Tümü",
+    "viewAllBadges": "Tümünü görüntüle",
+    "settings": "Ayarlar",
+    "language": "Dil",
     "badgeDetails": "Rozet Detayları"
   }
 }
