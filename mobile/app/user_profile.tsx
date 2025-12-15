@@ -126,7 +126,11 @@ export default function UserProfileScreen() {
             likedByUser: false,
             savedByUser: false,
             createdAt: item.createdAt ?? null,
-            authorAvatarUrl: null,
+            authorAvatarUrl:
+              item.profile_photo ??
+              item.profilePhoto ??
+              item.creatorPhotoUrl ??
+              null,
           }))
         : [];
       setPosts(mapped);
