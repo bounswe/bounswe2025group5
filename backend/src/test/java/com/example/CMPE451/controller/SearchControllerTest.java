@@ -68,7 +68,8 @@ class SearchControllerTest {
                 "http://img.com/chart.png",
                 5,
                 false,
-                true
+                true,
+                "https:/example.com"
         );
         List<GetPostResponse> responseList = List.of(post);
 

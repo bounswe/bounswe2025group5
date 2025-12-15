@@ -1,5 +1,6 @@
 package com.example.CMPE451.controller;
 
+import com.example.CMPE451.model.WasteItem;
 import com.example.CMPE451.model.request.AttendChallengeRequest;
 import com.example.CMPE451.model.request.CreateChallengeRequest;
 import com.example.CMPE451.model.request.LogChallengeRequest;
@@ -8,16 +9,13 @@ import com.example.CMPE451.security.JwtAuthFilter;
 import com.example.CMPE451.security.MyUserDetailsService;
 import com.example.CMPE451.service.ChallengeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.json.JacksonTester;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,72 +23,70 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ChallengeController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @AutoConfigureJsonTesters
 class ChallengeControllerTest {
 
-    @TestConfiguration
-    static class ChallengeControllerTestConfiguration {
-
-        @Bean
-        public ChallengeService challengeService() {
-            return Mockito.mock(ChallengeService.class);
-        }
-
-        @Bean
-        public MyUserDetailsService myUserDetailsService() {
-            return Mockito.mock(MyUserDetailsService.class);
-        }
-
-        @Bean
-        public JwtAuthFilter jwtAuthFilter() {
-            return Mockito.mock(JwtAuthFilter.class);
-        }
-    }
-
     @Autowired
     private MockMvc mvc;
 
-    @Autowired
+    @MockBean
     private ChallengeService challengeService;
 
-    private JacksonTester<LogChallengeResponse> jsonLogResponse;
-    private JacksonTester<UserChallengeLogsResponse> jsonUserLogsResponse;
-    private JacksonTester<ChallengeResponse> jsonChallengeResponse;
-    private JacksonTester<List<ChallengeInfoResponse>> jsonChallengeInfoList;
-    private JacksonTester<EndChallengeResponse> jsonEndResponse;
-    private JacksonTester<AttendChallengeResponse> jsonAttendResponse;
-    private JacksonTester<LeaveChallengeResponse> jsonLeaveResponse;
-    private JacksonTester<List<LeaderboardEntry>> jsonLeaderboardList;
-    private JacksonTester<List<ChallengesResponse>> jsonHomeChallengesList;
-    private JacksonTester<List<MyChallengeResponse>> jsonMyChallengesList;
+    @MockBean
+    private MyUserDetailsService myUserDetailsService;
 
-    @BeforeEach
-    void setUp() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.findAndRegisterModules();
-        objectMapper.configure(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-        JacksonTester.initFields(this, objectMapper);
-        Mockito.reset(challengeService);
-    }
+    @MockBean
+    private JwtAuthFilter jwtAuthFilter;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    // Jackson Testers
+    @Autowired
+    private JacksonTester<LogChallengeResponse> jsonLogResponse;
+    @Autowired
+    private JacksonTester<UserChallengeLogsResponse> jsonUserLogsResponse;
+    @Autowired
+    private JacksonTester<ChallengeResponse> jsonChallengeResponse;
+    @Autowired
+    private JacksonTester<List<ChallengeInfoResponse>> jsonChallengeInfoList;
+    @Autowired
+    private JacksonTester<EndChallengeResponse> jsonEndResponse;
+    @Autowired
+    private JacksonTester<AttendChallengeResponse> jsonAttendResponse;
+    @Autowired
+    private JacksonTester<LeaveChallengeResponse> jsonLeaveResponse;
+    @Autowired
+    private JacksonTester<List<LeaderboardEntry>> jsonLeaderboardList;
+    @Autowired
+    private JacksonTester<List<ChallengesResponse>> jsonHomeChallengesList;
+    @Autowired
+    private JacksonTester<List<MyChallengeResponse>> jsonMyChallengesList;
+    @Autowired
+    private JacksonTester<List<WasteItem>> jsonWasteItemList;
 
     @Test
     @WithMockUser
     void testLogChallengeProgress() throws Exception {
         int challengeId = 1;
-        LogChallengeRequest req = new LogChallengeRequest("alice", 20.0);
+        LogChallengeRequest req = new LogChallengeRequest("alice", 20.0, 1);
         LogChallengeResponse response = new LogChallengeResponse("alice", challengeId, 50.0);
 
-        given(challengeService.logChallengeProgress(challengeId, req)).willReturn(response);
+        given(challengeService.logChallengeProgress(eq(challengeId), any(LogChallengeRequest.class)))
+                .willReturn(response);
 
         mvc.perform(post("/api/challenges/{id}/log", challengeId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(req))
+                        .content(objectMapper.writeValueAsString(req))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(jsonLogResponse.write(response).getJson()));
@@ -115,14 +111,16 @@ class ChallengeControllerTest {
     @WithMockUser
     void testCreateChallenge() throws Exception {
         CreateChallengeRequest req = new CreateChallengeRequest();
+        // Set fields if needed: req.setTitle("Challenge");
+
         ChallengeResponse response = new ChallengeResponse(1, "Challenge1", 100.0, "desc",
                 LocalDate.now(), LocalDate.now().plusDays(7), null, "type");
 
-        given(challengeService.createChallenge(req)).willReturn(response);
+        given(challengeService.createChallenge(any(CreateChallengeRequest.class))).willReturn(response);
 
         mvc.perform(post("/api/challenges")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(req))
+                        .content(objectMapper.writeValueAsString(req))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(jsonChallengeResponse.write(response).getJson()));
@@ -164,11 +162,12 @@ class ChallengeControllerTest {
         AttendChallengeRequest req = new AttendChallengeRequest();
         AttendChallengeResponse response = new AttendChallengeResponse("david", challengeId);
 
-        given(challengeService.attendChallenge(req, challengeId)).willReturn(response);
+        given(challengeService.attendChallenge(any(AttendChallengeRequest.class), eq(challengeId)))
+                .willReturn(response);
 
         mvc.perform(post("/api/challenges/{id}/attendees", challengeId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(req))
+                        .content(objectMapper.writeValueAsString(req))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(jsonAttendResponse.write(response).getJson()));
@@ -227,5 +226,20 @@ class ChallengeControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(jsonMyChallengesList.write(List.of(challenge)).getJson()));
+    }
+
+    @Test
+    @WithMockUser
+    void testGetWasteItemsForChallenge() throws Exception {
+        int challengeId = 99;
+        WasteItem item = new WasteItem();
+        // item.setName("Plastic Bottle");
+
+        given(challengeService.getWasteItemsForChallenge(challengeId)).willReturn(List.of(item));
+
+        mvc.perform(get("/api/challenges/{id}/items", challengeId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json(jsonWasteItemList.write(List.of(item)).getJson()));
     }
 }
