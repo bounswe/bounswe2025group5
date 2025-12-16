@@ -219,12 +219,10 @@ describe('ChallengeCard', () => {
       await user.click(screen.getByRole('button', { expanded: false }));
       
       const attendButton = screen.getByRole('button', { name: /attend/i });
-      const logButton = screen.getByRole('button', { name: /log/i });
       
       await user.click(attendButton);
 
       expect(attendButton).toBeDisabled();
-      expect(logButton).toBeDisabled();
 
       resolveAttend!();
       await waitFor(() => {
@@ -309,7 +307,7 @@ describe('ChallengeCard', () => {
   describe('Log Progress', () => {
     test('opens popover when log button is clicked', async () => {
       const user = userEvent.setup();
-      render(<ChallengeCard challenge={mockChallenge} />);
+      render(<ChallengeCard challenge={{ ...mockChallenge, userInChallenge: true }} />);
 
       await user.click(screen.getByRole('button', { expanded: false }));
       await user.click(screen.getByRole('button', { name: /log/i }));
@@ -323,7 +321,7 @@ describe('ChallengeCard', () => {
     test('shows alert when submitting empty amount', async () => {
       const user = userEvent.setup();
 
-      render(<ChallengeCard challenge={mockChallenge} />);
+      render(<ChallengeCard challenge={{ ...mockChallenge, userInChallenge: true }} />);
 
       await user.click(screen.getByRole('button', { expanded: false }));
       await user.click(screen.getByRole('button', { name: /log/i }));
@@ -350,7 +348,7 @@ describe('ChallengeCard', () => {
         newTotalAmount: 260,
       });
 
-      render(<ChallengeCard challenge={mockChallenge} />);
+      render(<ChallengeCard challenge={{ ...mockChallenge, userInChallenge: true }} />);
 
       await user.click(screen.getByRole('button', { expanded: false }));
       await user.click(screen.getByRole('button', { name: /log/i }));
@@ -380,7 +378,7 @@ describe('ChallengeCard', () => {
         newTotalAmount: 300,
       });
 
-      render(<ChallengeCard challenge={mockChallenge} />);
+      render(<ChallengeCard challenge={{ ...mockChallenge, userInChallenge: true }} />);
 
       await user.click(screen.getByRole('button', { expanded: false }));
       await user.click(screen.getByRole('button', { name: /log/i }));
@@ -412,7 +410,7 @@ describe('ChallengeCard', () => {
         newTotalAmount: 300,
       });
 
-      render(<ChallengeCard challenge={mockChallenge} />);
+      render(<ChallengeCard challenge={{ ...mockChallenge, userInChallenge: true }} />);
 
       // Initial progress is 25% (250/1000)
       expect(screen.getByTestId('progress-visualization')).toHaveTextContent('25%');
@@ -450,7 +448,7 @@ describe('ChallengeCard', () => {
       });
       vi.mocked(ChallengesApi.logChallengeProgress).mockReturnValue(logPromise);
 
-      render(<ChallengeCard challenge={mockChallenge} />);
+      render(<ChallengeCard challenge={{ ...mockChallenge, userInChallenge: true }} />);
 
       await user.click(screen.getByRole('button', { expanded: false }));
       
@@ -482,7 +480,7 @@ describe('ChallengeCard', () => {
       const user = userEvent.setup();
       vi.mocked(ChallengesApi.logChallengeProgress).mockRejectedValue(new Error('Network error'));
 
-      render(<ChallengeCard challenge={mockChallenge} />);
+      render(<ChallengeCard challenge={{ ...mockChallenge, userInChallenge: true }} />);
 
       await user.click(screen.getByRole('button', { expanded: false }));
       await user.click(screen.getByRole('button', { name: /log/i }));
@@ -503,7 +501,7 @@ describe('ChallengeCard', () => {
 
     test('prevents negative and zero amounts via submit validation', async () => {
       const user = userEvent.setup();
-      render(<ChallengeCard challenge={mockChallenge} />);
+      render(<ChallengeCard challenge={{ ...mockChallenge, userInChallenge: true }} />);
 
       await user.click(screen.getByRole('button', { expanded: false }));
       await user.click(screen.getByRole('button', { name: /log/i }));
@@ -569,11 +567,11 @@ describe('ChallengeCard', () => {
       });
       vi.mocked(ChallengesApi.logChallengeProgress).mockReturnValue(logPromise);
 
-      render(<ChallengeCard challenge={mockChallenge} />);
+      render(<ChallengeCard challenge={{ ...mockChallenge, userInChallenge: true }} />);
 
       await user.click(screen.getByRole('button', { expanded: false }));
       
-      const attendButton = screen.getByRole('button', { name: /attend/i });
+      const leaveButton = screen.getByRole('button', { name: /leave/i });
       const logButton = screen.getByRole('button', { name: /log/i });
       
       await user.click(logButton);
@@ -588,20 +586,20 @@ describe('ChallengeCard', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(attendButton).toBeDisabled();
+        expect(leaveButton).toBeDisabled();
         expect(logButton).toBeDisabled();
       });
 
       resolveLog!();
       await waitFor(() => {
-        expect(attendButton).not.toBeDisabled();
+        expect(leaveButton).not.toBeDisabled();
         expect(logButton).not.toBeDisabled();
       });
     });
 
     test('combobox label reflects the selected waste item', async () => {
       const user = userEvent.setup();
-      render(<ChallengeCard challenge={mockChallenge} />);
+      render(<ChallengeCard challenge={{ ...mockChallenge, userInChallenge: true }} />);
 
       await user.click(screen.getByRole('button', { expanded: false }));
       await user.click(screen.getByRole('button', { name: /log/i }));
@@ -616,7 +614,7 @@ describe('ChallengeCard', () => {
 
     test('allows searching and selecting a waste item', async () => {
       const user = userEvent.setup();
-      render(<ChallengeCard challenge={mockChallenge} />);
+      render(<ChallengeCard challenge={{ ...mockChallenge, userInChallenge: true }} />);
 
       await user.click(screen.getByRole('button', { expanded: false }));
       await user.click(screen.getByRole('button', { name: /log/i }));

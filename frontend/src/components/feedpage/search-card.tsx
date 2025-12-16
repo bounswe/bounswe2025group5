@@ -119,17 +119,19 @@ export default function SearchCard({ onSearch, onClear, isLoading = false, isAct
           </div>
         </form>
         
-        <div 
-          className={`overflow-visible transition-all duration-300 ease-in-out ${
-            isActive ? 'max-h-20 opacity-100 mt-3 pt-1' : 'max-h-0 opacity-0'
-          }`}
-        >
-          <div className="flex items-center justify-center">
-            <p className="text-sm text-secondary font-medium mt-0.5">
-              {t('search.results')}
-            </p>
+        {isActive && (
+          <div 
+            className={`overflow-visible transition-all duration-300 ease-in-out ${
+              isActive ? 'max-h-20 opacity-100 mt-3 pt-1' : 'max-h-0 opacity-0'
+            }`}
+          >
+            <div className="flex items-center justify-center">
+              <p className="text-sm text-secondary font-medium mt-0.5">
+                {t('search.results')}
+              </p>
+            </div>
           </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   );

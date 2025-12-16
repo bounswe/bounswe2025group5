@@ -81,7 +81,7 @@ describe('MainpageIndex route', () => {
 
   it('renders challenge and post panels when data loads', async () => {
     mockedListChallenges.mockResolvedValue([
-      { challengeId: 1, userInChallenge: true },
+      { challengeId: 1, userInChallenge: true, status: 'active', title: 'Test Challenge', creatorUsername: 'demo' },
     ] as any);
     mockedListPosts.mockResolvedValue([
       { postId: 7, content: 'hello', creatorUsername: 'demo' },

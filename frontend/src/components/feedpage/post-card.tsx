@@ -66,6 +66,15 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameC
 
   const currentUser = typeof window !== 'undefined' ? localStorage.getItem('username') : null;
 
+  // Sync local state with post prop changes
+  useEffect(() => {
+    setCommentCount(post.comments || 0);
+    setIsLiked(post.liked || false);
+    setIsSaved(post.saved || false);
+    setLikeCount(post.likes || 0);
+    setPostImageSrc(post.photoUrl);
+  }, [post]);
+
   // Note: We use initial post data for state initialization
   // Changes from parent are only applied through onPostUpdate callback
   // This prevents unnecessary re-renders and reload loops
