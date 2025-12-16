@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 export default function CreateChallenge() {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [amount, setAmount] = useState<number | ''>('');
+    const [amount, setAmount] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [type, setType] = useState('');
@@ -36,7 +36,8 @@ export default function CreateChallenge() {
                 return;
             }
             // check also that if the amount is a number and greater than 0
-            if (typeof amount !== 'number' || amount <= 0) {
+            const amountNum = Number(amount);
+            if (isNaN(amountNum) || amountNum <= 0) {
                 setError(t('challenges.create.amountError', 'Amount must be a number greater than 0'));
                 setLoading(false);
                 return;
@@ -49,7 +50,7 @@ export default function CreateChallenge() {
             await ChallengesApi.create({
                 name: title,
                 description: description,
-                amount: amount,
+                amount: amountNum,
                 startDate: startDate,
                 endDate: endDate,
                 type: type
@@ -77,15 +78,21 @@ export default function CreateChallenge() {
             <DialogContent>
             <DialogHeader>
               <DialogTitle>{t("challenges.create.titleLabel")}</DialogTitle>
-              <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+              <form onSubmit={handleSubmit} className="space-y-4 mt-4" aria-label={t("challenges.create.titleLabel")}>
                 <div>
                   <Label htmlFor="title" className="mb-1 block">{t("challenges.create.name")}</Label>
-                  <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder={t("challenges.create.namePlaceholder")} />
+                  <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required aria-required="true" placeholder={t("challenges.create.namePlaceholder")} />
                 </div>
                 <div>
-                  <Label htmlFor="type" className="mb-1 block">{t("challenges.create.type")}</Label>
+                  <Label id="type-label" htmlFor="type" className="mb-1 block">{t("challenges.create.type")}</Label>
                   <Select value={type} onValueChange={setType}>
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger 
+                      id="type" 
+                      className="w-full" 
+                      aria-labelledby="type-label"
+                      aria-required="true"
+                      aria-describedby={!type ? "type-required" : undefined}
+                    >
                       <SelectValue placeholder={t("challenges.create.typePlaceholder")} />
                     </SelectTrigger>
                     <SelectContent className="z-[80]">
@@ -96,27 +103,36 @@ export default function CreateChallenge() {
                       ))}
                     </SelectContent>
                   </Select>
+                  <span id="type-required" className="sr-only">{t("challenges.create.typeRequired", "Waste type is required")}</span>
                 </div>
                 <div>
                   <Label htmlFor="amount" className="mb-1 block">{t("challenges.create.amount")}</Label>
-                  <Input id="amount" type="number" value={amount} onChange={(e) => setAmount(e.target.value === '' ? '' : Number(e.target.value))} required />
+                  <Input 
+                    id="amount" 
+                    type="text" 
+                    inputMode="numeric" 
+                    value={amount} 
+                    onChange={(e) => setAmount(e.target.value)} 
+                    required 
+                    aria-required="true" 
+                  />
                 </div>
                 <div>
                   <Label htmlFor="description" className="mb-1 block">{t("challenges.create.description")}</Label>
-                  <Input id="description" value={description} onChange={(e) => setDescription(e.target.value)} required placeholder={t("challenges.create.descriptionPlaceholder")} />
+                  <Input id="description" value={description} onChange={(e) => setDescription(e.target.value)} required aria-required="true" placeholder={t("challenges.create.descriptionPlaceholder")} />
                 </div>
                 <div>
                   <Label htmlFor="startDate" className="mb-1 block">{t("challenges.create.startDate")}</Label>
-                  <Input id="startDate" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
+                  <Input id="startDate" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required aria-required="true" />
                 </div>
                 <div>
                   <Label htmlFor="endDate" className="mb-1 block">{t("challenges.create.endDate")}</Label>
-                  <Input id="endDate" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} required />
+                  <Input id="endDate" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} required aria-required="true" />
                 </div>
-                {error && <div className="text-destructive">{error}</div>}
-                {success && <div className="text-success">{success}</div>}
-                <Button type="submit" disabled={loading}>
-                  {loading ? <Spinner /> : t("common.submit")}
+                {error && <div className="text-destructive" role="alert" aria-live="assertive">{error}</div>}
+                {success && <div className="text-success" role="status" aria-live="polite">{success}</div>}
+                <Button type="submit" disabled={loading} aria-busy={loading} aria-disabled={loading}>
+                  {loading ? <Spinner aria-label={t("common.loading", "Loading")} /> : t("common.submit")}
                 </Button>
               </form>
             </DialogHeader>

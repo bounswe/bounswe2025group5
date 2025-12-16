@@ -60,6 +60,9 @@
             "label": "Şifreyi Onayla",
             "placeholder": "Şifrenizi tekrar girin"
         },
+        "kvkk": {
+            "label": "Kişisel Verilerin Korunması Kanunu (KVKK) şartlarını okudum ve kişisel verilerimin işlenmesine onay veriyorum."
+        },
         "registerButton": "Kayıt Ol",
         "loading": "Hesap oluşturuluyor...",
         "haveAccount": "Zaten bir hesabınız var mı? ",
@@ -68,7 +71,8 @@
             "passwordsDontMatch": "Şifreler eşleşmiyor",
             "registrationFailed": "Kayıt başarısız",
             "tooWeak": "Şifre çok zayıf. 'İyi' veya daha yüksek olmalı.",
-            "tooShort": "Şifre en az {{min}} karakter uzunluğunda olmalıdır."
+            "tooShort": "Şifre en az {{min}} karakter uzunluğunda olmalıdır.",
+            "kvkkRequired": "Kayıt olmak için KVKK şartlarını kabul etmelisiniz."
         },
         "success": {
             "accountCreated": "Hesap başarıyla oluşturuldu. Giriş sayfasına yönlendiriliyor..."

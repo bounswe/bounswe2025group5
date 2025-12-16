@@ -60,6 +60,9 @@
             "label": "Confirm Password",
             "placeholder": "Re-enter your password"
         },
+        "kvkk": {
+            "label": "I have read and accept the Personal Data Protection Law (KVKK) terms and consent to the processing of my personal data."
+        },
         "registerButton": "Register",
         "loading": "Creating account...",
         "haveAccount": "Already have an account? ",
@@ -68,7 +71,8 @@
             "passwordsDontMatch": "Passwords do not match",
             "registrationFailed": "Registration failed",
             "tooWeak": "Password is too weak. Aim for 'Good' or higher.",
-            "tooShort": "Password must be at least {{min}} characters long."
+            "tooShort": "Password must be at least {{min}} characters long.",
+            "kvkkRequired": "You must accept the KVKK terms to register."
         },
         "success": {
             "accountCreated": "Account created successfully. Redirecting to login..."

@@ -72,7 +72,7 @@ export default function CreatePostButton({ onPostCreated, className }: CreatePos
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t('feed.createPost.title')}</DialogTitle>
-            <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+            <form onSubmit={handleSubmit} className="space-y-4 mt-4" aria-label={t('feed.createPost.title')}>
               {/* Kindness Reminder */}
               <div className="bg-tertiary/5 border border-primary/20 rounded-lg p-3">
                 <p className="text-sm text-tertiary font-medium">
@@ -90,6 +90,7 @@ export default function CreatePostButton({ onPostCreated, className }: CreatePos
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPostData(prev => ({ ...prev, content: e.target.value }))}
                   className="min-h-[100px] resize-none animate-input"
                   required
+                  aria-required="true"
                 />
               </div>
 
@@ -126,6 +127,8 @@ export default function CreatePostButton({ onPostCreated, className }: CreatePos
                 <Button
                   type="submit"
                   disabled={isLoading || !postData.content.trim()}
+                  aria-busy={isLoading}
+                  aria-disabled={isLoading || !postData.content.trim()}
                   className="flex-1"
                 >
                   {isLoading ? t('common.posting') : t('feed.createPost.submit')}

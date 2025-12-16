@@ -19,6 +19,7 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [kvkkAccepted, setKvkkAccepted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -46,6 +47,11 @@ export default function Register() {
       return;
     }
 
+    if (!kvkkAccepted) {
+      setError(t("register.error.kvkkRequired"));
+      return;
+    }
+
     try {
       setLoading(true);
       await AuthApi.register(username, email, password);
@@ -69,15 +75,15 @@ export default function Register() {
         </CardHeader>
         <CardContent>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" aria-label={t("register.title")}>
           <div>
             <Label htmlFor="username" className="mb-1 block">{t("register.username.label")}</Label>
-            <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} required placeholder={t("register.username.placeholder")} />
+            <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} required aria-required="true" placeholder={t("register.username.placeholder")} />
           </div>
 
           <div>
             <Label htmlFor="email" className="mb-1 block">{t("register.email.label")}</Label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder={t("register.email.placeholder")} />
+            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required aria-required="true" placeholder={t("register.email.placeholder")} />
           </div>
 
           <div>
@@ -88,14 +94,15 @@ export default function Register() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              aria-describedby="password-requirements"
+              aria-required="true"
+              aria-describedby="password-requirements password-strength"
               placeholder={t("register.password.placeholder")}
             />
             <p id="password-requirements" className="mt-1 text-xs text-muted-foreground">
               {t("register.password.requirements")}
             </p>
               {password ? (
-                <PasswordStrengthMeter password={password}/>
+                <PasswordStrengthMeter password={password} id="password-strength" />
               ) : (
                 <div className="mt-12.5" aria-hidden="true" />
               )}
@@ -103,19 +110,31 @@ export default function Register() {
 
           <div>
             <Label htmlFor="confirmPassword" className="mb-1 block">{t("register.confirmPassword.label")}</Label>
-            <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder={t("register.confirmPassword.placeholder")} />
+            <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required aria-required="true" placeholder={t("register.confirmPassword.placeholder")} />
+          </div>
+
+          <div className="flex items-start gap-2">
+            <input
+              type="checkbox"
+              id="kvkk"
+              checked={kvkkAccepted}
+              onChange={(e) => setKvkkAccepted(e.target.checked)}
+              aria-required="true"
+              className="mt-1 h-4 w-4 rounded border-input accent-primary focus:ring-primary"
+            />
+            <Label htmlFor="kvkk" className="text-sm font-normal leading-tight cursor-pointer">
+              {t("register.kvkk.label")}
+            </Label>
           </div>
 
           {error && (
-            // Use shadcn Alert with destructive variant (theme tokens)
-            <Alert variant="destructive" className="p-3">
+            <Alert variant="destructive" className="p-3" role="alert" aria-live="assertive">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
 
           {success && (
-            // Use default Alert (pulls neutral/primary tokens)
-            <Alert className="p-3">
+            <Alert className="p-3" role="status" aria-live="polite">
               <AlertDescription>{success}</AlertDescription>
             </Alert>
           )}
@@ -123,6 +142,8 @@ export default function Register() {
           <Button
             type="submit"
             disabled={loading}
+            aria-busy={loading}
+            aria-disabled={loading}
             className="w-full"
           >
             {loading ? t("register.loading") : t("register.registerButton")}
