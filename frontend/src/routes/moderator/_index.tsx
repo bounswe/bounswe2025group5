@@ -276,7 +276,7 @@ export function ModeratorDashboard() {
 
           {/* Error Message */}
           {error && (
-            <div className="mb-4 p-4 bg-red-100 border border-red-300 rounded-lg">
+            <div data-testid="error-banner" className="mb-4 p-4 bg-red-100 border border-red-300 rounded-lg">
               <p className="text-red-700 text-sm">{error}</p>
             </div>
           )}
