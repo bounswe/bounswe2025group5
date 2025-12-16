@@ -273,3 +273,20 @@ export async function submitReport(payload: SubmitReportPayload): Promise<void> 
     throw new Error(await r.text());
   }
 }
+
+// Feedback API
+export type SubmitFeedbackPayload = {
+  feedbackerUsername: string;
+  contentType: string;
+  content: string;
+};
+
+export async function submitFeedback(payload: SubmitFeedbackPayload): Promise<void> {
+  const r = await apiRequest('/api/feedback', {
+    method: 'POST',
+    body: payload as any,
+  });
+  if (!r.ok) {
+    throw new Error(await r.text());
+  }
+}

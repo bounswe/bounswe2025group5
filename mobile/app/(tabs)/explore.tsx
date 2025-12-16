@@ -1,5 +1,6 @@
 //app/(tabs)/explore.tsx
-import React, {
+import React from "react";
+import {
   useCallback,
   useContext,
   useEffect,
@@ -64,8 +65,8 @@ type NotificationItem = {
   createdAt: string | Date | null;
   objectId?: string | null;
   objectType?: string | null;
-  actorUsername?: string | null;
-  actorAvatarUrl?: string | null;
+  preview?: string | null;
+  profile_picture?: string | null;
 };
 
 type NotificationFetchError = Error & { status?: number };
@@ -132,8 +133,6 @@ export default function ExploreScreen() {
   const [notificationThumbnails, setNotificationThumbnails] = useState<
     Record<number, string | null>
   >({});
-  const [notificationCommentPreviews, setNotificationCommentPreviews] =
-    useState<Record<number, string | null>>({});
   const [notificationPostBodies, setNotificationPostBodies] = useState<
     Record<number, string | null>
   >({});
@@ -146,7 +145,6 @@ export default function ExploreScreen() {
   const scrollViewRef = useRef<ScrollView | null>(null);
   const lastScrollOffsetRef = useRef(0);
   const notificationThumbnailFetchesRef = useRef<Set<number>>(new Set());
-  const notificationCommentPreviewFetchesRef = useRef<Set<number>>(new Set());
   const notificationMarkingRef = useRef<Set<number>>(new Set());
   const [selectedWasteFilter, setSelectedWasteFilter] = useState<string | null>(
     null
@@ -223,9 +221,12 @@ export default function ExploreScreen() {
           false,
     savedByUser: typeof item.saved === "boolean" ? item.saved : false,
     createdAt: item.createdAt ?? null,
-    authorAvatarUrl: item.creatorUsername
-      ? userAvatars[item.creatorUsername] ?? null
-      : null,
+    authorAvatarUrl:
+      item.profile_picture ??
+      item.profile_photo ??
+      item.profilePhoto ??
+      item.creatorPhotoUrl ??
+      null,
   });
 
   const fetchLikeStatusesForPosts = async (
@@ -325,30 +326,13 @@ export default function ExploreScreen() {
     }));
   };
 
-  const attachAvatarsToNotifications = async (
-    items: NotificationItem[]
-  ): Promise<NotificationItem[]> => {
-    const usernames = items
-      .map((item) => item.actorUsername)
-      .filter((name): name is string =>
-        Boolean(name && name.trim().length > 0)
-      );
-    if (!usernames.length) return items;
-    const avatarUpdates = await ensureAvatarsForUsernames(usernames);
-    const lookup = { ...userAvatars, ...avatarUpdates };
-    return items.map((item) => ({
-      ...item,
-      actorAvatarUrl: item.actorUsername
-        ? resolveAvatarUri(lookup[item.actorUsername])
-        : null,
-    }));
-  };
-
   const hydratePostsForPreview = async (
     postsToProcess: Post[]
   ): Promise<Post[]> => {
     if (!postsToProcess.length) return postsToProcess;
-    let hydrated = await attachAvatarsToPosts(postsToProcess);
+    // Profile photos are now included in the post response, no need to fetch separately
+    // let hydrated = await attachAvatarsToPosts(postsToProcess);
+    let hydrated = postsToProcess;
     if (username && userType === "user") {
       // hydrated = await fetchLikeStatusesForPosts(hydrated, username);
       // hydrated = await fetchSavedStatusesForPosts(hydrated, username);
@@ -544,6 +528,28 @@ export default function ExploreScreen() {
       });
     }
 
+    if (normalizedType === "closedwithoutchange" && normalizedObject === "report") {
+      const preview = rawPayload?.preview;
+      const baseMessage = t("notificationReportClosedWithoutChange", {
+        defaultValue: "Your report has been reviewed and closed without changes",
+      });
+      if (preview && typeof preview === "string" && preview.trim().length > 0) {
+        return `${baseMessage}: "${preview.trim()}"`;
+      }
+      return baseMessage;
+    }
+
+    if (normalizedType === "deletion" && normalizedObject === "report") {
+      const preview = rawPayload?.preview;
+      const baseMessage = t("notificationReportDeletion", {
+        defaultValue: "Your report has been reviewed and the content was removed",
+      });
+      if (preview && typeof preview === "string" && preview.trim().length > 0) {
+        return `${baseMessage}: "${preview.trim()}"`;
+      }
+      return baseMessage;
+    }
+
     try {
       return JSON.stringify(
         rawPayload ?? { type, objectType, actorId, objectId }
@@ -576,6 +582,8 @@ export default function ExploreScreen() {
             item?.actor_id ??
             item?.actorUsername ??
             item?.actor;
+          const rawPreview = item?.preview ?? null;
+          const rawProfilePicture = item?.profile_picture ?? item?.profilePicture ?? null;
           const typeValue = rawType != null ? String(rawType) : null;
           const objectTypeValue =
             rawObjectType != null ? String(rawObjectType) : null;
@@ -606,8 +614,8 @@ export default function ExploreScreen() {
             createdAt: item?.createdAt ?? null,
             objectId: rawObjectId != null ? String(rawObjectId) : null,
             objectType: objectTypeValue,
-            actorUsername,
-            actorAvatarUrl: null,
+            preview: rawPreview,
+            profile_picture: rawProfilePicture,
           };
         })
       : [];
@@ -663,8 +671,7 @@ export default function ExploreScreen() {
         }
       }
       if (fetched) {
-        const withAvatars = await attachAvatarsToNotifications(fetched);
-        setNotifications(withAvatars);
+        setNotifications(fetched);
         return;
       }
       throw lastError ?? new Error("Failed to fetch notifications.");
@@ -696,7 +703,7 @@ export default function ExploreScreen() {
   }, [fetchNotifications]);
 
   const getNotificationInitial = (notif: NotificationItem) => {
-    const source = notif.actorUsername ?? notif.actorId ?? notif.message ?? "";
+    const source = notif.actorId ?? notif.message ?? "";
     const trimmed = source.trim();
     if (!trimmed.length) return "?";
     return trimmed.charAt(0).toUpperCase();
@@ -722,7 +729,11 @@ export default function ExploreScreen() {
   const shouldDisplayNotificationAvatar = (notif: NotificationItem) => {
     const normalizedType = notif.type?.toLowerCase();
     const normalizedObject = notif.objectType?.toLowerCase();
-    return !(normalizedType === "end" && normalizedObject === "challenge");
+    // Hide avatar for challenge end and moderator report notifications
+    if (normalizedType === "end" && normalizedObject === "challenge") return false;
+    if (normalizedType === "closedwithoutchange" && normalizedObject === "report") return false;
+    if (normalizedType === "deletion" && normalizedObject === "report") return false;
+    return true;
   };
 
   const closePostPreview = () => {
@@ -906,12 +917,15 @@ export default function ExploreScreen() {
     const normalizedObjectType = notif.objectType?.toLowerCase();
     const isChallengeEnd =
       normalizedType === "end" && normalizedObjectType === "challenge";
+    const isReportNotification =
+      (normalizedType === "closedwithoutchange" || normalizedType === "deletion") &&
+      normalizedObjectType === "report";
     markNotificationAsRead(notif);
-    if (isChallengeEnd) return;
+    if (isChallengeEnd || isReportNotification) return;
     const derivedPostId = deriveNotificationPostId(notif);
     const messageLower = notif.message?.toLowerCase() ?? "";
     const actorUsername =
-      notif.actorUsername ?? deriveActorUsername(notif.actorId, notif.message);
+      notif.actorId ?? deriveActorUsername(notif.actorId, notif.message);
     const followsCurrentUser =
       normalizedType === "follow" &&
       Boolean(
@@ -936,7 +950,7 @@ export default function ExploreScreen() {
       setPreviewComments([]);
       setPreviewError(null);
       setPreviewLoading(true);
-      setSelectedNotificationActor(notif.actorUsername ?? null);
+      setSelectedNotificationActor(notif.actorId ?? null);
       setSelectedNotificationPostId(derivedPostId);
       setPostPreviewVisible(true);
       return;
@@ -987,22 +1001,6 @@ export default function ExploreScreen() {
       return match?.content ?? null;
     },
     [findPostInState]
-  );
-
-  const getCommentPreviewFromState = useCallback(
-    (postId: number, actorUsername?: string | null) => {
-      const comments = commentsByPostId[postId];
-      if (!comments || !comments.length) return null;
-      const normalizedActor = actorUsername?.trim().toLowerCase();
-      if (normalizedActor) {
-        const byActor = comments.find(
-          (c) => c.username?.toLowerCase() === normalizedActor
-        );
-        if (byActor?.content) return byActor.content;
-      }
-      return comments[0]?.content ?? null;
-    },
-    [commentsByPostId]
   );
 
   const markNotificationAsRead = useCallback(
@@ -1116,73 +1114,6 @@ export default function ExploreScreen() {
     ]
   );
 
-  const fetchNotificationCommentPreview = useCallback(
-    async (notif: NotificationItem, postId: number) => {
-      if (notificationCommentPreviewFetchesRef.current.has(notif.id)) return;
-      notificationCommentPreviewFetchesRef.current.add(notif.id);
-      try {
-        const cached = notificationCommentPreviews[notif.id];
-        if (cached) return;
-
-        const fromState = getCommentPreviewFromState(
-          postId,
-          notif.actorUsername ?? notif.actorId
-        );
-        if (fromState) {
-          setNotificationCommentPreviews((prev) =>
-            prev[notif.id] === fromState
-              ? prev
-              : { ...prev, [notif.id]: fromState }
-          );
-          return;
-        }
-
-        const res = await apiRequest(`/api/posts/${postId}/comments`);
-        if (!res.ok) {
-          setNotificationCommentPreviews((prev) =>
-            Object.prototype.hasOwnProperty.call(prev, notif.id)
-              ? prev
-              : { ...prev, [notif.id]: null }
-          );
-          return;
-        }
-        const data = await res.json();
-        const comments = Array.isArray(data?.comments)
-          ? data.comments
-          : Array.isArray(data?.comments?.comments)
-          ? data.comments.comments
-          : Array.isArray(data?.comments?.items)
-          ? data.comments.items
-          : [];
-        const normalizedActor = notif.actorUsername?.toLowerCase();
-        const matched =
-          (normalizedActor &&
-            comments.find(
-              (c: any) =>
-                typeof c?.creatorUsername === "string" &&
-                c.creatorUsername.toLowerCase() === normalizedActor
-            )) ||
-          comments[0];
-        const previewContent =
-          typeof matched?.content === "string" ? matched.content : null;
-        setNotificationCommentPreviews((prev) =>
-          prev[notif.id] === previewContent
-            ? prev
-            : { ...prev, [notif.id]: previewContent }
-        );
-      } catch (err) {
-        setNotificationCommentPreviews((prev) =>
-          Object.prototype.hasOwnProperty.call(prev, notif.id)
-            ? prev
-            : { ...prev, [notif.id]: null }
-        );
-      } finally {
-        notificationCommentPreviewFetchesRef.current.delete(notif.id);
-      }
-    },
-    [getCommentPreviewFromState, notificationCommentPreviews]
-  );
-
   useEffect(() => {
     if (!notifications.length) return;
     notifications.forEach((notif) => {
@@ -1207,54 +1138,6 @@ export default function ExploreScreen() {
       fetchNotificationPostThumbnail(postId);
     });
   }, [notifications, fetchNotificationPostThumbnail, notificationThumbnails]);
-
-  useEffect(() => {
-    if (!notifications.length) return;
-    notifications.forEach((notif) => {
-      const normalizedType = notif.type?.toLowerCase();
-      const normalizedObject = notif.objectType?.toLowerCase();
-      const postId = deriveNotificationPostId(notif);
-      const isCommentOnPost =
-        postId !== null &&
-        ((normalizedType === "comment" &&
-          (normalizedObject === "post" || !normalizedObject)) ||
-          (normalizedType === "create" && normalizedObject === "comment"));
-      if (!isCommentOnPost || postId === null) return;
-
-      const previewAlready =
-        Object.prototype.hasOwnProperty.call(
-          notificationCommentPreviews,
-          notif.id
-        ) && notificationCommentPreviews[notif.id] !== undefined;
-
-      const fromState = getCommentPreviewFromState(
-        postId,
-        notif.actorUsername ?? notif.actorId
-      );
-      if (!previewAlready && fromState) {
-        setNotificationCommentPreviews((prev) =>
-          prev[notif.id] === fromState
-            ? prev
-            : { ...prev, [notif.id]: fromState }
-        );
-        return;
-      }
-
-      if (
-        previewAlready ||
-        notificationCommentPreviewFetchesRef.current.has(notif.id)
-      ) {
-        return;
-      }
-
-      fetchNotificationCommentPreview(notif, postId);
-    });
-  }, [
-    notifications,
-    fetchNotificationCommentPreview,
-    getCommentPreviewFromState,
-    notificationCommentPreviews,
-  ]);
 
   const fetchPosts = async (
     loadMore = false,
@@ -1300,9 +1183,10 @@ export default function ExploreScreen() {
 
       let processedNewItems: Post[] = data.map(mapApiItemToPost);
 
-      if (processedNewItems.length > 0) {
-        processedNewItems = await attachAvatarsToPosts(processedNewItems);
-      }
+      // Profile photos are now included in the post response, no need to fetch separately
+      // if (processedNewItems.length > 0) {
+      //   processedNewItems = await attachAvatarsToPosts(processedNewItems);
+      // }
 
       // if (username && userType === "user" && processedNewItems.length > 0) {
       //   // processedNewItems = await fetchLikeStatusesForPosts(processedNewItems, username);
@@ -1475,9 +1359,17 @@ export default function ExploreScreen() {
       if (!res.ok) throw new Error("Search failed");
       const data = await res.json();
       let processedResults: Post[] = data.map(mapApiItemToPost);
-      if (processedResults.length > 0) {
-        processedResults = await attachAvatarsToPosts(processedResults);
-      }
+      // Profile photos are now included in the post response, no need to fetch separately
+      // if (processedResults.length > 0) {
+      //   processedResults = await attachAvatarsToPosts(processedResults);
+      // }
+      // if (username && userType === "user" && processedResults.length > 0) {
+      //   // processedResults = await fetchLikeStatusesForPosts(processedResults, username);
+      //   processedResults = await fetchSavedStatusesForPosts(
+      //     processedResults,
+      //     username
+      //   );
+      // }
       setSearchResults(processedResults);
       setInSearchMode(true);
       if (expandedPostId) setExpandedPostId(null);
@@ -2499,7 +2391,7 @@ export default function ExploreScreen() {
                     ? getNotificationInitial(notif)
                     : null;
                   const resolvedAvatarUri = showAvatar
-                    ? resolveAvatarUri(notif.actorAvatarUrl)
+                    ? resolveAvatarUri(notif.profile_picture)
                     : null;
                   const avatarContent = showAvatar ? (
                     resolvedAvatarUri ? (
@@ -2603,13 +2495,7 @@ export default function ExploreScreen() {
                     }
                   }
                   if (isCommentOnPost && derivedPostIdForThumb !== null) {
-                    const commentPreview =
-                      notificationCommentPreviews[notif.id] ??
-                      getCommentPreviewFromState(
-                        derivedPostIdForThumb,
-                        notif.actorUsername ?? notif.actorId
-                      ) ??
-                      null;
+                    const commentPreview = notif.preview ?? null;
                     if (commentPreview && commentPreview.trim().length) {
                       const normalized = commentPreview
                         .trim()

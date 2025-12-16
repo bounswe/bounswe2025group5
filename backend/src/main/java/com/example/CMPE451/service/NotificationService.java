@@ -4,6 +4,8 @@ import com.example.CMPE451.model.Notification;
 import com.example.CMPE451.model.User;
 import com.example.CMPE451.model.response.NotificationResponse;
 import com.example.CMPE451.repository.NotificationRepository;
+import com.example.CMPE451.repository.ProfileRepository;
+import com.example.CMPE451.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,8 +17,9 @@ import java.util.List;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final ProfileRepository profileRepository;
 
-    public Notification createNotification(User user, String type, String objectType, String actorId ,String objectId, String preview) {
+    public Notification createNotification(User user, String type, String objectType, String actorId ,String objectId, String preview, String profile_picture) {
         Notification notification = new Notification();
         notification.setUser(user);
         notification.setActorId(actorId);
@@ -25,6 +28,7 @@ public class NotificationService {
         notification.setObjectType(objectType);
         notification.setObjectId(objectId);
         notification.setPreview(preview);
+        notification.setProfile_picture(profile_picture);
         return notificationRepository.save(notification);
     }
 
@@ -42,6 +46,7 @@ public class NotificationService {
                     dto.setObjectId(n.getObjectId());
                     dto.setObjectType(n.getObjectType());
                     dto.setPreview(n.getPreview());
+                    dto.setProfile_picture(n.getProfile_picture());
                     return dto;
                 })
                 .toList();
