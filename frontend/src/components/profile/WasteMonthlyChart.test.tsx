@@ -37,6 +37,7 @@ vi.mock('recharts', () => {
     YAxis: () => null,
     Tooltip: () => null,
     Cell: () => null,
+    ReferenceLine: Mock,
   };
 });
 

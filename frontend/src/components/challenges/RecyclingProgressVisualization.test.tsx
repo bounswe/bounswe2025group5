@@ -2,6 +2,19 @@ import { render, screen } from '@testing-library/react';
 import { describe, test, expect, vi } from 'vitest';
 import RecyclingProgressVisualization from './RecyclingProgressVisualization';
 
+// Mock i18next
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string, options?: Record<string, unknown>) => {
+      if (key === 'challenges.recyclingProgress' && options?.percent !== undefined) {
+        return `Recycling progress ${options.percent} percent`;
+      }
+      return key;
+    },
+    i18n: { language: 'en' },
+  }),
+}));
+
 // Mock image imports
 vi.mock('@/assets/progress_clean_1.png', () => ({
   default: 'mocked-clean-image.png',
@@ -20,21 +33,21 @@ describe('RecyclingProgressVisualization', () => {
     test('renders with default props', () => {
       render(<RecyclingProgressVisualization progress={50} />);
       
-      expect(screen.getByRole('group')).toBeInTheDocument();
+      expect(screen.getByRole('progressbar')).toBeInTheDocument();
       expect(screen.getByLabelText(/recycling progress 50 percent/i)).toBeInTheDocument();
     });
 
     test('renders with custom width and height', () => {
       render(<RecyclingProgressVisualization progress={50} width={600} height={300} />);
       
-      const container = screen.getByRole('group');
+      const container = screen.getByRole('progressbar');
       expect(container).toHaveStyle({ width: '600px', height: '300px' });
     });
 
     test('renders with custom className', () => {
       render(<RecyclingProgressVisualization progress={50} className="custom-class" />);
       
-      const container = screen.getByRole('group');
+      const container = screen.getByRole('progressbar');
       expect(container).toHaveClass('custom-class');
     });
 
@@ -131,13 +144,22 @@ describe('RecyclingProgressVisualization', () => {
     test('has correct ARIA role', () => {
       render(<RecyclingProgressVisualization progress={50} />);
       
-      expect(screen.getByRole('group')).toBeInTheDocument();
+      expect(screen.getByRole('progressbar')).toBeInTheDocument();
     });
 
     test('has ARIA label with progress value', () => {
       render(<RecyclingProgressVisualization progress={65} />);
       
       expect(screen.getByLabelText('Recycling progress 65 percent')).toBeInTheDocument();
+    });
+
+    test('has ARIA value attributes', () => {
+      render(<RecyclingProgressVisualization progress={65} />);
+      
+      const progressbar = screen.getByRole('progressbar');
+      expect(progressbar).toHaveAttribute('aria-valuenow', '65');
+      expect(progressbar).toHaveAttribute('aria-valuemin', '0');
+      expect(progressbar).toHaveAttribute('aria-valuemax', '100');
     });
 
     test('images have aria-hidden attribute', () => {

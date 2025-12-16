@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import progressCleanImage from '@/assets/progress_clean_1.png';
 import progressDirtyImage from '@/assets/progress_dirty_1.png';
 import recycleGif from '@/assets/recycle.gif';
@@ -20,6 +21,7 @@ export default function RecyclingProgressVisualization({
   height = 200,
   className = ''
 }: RecyclingProgressVisualizationProps) {
+  const { t } = useTranslation();
   // Clamp progress between 0 and 100
   const clampedProgress = useMemo(() => Math.max(0, Math.min(100, progress)), [progress]);
 
@@ -27,8 +29,11 @@ export default function RecyclingProgressVisualization({
     <div
       className={`relative overflow-hidden rounded-lg ${className}`}
       style={{ width, height }}
-      role="group"
-      aria-label={`Recycling progress ${clampedProgress.toFixed(0)} percent`}
+      role="progressbar"
+      aria-valuenow={clampedProgress}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label={t('challenges.recyclingProgress', { percent: clampedProgress.toFixed(0) })}
     >
       {/* Background dirty image */}
       <img
@@ -69,7 +74,7 @@ export default function RecyclingProgressVisualization({
       )}
       
       {/* Progress percentage overlay */}
-      <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
+      <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full" aria-hidden="true">
         {clampedProgress.toFixed(0)}%
       </div>
     </div>

@@ -1,12 +1,15 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
+import { useState, useEffect } from 'react';
+import imageFallback from '@/assets/image-fallback.png';
 
 interface ImageDialogProps {
   open: boolean;
@@ -24,6 +27,11 @@ export default function ImageDialog({
   username,
 }: ImageDialogProps) {
   const { t } = useTranslation();
+  const [imageSrc, setImageSrc] = useState(imageUrl);
+
+  useEffect(() => {
+    setImageSrc(imageUrl);
+  }, [imageUrl]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -56,9 +64,13 @@ export default function ImageDialog({
               })
             : t('post.imageDialogTitleGeneric', { defaultValue: 'Post image' })}
         </DialogTitle>
+        <DialogDescription className="sr-only">
+          {t('post.imageDialogDescription', 'Enlarged view of the post image')}
+        </DialogDescription>
         <div className="flex items-center justify-center w-full h-full bg-[#1b1b1a] backdrop-blur-md">
           <img
-            src={imageUrl}
+            src={imageSrc}
+            onError={() => setImageSrc(imageFallback)}
             alt={altText}
             className="max-w-[85vw] max-h-[75vh] object-contain"
             style={{

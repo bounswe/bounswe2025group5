@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { CommentsApi, type Comment } from '@/lib/api/comments';
 import CommentItem from './comment-item';
 import userAvatar from '@/assets/user.png';
+import { useProfilePhotos } from '@/hooks/useProfilePhotos';
 
 interface CommentSectionProps {
   postId: number;
@@ -20,11 +21,25 @@ export default function CommentSection({ postId, onCommentAdded, onUsernameClick
   const [newComment, setNewComment] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const loadedPostIdRef = useRef<number | null>(null);
 
   const currentUser = typeof window !== 'undefined' ? localStorage.getItem('username') : null;
 
+  // Extract unique comment author usernames
+  const uniqueCommentAuthors = useMemo(
+    () => Array.from(new Set(comments.map(c => c.creatorUsername || c.username).filter(Boolean))),
+    [comments]
+  );
+
+  // Fetch all comment author profile photos at once
+  const { photoMap } = useProfilePhotos(uniqueCommentAuthors);
+
   useEffect(() => {
-    loadComments();
+    // Only load comments if we haven't loaded them for this postId yet
+    if (loadedPostIdRef.current !== postId) {
+      loadedPostIdRef.current = postId;
+      loadComments();
+    }
   }, [postId]);
 
   const loadComments = async () => {
@@ -96,6 +111,7 @@ export default function CommentSection({ postId, onCommentAdded, onUsernameClick
               onUpdate={handleCommentUpdate}
               onDelete={handleCommentDelete}
               onUsernameClick={onUsernameClick}
+              commenterPhotoUrl={photoMap.get(comment.creatorUsername || comment.username) || null}
             />
           ))}
         </div>

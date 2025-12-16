@@ -1,5 +1,6 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import userAvatar from "@/assets/user.png";
 
 interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
@@ -28,13 +29,23 @@ const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
 Avatar.displayName = "Avatar"
 
 const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImageProps>(
-  ({ className, ...props }, ref) => (
-    <img
-      ref={ref}
-      className={cn("aspect-square h-full w-full object-cover", className)}
-      {...props}
-    />
-  )
+  ({ className, src, ...props }, ref) => {
+    const [imgSrc, setImgSrc] = React.useState(src);
+
+    React.useEffect(() => {
+      setImgSrc(src);
+    }, [src]);
+
+    return (
+      <img
+        ref={ref}
+        src={imgSrc}
+        onError={() => setImgSrc(userAvatar)}
+        className={cn("aspect-square h-full w-full object-cover", className)}
+        {...props}
+      />
+    );
+  }
 )
 AvatarImage.displayName = "AvatarImage"
 

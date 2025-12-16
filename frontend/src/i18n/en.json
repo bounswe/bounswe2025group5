@@ -60,6 +60,9 @@
             "label": "Confirm Password",
             "placeholder": "Re-enter your password"
         },
+        "kvkk": {
+            "label": "I have read and accept the Personal Data Protection Law (KVKK) terms and consent to the processing of my personal data."
+        },
         "registerButton": "Register",
         "loading": "Creating account...",
         "haveAccount": "Already have an account? ",
@@ -68,7 +71,8 @@
             "passwordsDontMatch": "Passwords do not match",
             "registrationFailed": "Registration failed",
             "tooWeak": "Password is too weak. Aim for 'Good' or higher.",
-            "tooShort": "Password must be at least {{min}} characters long."
+            "tooShort": "Password must be at least {{min}} characters long.",
+            "kvkkRequired": "You must accept the KVKK terms to register."
         },
         "success": {
             "accountCreated": "Account created successfully. Redirecting to login..."
@@ -79,6 +83,10 @@
         "navbar": "Profile",
         "title": "Your Profile",
         "description": "Manage your profile information",
+        "account": {
+            "details": "Account Details",
+            "password": "Reset Password"
+        },
         "username": "Username",
         "userLabel": "User {{username}}",
         "biography": "Biography",
@@ -97,6 +105,25 @@
         "editImage": "Edit Image",
         "userProfile": "User profile",
         "userProfileTitle": "{{username}}'s profile",
+        "resetPassword": {
+            "subtitle": "Set a new password to keep your account secure.",
+            "currentLabel": "Current password",
+            "newLabel": "New password",
+            "confirmLabel": "Confirm new password",
+            "placeholder": "Choose a strong password",
+            "requirements": "Use at least 8 characters. Mix letters, numbers, and symbols, and avoid common patterns.",
+            "update": "Update password",
+            "updating": "Updating...",
+            "success": "Password updated successfully.",
+            "error": {
+                "tooShort": "Password must be at least {{min}} characters.",
+                "tooWeak": "Password is too weak. Aim for 'Good' or higher.",
+                "passwordsDontMatch": "Passwords do not match",
+                "samePassword": "New password must be different from the current one.",
+                "usernameMissing": "We could not find your username. Please log in again.",
+                "generic": "Could not change password. Please try again."
+            }
+        },
         "error": {
             "loadFailed": "Failed to load profile"
         },
@@ -114,7 +141,10 @@
             "empty": "Not following anyone yet"
         },
         "follow": "Follow",
-        "unfollow": "Unfollow"
+        "unfollow": "Unfollow",
+        "badges": {
+            "cta": "See Badge Catalog"
+        }
     },
     "main": {
         "navbar": "Main"
@@ -151,6 +181,13 @@
         "error": {
             "loadFailed": "Failed to load posts",
             "loadMoreFailed": "Failed to load more posts"
+        },
+        "wasteTypes": {
+            "plastic": "Plastic",
+            "paper": "Paper",
+            "glass": "Glass",
+            "metal": "Metal",
+            "organic": "Organic"
         }
     },
     "goals": {
@@ -192,7 +229,18 @@
         "summaryNoDataDescription": "Please select a start and end date and a waste type",
         "summaryNoDataButton": "Refresh data",
         "summaryNoDataButtonLoading": "Fetching...",
+        "summaryTotal": "Total collected",
+        "summaryScaleMax": "Scale max",
+        "summaryImpactLabel": "Real-world savings",
+        "summaryImpactHelper": "From {{amount}} of {{wasteType}}",
+        "summaryImpactEmpty": "Log waste to see your real-world savings.",
+        "summaryImpactEmptyValue": "No savings yet",
+        "summaryImpactDescription": "All users logged {{amount}} of {{wasteType}}, saving about {{impact}} {{unit}}.",
         "monthlyTitle": "12-month waste trends",
+        "monthlyImpactLabel": "12-month impact",
+        "monthlyImpactHelper": "From your last 12 months",
+        "monthlyGlobalAverage": "Global average ({{value}} kg)",
+        "recyclingNote": "We calculate savings assuming the waste you log is recycled.",
         "wasteType": "Waste type",
         "save": "Save",
         "cancel": "Cancel",
@@ -200,7 +248,16 @@
         "logWasteDescription": "Select an item and quantity to log.",
         "item": "Item",
         "quantity": "Quantity",
-        "log": "Log"
+        "log": "Log",
+        "impact": {
+            "units": {
+                "trees": "trees",
+                "barrels": "barrels of oil",
+                "energy": "kWh saved",
+                "ore": "kg of ore",
+                "compost": "kg of compost"
+            }
+        }
 
     },
     "wasteTypes": {
@@ -236,9 +293,37 @@
         "likes": "Likes",
         "comments": "Comments"
     },
+    "moderator": {
+        "navbar": "Moderator",
+        "title": "Moderator queue",
+        "subtitle": "Review and resolve unresolved reports",
+        "dialogDescription": "View reported content details",
+        "refresh": "Refresh",
+        "refreshing": "Refreshing...",
+        "empty": "No unresolved reports — all clear!",
+        "reportedBy": "Reported by {{username}}",
+        "reportedAt": "Reported {{time}}",
+        "objectId": "ID {{id}}",
+        "error": "Failed to load reports",
+        "noUsername": "Missing moderator username",
+        "solve": "Mark as solved",
+        "solving": "Marking...",
+        "solveError": "Failed to mark report as solved",
+        "delete": "Delete content",
+        "deleting": "Deleting...",
+        "deleteError": "Failed to delete reported content",
+        "unsupportedContent": "Unsupported content type",
+        "view": "View content",
+        "viewing": "Loading content...",
+        "viewError": "Unable to load reported content",
+        "dialogTitle": "Reported {{type}}",
+        "commentPreview": "Comment by {{username}}"
+    },
     "challenges": {
         "title": "Challenges",
+        "recyclingProgress": "Recycling progress {{percent}} percent",
         "leaderboard": "Leaderboard",
+        "leaderboardDescription": "View challenge rankings",
         "leaderboardEmpty": "No entries yet",
         "attendError": "Could not attend the challenge",
         "leaveError": "Could not leave the challenge",
@@ -246,6 +331,11 @@
         "invalidAmount": "Please enter a positive amount",
         "enterAmount": "Enter amount",
         "submit": "Submit",
+        "selectItem": "Select waste item...",
+        "selectedItem": "Selected item",
+        "searchItem": "Search item...",
+        "loadingItems": "Loading items...",
+        "noItems": "No waste items found",
         "type": "Type",
         "status": "Status",
         "dates": "Dates",
@@ -262,6 +352,7 @@
         "create": {
             "createChallenge": "Create Challenge",
             "titleLabel": "Create Challenge",
+            "dialogDescription": "Set up a new waste reduction challenge",
             "name": "Title",
             "namePlaceholder": "Enter challenge title",
             "description": "Description",
@@ -283,6 +374,7 @@
         "imageAlt": "{{username}}'s post image",
         "imageDialogTitle": "{{username}}'s post image",
         "imageDialogTitleGeneric": "Post image",
+        "imageDialogDescription": "Enlarged view of the post image",
         "closeImage": "Close image",
         "like": "Like post",
         "unlike": "Unlike post",
@@ -296,6 +388,7 @@
         "hideComments": "Hide comments",
         "edit": {
             "title": "Edit Post",
+            "description": "Update your post content and image",
             "button": "Edit post",
             "currentImage": "Current image will be kept unless you upload a new one",
             "newImage": "Upload New Image (Optional)",
@@ -341,6 +434,26 @@
         },
         "send": "Send comment"
     },
+    "reports": {
+        "titlePost": "Report post",
+        "titleComment": "Report comment",
+        "description": "Help us keep the community safe by letting us know what is wrong with this content.",
+        "reasonLabel": "Reason",
+        "reasonPlaceholder": "Describe the issue...",
+        "submit": "Submit report",
+        "submitting": "Submitting...",
+        "success": "Report submitted. Thank you for helping us moderate the community.",
+        "error": "Failed to submit report. Please try again.",
+        "missingReason": "Please provide a short explanation.",
+        "loginRequired": "Sign in to report content",
+        "typeLabel": "Report type",
+        "typeOptions": {
+            "SPAM": "Spam or misleading",
+            "HARASSMENT": "Harassment or hate",
+            "MISINFORMATION": "Misinformation",
+            "OTHER": "Other issue"
+        }
+    },
     "search": {
         "placeholder": "Search posts...",
         "button": "Search",
@@ -378,5 +491,79 @@
         "startedFollowing_suffix": "started following you",
         "sharedYourPost_suffix": "shared your post",
         "challengeEnded_suffix": "ended"
+    },
+    "feedback": {
+        "buttonLabel": "Send Feedback",
+        "title": "Share Your Feedback",
+        "description": "Help us improve by sharing your thoughts, suggestions, or reporting issues.",
+        "messageLabel": "Your Message",
+        "placeholder": "Tell us what you think...",
+        "charCount": "{{count}} / {{max}} characters",
+        "submitting": "Sending...",
+        "success": "Thank you! Your feedback has been submitted successfully.",
+        "error": "Failed to submit feedback. Please try again later.",
+        "emptyError": "Please enter your feedback before submitting.",
+        "authError": "You must be logged in to submit feedback.",
+        "forbiddenError": "You don't have permission to submit feedback. Please ensure you're logged in.",
+        "userNotFoundError": "User account not found. Please try logging in again."
+    },
+    "badges": {
+        "title": "Badge Catalog",
+        "subtitle": "Preview the badges you can earn in WasteLess.",
+        "loginRequired": "Please sign in to view your badges.",
+        "loadError": "Failed to load badges.",
+        "filters": {
+            "all": "All categories"
+        },
+        "categories": {
+            "waste": "Goals",
+            "challenge": "Challenges",
+            "social": "Social",
+            "community": "Community"
+        },
+        "status": {
+            "earned": "Earned",
+            "locked": "Locked"
+        },
+        "badgeNames": {
+            "plasticSaver": "Plastic Saver",
+            "plasticHero": "Plastic Hero",
+            "plasticLegend": "Plastic Legend",
+            "paperSaver": "Paper Saver",
+            "paperHero": "Paper Hero",
+            "paperLegend": "Paper Legend",
+            "glassSaver": "Glass Saver",
+            "glassHero": "Glass Hero",
+            "glassLegend": "Glass Legend",
+            "metalSaver": "Metal Saver",
+            "metalHero": "Metal Hero",
+            "metalLegend": "Metal Legend",
+            "organicSaver": "Organic Saver",
+            "organicHero": "Organic Hero",
+            "organicLegend": "Organic Legend",
+            "topChallenger": "Top Challenger",
+            "firstLike": "First Like",
+            "firstComment": "First Comment"
+        },
+        "badgeDescriptions": {
+            "plasticSaver": "Log 1,000g (1kg) of plastic waste to earn this badge.",
+            "plasticHero": "Log 5,000g (5kg) of plastic waste to earn this badge.",
+            "plasticLegend": "Log 10,000g (10kg) of plastic waste to earn this badge.",
+            "paperSaver": "Log 1,000g (1kg) of paper waste to earn this badge.",
+            "paperHero": "Log 5,000g (5kg) of paper waste to earn this badge.",
+            "paperLegend": "Log 10,000g (10kg) of paper waste to earn this badge.",
+            "glassSaver": "Log 1,000g (1kg) of glass waste to earn this badge.",
+            "glassHero": "Log 5,000g (5kg) of glass waste to earn this badge.",
+            "glassLegend": "Log 10,000g (10kg) of glass waste to earn this badge.",
+            "metalSaver": "Log 1,000g (1kg) of metal waste to earn this badge.",
+            "metalHero": "Log 5,000g (5kg) of metal waste to earn this badge.",
+            "metalLegend": "Log 10,000g (10kg) of metal waste to earn this badge.",
+            "organicSaver": "Log 1,000g (1kg) of organic waste to earn this badge.",
+            "organicHero": "Log 5,000g (5kg) of organic waste to earn this badge.",
+            "organicLegend": "Log 10,000g (10kg) of organic waste to earn this badge.",
+            "topChallenger": "Finish a challenge in the top 3 of the leaderboard to earn this badge.",
+            "firstLike": "Like a post to earn this badge.",
+            "firstComment": "Comment on a post to earn this badge."
+        }
     }
 }
