@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from '@/components/ui/spinner';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function CreateChallenge() {
@@ -78,6 +78,9 @@ export default function CreateChallenge() {
             <DialogContent>
             <DialogHeader>
               <DialogTitle>{t("challenges.create.titleLabel")}</DialogTitle>
+              <DialogDescription>
+                {t("challenges.create.dialogDescription", "Set up a new waste reduction challenge")}
+              </DialogDescription>
               <form onSubmit={handleSubmit} className="space-y-4 mt-4" aria-label={t("challenges.create.titleLabel")}>
                 <div>
                   <Label htmlFor="title" className="mb-1 block">{t("challenges.create.name")}</Label>

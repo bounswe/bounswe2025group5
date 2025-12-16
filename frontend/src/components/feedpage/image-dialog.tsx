@@ -1,6 +1,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -59,6 +60,9 @@ export default function ImageDialog({
               })
             : t('post.imageDialogTitleGeneric', { defaultValue: 'Post image' })}
         </DialogTitle>
+        <DialogDescription className="sr-only">
+          {t('post.imageDialogDescription', 'Enlarged view of the post image')}
+        </DialogDescription>
         <div className="flex items-center justify-center w-full h-full bg-[#1b1b1a] backdrop-blur-md">
           <img
             src={imageSrc}

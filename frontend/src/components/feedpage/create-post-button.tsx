@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea.tsx';
@@ -72,6 +72,9 @@ export default function CreatePostButton({ onPostCreated, className }: CreatePos
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t('feed.createPost.title')}</DialogTitle>
+            <DialogDescription>
+              {t('feed.createPost.subtitle')}
+            </DialogDescription>
             <form onSubmit={handleSubmit} className="space-y-4 mt-4" aria-label={t('feed.createPost.title')}>
               {/* Kindness Reminder */}
               <div className="bg-tertiary/5 border border-primary/20 rounded-lg p-3">
