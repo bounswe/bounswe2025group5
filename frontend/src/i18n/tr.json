@@ -243,6 +243,13 @@
         "editTitle": "Atık hedefi düzenle",
         "editDesc": "Atık hedefinizi güncelleyin",
         "create": "Atık hedefi oluştur",
+        "created": "Hedef oluşturuldu",
+        "createError": "Hedef oluşturulamadı",
+        "updated": "Hedef güncellendi",
+        "updateError": "Hedef güncellenemedi",
+        "deleted": "Hedef silindi",
+        "deleteError": "Hedef silinemedi",
+        "logged": "Atık kaydedildi",
         "impact": {
             "units": {
                 "trees": "ağaç",
@@ -373,7 +380,9 @@
         "unsave": "Kaydedilenleri kaldır",
         "showComments": "Yorumları göster",
         "likes": "{{count}} beğeni",
+        "likes_plural": "{{count}} beğeni",
         "viewComments": "{{count}} yorumu görüntüle",
+        "viewComments_plural": "{{count}} yorumu görüntüle",
         "hideComments": "Yorumları gizle",
         "edit": {
             "title": "Gönderiyi Düzenle",
