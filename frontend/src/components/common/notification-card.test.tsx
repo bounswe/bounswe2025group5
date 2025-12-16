@@ -451,7 +451,7 @@ describe('NotificationCard', () => {
 
     test('truncates long preview content to 80 characters with ellipsis', () => {
       render(<NotificationCard notification={mockNotificationWithLongPreview} />);
-      const previewText = screen.getByText((content, element) => {
+      const previewText = screen.getByText((content) => {
         // Check if text contains the beginning of the preview and ends with ellipsis
         return content.includes('This is a very long comment content') && content.includes('...');
       });

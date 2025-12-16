@@ -30,7 +30,7 @@ export default function NotificationIcon() {
 
   // Get unique actor IDs from all notifications
   const uniqueActorIds = useMemo(
-    () => Array.from(new Set(notifications.map(n => n.actorId).filter(Boolean))),
+    () => Array.from(new Set(notifications.map(n => n.actorId).filter((id): id is string => !!id))),
     [notifications]
   );
 
@@ -204,7 +204,7 @@ export default function NotificationIcon() {
                   notification={notification}
                   onMarkAsRead={handleMarkAsRead}
                   onNotificationClick={handleNotificationClick}
-                  actorPhotoUrl={photoMap.get(notification.actorId) || null}
+                  actorPhotoUrl={notification.actorId ? photoMap.get(notification.actorId) || null : null}
                   className="shadow-sm"
                 />
               ))}

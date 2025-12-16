@@ -7,7 +7,7 @@ import { CommentsApi, type Comment } from '@/lib/api/comments';
 // Mock i18next
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, options?: any) => {
+    t: (key: string) => {
       const translations: Record<string, string> = {
         'comment.placeholder': 'Add a comment...',
         'comment.send': 'Send comment',
@@ -306,7 +306,6 @@ describe('CommentSection', () => {
     });
 
     test('prevents submission when not logged in', async () => {
-      const user = userEvent.setup();
       localStorageMock.clear();
       vi.mocked(CommentsApi.list).mockResolvedValue({ comments: [] });
       

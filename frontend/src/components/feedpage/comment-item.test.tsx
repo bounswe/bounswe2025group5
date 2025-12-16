@@ -309,7 +309,7 @@ describe('CommentItem', () => {
     test('deletes comment when confirmed', async () => {
       const user = userEvent.setup();
       const onDelete = vi.fn();
-      vi.mocked(CommentsApi.remove).mockResolvedValue(undefined);
+      vi.mocked(CommentsApi.remove).mockResolvedValue({});
 
       render(<CommentItem comment={mockComment} onDelete={onDelete} />);
 

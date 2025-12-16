@@ -8,7 +8,7 @@ import type { Notification } from '@/lib/api/schemas/notifications';
 // Mock i18next
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, options?: any) => {
+    t: (key: string) => {
       const translations: Record<string, string> = {
         'notifications.title': 'Notifications',
         'notifications.loading': 'Loading...',
@@ -58,7 +58,7 @@ vi.mock('./NotificationDetailDialog', () => ({
 
 // Mock UI components
 vi.mock('@/components/ui/popover', () => ({
-  Popover: ({ children, open, onOpenChange }: any) => (
+  Popover: ({ children, open }: any) => (
     <div data-open={open} data-testid="popover">
       {children}
     </div>

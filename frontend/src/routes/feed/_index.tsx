@@ -27,7 +27,7 @@ export default function FeedPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [renderKey, setRenderKey] = useState(0);
+  const [renderKey] = useState(0);
   
   // Search state
   const [searchResults, setSearchResults] = useState<PostItem[]>([]);
