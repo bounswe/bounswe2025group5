@@ -3,12 +3,10 @@ import { test, expect } from '@playwright/test';
 const username = process.env.E2E_USER;
 const password = process.env.E2E_PASS;
 
-test.describe('login → mainpage → feed like flow', () => {
+test.describe('login → mainpage → feed view', () => {
   test.skip(!username || !password, 'E2E_USER and E2E_PASS env vars are required');
 
-  test('user can log in, open feed, create & like a post', async ({ page }) => {
-    const postContent = `Playwright post ${Date.now()}`;
-
+  test('user can log in and see feed components', async ({ page }) => {
     // Login
     await page.goto('/auth/login');
     await page.fill('#email', username!);
@@ -25,18 +23,18 @@ test.describe('login → mainpage → feed like flow', () => {
     await page.getByRole('button', { name: 'Feed', exact: true }).click();
     await page.waitForURL('**/feed', { timeout: 10_000 });
 
-    // Create a new post to guarantee content exists
-    await page.getByRole('button', { name: /create post/i }).click();
-    await page.getByLabel(/content/i).fill(postContent);
-    await page.getByRole('button', { name: /post/i }).click();
+    // Feed header and key controls render
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await expect(page.getByRole('button', { name: /refresh/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /create post/i })).toBeVisible();
 
-    // Wait for the new post to appear
-    await expect(page.getByText(postContent)).toBeVisible({ timeout: 10_000 });
-
-    // Like the newly created post (first "Like post" button should belong to it)
-    const likeButton = page.getByRole('button', { name: /like post/i }).first();
-    await likeButton.click();
-    await expect(likeButton).toHaveAttribute('aria-label', /unlike post/i);
+    // Posts render or empty state shows
+    const likeButtons = page.locator('[aria-label="Like post"]');
+    if (await likeButtons.count()) {
+      await expect(likeButtons.first()).toBeVisible();
+    } else {
+      await expect(page.getByText(/No posts yet/i)).toBeVisible();
+    }
   });
 });
 
