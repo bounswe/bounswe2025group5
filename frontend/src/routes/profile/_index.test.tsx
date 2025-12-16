@@ -133,6 +133,13 @@ describe('ProfileIndex route', () => {
   });
 
   it('shows auth error when username is missing', async () => {
+    // Mock APIs to return empty data to prevent runtime errors
+    mockedGetProfile.mockRejectedValue(new Error('Unauthorized'));
+    mockedGetPosts.mockResolvedValue([]);
+    mockedGetSavedPosts.mockResolvedValue([]);
+    mockedGetFollowers.mockResolvedValue([]);
+    mockedGetFollowings.mockResolvedValue([]);
+
     render(<ProfileIndex />);
 
     expect(await screen.findByText('Not authenticated')).toBeInTheDocument();
