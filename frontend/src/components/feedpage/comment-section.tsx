@@ -27,7 +27,7 @@ export default function CommentSection({ postId, onCommentAdded, onUsernameClick
 
   // Extract unique comment author usernames
   const uniqueCommentAuthors = useMemo(
-    () => Array.from(new Set(comments.map(c => c.username).filter(Boolean))),
+    () => Array.from(new Set(comments.map(c => c.creatorUsername || c.username).filter(Boolean))),
     [comments]
   );
 
@@ -111,7 +111,7 @@ export default function CommentSection({ postId, onCommentAdded, onUsernameClick
               onUpdate={handleCommentUpdate}
               onDelete={handleCommentDelete}
               onUsernameClick={onUsernameClick}
-              commenterPhotoUrl={photoMap.get(comment.username) || null}
+              commenterPhotoUrl={photoMap.get(comment.creatorUsername || comment.username) || null}
             />
           ))}
         </div>
