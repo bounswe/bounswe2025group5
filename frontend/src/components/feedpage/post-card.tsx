@@ -21,7 +21,6 @@ import {
 } from '@/components/ui/dialog';
 import userAvatar from '@/assets/user.png';
 import imageFallback from '@/assets/image-fallback.png';
-import { useProfilePhoto } from '@/hooks/useProfilePhotos';
 import ReportAlarmButton from '@/components/common/ReportAlarmButton';
 import { Textarea } from '@/components/ui/textarea';
 import { ReportsApi } from '@/lib/api/reports';
@@ -34,10 +33,11 @@ interface PostCardProps {
   onPostUpdate?: (post: PostItem) => void;
   onPostDelete?: (postId: number) => void;
   onUsernameClick?: (username: string) => void;
+  creatorPhotoUrl?: string | null;
   className?: string;
 }
 
-export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameClick, className }: PostCardProps) {
+export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameClick, creatorPhotoUrl, className }: PostCardProps) {
   const { t } = useTranslation();
   const [commentCount, setCommentCount] = useState(post.comments || 0);
   const [showComments, setShowComments] = useState(false);
@@ -66,17 +66,9 @@ export default function PostCard({ post, onPostUpdate, onPostDelete, onUsernameC
 
   const currentUser = typeof window !== 'undefined' ? localStorage.getItem('username') : null;
 
-  // Fetch profile photo for post creator
-  const { photoUrl: creatorPhotoUrl } = useProfilePhoto(post.creatorUsername);
-
-  // Sync local state with post prop changes
-  useEffect(() => {
-    setIsLiked(post.liked || false);
-    setIsSaved(post.saved || false);
-    setLikeCount(post.likes || 0);
-    setCommentCount(post.comments || 0);
-    setPostImageSrc(post.photoUrl);
-  }, [post.liked, post.saved, post.likes, post.comments, post.photoUrl]);
+  // Note: We use initial post data for state initialization
+  // Changes from parent are only applied through onPostUpdate callback
+  // This prevents unnecessary re-renders and reload loops
 
   // Optimistic like toggle with revert on failure
   const handleLike = async () => {

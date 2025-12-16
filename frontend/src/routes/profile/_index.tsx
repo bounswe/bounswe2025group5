@@ -19,6 +19,7 @@ import type { PostItem } from "@/lib/api/schemas/posts";
 import { FollowApi } from '@/lib/api/follow';
 import type { FollowUserItem } from '@/lib/api/schemas/follow';
 import { BadgeShowcase } from '@/components/badges/badge-showcase';
+import { useProfilePhotos } from '@/hooks/useProfilePhotos';
 
 import userAvatar from '@/assets/user.png';
 
@@ -48,6 +49,15 @@ export default function ProfileIndex() {
   // User profile dialog state
   const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
+
+  // Extract unique usernames from all posts (saved and created)
+  const uniqueUsernames = useMemo(() => {
+    const allPosts = [...posts, ...myPosts];
+    return Array.from(new Set(allPosts.map(p => p.creatorUsername).filter(Boolean)));
+  }, [posts, myPosts]);
+
+  // Fetch all profile photos at once
+  const { photoMap } = useProfilePhotos(uniqueUsernames);
 
   // Pull username from token payload stored in localStorage via API client refresh
   const storedUsername = useMemo(() => {
@@ -373,7 +383,7 @@ export default function ProfileIndex() {
           ) : (
             <div className="space-y-4 grid gap-4 sm:grid-cols-2">
               {posts.map((p) => (
-                <PostCard key={p.postId} post={p as PostItem} onPostUpdate={(updatedPost: PostItem) => handlePostUpdate(updatedPost as SavedPostItem)} onPostDelete={handlePostDelete} onUsernameClick={handleUsernameClick} />
+                <PostCard key={p.postId} post={p as PostItem} onPostUpdate={(updatedPost: PostItem) => handlePostUpdate(updatedPost as SavedPostItem)} onPostDelete={handlePostDelete} onUsernameClick={handleUsernameClick} creatorPhotoUrl={photoMap.get(p.creatorUsername) || null} />
               ))}
             </div>
           ))) : (_postsLoading ? <div className="flex justify-center items-center min-h-[200px]"><Spinner /></div> : (myPosts.length === 0 ? (  
@@ -381,7 +391,7 @@ export default function ProfileIndex() {
           ) : (
             <div className="space-y-4 grid gap-4 sm:grid-cols-2">
               {myPosts.map((p) => (
-                <PostCard key={p.postId} post={p as PostItem} onPostUpdate={(updatedPost: PostItem) => handlePostUpdate(updatedPost as PostItem)} onPostDelete={handlePostDelete} onUsernameClick={handleUsernameClick} />
+                <PostCard key={p.postId} post={p as PostItem} onPostUpdate={(updatedPost: PostItem) => handlePostUpdate(updatedPost as PostItem)} onPostDelete={handlePostDelete} onUsernameClick={handleUsernameClick} creatorPhotoUrl={photoMap.get(p.creatorUsername) || null} />
               ))}
             </div>
           )))}

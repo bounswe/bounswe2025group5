@@ -16,7 +16,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import userAvatar from '@/assets/user.png';
-import { useProfilePhoto } from '@/hooks/useProfilePhotos';
 import ReportAlarmButton from '@/components/common/ReportAlarmButton';
 import { Textarea } from '@/components/ui/textarea';
 import { ReportsApi } from '@/lib/api/reports';
@@ -29,10 +28,11 @@ interface CommentItemProps {
   onUpdate?: (comment: Comment) => void;
   onDelete?: (commentId: number) => void;
   onUsernameClick?: (username: string) => void;
+  commenterPhotoUrl?: string | null;
   className?: string;
 }
 
-export default function CommentItem({ comment, onUpdate, onDelete, onUsernameClick, className }: CommentItemProps) {
+export default function CommentItem({ comment, onUpdate, onDelete, onUsernameClick, commenterPhotoUrl, className }: CommentItemProps) {
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(comment.content);
@@ -47,9 +47,6 @@ export default function CommentItem({ comment, onUpdate, onDelete, onUsernameCli
   const currentUser = typeof window !== 'undefined' ? localStorage.getItem('username') : null;
   const commentUsername = comment.creatorUsername || comment.username;
   const isOwner = currentUser === commentUsername;
-
-  // Fetch profile photo for commenter
-  const { photoUrl: commenterPhotoUrl } = useProfilePhoto(commentUsername);
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '';

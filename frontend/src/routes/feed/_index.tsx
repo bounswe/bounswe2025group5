@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +12,7 @@ import { RefreshCw, TrendingUp } from 'lucide-react';
 import GlassCard from '@/components/ui/glass-card';
 import Masonry from 'react-masonry-css';
 import UserProfileDialog from '@/components/profile/userProfileDialog';
+import { useProfilePhotos } from '@/hooks/useProfilePhotos';
 
 const POSTS_PER_PAGE = 10;
 
@@ -35,15 +36,32 @@ export default function FeedPage() {
   const [searchError, setSearchError] = useState<string | null>(null);
   const [currentSearchQuery, setCurrentSearchQuery] = useState<string>('');
   const [selectedWasteType, setSelectedWasteType] = useState<string | null>(null);
+  const [cachedNormalPosts, setCachedNormalPosts] = useState<PostItem[]>([]);
   
   // Get current username from localStorage
   const currentUsername = typeof window !== 'undefined' ? localStorage.getItem('username') : null;
+
+  // Extract unique usernames from all posts (post creators only, comments will be fetched separately within each post)
+  const uniqueUsernames = useMemo(() => {
+    const displayedPosts = isSearchActive ? searchResults : posts;
+    return Array.from(new Set(displayedPosts.map(p => p.creatorUsername).filter(Boolean)));
+  }, [posts, searchResults, isSearchActive]);
+
+  // Fetch all profile photos at once
+  const { photoMap } = useProfilePhotos(uniqueUsernames);
 
   // Load initial posts
   useEffect(() => {
     // Don't load posts if search is active
     if (!isSearchActive) {
-      loadInitialPosts();
+      // If we have cached posts, restore them immediately
+      if (cachedNormalPosts.length > 0) {
+        setPosts(cachedNormalPosts);
+        setCachedNormalPosts([]); // Clear cache after restoring
+      } else if (posts.length === 0) {
+        // Only load from API if no posts and no cache (initial load)
+        loadInitialPosts();
+      }
     }
   }, [feedType, isSearchActive]);
 
@@ -118,14 +136,15 @@ export default function FeedPage() {
   };
 
   // Search handlers
-  const handleSearch = async (query: string, wasteType?: string) => {
+  const handleSearch = async (query: string) => {
     setCurrentSearchQuery(query);
+    // Cache current posts before entering search mode
+    if (!isSearchActive && posts.length > 0) {
+      setCachedNormalPosts(posts);
+    }
     setIsSearchActive(true);
     setIsSearching(true);
     setSearchError(null);
-    if (wasteType !== undefined) {
-      setSelectedWasteType(wasteType);
-    }
     
     try {
       const results = await SearchApi.searchPostsSemantic({
@@ -149,8 +168,47 @@ export default function FeedPage() {
     setSearchResults([]);
     setSearchError(null);
     setIsSearchActive(false);
-    setSelectedWasteType(null);
-    setRenderKey(prev => prev + 1);
+    setSelectedWasteType(null); // Clear waste type selection
+    // useEffect will handle reloading posts when isSearchActive becomes false
+  };
+
+  const handleWasteTypeClick = async (type: string) => {
+    // Toggle waste type selection
+    const newType = selectedWasteType === type ? null : type;
+    setSelectedWasteType(newType);
+    
+    if (newType === null) {
+      // If deselecting, exit search mode
+      setIsSearchActive(false);
+      setSearchResults([]);
+      setCurrentSearchQuery('');
+      return;
+    }
+    
+    // Cache current posts before entering search mode
+    if (!isSearchActive && posts.length > 0) {
+      setCachedNormalPosts(posts);
+    }
+    
+    setIsSearchActive(true);
+    setIsSearching(true);
+    setSearchError(null);
+    
+    try {
+      const results = await SearchApi.searchPostsSemantic({
+        query: currentSearchQuery || t(`feed.wasteTypes.${type}`),
+        username: currentUsername || undefined,
+        lang: i18n.language || 'en'
+      });
+      
+      setSearchResults(results);
+    } catch (error) {
+      console.error('Error searching posts:', error);
+      setSearchError(t('search.error'));
+      setIsSearchActive(false);
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   const handlePostCreated = (newPost: PostItem) => {
@@ -236,7 +294,7 @@ export default function FeedPage() {
                     key={type}
                     variant={selectedWasteType === type ? 'secondary' : 'outline'}
                     size="sm"
-                    onClick={() => handleSearch(t(`feed.wasteTypes.${type}`), type)}
+                    onClick={() => handleWasteTypeClick(type)}
                     disabled={isSearching}
                     className="text-xs"
                   >
@@ -289,14 +347,18 @@ export default function FeedPage() {
                   {searchResults.map((post, index) => (
                     <div 
                       key={post.postId} 
-                      className="mb-6 animate-in fade-in slide-in-from-bottom-2 duration-500"
-                      style={{ animationDelay: `${index * 1000}ms` }}
+                      className="mb-6 opacity-0 translate-y-4 animate-fade-in"
+                      style={{ 
+                        animationDelay: `${index * 50}ms`,
+                        animationFillMode: 'forwards'
+                      }}
                     >
                       <PostCard
                         post={post}
                         onPostUpdate={handlePostUpdate}
                         onPostDelete={handlePostDelete}
                         onUsernameClick={handleUsernameClick}
+                        creatorPhotoUrl={photoMap.get(post.creatorUsername) || null}
                       />
                     </div>
                   ))}
@@ -342,6 +404,7 @@ export default function FeedPage() {
                         onPostUpdate={handlePostUpdate}
                         onPostDelete={handlePostDelete}
                         onUsernameClick={handleUsernameClick}
+                        creatorPhotoUrl={photoMap.get(post.creatorUsername) || null}
                       />
                     </div>
                   ))}
