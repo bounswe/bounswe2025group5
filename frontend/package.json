@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed --project=chromium"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.12",
@@ -42,6 +44,7 @@
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
+    "@playwright/test": "^1.49.0",
     "@eslint/js": "^9.36.0",
     "@react-router/node": "^7.9.3",
     "@testing-library/jest-dom": "^6.9.1",
