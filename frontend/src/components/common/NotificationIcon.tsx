@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,6 +9,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { NotificationsApi } from '@/lib/api/notifications';
 import { UsersApi } from '@/lib/api/users';
+import { useProfilePhotos } from '@/hooks/useProfilePhotos';
 import NotificationCard from './notification-card';
 import NotificationDetailDialog from './NotificationDetailDialog';
 import type { Notification } from '@/lib/api/schemas/notifications';
@@ -26,6 +27,15 @@ export default function NotificationIcon() {
   const username = localStorage.getItem('username');
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
+
+  // Get unique actor IDs from all notifications
+  const uniqueActorIds = useMemo(
+    () => Array.from(new Set(notifications.map(n => n.actorId).filter(Boolean))),
+    [notifications]
+  );
+
+  // Fetch all profile photos at once
+  const { photoMap } = useProfilePhotos(uniqueActorIds);
 
   // Sort notifications: unread first, then by timestamp (newest first)
   const sortedNotifications = [...notifications].sort((a, b) => {
@@ -194,6 +204,7 @@ export default function NotificationIcon() {
                   notification={notification}
                   onMarkAsRead={handleMarkAsRead}
                   onNotificationClick={handleNotificationClick}
+                  actorPhotoUrl={photoMap.get(notification.actorId) || null}
                   className="shadow-sm"
                 />
               ))}
