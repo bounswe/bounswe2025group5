@@ -177,6 +177,13 @@
         "error": {
             "loadFailed": "Gönderiler yüklenemedi",
             "loadMoreFailed": "Daha fazla gönderi yüklenemedi"
+        },
+        "wasteTypes": {
+            "plastic": "Plastik",
+            "paper": "Kağıt",
+            "glass": "Cam",
+            "metal": "Metal",
+            "organic": "Organik"
         }
     },
     "goals" : {

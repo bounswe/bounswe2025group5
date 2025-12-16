@@ -43,7 +43,7 @@ export default function MainpageIndex() {
           UsersApi.listChallenges(storedUsername),
           PostsApi.list({ size: 10, username: storedUsername }),
         ]);
-        setChallenges(chs.filter((c: any) => c.userInChallenge));
+        setChallenges(chs.filter((c: any) => c.userInChallenge && c.status?.toLowerCase() === 'active'));
         setPosts(feed);
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Failed to load');
@@ -87,11 +87,11 @@ export default function MainpageIndex() {
 
   return (
     <div className="container mx-auto px-4 pb-0 pt-8 ">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[40%_60%] gap-6">
         <ScrollPanel
           title={t('mainpage.challengesTitle', 'Your Challenges')}
           description={t('mainpage.challengesDesc', 'Challenges you are currently attending')}
-          className="max-h-[84vh] overflow-y-auto"
+          className="max-h-[84vh] overflow-y-auto "
         >
           {challenges.length === 0 ? (
             <div className="text-muted-foreground">{t('mainpage.noChallenges', 'No active challenges')}</div>

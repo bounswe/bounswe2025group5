@@ -27,23 +27,30 @@ export default function FeedPage() {
   const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [renderKey, setRenderKey] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
   
   // Search state
   const [searchResults, setSearchResults] = useState<PostItem[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [currentSearchQuery, setCurrentSearchQuery] = useState<string>('');
+  const [selectedWasteType, setSelectedWasteType] = useState<string | null>(null);
   
   // Get current username from localStorage
   const currentUsername = typeof window !== 'undefined' ? localStorage.getItem('username') : null;
 
   // Load initial posts
   useEffect(() => {
-    loadInitialPosts();
-  }, [feedType]);
+    // Don't load posts if search is active
+    if (!isSearchActive) {
+      loadInitialPosts();
+    }
+  }, [feedType, isSearchActive]);
 
   const loadInitialPosts = async () => {
+    // Don't interfere with active search
+    if (isSearchActive) return;
+    
     setIsLoading(true);
     setError(null);
     try {
@@ -111,10 +118,14 @@ export default function FeedPage() {
   };
 
   // Search handlers
-  const handleSearch = async (query: string) => {
+  const handleSearch = async (query: string, wasteType?: string) => {
+    setCurrentSearchQuery(query);
     setIsSearchActive(true);
     setIsSearching(true);
     setSearchError(null);
+    if (wasteType !== undefined) {
+      setSelectedWasteType(wasteType);
+    }
     
     try {
       const results = await SearchApi.searchPostsSemantic({
@@ -134,9 +145,11 @@ export default function FeedPage() {
   };
 
   const handleClearSearch = () => {
+    setCurrentSearchQuery('');
     setSearchResults([]);
     setSearchError(null);
     setIsSearchActive(false);
+    setSelectedWasteType(null);
     setRenderKey(prev => prev + 1);
   };
 
@@ -192,26 +205,45 @@ export default function FeedPage() {
               </Button>
             </div>
             
-            {/* Feed Type Selector */}
-            <div className="flex gap-2">
-              <Button
-                variant={feedType === 'latest' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFeedType('latest')}
-                disabled={isLoading}
-              >
-                {t('feed.latest')}
-              </Button>
-              <Button
-                variant={feedType === 'popular' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFeedType('popular')}
-                disabled={isLoading}
-                className="flex items-center gap-2"
-              >
-                <TrendingUp className="h-4 w-4" />
-                {t('feed.popular')}
-              </Button>
+            
+            {/* Feed Type Selector and Waste Type Filters */}
+            <div className="flex justify-between items-center gap-4">
+              <div className="flex gap-2">
+                <Button
+                  variant={feedType === 'latest' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setFeedType('latest')}
+                  disabled={isLoading}
+                >
+                  {t('feed.latest')}
+                </Button>
+                <Button
+                  variant={feedType === 'popular' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setFeedType('popular')}
+                  disabled={isLoading}
+                  className="flex items-center gap-2"
+                >
+                  <TrendingUp className="h-4 w-4" />
+                  {t('feed.popular')}
+                </Button>
+              </div>
+              
+              {/* Waste Type Filter Buttons */}
+              <div className="flex gap-2 flex-wrap">
+                {['plastic', 'paper', 'glass', 'metal', 'organic'].map((type) => (
+                  <Button
+                    key={type}
+                    variant={selectedWasteType === type ? 'secondary' : 'outline'}
+                    size="sm"
+                    onClick={() => handleSearch(t(`feed.wasteTypes.${type}`), type)}
+                    disabled={isSearching}
+                    className="text-xs"
+                  >
+                    {t(`feed.wasteTypes.${type}`)}
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -221,14 +253,14 @@ export default function FeedPage() {
               <p className="text-red-700 text-sm">{error}</p>
             </div>
           )}
-
-          {/* Search Card */}
+                    {/* Search Card */}
           <div className="mb-2 pt-4">
             <SearchCard
               onSearch={handleSearch}
               onClear={handleClearSearch}
               isLoading={isSearching}
               isActive={isSearchActive}
+              externalQuery={currentSearchQuery}
             />
           </div>
 
@@ -245,10 +277,7 @@ export default function FeedPage() {
             </div>
           )}
           {/* Posts Feed */}
-          {isTransitioning ? (
-            /* Transitioning state - brief blank moment */
-            <div className="min-h-[400px]"></div>
-          ) : isSearchActive ? (
+          {isSearchActive ? (
             /* Search Results */
             searchResults.length > 0 ? (
               <div className="pt-3 animate-in fade-in slide-in-from-bottom-4 duration-500">

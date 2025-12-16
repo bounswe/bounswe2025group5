@@ -177,6 +177,13 @@
         "error": {
             "loadFailed": "Failed to load posts",
             "loadMoreFailed": "Failed to load more posts"
+        },
+        "wasteTypes": {
+            "plastic": "Plastic",
+            "paper": "Paper",
+            "glass": "Glass",
+            "metal": "Metal",
+            "organic": "Organic"
         }
     },
     "goals": {

@@ -10,14 +10,23 @@ interface SearchCardProps {
   onClear: () => void;
   isLoading?: boolean;
   isActive?: boolean;
+  externalQuery?: string;
 }
 
-export default function SearchCard({ onSearch, onClear, isLoading = false, isActive = false }: SearchCardProps) {
+export default function SearchCard({ onSearch, onClear, isLoading = false, isActive = false, externalQuery }: SearchCardProps) {
   const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const debounceTimerRef = useRef<number | null>(null);
   const lastSearchedQueryRef = useRef<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Update internal query when external query is provided
+  useEffect(() => {
+    if (externalQuery && externalQuery !== query) {
+      setQuery(externalQuery);
+      lastSearchedQueryRef.current = externalQuery;
+    }
+  }, [externalQuery]);
 
   // Auto-trigger search after 1 second of inactivity
   useEffect(() => {
@@ -27,7 +36,8 @@ export default function SearchCard({ onSearch, onClear, isLoading = false, isAct
     }
 
     // If query is empty and search is active, deactivate search
-    if (query.trim() === '' && isActive) {
+    // BUT only if there's no external query pending (to prevent clearing during external search)
+    if (query.trim() === '' && isActive && !externalQuery) {
       lastSearchedQueryRef.current = '';
       onClear();
       return;
@@ -49,7 +59,7 @@ export default function SearchCard({ onSearch, onClear, isLoading = false, isAct
         clearTimeout(debounceTimerRef.current);
       }
     };
-  }, [query, isActive, onSearch, onClear]);
+  }, [query, isActive, onSearch, onClear, externalQuery]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

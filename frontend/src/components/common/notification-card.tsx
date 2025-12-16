@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, MessageCircle, UserPlus, Forward, Trophy } from 'lucide-react';
+import { Heart, MessageCircle, UserPlus, Forward, Trophy, AlertTriangle, CheckCircle, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import type { Notification } from '@/lib/api/schemas/notifications';
@@ -66,6 +66,12 @@ export default function NotificationCard({
           return { actor: 'Challenge', text: 'ended' };
         }
         return { actor, text: 'ended' };
+      case 'ClosedWithoutChange':
+        return { actor: 'Moderator', text: `closed your ${objType} without changes` };
+      case 'Deletion':
+        return { actor: 'Moderator', text: `deleted your ${objType}` };
+      case 'Seen':
+        return { actor: 'Moderator', text: `reviewed your ${objType}` };
       default:
         return { actor, text: 'interacted with your content' };
     }
@@ -92,6 +98,12 @@ export default function NotificationCard({
           return <Trophy className="h-3.5 w-3.5 text-yellow-500" />;
         }
         return null;
+      case 'ClosedWithoutChange':
+        return <CheckCircle className="h-3.5 w-3.5 text-orange-500" />;
+      case 'Deletion':
+        return <AlertTriangle className="h-3.5 w-3.5 text-red-600" />;
+      case 'Seen':
+        return <Eye className="h-3.5 w-3.5 text-blue-600" />;
       default:
         return null;
     }

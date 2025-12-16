@@ -134,7 +134,7 @@ export default function EditProfile({ username, initialBio, initialPhotoUrl, onB
     return (
         <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
             <DialogTrigger asChild>
-                <Button type="button" variant="outline">
+                <Button type="button" variant="secondary">
                     {t('profile.edit')}
                 </Button>
             </DialogTrigger>
