@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { expect, test, describe, beforeEach, vi } from 'vitest';
 import FeedbackDialog from './feedback-dialog';
-import { ReportsApi } from '@/lib/api/reports';
+import { FeedbackApi } from '@/lib/api/feedback';
 import { toast } from 'sonner';
 
 // Mock i18next
@@ -29,9 +29,9 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-// Mock ReportsApi
-vi.mock('@/lib/api/reports', () => ({
-  ReportsApi: {
+// Mock FeedbackApi
+vi.mock('@/lib/api/feedback', () => ({
+  FeedbackApi: {
     create: vi.fn(),
   },
 }));
@@ -206,7 +206,7 @@ describe('FeedbackDialog', () => {
     });
 
     test('submits feedback successfully', async () => {
-      vi.mocked(ReportsApi.create).mockResolvedValue({ id: 1 } as any);
+      vi.mocked(FeedbackApi.create).mockResolvedValue(undefined);
       const user = userEvent.setup();
       const onOpenChange = vi.fn();
       render(<FeedbackDialog open={true} onOpenChange={onOpenChange} />);
@@ -218,12 +218,10 @@ describe('FeedbackDialog', () => {
       await user.click(submitButton);
       
       await waitFor(() => {
-        expect(ReportsApi.create).toHaveBeenCalledWith({
-          reporterName: 'testuser',
-          description: '[FEEDBACK] Great app!',
-          type: 'OTHER',
-          contentType: 'POST',
-          objectId: 0,
+        expect(FeedbackApi.create).toHaveBeenCalledWith({
+          feedbackerUsername: 'testuser',
+          contentType: 'Compliment',
+          content: 'Great app!',
         });
         expect(toast.success).toHaveBeenCalledWith('Feedback submitted successfully');
         expect(onOpenChange).toHaveBeenCalledWith(false);
@@ -231,7 +229,7 @@ describe('FeedbackDialog', () => {
     });
 
     test('disables submit button while submitting', async () => {
-      vi.mocked(ReportsApi.create).mockImplementation(
+      vi.mocked(FeedbackApi.create).mockImplementation(
         () => new Promise(resolve => setTimeout(resolve, 100))
       );
       const user = userEvent.setup();
@@ -249,7 +247,7 @@ describe('FeedbackDialog', () => {
 
   describe('Error Handling', () => {
     test('shows generic error message on submission failure', async () => {
-      vi.mocked(ReportsApi.create).mockRejectedValue(new Error('Network error'));
+      vi.mocked(FeedbackApi.create).mockRejectedValue(new Error('Network error'));
       const user = userEvent.setup();
       render(<FeedbackDialog open={true} onOpenChange={vi.fn()} />);
       
@@ -265,7 +263,7 @@ describe('FeedbackDialog', () => {
     });
 
     test('shows forbidden error for 403 responses', async () => {
-      vi.mocked(ReportsApi.create).mockRejectedValue(new Error('403 Forbidden'));
+      vi.mocked(FeedbackApi.create).mockRejectedValue(new Error('403 Forbidden'));
       const user = userEvent.setup();
       render(<FeedbackDialog open={true} onOpenChange={vi.fn()} />);
       
@@ -281,7 +279,7 @@ describe('FeedbackDialog', () => {
     });
 
     test('shows auth error for 401 responses', async () => {
-      vi.mocked(ReportsApi.create).mockRejectedValue(new Error('401 Unauthorized'));
+      vi.mocked(FeedbackApi.create).mockRejectedValue(new Error('401 Unauthorized'));
       const user = userEvent.setup();
       render(<FeedbackDialog open={true} onOpenChange={vi.fn()} />);
       
@@ -297,7 +295,7 @@ describe('FeedbackDialog', () => {
     });
 
     test('shows user not found error', async () => {
-      vi.mocked(ReportsApi.create).mockRejectedValue(new Error('User not found'));
+      vi.mocked(FeedbackApi.create).mockRejectedValue(new Error('User not found'));
       const user = userEvent.setup();
       render(<FeedbackDialog open={true} onOpenChange={vi.fn()} />);
       
@@ -315,7 +313,7 @@ describe('FeedbackDialog', () => {
 
   describe('State Management', () => {
     test('clears textarea after successful submission', async () => {
-      vi.mocked(ReportsApi.create).mockResolvedValue({ id: 1 } as any);
+      vi.mocked(FeedbackApi.create).mockResolvedValue(undefined);
       const user = userEvent.setup();
       render(<FeedbackDialog open={true} onOpenChange={vi.fn()} />);
       
@@ -331,7 +329,7 @@ describe('FeedbackDialog', () => {
     });
 
     test('preserves textarea value on submission error', async () => {
-      vi.mocked(ReportsApi.create).mockRejectedValue(new Error('Network error'));
+      vi.mocked(FeedbackApi.create).mockRejectedValue(new Error('Network error'));
       const user = userEvent.setup();
       render(<FeedbackDialog open={true} onOpenChange={vi.fn()} />);
       
