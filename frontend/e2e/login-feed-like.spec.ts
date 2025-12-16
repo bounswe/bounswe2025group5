@@ -30,11 +30,26 @@ test.describe('login → mainpage → feed view', () => {
 
     // Posts render or empty state shows
     const likeButtons = page.locator('[aria-label="Like post"]');
-    if (await likeButtons.count()) {
-      await expect(likeButtons.first()).toBeVisible();
-    } else {
+    if (!(await likeButtons.count())) {
       await expect(page.getByText(/No posts yet/i)).toBeVisible();
+      return;
     }
+
+    const commentButtons = page.getByRole('button', { name: /view .*comment|show comments|yorum/i });
+    const commentCount = await commentButtons.count();
+    expect(commentCount).toBeGreaterThan(0);
+
+    // Open comments on the first post
+    await commentButtons.first().click();
+
+    // Add a new comment
+    const commentInput = page.getByPlaceholder(/add a comment|yorum ekle/i);
+    await expect(commentInput).toBeVisible();
+    await commentInput.fill('e2e test');
+    await page.getByRole('button', { name: /send comment|yorum gönder/i }).click();
+
+    // Verify the comment appears
+    await expect(page.getByText('e2e test')).toBeVisible({ timeout: 10_000 });
   });
 });
 
