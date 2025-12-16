@@ -35,9 +35,9 @@ export default function SearchCard({ onSearch, onClear, isLoading = false, isAct
       clearTimeout(debounceTimerRef.current);
     }
 
-    // If query is empty and search is active, deactivate search
-    // BUT only if there's no external query pending (to prevent clearing during external search)
-    if (query.trim() === '' && isActive && !externalQuery) {
+    // If query is empty, call onClear only if we had a previous search
+    if (query.trim() === '' && lastSearchedQueryRef.current !== '') {
+      // Call onClear when query becomes empty after a search
       lastSearchedQueryRef.current = '';
       onClear();
       return;
@@ -59,7 +59,7 @@ export default function SearchCard({ onSearch, onClear, isLoading = false, isAct
         clearTimeout(debounceTimerRef.current);
       }
     };
-  }, [query, isActive, onSearch, onClear, externalQuery]);
+  }, [query, onSearch, onClear]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,6 +77,7 @@ export default function SearchCard({ onSearch, onClear, isLoading = false, isAct
 
   const handleClear = () => {
     setQuery('');
+    lastSearchedQueryRef.current = '';
     onClear();
   };
 
