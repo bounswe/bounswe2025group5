@@ -37,6 +37,7 @@ vi.mock('recharts', () => {
     YAxis: () => null,
     Tooltip: () => null,
     Cell: () => null,
+    ReferenceLine: Mock,
   };
 });
 
@@ -68,7 +69,7 @@ describe('WasteMonthlyChart', () => {
     window.localStorage.clear();
   });
 
-  it.skip('fetches and renders monthly waste data', async () => {
+  it('fetches and renders monthly waste data', async () => {
     const user = userEvent.setup();
     vi.mocked(WasteApi.monthly).mockResolvedValue(monthlyResponse);
 

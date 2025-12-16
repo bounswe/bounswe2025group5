@@ -109,7 +109,7 @@ describe('SearchCard', () => {
     expect(screen.getByText('search.loading')).toBeInTheDocument();
   });
 
-  test.skip('disables input and button when loading', () => {
+  test('disables button but keeps input enabled when loading', () => {
     const onSearch = vi.fn();
     const onClear = vi.fn();
     
@@ -118,7 +118,7 @@ describe('SearchCard', () => {
     const input = screen.getByPlaceholderText('search.placeholder');
     const searchButton = screen.getByText('search.loading');
     
-    expect(input).toBeDisabled();
+    expect(input).not.toBeDisabled();
     expect(searchButton).toBeDisabled();
   });
 
@@ -178,7 +178,7 @@ describe('SearchCard', () => {
     expect(screen.getByText('search.results')).toBeInTheDocument();
   });
 
-  test.skip('hides search results indicator when not active', () => {
+  test('hides search results indicator when not active', () => {
     const onSearch = vi.fn();
     const onClear = vi.fn();
     

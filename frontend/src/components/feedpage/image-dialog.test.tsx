@@ -183,7 +183,7 @@ describe('ImageDialog', () => {
       expect(screen.queryByRole('img', { name: /test image/i })).not.toBeInTheDocument();
     });
 
-    test.skip('updates image when imageUrl changes', () => {
+    test('updates image when imageUrl changes', () => {
       const { rerender } = render(<ImageDialog {...defaultProps} />);
       
       let image = screen.getByRole('img', { name: /test image/i });

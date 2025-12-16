@@ -51,18 +51,18 @@ describe('WasteSummaryCard', () => {
     vi.mocked(WasteApi.summary).mockResolvedValue(summaryResponse);
   });
 
-  it.skip('loads the default summary on mount', async () => {
+  it('loads the default summary on mount', async () => {
     render(<WasteSummaryCard />);
 
     await waitFor(() => expect(WasteApi.summary).toHaveBeenCalled());
     expect(screen.getByLabelText('5 kg (Total collected)')).toBeInTheDocument();
     expect(screen.getByText('0.08 barrels of oil')).toBeInTheDocument();
     expect(
-      screen.getByText('You logged 5 kg of PLASTIC, saving about 0.08 barrels of oil.')
+      screen.getByText('All users logged 5 kg of PLASTIC, saving about 0.08 barrels of oil.')
     ).toBeInTheDocument();
   });
 
-  it.skip('submits a custom range when the form is valid', async () => {
+  it('submits a custom range when the form is valid', async () => {
     const user = userEvent.setup();
     render(<WasteSummaryCard />);
 
@@ -76,8 +76,7 @@ describe('WasteSummaryCard', () => {
     await user.type(startInput, '2024-01-01');
     await user.clear(endInput);
     await user.type(endInput, '2024-01-03');
-    await user.clear(wasteTypeInput);
-    await user.type(wasteTypeInput, 'METAL');
+    await user.selectOptions(wasteTypeInput, 'METAL');
 
     await user.click(screen.getByRole('button', { name: 'Refresh data' }));
 
