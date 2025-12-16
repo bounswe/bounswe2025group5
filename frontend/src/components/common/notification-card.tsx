@@ -157,14 +157,30 @@ export default function NotificationCard({
             {(notification.preview || notification.postMessage || notification.commentContent || notification.challengeTitle) && (
               <div className="mt-2 p-2 rounded-md bg-muted/50 border border-border/50">
                 {/* Use preview field from backend (preferred), fallback to legacy fields */}
-                {(notification.preview || notification.postMessage || notification.commentContent) && (
-                  <p className="text-xs text-muted-foreground line-clamp-2 italic">
-                    "{(() => {
-                      const content = notification.preview || notification.postMessage || notification.commentContent || '';
-                      return content.length > 80 ? `${content.slice(0, 80)}...` : content;
-                    })()}"
-                  </p>
-                )}
+                {(notification.preview || notification.postMessage || notification.commentContent) && (() => {
+                  const content = notification.preview || notification.postMessage || notification.commentContent || '';
+                  const isImageUrl = /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|bmp)(\?.*)?$/i.test(content);
+                  
+                  if (isImageUrl) {
+                    return (
+                      <img 
+                        src={content} 
+                        alt="Post preview" 
+                        className="w-full h-20 object-cover rounded"
+                        onError={(e) => {
+                          // Hide image if it fails to load
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    );
+                  }
+                  
+                  return (
+                    <p className="text-xs text-muted-foreground line-clamp-2 italic">
+                      "{content.length > 80 ? `${content.slice(0, 80)}...` : content}"
+                    </p>
+                  );
+                })()}
                 {notification.challengeTitle && (
                   <p className="text-xs font-medium text-primary">
                     {notification.challengeTitle}

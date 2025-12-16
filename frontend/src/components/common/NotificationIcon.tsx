@@ -153,6 +153,12 @@ export default function NotificationIcon() {
   };
 
   const handleNotificationClick = (notification: Notification) => {
+    // Don't trigger dialog for report and feedback notifications as there's nothing to show
+    const normalizedObjectType = notification.objectType?.toLowerCase();
+    if (normalizedObjectType === 'report' || normalizedObjectType === 'feedback') {
+      return;
+    }
+
     setSelectedNotification(notification);
     setShowDetailDialog(true);
     setIsOpen(false); // Close the popover
@@ -197,18 +203,26 @@ export default function NotificationIcon() {
             </p>
           )}
           {!isLoading && !error && notifications.length > 0 && (
-            <>
-              {sortedNotifications.map(notification => (
-                <NotificationCard
+            <div className="space-y-2">
+              {sortedNotifications.map((notification, index) => (
+                <div
                   key={notification.id}
-                  notification={notification}
-                  onMarkAsRead={handleMarkAsRead}
-                  onNotificationClick={handleNotificationClick}
-                  actorPhotoUrl={notification.actorId ? photoMap.get(notification.actorId) || null : null}
-                  className="shadow-sm"
-                />
+                  className="transition-all duration-300 ease-out animate-in fade-in slide-in-from-top-2"
+                  style={{
+                    animationDelay: `${index * 50}ms`,
+                    animationFillMode: 'backwards',
+                  }}
+                >
+                  <NotificationCard
+                    notification={notification}
+                    onMarkAsRead={handleMarkAsRead}
+                    onNotificationClick={handleNotificationClick}
+                    actorPhotoUrl={notification.actorId ? photoMap.get(notification.actorId) || null : null}
+                    className="shadow-sm hover:shadow-md transition-shadow duration-200"
+                  />
+                </div>
               ))}
-            </>
+            </div>
           )}
         </div>
       </PopoverContent>
