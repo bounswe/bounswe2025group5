@@ -8,6 +8,7 @@ import ChallengeCard from '@/components/challenges/challengeCard';
 import type { PostItem } from '@/lib/api/schemas/posts';
 import PostCard from '@/components/feedpage/post-card';
 import UserProfileDialog from '@/components/profile/userProfileDialog';
+import { useProfilePhotos } from '@/hooks/useProfilePhotos';
 
 export default function MainpageIndex() {
   const { t } = useTranslation();
@@ -18,6 +19,15 @@ export default function MainpageIndex() {
   const [error, setError] = useState<string | null>(null);
   const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  // Extract unique post creator usernames
+  const uniqueUsernames = useMemo(
+    () => Array.from(new Set(posts.map(p => p.creatorUsername).filter(Boolean))),
+    [posts]
+  );
+
+  // Fetch all profile photos at once
+  const { photoMap } = useProfilePhotos(uniqueUsernames);
 
   const storedUsername = useMemo(() => {
     try {
@@ -122,6 +132,7 @@ export default function MainpageIndex() {
                   onPostUpdate={handlePostUpdate}
                   onPostDelete={handlePostDelete}
                   onUsernameClick={handleUsernameClick}
+                  creatorPhotoUrl={photoMap.get(p.creatorUsername) || null}
                 />
               ))}
             </div>

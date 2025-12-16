@@ -1,12 +1,23 @@
 import { ApiClient } from './client';
 import { z } from 'zod';
 
-// Feedback schemas
+// Feedback API response schema (snake_case from backend)
+const FeedbackApiSchema = z.object({
+  feedbackId: z.number().int(),
+  feedbackerUsername: z.string(),
+  contentType: z.string(),
+  content: z.string(),
+  isSeen: z.boolean().optional(),
+  createdAt: z.string(),
+});
+
+// Frontend schema (will map feedbackId to id)
 export const FeedbackResponseSchema = z.object({
   id: z.number().int(),
   feedbackerUsername: z.string(),
   contentType: z.string(),
   content: z.string(),
+  isSeen: z.boolean().optional(),
   createdAt: z.string(),
 });
 
@@ -25,9 +36,18 @@ export const FeedbackApi = {
    * Get unseen feedbacks for a moderator
    */
   getUnseen: async (username: string): Promise<FeedbackResponse[]> => {
-    const data = await ApiClient.get<FeedbackResponse[]>(`/api/feedback/unseen/${username}`);
-    data.forEach(item => FeedbackResponseSchema.parse(item));
-    return data;
+    const data = await ApiClient.get<z.infer<typeof FeedbackApiSchema>[]>(`/api/feedback/unseen/${username}`);
+    return data.map(item => {
+      const validated = FeedbackApiSchema.parse(item);
+      return {
+        id: validated.feedbackId,
+        feedbackerUsername: validated.feedbackerUsername,
+        contentType: validated.contentType,
+        content: validated.content,
+        isSeen: validated.isSeen,
+        createdAt: validated.createdAt,
+      };
+    });
   },
 
   /**

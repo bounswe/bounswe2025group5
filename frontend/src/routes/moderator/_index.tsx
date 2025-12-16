@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import ModeratorRoute from '@/services/ModeratorRoute';
 import { ReportsApi, type ReportItem } from '@/lib/api/reports';
+import { FeedbackApi, type FeedbackResponse } from '@/lib/api/feedback';
 import { USERNAME_KEY } from '@/lib/api/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Spinner } from '@/components/ui/spinner';
 import { PostsApi } from '@/lib/api/posts';
 import { CommentsApi } from '@/lib/api/comments';
+import { UsersApi } from '@/lib/api/users';
 import ReportObjectDialog from '@/components/moderation/ReportObjectDialog';
 import GlassCard from '@/components/ui/glass-card';
 import { RefreshCw } from 'lucide-react';
@@ -20,9 +22,39 @@ const formatTimestamp = (value: string) => {
   return parsed.toLocaleString();
 };
 
+const getFeedbackBadgeColor = (contentType: string) => {
+  switch (contentType) {
+    case 'Suggestion':
+      return 'bg-blue-100 text-blue-800 border-blue-300';
+    case 'Compliment':
+      return 'bg-green-100 text-green-800 border-green-300';
+    case 'Complaint':
+      return 'bg-orange-100 text-orange-800 border-orange-300';
+    default:
+      return 'bg-blue-100 text-blue-800 border-blue-300';
+  }
+};
+
+const getReportBadgeColor = (type: string) => {
+  switch (type?.toUpperCase()) {
+    case 'SPAM':
+      return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+    case 'VIOLENCE':
+      return 'bg-red-100 text-red-800 border-red-300';
+    case 'POST':
+    case 'COMMENT':
+      return 'bg-purple-100 text-purple-800 border-purple-300';
+    default:
+      return 'bg-gray-100 text-gray-800 border-gray-300';
+  }
+};
+
+type ModeratorItem = (ReportItem & { itemType: 'report' }) | (FeedbackResponse & { itemType: 'feedback' });
+
 export function ModeratorDashboard() {
   const { t } = useTranslation();
   const [reports, setReports] = useState<ReportItem[]>([]);
+  const [feedbacks, setFeedbacks] = useState<FeedbackResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
@@ -31,6 +63,7 @@ export function ModeratorDashboard() {
   const [filterType, setFilterType] = useState<string>('all');
   const [activeReport, setActiveReport] = useState<ReportItem | null>(null);
   const [isObjectDialogOpen, setIsObjectDialogOpen] = useState(false);
+  const [userProfiles, setUserProfiles] = useState<Map<string, string | null>>(new Map());
   const handleViewReport = (report: ReportItem) => {
     setActiveReport(report);
     setIsObjectDialogOpen(true);
@@ -46,13 +79,35 @@ export function ModeratorDashboard() {
         throw new Error(t('moderator.noUsername', 'Missing moderator username'));
       }
       setUsername(storedUsername);
-      const data = await ReportsApi.getUnread(storedUsername);
-      const sortedData = [...data].sort((a, b) => {
-        const dateA = new Date(a.createdAt).getTime();
-        const dateB = new Date(b.createdAt).getTime();
-        return dateB - dateA;
+      const [reportsData, feedbacksData] = await Promise.all([
+        ReportsApi.getUnread(storedUsername),
+        FeedbackApi.getUnseen(storedUsername)
+      ]);
+      setReports(reportsData);
+
+      // Collect unique usernames
+      const uniqueUsernames = new Set<string>();
+      reportsData.forEach(r => {
+        if (r.reporterUsername) uniqueUsernames.add(r.reporterUsername);
       });
-      setReports(sortedData);
+      feedbacksData.forEach(f => {
+        if (f.feedbackerUsername) uniqueUsernames.add(f.feedbackerUsername);
+      });
+
+      // Fetch profiles for unique usernames only
+      const profileMap = new Map<string, string | null>();
+      await Promise.all(
+        Array.from(uniqueUsernames).map(async (uname) => {
+          try {
+            const profile = await UsersApi.getUserByUsername(uname);
+            profileMap.set(uname, profile.profilePhotoUrl || null);
+          } catch {
+            profileMap.set(uname, null);
+          }
+        })
+      );
+      setUserProfiles(profileMap);
+      setFeedbacks(feedbacksData);
     } catch (err) {
       const message = err instanceof Error ? err.message : t('moderator.error', 'Failed to load reports');
       setError(message);
@@ -62,21 +117,27 @@ export function ModeratorDashboard() {
   }, [t]);
 
   const handleSolve = useCallback(
-    async (reportId: number) => {
+    async (item: ModeratorItem) => {
       if (!username) {
         setError(t('moderator.noUsername', 'Missing moderator username'));
         return;
       }
-      setSolvingId(reportId);
+      const itemId = item.itemType === 'report' ? item.id : item.id;
+      setSolvingId(itemId);
       try {
-        await ReportsApi.markSolved(username, reportId);
-        setReports((prev) => prev.filter((report) => report.id !== reportId));
+        if (item.itemType === 'report') {
+          await ReportsApi.markSolved(username, item.id);
+          setReports((prev) => prev.filter((report) => report.id !== item.id));
+        } else {
+          await FeedbackApi.markAsSeen(item.id, username);
+          setFeedbacks((prev) => prev.filter((feedback) => feedback.id !== item.id));
+        }
       } catch (err) {
         const message =
-          err instanceof Error ? err.message : t('moderator.solveError', 'Failed to mark report as solved');
+          err instanceof Error ? err.message : t('moderator.solveError', 'Failed to mark as resolved');
         setError(message);
       } finally {
-        setSolvingId((current) => (current === reportId ? null : current));
+        setSolvingId((current) => (current === itemId ? null : current));
       }
     },
     [username, t],
@@ -222,16 +283,24 @@ export function ModeratorDashboard() {
 
           {/* Reports List */}
           {(() => {
-            const filteredReports = reports.filter(report => {
-              const isFeedback = report.objectId === -1;
-              if (filterType === 'all') return true;
-              if (filterType === 'feedback') return isFeedback;
-              if (isFeedback) return false;
-              if (filterType === 'POST' || filterType === 'COMMENT') return report.contentType === filterType;
-              return report.type?.toUpperCase() === filterType;
+            const allItems: ModeratorItem[] = [
+              ...reports.map(r => ({ ...r, itemType: 'report' as const })),
+              ...feedbacks.map(f => ({ ...f, itemType: 'feedback' as const }))
+            ].sort((a, b) => {
+              const dateA = new Date(a.createdAt).getTime();
+              const dateB = new Date(b.createdAt).getTime();
+              return dateB - dateA;
             });
 
-            return filteredReports.length === 0 ? (
+            const filteredItems = allItems.filter(item => {
+              if (filterType === 'all') return true;
+              if (filterType === 'feedback') return item.itemType === 'feedback';
+              if (item.itemType === 'feedback') return false;
+              if (filterType === 'POST' || filterType === 'COMMENT') return item.contentType === filterType;
+              return item.type?.toUpperCase() === filterType;
+            });
+
+            return filteredItems.length === 0 ? (
             <div className="text-center py-12">
               <div className="bg-white/60 backdrop-blur-sm rounded-lg p-8 max-w-md mx-auto border border-white/20">
                 <h3 className="text-lg font-semibold text-emerald-900 mb-2">
@@ -241,45 +310,62 @@ export function ModeratorDashboard() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
-              {filteredReports.map((report) => {
-                const isFeedback = report.objectId === -1;
-                const displayType = isFeedback ? 'FEEDBACK' : report.contentType;
-                const displayTitle = isFeedback && report.type === 'OTHER' ? 'Feedback' : report.type;
+              {filteredItems.map((item) => {
+                const isFeedback = item.itemType === 'feedback';
+                const displayType = isFeedback ? item.contentType : item.contentType;
+                const displayTitle = isFeedback ? item.contentType : item.type;
+                const content = isFeedback ? item.content : item.description;
+                const username = isFeedback ? item.feedbackerUsername : item.reporterUsername;
+                const itemId = item.id;
+                
+                // Card styling based on type
+                const cardClassName = isFeedback 
+                  ? 'ring-2 ring-tertiary'
+                  : 'ring-2 ring-accent';
+                
+                // Badge color based on subtype
+                const badgeColor = isFeedback 
+                  ? getFeedbackBadgeColor(item.contentType)
+                  : getReportBadgeColor(displayType);
                 
                 return (
-                <Card key={report.id} data-testid={`report-${report.id}`}>
-                  <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <Card key={`${item.itemType}-${item.id}`} data-testid={`${item.itemType}-${item.id}`} className={cardClassName}>
+                  <div className="flex justify-center pt-0 pb-0">
+                    <div className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      isFeedback ? 'bg-tertiary text-white' : 'bg-accent text-white'
+                    }`}>
+                      {isFeedback ? 'FEEDBACK' : 'REPORT'}
+                    </div>
+                  </div>
+                  <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between pt-0">
                     <div>
                       <CardTitle className="text-lg text-emerald-900">
                         {displayTitle}
                       </CardTitle>
                       <p className="text-sm text-muted-foreground">
                         {isFeedback 
-                          ? t('moderator.sentBy', 'Sent by {{username}}', { username: report.reporterUsername })
-                          : t('moderator.reportedBy', 'Reported by {{username}}', { username: report.reporterUsername })
+                          ? t('moderator.sentBy', 'Sent by {{username}}', { username })
+                          : t('moderator.reportedBy', 'Reported by {{username}}', { username })
                         }
                       </p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge 
                         variant="outline" 
-                        className={isFeedback ? 'bg-blue-100 text-blue-800 border-blue-300' : ''}
+                        className={badgeColor}
                       >
                         {displayType}
                       </Badge>
-                      {!isFeedback && (
-                        <Badge>{t('moderator.objectId', 'ID {{id}}', { id: report.objectId })}</Badge>
-                      )}
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-3 p-3 pt-0">
                     <div className="p-3 bg-muted/50 rounded-lg border border-border">
-                      <p className="text-sm text-foreground">{report.description}</p>
+                      <p className="text-sm text-foreground">{content}</p>
                     </div>
                     <p className="pl-2 text-xs text-muted-foreground">
                       {isFeedback
-                        ? t('moderator.sentAt', 'Sent {{time}}', { time: formatTimestamp(report.createdAt) })
-                        : t('moderator.reportedAt', 'Reported {{time}}', { time: formatTimestamp(report.createdAt) })
+                        ? t('moderator.sentAt', 'Sent {{time}}', { time: formatTimestamp(item.createdAt) })
+                        : t('moderator.reportedAt', 'Reported {{time}}', { time: formatTimestamp(item.createdAt) })
                       }
                     </p>
                     <div className="flex flex-wrap justify-center gap-2">
@@ -287,7 +373,7 @@ export function ModeratorDashboard() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleViewReport(report)}
+                          onClick={() => handleViewReport(item as ReportItem)}
                         >
                           {t('moderator.view', 'View content')}
                         </Button>
@@ -296,10 +382,10 @@ export function ModeratorDashboard() {
                         <Button
                           variant="destructive"
                           size="sm"
-                          onClick={() => void handleDeleteContent(report)}
-                          disabled={deletingId === report.id}
+                          onClick={() => void handleDeleteContent(item as ReportItem)}
+                          disabled={deletingId === itemId}
                         >
-                          {deletingId === report.id
+                          {deletingId === itemId
                             ? t('moderator.deleting', 'Deleting...')
                             : t('moderator.delete', 'Delete content')}
                         </Button>
@@ -307,12 +393,14 @@ export function ModeratorDashboard() {
                       <Button
                         variant="secondary"
                         size="sm"
-                        onClick={() => void handleSolve(report.id)}
-                        disabled={solvingId === report.id}
+                        onClick={() => void handleSolve(item)}
+                        disabled={solvingId === itemId}
                       >
-                        {solvingId === report.id
+                        {solvingId === itemId
                           ? t('moderator.solving', 'Marking...')
-                          : t('moderator.solve', 'Mark as solved')}
+                          : isFeedback
+                            ? t('moderator.markSeen', 'Mark as seen')
+                            : t('moderator.solve', 'Mark as solved')}
                       </Button>
                     </div>
                   </CardContent>

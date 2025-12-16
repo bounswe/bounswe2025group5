@@ -6,12 +6,12 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import type { Notification } from '@/lib/api/schemas/notifications';
 import userAvatar from '@/assets/user.png';
-import { useProfilePhoto } from '@/hooks/useProfilePhotos';
 
 interface NotificationCardProps {
   notification: Notification;
   onMarkAsRead?: (id: number) => void;
   onNotificationClick?: (notification: Notification) => void;
+  actorPhotoUrl?: string | null;
   className?: string;
 }
 
@@ -19,12 +19,10 @@ export default function NotificationCard({
   notification,
   onMarkAsRead,
   onNotificationClick,
+  actorPhotoUrl,
   className,
 }: NotificationCardProps) {
   const { t } = useTranslation();
-
-  // Fetch profile photo for notification actor
-  const { photoUrl: actorPhotoUrl } = useProfilePhoto(notification.actorId);
 
   const formatTimeAgo = (timestamp: string) => {
     const now = new Date();
