@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import ChallengeCard from './challengeCard';
 import { ChallengesApi } from '@/lib/api/challenges';
-import type { ChallengeListItem } from '@/lib/api/schemas/challenges';
+import type { ChallengeListItem, WasteItem } from '@/lib/api/schemas/challenges';
 
 // Mock i18next
 vi.mock('react-i18next', () => ({
@@ -18,6 +18,7 @@ vi.mock('@/lib/api/challenges', () => ({
     attend: vi.fn(),
     leave: vi.fn(),
     logChallengeProgress: vi.fn(),
+    getWasteItemsForChallenge: vi.fn(),
   },
 }));
 
@@ -70,12 +71,18 @@ const mockChallenge: ChallengeListItem = {
   userInChallenge: false,
 };
 
+const mockWasteItems: WasteItem[] = [
+  { id: 1, name: 'PAPER', displayName: 'Paper', type: { id: 1, name: 'Paper' } },
+  { id: 2, name: 'PLASTIC', displayName: 'Plastic Bottles', type: { id: 2, name: 'Plastic' } },
+];
+
 describe('ChallengeCard', () => {
   beforeEach(() => {
     localStorageMock.clear();
     localStorageMock.setItem('username', 'testuser');
     vi.clearAllMocks();
     mockAlert.mockClear();
+    vi.mocked(ChallengesApi.getWasteItemsForChallenge).mockResolvedValue(mockWasteItems);
   });
 
   describe('Rendering', () => {
@@ -212,12 +219,10 @@ describe('ChallengeCard', () => {
       await user.click(screen.getByRole('button', { expanded: false }));
       
       const attendButton = screen.getByRole('button', { name: /attend/i });
-      const logButton = screen.getByRole('button', { name: /log/i });
       
       await user.click(attendButton);
 
       expect(attendButton).toBeDisabled();
-      expect(logButton).toBeDisabled();
 
       resolveAttend!();
       await waitFor(() => {
@@ -302,24 +307,28 @@ describe('ChallengeCard', () => {
   describe('Log Progress', () => {
     test('opens popover when log button is clicked', async () => {
       const user = userEvent.setup();
-      render(<ChallengeCard challenge={mockChallenge} />);
+      render(<ChallengeCard challenge={{ ...mockChallenge, userInChallenge: true }} />);
 
       await user.click(screen.getByRole('button', { expanded: false }));
       await user.click(screen.getByRole('button', { name: /log/i }));
 
       await waitFor(() => {
         expect(screen.getByRole('spinbutton')).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument();
+        expect(screen.getByText(/select waste item/i)).toBeInTheDocument();
       });
     });
 
     test('shows alert when submitting empty amount', async () => {
       const user = userEvent.setup();
 
-      render(<ChallengeCard challenge={mockChallenge} />);
+      render(<ChallengeCard challenge={{ ...mockChallenge, userInChallenge: true }} />);
 
       await user.click(screen.getByRole('button', { expanded: false }));
       await user.click(screen.getByRole('button', { name: /log/i }));
+
+      // select an item to enable submission
+      await user.click(screen.getByRole('combobox'));
+      await user.click(screen.getAllByText('Paper')[0]);
       
       // Submit without entering a value (empty input converts to 0, which is invalid)
       const submitButton = screen.getByRole('button', { name: /submit/i });
@@ -339,10 +348,13 @@ describe('ChallengeCard', () => {
         newTotalAmount: 260,
       });
 
-      render(<ChallengeCard challenge={mockChallenge} />);
+      render(<ChallengeCard challenge={{ ...mockChallenge, userInChallenge: true }} />);
 
       await user.click(screen.getByRole('button', { expanded: false }));
       await user.click(screen.getByRole('button', { name: /log/i }));
+
+      await user.click(screen.getByRole('combobox'));
+      await user.click(screen.getAllByText('Paper')[0]);
 
       const input = screen.getByRole('spinbutton') as HTMLInputElement;
       await user.type(input, '10');
@@ -353,7 +365,7 @@ describe('ChallengeCard', () => {
       await waitFor(() => {
         expect(ChallengesApi.logChallengeProgress).toHaveBeenCalledWith(
           1,
-          { username: 'testuser', amount: 10 }
+          { username: 'testuser', quantity: 10, itemId: 1 }
         );
       });
     });
@@ -366,10 +378,13 @@ describe('ChallengeCard', () => {
         newTotalAmount: 300,
       });
 
-      render(<ChallengeCard challenge={mockChallenge} />);
+      render(<ChallengeCard challenge={{ ...mockChallenge, userInChallenge: true }} />);
 
       await user.click(screen.getByRole('button', { expanded: false }));
       await user.click(screen.getByRole('button', { name: /log/i }));
+
+      await user.click(screen.getByRole('combobox'));
+      await user.click(screen.getAllByText('Paper')[0]);
 
       const input = screen.getByRole('spinbutton') as HTMLInputElement;
       
@@ -382,7 +397,7 @@ describe('ChallengeCard', () => {
       await waitFor(() => {
         expect(ChallengesApi.logChallengeProgress).toHaveBeenCalledWith(
           1,
-          { username: 'testuser', amount: 50 }
+          { username: 'testuser', quantity: 50, itemId: 1 }
         );
       });
     });
@@ -395,7 +410,7 @@ describe('ChallengeCard', () => {
         newTotalAmount: 300,
       });
 
-      render(<ChallengeCard challenge={mockChallenge} />);
+      render(<ChallengeCard challenge={{ ...mockChallenge, userInChallenge: true }} />);
 
       // Initial progress is 25% (250/1000)
       expect(screen.getByTestId('progress-visualization')).toHaveTextContent('25%');
@@ -403,6 +418,9 @@ describe('ChallengeCard', () => {
       await user.click(screen.getByRole('button', { expanded: false }));
       await user.click(screen.getByRole('button', { name: /log/i }));
 
+      await user.click(screen.getByRole('combobox'));
+      await user.click(screen.getAllByText('Paper')[0]);
+      
       const input = screen.getByRole('spinbutton') as HTMLInputElement;
       
       // Clear and type new value
@@ -430,13 +448,16 @@ describe('ChallengeCard', () => {
       });
       vi.mocked(ChallengesApi.logChallengeProgress).mockReturnValue(logPromise);
 
-      render(<ChallengeCard challenge={mockChallenge} />);
+      render(<ChallengeCard challenge={{ ...mockChallenge, userInChallenge: true }} />);
 
       await user.click(screen.getByRole('button', { expanded: false }));
       
       const logButton = screen.getByRole('button', { name: /log/i });
       await user.click(logButton);
       
+      await user.click(screen.getByRole('combobox'));
+      await user.click(screen.getAllByText('Paper')[0]);
+
       // Enter a valid value first
       const input = screen.getByRole('spinbutton') as HTMLInputElement;
       await user.type(input, '1');
@@ -459,10 +480,13 @@ describe('ChallengeCard', () => {
       const user = userEvent.setup();
       vi.mocked(ChallengesApi.logChallengeProgress).mockRejectedValue(new Error('Network error'));
 
-      render(<ChallengeCard challenge={mockChallenge} />);
+      render(<ChallengeCard challenge={{ ...mockChallenge, userInChallenge: true }} />);
 
       await user.click(screen.getByRole('button', { expanded: false }));
       await user.click(screen.getByRole('button', { name: /log/i }));
+
+      await user.click(screen.getByRole('combobox'));
+      await user.click(screen.getAllByText('Paper')[0]);
       
       // Enter a valid value first so validation passes and API is called
       const input = screen.getByRole('spinbutton') as HTMLInputElement;
@@ -477,10 +501,13 @@ describe('ChallengeCard', () => {
 
     test('prevents negative and zero amounts via submit validation', async () => {
       const user = userEvent.setup();
-      render(<ChallengeCard challenge={mockChallenge} />);
+      render(<ChallengeCard challenge={{ ...mockChallenge, userInChallenge: true }} />);
 
       await user.click(screen.getByRole('button', { expanded: false }));
       await user.click(screen.getByRole('button', { name: /log/i }));
+
+      await user.click(screen.getByRole('combobox'));
+      await user.click(screen.getAllByText('Paper')[0]);
 
       const input = screen.getByRole('spinbutton') as HTMLInputElement;
       
@@ -517,6 +544,9 @@ describe('ChallengeCard', () => {
         newTotalAmount: 275,
       });
       
+      await user.click(screen.getByRole('combobox'));
+      await user.click(screen.getAllByText('Paper')[0]);
+
       await user.clear(input);
       await user.type(input, '25');
       await user.click(screen.getByRole('button', { name: /submit/i }));
@@ -524,7 +554,7 @@ describe('ChallengeCard', () => {
       await waitFor(() => {
         expect(ChallengesApi.logChallengeProgress).toHaveBeenCalledWith(
           1,
-          { username: 'testuser', amount: 25 }
+          { username: 'testuser', quantity: 25, itemId: 1 }
         );
       });
     });
@@ -537,14 +567,16 @@ describe('ChallengeCard', () => {
       });
       vi.mocked(ChallengesApi.logChallengeProgress).mockReturnValue(logPromise);
 
-      render(<ChallengeCard challenge={mockChallenge} />);
+      render(<ChallengeCard challenge={{ ...mockChallenge, userInChallenge: true }} />);
 
       await user.click(screen.getByRole('button', { expanded: false }));
       
-      const attendButton = screen.getByRole('button', { name: /attend/i });
+      const leaveButton = screen.getByRole('button', { name: /leave/i });
       const logButton = screen.getByRole('button', { name: /log/i });
       
       await user.click(logButton);
+      await user.click(screen.getByRole('combobox'));
+      await user.click(screen.getAllByText('Paper')[0]);
       
       // Enter a valid value first
       const input = screen.getByRole('spinbutton') as HTMLInputElement;
@@ -554,14 +586,49 @@ describe('ChallengeCard', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(attendButton).toBeDisabled();
+        expect(leaveButton).toBeDisabled();
         expect(logButton).toBeDisabled();
       });
 
       resolveLog!();
       await waitFor(() => {
-        expect(attendButton).not.toBeDisabled();
+        expect(leaveButton).not.toBeDisabled();
         expect(logButton).not.toBeDisabled();
+      });
+    });
+
+    test('combobox label reflects the selected waste item', async () => {
+      const user = userEvent.setup();
+      render(<ChallengeCard challenge={{ ...mockChallenge, userInChallenge: true }} />);
+
+      await user.click(screen.getByRole('button', { expanded: false }));
+      await user.click(screen.getByRole('button', { name: /log/i }));
+
+      await user.click(screen.getByRole('combobox'));
+      await user.click(screen.getAllByText('Paper')[0]);
+
+      await waitFor(() => {
+        expect(screen.getByRole('combobox', { name: /paper/i })).toBeInTheDocument();
+      });
+    });
+
+    test('allows searching and selecting a waste item', async () => {
+      const user = userEvent.setup();
+      render(<ChallengeCard challenge={{ ...mockChallenge, userInChallenge: true }} />);
+
+      await user.click(screen.getByRole('button', { expanded: false }));
+      await user.click(screen.getByRole('button', { name: /log/i }));
+
+      await user.click(screen.getByRole('combobox'));
+
+      const searchInput = screen.getByPlaceholderText(/search item/i);
+      await user.type(searchInput, 'Plastic');
+
+      const plasticOption = screen.getAllByText('Plastic Bottles')[0];
+      await user.click(plasticOption);
+
+      await waitFor(() => {
+        expect(screen.getByRole('combobox', { name: /plastic bottles/i })).toBeInTheDocument();
       });
     });
   });

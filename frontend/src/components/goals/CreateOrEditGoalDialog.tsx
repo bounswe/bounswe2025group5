@@ -42,9 +42,10 @@ export default function CreateOrEditGoalDialog({ open, onOpenChange, initial, on
             <Label htmlFor="goal-type">{t('goals.type', 'Type')}</Label>
             <select
               id="goal-type"
-              className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+              className="h-9 rounded-md border border-input bg-transparent px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               value={type}
               onChange={(e) => setType(e.target.value)}
+              aria-required="true"
             >
               {WASTE_TYPES.map((wt) => (
                 <option key={wt.id} value={wt.name}>{wt.name}</option>
@@ -53,11 +54,11 @@ export default function CreateOrEditGoalDialog({ open, onOpenChange, initial, on
           </div>
           <div className="grid gap-1">
             <Label htmlFor="goal-duration">{t('goals.duration', 'Duration (days)')}</Label>
-            <Input id="goal-duration" type="number" value={duration} onChange={(e) => setDuration(Number(e.target.value))} min={1} />
+            <Input id="goal-duration" type="number" value={duration} onChange={(e) => setDuration(Number(e.target.value))} min={1} aria-required="true" />
           </div>
           <div className="grid gap-1">
             <Label htmlFor="goal-restriction">{t('goals.restriction', 'Restriction amount (grams)')}</Label>
-            <Input id="goal-restriction" type="number" value={restrictionAmountGrams} onChange={(e) => setRestrictionAmountGrams(Number(e.target.value))} min={0} />
+            <Input id="goal-restriction" type="number" value={restrictionAmountGrams} onChange={(e) => setRestrictionAmountGrams(Number(e.target.value))} min={0} aria-required="true" />
           </div>
         </div>
         <DialogFooter>
@@ -74,6 +75,8 @@ export default function CreateOrEditGoalDialog({ open, onOpenChange, initial, on
               }
             }}
             disabled={!canSubmit || submitting}
+            aria-busy={submitting}
+            aria-disabled={!canSubmit || submitting}
           >
             {t('goals.save', 'Save')}
           </Button>

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChallengesApi } from '@/lib/api/challenges';
 import { Spinner } from '@/components/ui/spinner';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import type { LeaderboardItem } from '@/lib/api/schemas/leaderboard';
 
@@ -35,6 +35,9 @@ export default function Leaderboard({ challengeId }: { challengeId: number }) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{t('challenges.leaderboard', 'Leaderboard')}</DialogTitle>
+          <DialogDescription className="sr-only">
+            {t('challenges.leaderboardDescription', 'View challenge rankings')}
+          </DialogDescription>
         </DialogHeader>
         {loading ? (
           <div className="flex justify-center py-8">

@@ -20,7 +20,7 @@ export default function LogWasteDialog({ goalId, username, open, onOpenChange, o
   const { t } = useTranslation();
   const [items, setItems] = useState<WasteItem[]>([]);
   const [itemId, setItemId] = useState<number | null>(null);
-  const [quantity, setQuantity] = useState<number>(1);
+  const [quantity, setQuantity] = useState<string>('1');
   const [loadingItems, setLoadingItems] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -38,7 +38,8 @@ export default function LogWasteDialog({ goalId, username, open, onOpenChange, o
     })();
   }, [open, goalId]);
 
-  const canSubmit = useMemo(() => itemId != null && quantity > 0, [itemId, quantity]);
+  const quantityNum = Number(quantity);
+  const canSubmit = useMemo(() => itemId != null && !isNaN(quantityNum) && quantityNum > 0, [itemId, quantityNum]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -52,10 +53,12 @@ export default function LogWasteDialog({ goalId, username, open, onOpenChange, o
             <Label htmlFor="waste-item">{t('goals.item', 'Item')}</Label>
             <select
               id="waste-item"
-              className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+              className="h-9 rounded-md border border-input bg-transparent px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               value={itemId ?? ''}
               onChange={(e) => setItemId(Number(e.target.value))}
               disabled={loadingItems}
+              aria-required="true"
+              aria-busy={loadingItems}
             >
               {items.map((it) => (
                 <option key={it.id} value={it.id}>{it.displayName}</option>
@@ -64,7 +67,7 @@ export default function LogWasteDialog({ goalId, username, open, onOpenChange, o
           </div>
           <div className="grid gap-1">
             <Label htmlFor="waste-quantity">{t('goals.quantity', 'Quantity')}</Label>
-            <Input id="waste-quantity" type="number" min={1} value={quantity} onChange={(e) => setQuantity(Number(e.target.value))} />
+            <Input id="waste-quantity" type="number" min={1} value={quantity} onChange={(e) => setQuantity(e.target.value)} aria-required="true" />
           </div>
         </div>
         <DialogFooter>
@@ -74,7 +77,7 @@ export default function LogWasteDialog({ goalId, username, open, onOpenChange, o
               if (!canSubmit) return;
               try {
                 setSubmitting(true);
-                await WasteApi.create(goalId, { username, itemId, quantity });
+                await WasteApi.create(goalId, { username, itemId, quantity: quantityNum });
                 onOpenChange(false);
                 onLogged?.();
               } finally {
@@ -82,6 +85,8 @@ export default function LogWasteDialog({ goalId, username, open, onOpenChange, o
               }
             }}
             disabled={!canSubmit || submitting}
+            aria-busy={submitting}
+            aria-disabled={!canSubmit || submitting}
           >
             {t('goals.log', 'Log')}
           </Button>
@@ -90,4 +95,3 @@ export default function LogWasteDialog({ goalId, username, open, onOpenChange, o
     </Dialog>
   );
 }
-

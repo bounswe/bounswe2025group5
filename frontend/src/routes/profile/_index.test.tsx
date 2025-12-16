@@ -29,6 +29,12 @@ vi.mock('@/components/profile/userProfileDialog', () => ({
   default: () => null,
 }));
 
+vi.mock('@/components/badges/badge-showcase', () => ({
+  BadgeShowcase: ({ username }: { username: string | null }) => (
+    <div data-testid="badge-showcase">BadgeShowcase:{username}</div>
+  ),
+}));
+
 vi.mock('@/components/ui/glass-card', () => ({
   default: ({ children }: { children: React.ReactNode }) => <div data-testid="glass-card">{children}</div>,
 }));
@@ -127,6 +133,13 @@ describe('ProfileIndex route', () => {
   });
 
   it('shows auth error when username is missing', async () => {
+    // Mock APIs to return empty data to prevent runtime errors
+    mockedGetProfile.mockRejectedValue(new Error('Unauthorized'));
+    mockedGetPosts.mockResolvedValue([]);
+    mockedGetSavedPosts.mockResolvedValue([]);
+    mockedGetFollowers.mockResolvedValue([]);
+    mockedGetFollowings.mockResolvedValue([]);
+
     render(<ProfileIndex />);
 
     expect(await screen.findByText('Not authenticated')).toBeInTheDocument();
@@ -152,6 +165,7 @@ describe('ProfileIndex route', () => {
 
     expect(await screen.findByText('demo')).toBeInTheDocument();
     expect(await screen.findByTestId('post-1')).toHaveTextContent('first');
+    expect(screen.getByTestId('badge-showcase')).toHaveTextContent('BadgeShowcase:demo');
   });
 
   it('loads saved posts when toggle is clicked', async () => {
@@ -182,4 +196,3 @@ describe('ProfileIndex route', () => {
     expect(await screen.findByTestId('post-3')).toHaveTextContent('saved');
   });
 });
-

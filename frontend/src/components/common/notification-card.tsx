@@ -1,17 +1,17 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, MessageCircle, UserPlus, Forward, Trophy } from 'lucide-react';
+import { Heart, MessageCircle, UserPlus, Forward, Trophy, AlertTriangle, CheckCircle, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import type { Notification } from '@/lib/api/schemas/notifications';
 import userAvatar from '@/assets/user.png';
-import { useProfilePhoto } from '@/hooks/useProfilePhotos';
 
 interface NotificationCardProps {
   notification: Notification;
   onMarkAsRead?: (id: number) => void;
   onNotificationClick?: (notification: Notification) => void;
+  actorPhotoUrl?: string | null;
   className?: string;
 }
 
@@ -19,12 +19,10 @@ export default function NotificationCard({
   notification,
   onMarkAsRead,
   onNotificationClick,
+  actorPhotoUrl,
   className,
 }: NotificationCardProps) {
   const { t } = useTranslation();
-
-  // Fetch profile photo for notification actor
-  const { photoUrl: actorPhotoUrl } = useProfilePhoto(notification.actorId);
 
   const formatTimeAgo = (timestamp: string) => {
     const now = new Date();
@@ -66,6 +64,12 @@ export default function NotificationCard({
           return { actor: 'Challenge', text: 'ended' };
         }
         return { actor, text: 'ended' };
+      case 'ClosedWithoutChange':
+        return { actor: 'Moderator', text: `closed your ${objType} without changes` };
+      case 'Deletion':
+        return { actor: 'Moderator', text: `deleted your ${objType}` };
+      case 'Seen':
+        return { actor: 'Moderator', text: `reviewed your ${objType}` };
       default:
         return { actor, text: 'interacted with your content' };
     }
@@ -92,6 +96,12 @@ export default function NotificationCard({
           return <Trophy className="h-3.5 w-3.5 text-yellow-500" />;
         }
         return null;
+      case 'ClosedWithoutChange':
+        return <CheckCircle className="h-3.5 w-3.5 text-orange-500" />;
+      case 'Deletion':
+        return <AlertTriangle className="h-3.5 w-3.5 text-red-600" />;
+      case 'Seen':
+        return <Eye className="h-3.5 w-3.5 text-blue-600" />;
       default:
         return null;
     }
@@ -134,12 +144,34 @@ export default function NotificationCard({
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="text-sm leading-tight">
-              <span className="font-semibold">{getNotificationMessage().actor}</span>
-              {' '}
+              {getNotificationMessage().actor && (
+                <>
+                  <span className="font-semibold">{getNotificationMessage().actor}</span>
+                  {' '}
+                </>
+              )}
               <span className={cn(!notification.isRead && 'font-medium')}>
                 {getNotificationMessage().text}
               </span>
             </p>
+            {(notification.preview || notification.postMessage || notification.commentContent || notification.challengeTitle) && (
+              <div className="mt-2 p-2 rounded-md bg-muted/50 border border-border/50">
+                {/* Use preview field from backend (preferred), fallback to legacy fields */}
+                {(notification.preview || notification.postMessage || notification.commentContent) && (
+                  <p className="text-xs text-muted-foreground line-clamp-2 italic">
+                    "{(() => {
+                      const content = notification.preview || notification.postMessage || notification.commentContent || '';
+                      return content.length > 80 ? `${content.slice(0, 80)}...` : content;
+                    })()}"
+                  </p>
+                )}
+                {notification.challengeTitle && (
+                  <p className="text-xs font-medium text-primary">
+                    {notification.challengeTitle}
+                  </p>
+                )}
+              </div>
+            )}
             <div className="flex items-center justify-between mt-0.5">
               <p className="text-[10px] text-muted-foreground">
                 {formatTimeAgo(notification.createdAt)}

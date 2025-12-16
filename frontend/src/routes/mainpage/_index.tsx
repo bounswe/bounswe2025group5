@@ -8,6 +8,7 @@ import ChallengeCard from '@/components/challenges/challengeCard';
 import type { PostItem } from '@/lib/api/schemas/posts';
 import PostCard from '@/components/feedpage/post-card';
 import UserProfileDialog from '@/components/profile/userProfileDialog';
+import { useProfilePhotos } from '@/hooks/useProfilePhotos';
 
 export default function MainpageIndex() {
   const { t } = useTranslation();
@@ -18,6 +19,15 @@ export default function MainpageIndex() {
   const [error, setError] = useState<string | null>(null);
   const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  // Extract unique post creator usernames
+  const uniqueUsernames = useMemo(
+    () => Array.from(new Set(posts.map(p => p.creatorUsername).filter(Boolean))),
+    [posts]
+  );
+
+  // Fetch all profile photos at once
+  const { photoMap } = useProfilePhotos(uniqueUsernames);
 
   const storedUsername = useMemo(() => {
     try {
@@ -43,7 +53,7 @@ export default function MainpageIndex() {
           UsersApi.listChallenges(storedUsername),
           PostsApi.list({ size: 10, username: storedUsername }),
         ]);
-        setChallenges(chs.filter((c: any) => c.userInChallenge));
+        setChallenges(chs.filter((c: any) => c.userInChallenge && c.status?.toLowerCase() === 'active'));
         setPosts(feed);
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Failed to load');
@@ -87,18 +97,20 @@ export default function MainpageIndex() {
 
   return (
     <div className="container mx-auto px-4 pb-0 pt-8 ">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[40%_60%] gap-6">
         <ScrollPanel
           title={t('mainpage.challengesTitle', 'Your Challenges')}
           description={t('mainpage.challengesDesc', 'Challenges you are currently attending')}
-          className="max-h-[84vh] overflow-y-auto"
+          className="max-h-[84vh] overflow-y-auto "
         >
           {challenges.length === 0 ? (
             <div className="text-muted-foreground">{t('mainpage.noChallenges', 'No active challenges')}</div>
           ) : (
             <div className="space-y-4 px-4">
-              {challenges.map((ch) => (
-                <ChallengeCard key={ch.challengeId} challenge={ch} />
+              {challenges.map((ch, index) => (
+                <div key={ch.challengeId} className="opacity-0 animate-fade-in" style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'forwards' }}>
+                  <ChallengeCard challenge={ch} />
+                </div>
               ))}
             </div>
           )}
@@ -120,6 +132,7 @@ export default function MainpageIndex() {
                   onPostUpdate={handlePostUpdate}
                   onPostDelete={handlePostDelete}
                   onUsernameClick={handleUsernameClick}
+                  creatorPhotoUrl={photoMap.get(p.creatorUsername) || null}
                 />
               ))}
             </div>

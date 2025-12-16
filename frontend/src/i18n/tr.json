@@ -60,6 +60,9 @@
             "label": "Şifreyi Onayla",
             "placeholder": "Şifrenizi tekrar girin"
         },
+        "kvkk": {
+            "label": "Kişisel Verilerin Korunması Kanunu (KVKK) şartlarını okudum ve kişisel verilerimin işlenmesine onay veriyorum."
+        },
         "registerButton": "Kayıt Ol",
         "loading": "Hesap oluşturuluyor...",
         "haveAccount": "Zaten bir hesabınız var mı? ",
@@ -68,7 +71,8 @@
             "passwordsDontMatch": "Şifreler eşleşmiyor",
             "registrationFailed": "Kayıt başarısız",
             "tooWeak": "Şifre çok zayıf. 'İyi' veya daha yüksek olmalı.",
-            "tooShort": "Şifre en az {{min}} karakter uzunluğunda olmalıdır."
+            "tooShort": "Şifre en az {{min}} karakter uzunluğunda olmalıdır.",
+            "kvkkRequired": "Kayıt olmak için KVKK şartlarını kabul etmelisiniz."
         },
         "success": {
             "accountCreated": "Hesap başarıyla oluşturuldu. Giriş sayfasına yönlendiriliyor..."
@@ -79,6 +83,10 @@
         "navbar": "Profil",
         "title": "Profiliniz",
         "description": "Profil bilgilerinizi yönetin",
+        "account": {
+            "details": "Hesap Detayları",
+            "password": "Şifre Sıfırla"
+        },
         "username": "Kullanıcı adı",
         "userLabel": "Kullanıcı {{username}}",
         "biography": "Biyografi",
@@ -97,6 +105,25 @@
         "editImage": "Resmi Düzenle",
         "userProfile": "Kullanıcı profili",
         "userProfileTitle": "{{username}}'in profili",
+        "resetPassword": {
+            "subtitle": "Hesabınızı güvende tutmak için yeni bir şifre belirleyin.",
+            "currentLabel": "Mevcut şifre",
+            "newLabel": "Yeni şifre",
+            "confirmLabel": "Yeni şifreyi onayla",
+            "placeholder": "Güçlü bir şifre seçin",
+            "requirements": "En az 8 karakter kullanın. Harf, rakam ve sembolleri karıştırın, yaygın desenlerden kaçının.",
+            "update": "Şifreyi güncelle",
+            "updating": "Güncelleniyor...",
+            "success": "Şifre başarıyla güncellendi.",
+            "error": {
+                "tooShort": "Şifre en az {{min}} karakter olmalı.",
+                "tooWeak": "Şifre çok zayıf. 'İyi' veya üzeri olmalı.",
+                "passwordsDontMatch": "Şifreler eşleşmiyor",
+                "samePassword": "Yeni şifre mevcut şifreden farklı olmalı.",
+                "usernameMissing": "Kullanıcı adınızı bulamadık. Lütfen tekrar giriş yapın.",
+                "generic": "Şifre değiştirilemedi. Lütfen tekrar deneyin."
+            }
+        },
         "error": {
             "loadFailed": "Profil yüklenemedi"
         },
@@ -114,7 +141,10 @@
             "empty": "Henüz kimse takip edilmiyor"
         },
         "follow": "Takip Et",
-        "unfollow": "Takibi Bırak"
+        "unfollow": "Takibi Bırak",
+        "badges": {
+            "cta": "Rozet Kataloğunu Gör"
+        }
     },
     "main" : {
         "navbar": "Ana Sayfa"
@@ -151,6 +181,13 @@
         "error": {
             "loadFailed": "Gönderiler yüklenemedi",
             "loadMoreFailed": "Daha fazla gönderi yüklenemedi"
+        },
+        "wasteTypes": {
+            "plastic": "Plastik",
+            "paper": "Kağıt",
+            "glass": "Cam",
+            "metal": "Metal",
+            "organic": "Organik"
         }
     },
     "goals" : {
@@ -182,7 +219,17 @@
         "summaryNoDataButtonLoading": "Yükleniyor...",
         "summaryScaleMax": "Ölçek max",
         "summaryTotal": "Toplam",
+        "summaryTitle": "Atık etki anlık görünümü",
+        "summaryImpactLabel": "Gerçek tasarruflar",
+        "summaryImpactHelper": "{{wasteType}} için {{amount}} kayıttan",
+        "summaryImpactEmpty": "Gerçek tasarruflarınızı görmek için atık kaydedin.",
+        "summaryImpactEmptyValue": "Henüz tasarruf yok",
+        "summaryImpactDescription": "Tüm kullanıcılar {{amount}} {{wasteType}} kaydederek yaklaşık {{impact}} {{unit}} kazandırdı.",
         "monthlyTitle": "12 Aylık Atık Trendleri",
+        "monthlyImpactLabel": "12 aylık etki",
+        "monthlyImpactHelper": "Son 12 ay kayıtlarınızdan",
+        "monthlyGlobalAverage": "Küresel ortalama ({{value}} kg)",
+        "recyclingNote": "Tasarrufları, kaydettiğiniz atığın geri dönüştürüldüğü varsayımıyla hesaplıyoruz.",
         "wasteType": "Atık türü",
         "save": "Kaydet",
         "cancel": "İptal",
@@ -195,7 +242,23 @@
         "createDesc": "Yeni bir atık hedefi oluşturun",
         "editTitle": "Atık hedefi düzenle",
         "editDesc": "Atık hedefinizi güncelleyin",
-        "create": "Atık hedefi oluştur"
+        "create": "Atık hedefi oluştur",
+        "created": "Hedef oluşturuldu",
+        "createError": "Hedef oluşturulamadı",
+        "updated": "Hedef güncellendi",
+        "updateError": "Hedef güncellenemedi",
+        "deleted": "Hedef silindi",
+        "deleteError": "Hedef silinemedi",
+        "logged": "Atık kaydedildi",
+        "impact": {
+            "units": {
+                "trees": "ağaç",
+                "barrels": "varil petrol",
+                "energy": "kWh enerji",
+                "ore": "kg cevher",
+                "compost": "kg kompost"
+            }
+        }
 
 
     },
@@ -232,9 +295,37 @@
         "likes": "Beğeni",
         "comments": "Yorum"
     },
+    "moderator": {
+        "navbar": "Moderatör",
+        "title": "Moderatör kuyruğu",
+        "subtitle": "Çözümlenmemiş raporları inceleyin ve yanıtlayın",
+        "dialogDescription": "Bildirilen içerik ayrıntılarını görüntüle",
+        "refresh": "Yenile",
+        "refreshing": "Yenileniyor...",
+        "empty": "Çözümlenmemiş rapor yok — her şey yolunda!",
+        "reportedBy": "{{username}} tarafından bildirildi",
+        "reportedAt": "{{time}} tarihinde bildirildi",
+        "objectId": "Kimlik {{id}}",
+        "error": "Raporlar yüklenemedi",
+        "noUsername": "Moderatör kullanıcı adı eksik",
+        "solve": "Çözüldü olarak işaretle",
+        "solving": "İşaretleniyor...",
+        "solveError": "Rapor çözüldü olarak işaretlenemedi",
+        "delete": "İçeriği sil",
+        "deleting": "Siliniyor...",
+        "deleteError": "Bildirilen içerik silinemedi",
+        "unsupportedContent": "Desteklenmeyen içerik türü",
+        "view": "İçeriği görüntüle",
+        "viewing": "İçerik yükleniyor...",
+        "viewError": "Bildirilen içerik yüklenemedi",
+        "dialogTitle": "Bildirilen {{type}}",
+        "commentPreview": "{{username}} kullanıcısının yorumu"
+    },
     "challenges": {
         "title": "Etkinlikler",
+        "recyclingProgress": "Geri dönüşüm ilerlemesi yüzde {{percent}}",
         "leaderboard": "Liderlik Tablosu",
+        "leaderboardDescription": "Etkinlik sıralamalarını görüntüle",
         "leaderboardEmpty": "Henüz kayıt yok",
         "attendError": "Etkinliğe katılınamadı",
         "leaveError": "Etkinlikten ayrılınamadı",
@@ -242,6 +333,11 @@
         "invalidAmount": "Lütfen pozitif bir miktar girin",
         "enterAmount": "Miktar girin",
         "submit": "Gönder",
+        "selectItem": "Atık öğesi seçin...",
+        "selectedItem": "Seçilen öğe",
+        "searchItem": "Öğe ara...",
+        "loadingItems": "Öğeler yükleniyor...",
+        "noItems": "Atık öğesi bulunamadı",
         "type": "Tür",
         "status": "Durum",
         "dates": "Tarih",
@@ -258,6 +354,7 @@
         "create": {
             "createChallenge": "Etkinlik Yarat",
             "titleLabel": "Etkinlik Oluştur",
+            "dialogDescription": "Yeni bir atık azaltma etkinliği oluşturun",
             "name": "Başlık",
             "namePlaceholder": "Etkinlik başlığını girin",
             "description": "Açıklama",
@@ -279,6 +376,7 @@
         "imageAlt": "{{username}}'in gönderi resmi",
         "imageDialogTitle": "{{username}}'in gönderi resmi",
         "imageDialogTitleGeneric": "Gönderi resmi",
+        "imageDialogDescription": "Gönderi resminin büyütülmüş görünümü",
         "closeImage": "Resmi kapat",
         "like": "Gönderiyi beğen",
         "unlike": "Beğeniyi kaldır",
@@ -286,10 +384,13 @@
         "unsave": "Kaydedilenleri kaldır",
         "showComments": "Yorumları göster",
         "likes": "{{count}} beğeni",
+        "likes_plural": "{{count}} beğeni",
         "viewComments": "{{count}} yorumu görüntüle",
+        "viewComments_plural": "{{count}} yorumu görüntüle",
         "hideComments": "Yorumları gizle",
         "edit": {
             "title": "Gönderiyi Düzenle",
+            "description": "Gönderi içeriğinizi ve resminizi güncelleyin",
             "button": "Gönderiyi düzenle",
             "currentImage": "Mevcut resim yeni bir resim yüklemediğiniz sürece korunacak",
             "newImage": "Yeni Resim Yükle (İsteğe Bağlı)",
@@ -335,6 +436,26 @@
         },
         "send": "Yorumu Gönder"
     },
+    "reports": {
+        "titlePost": "Gönderiyi bildir",
+        "titleComment": "Yorumu bildir",
+        "description": "Bu içerikte neyin yanlış olduğunu söyleyerek topluluğu güvende tutmamıza yardımcı olun.",
+        "reasonLabel": "Sebep",
+        "reasonPlaceholder": "Sorunu açıklayın...",
+        "submit": "Bildirimi gönder",
+        "submitting": "Gönderiliyor...",
+        "success": "Bildirim alındı. Topluluğu denetlememize yardımcı olduğunuz için teşekkürler.",
+        "error": "Bildirimi gönderemedik. Lütfen tekrar deneyin.",
+        "missingReason": "Lütfen kısa bir açıklama girin.",
+        "loginRequired": "İçeriği bildirmek için giriş yapın",
+        "typeLabel": "Bildirimin türü",
+        "typeOptions": {
+            "SPAM": "Spam veya yanıltıcı içerik",
+            "HARASSMENT": "Taciz veya nefret söylemi",
+            "MISINFORMATION": "Yanlış bilgi",
+            "OTHER": "Diğer sorun"
+        }
+    },
     "search": {
         "placeholder": "Gönderi ara...",
         "button": "Ara",
@@ -372,5 +493,79 @@
         "startedFollowing_suffix": "sizi takip etmeye başladı",
         "sharedYourPost_suffix": "gönderinizi paylaştı",
         "challengeEnded_suffix": "sona erdi"
+    },
+    "feedback": {
+        "buttonLabel": "Geri Bildirim Gönder",
+        "title": "Geri Bildiriminizi Paylaşın",
+        "description": "Düşüncelerinizi, önerilerinizi veya sorunları paylaşarak bize yardımcı olun.",
+        "messageLabel": "Mesajınız",
+        "placeholder": "Ne düşündüğünüzü bize söyleyin...",
+        "charCount": "{{count}} / {{max}} karakter",
+        "submitting": "Gönderiliyor...",
+        "success": "Teşekkürler! Geri bildiriminiz başarıyla gönderildi.",
+        "error": "Geri bildirim gönderilemedi. Lütfen daha sonra tekrar deneyin.",
+        "emptyError": "Lütfen göndermeden önce geri bildiriminizi girin.",
+        "authError": "Geri bildirim göndermek için giriş yapmalısınız.",
+        "forbiddenError": "Geri bildirim gönderme izniniz yok. Lütfen giriş yaptığınızdan emin olun.",
+        "userNotFoundError": "Kullanıcı hesabı bulunamadı. Lütfen tekrar giriş yapmayı deneyin."
+    },
+    "badges": {
+        "title": "Rozet Kataloğu",
+        "subtitle": "WasteLess içinde kazanabileceğiniz rozetlere göz atın.",
+        "loginRequired": "Rozetlerinizi görmek için lütfen giriş yapın.",
+        "loadError": "Rozetler yüklenemedi.",
+        "filters": {
+            "all": "Tüm kategoriler"
+        },
+        "categories": {
+            "waste": "Hedefler",
+            "challenge": "Etkinlikler",
+            "social": "Sosyal",
+            "community": "Topluluk"
+        },
+        "status": {
+            "earned": "Kazanıldı",
+            "locked": "Kilitli"
+        },
+        "badgeNames": {
+            "plasticSaver": "Plastik Kurtarıcı",
+            "plasticHero": "Plastik Kahramanı",
+            "plasticLegend": "Plastik Efsanesi",
+            "paperSaver": "Kağıt Kurtarıcı",
+            "paperHero": "Kağıt Kahramanı",
+            "paperLegend": "Kağıt Efsanesi",
+            "glassSaver": "Cam Kurtarıcı",
+            "glassHero": "Cam Kahramanı",
+            "glassLegend": "Cam Efsanesi",
+            "metalSaver": "Metal Kurtarıcı",
+            "metalHero": "Metal Kahramanı",
+            "metalLegend": "Metal Efsanesi",
+            "organicSaver": "Organik Kurtarıcı",
+            "organicHero": "Organik Kahramanı",
+            "organicLegend": "Organik Efsanesi",
+            "topChallenger": "Zirve Yarışçısı",
+            "firstLike": "İlk Beğeni",
+            "firstComment": "İlk Yorum"
+        },
+        "badgeDescriptions": {
+            "plasticSaver": "Bu rozeti kazanmak için hedeflerde 1.000g (1kg) plastik atık kayıt edin.",
+            "plasticHero": "Bu rozeti kazanmak için hedeflerde 5.000g (5kg) plastik atık kayıt edin.",
+            "plasticLegend": "Bu rozeti kazanmak için hedeflerde 10.000g (10kg) plastik atık kayıt edin.",
+            "paperSaver": "Bu rozeti kazanmak için hedeflerde 1.000g (1kg) kağıt atık kayıt edin.",
+            "paperHero": "Bu rozeti kazanmak için hedeflerde 5.000g (5kg) kağıt atık kayıt edin.",
+            "paperLegend": "Bu rozeti kazanmak için hedeflerde 10.000g (10kg) kağıt atık kayıt edin.",
+            "glassSaver": "Bu rozeti kazanmak için hedeflerde 1.000g (1kg) cam atık kayıt edin.",
+            "glassHero": "Bu rozeti kazanmak için hedeflerde 5.000g (5kg) cam atık kayıt edin.",
+            "glassLegend": "Bu rozeti kazanmak için hedeflerde 10.000g (10kg) cam atık kayıt edin.",
+            "metalSaver": "Bu rozeti kazanmak için hedeflerde 1.000g (1kg) metal atık kayıt edin.",
+            "metalHero": "Bu rozeti kazanmak için hedeflerde 5.000g (5kg) metal atık kayıt edin.",
+            "metalLegend": "Bu rozeti kazanmak için hedeflerde 10.000g (10kg) metal atık kayıt edin.",
+            "organicSaver": "Bu rozeti kazanmak için hedeflerde 1.000g (1kg) organik atık kayıt edin.",
+            "organicHero": "Bu rozeti kazanmak için hedeflerde 5.000g (5kg) organik atık kayıt edin.",
+            "organicLegend": "Bu rozeti kazanmak için hedeflerde 10.000g (10kg) organik atık kayıt edin.",
+            "topChallenger": "Bu rozeti kazanmak için herhangi bir etkinliği liderlik tablosunda ilk 3’te tamamlayın.",
+            "firstLike": "Bu rozeti kazanmak için bir gönderiyi beğenin.",
+            "firstComment": "Bu rozeti kazanmak için bir gönderiye yorum yapın."
+        }
     }
 }

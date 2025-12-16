@@ -10,7 +10,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Spinner } from '@/components/ui/spinner';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { DEFAULT_WASTE_TYPE, WASTE_TYPE_OPTIONS } from '@/lib/api/schemas/goals';
+import { DEFAULT_WASTE_TYPE, WASTE_TYPE_OPTIONS, type WasteTypeOption } from '@/lib/api/schemas/goals';
 
 type FormState = {
   startDate: string;
@@ -31,6 +31,24 @@ function getDefaultForm(): FormState {
 }
 
 const DEFAULT_FORM = getDefaultForm();
+
+type ImpactUnitKey = 'trees' | 'barrels' | 'energy' | 'ore' | 'compost';
+
+const IMPACT_UNIT_LABELS: Record<ImpactUnitKey, string> = {
+  trees: 'trees',
+  barrels: 'barrels of oil',
+  energy: 'kWh saved',
+  ore: 'kg of ore',
+  compost: 'kg of compost',
+};
+
+const IMPACT_CONVERSIONS: Record<WasteTypeOption, { factorPerKg: number; unitKey: ImpactUnitKey }> = {
+  PAPER: { factorPerKg: 0.017, unitKey: 'trees' }, // 1000kg = 17 trees -> 1kg = 0.017 trees
+  PLASTIC: { factorPerKg: 0.0163, unitKey: 'barrels' }, // ~16.3 barrels per 1000kg
+  GLASS: { factorPerKg: 0.042, unitKey: 'energy' }, // placeholder energy savings per kg
+  METAL: { factorPerKg: 1.5, unitKey: 'ore' }, // placeholder ore savings per kg
+  ORGANIC: { factorPerKg: 0.5, unitKey: 'compost' }, // placeholder compost generated per kg
+};
 
 type WasteSummaryCardProps = {
   className?: string;
@@ -84,6 +102,39 @@ export default function WasteSummaryCard({ className, variant = 'default' }: Was
   const averagePerDay = summary && durationDays > 0 ? summary.totalAmount / durationDays : 0;
   const wasteTypeKey = summary?.wasteType?.name ?? form.wasteType;
   const wasteTypeLabel = t(`wasteTypes.${wasteTypeKey}`, { defaultValue: wasteTypeKey });
+  const normalizedWasteTypeKey = (wasteTypeKey ?? '').toUpperCase() as WasteTypeOption;
+
+  const impactInfo = useMemo(() => {
+    if (!summary) return null;
+    const conversion = IMPACT_CONVERSIONS[normalizedWasteTypeKey];
+    if (!conversion) return null;
+    const amountKg = summary.totalAmount / 1000;
+    if (!Number.isFinite(amountKg) || amountKg <= 0) return null;
+    const impactValue = amountKg * conversion.factorPerKg;
+    const unitLabel = t(`goals.impact.units.${conversion.unitKey}`, IMPACT_UNIT_LABELS[conversion.unitKey]);
+    return {
+      impactValue,
+      formattedImpact: formatNumber(impactValue, { maximumFractionDigits: 2 }),
+      unitLabel,
+    };
+  }, [normalizedWasteTypeKey, summary, t]);
+
+  const impactMessage = useMemo(() => {
+    if (!summary) return null;
+    if (!impactInfo) {
+      return t('goals.summaryImpactEmpty', 'Log waste to see your real-world savings.');
+    }
+    return t(
+      'goals.summaryImpactDescription',
+      'All users logged {{amount}} of {{wasteType}}, saving about {{impact}} {{unit}}.',
+      {
+        amount: formatWeight(summary.totalAmount),
+        wasteType: wasteTypeLabel,
+        impact: impactInfo.formattedImpact,
+        unit: impactInfo.unitLabel,
+      }
+    );
+  }, [impactInfo, summary, t, wasteTypeLabel]);
 
   return (
     <Card className={cn('w-full relative min-h-[380px]', className)}>
@@ -167,19 +218,19 @@ export default function WasteSummaryCard({ className, variant = 'default' }: Was
               />
             </Field>
             <Field label={t('goals.summaryWasteType', 'Waste type')} htmlFor="summary-type">
-              <Input
+              <select
                 id="summary-type"
-                list="waste-type-options"
+                className="h-9 rounded-md border border-input bg-background px-3 text-sm"
                 value={form.wasteType}
                 onChange={(event) => setForm((prev) => ({ ...prev, wasteType: event.target.value }))}
-                placeholder={t('goals.summaryTypePlaceholder', 'e.g., PLASTIC')}
                 required
-              />
-              <datalist id="waste-type-options">
+              >
                 {WASTE_TYPE_OPTIONS.map((type) => (
-                  <option key={type} value={type} />
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
                 ))}
-              </datalist>
+              </select>
             </Field>
             <div className={cn('flex items-end', isCompact && 'md:col-span-2 lg:col-span-1')}>
               <Button
@@ -208,7 +259,32 @@ export default function WasteSummaryCard({ className, variant = 'default' }: Was
               value={wasteTypeLabel}
               variant={isCompact ? 'compact' : 'default'}
             />
+            <StatCard
+              label={t('goals.summaryImpactLabel', 'Real-world savings')}
+              value={
+                impactInfo
+                  ? `${impactInfo.formattedImpact} ${impactInfo.unitLabel}`
+                  : t('goals.summaryImpactEmptyValue', 'No savings yet')
+              }
+              helper={
+                impactInfo && summary
+                  ? t('goals.summaryImpactHelper', 'From {{amount}} of {{wasteType}}', {
+                      amount: formatWeight(summary.totalAmount),
+                      wasteType: wasteTypeLabel,
+                    })
+                  : undefined
+              }
+              variant={isCompact ? 'compact' : 'default'}
+            />
             </div>
+
+          <p className="text-xs text-muted-foreground">
+            {t('goals.recyclingNote', 'We calculate savings assuming the waste you log is recycled.')}
+          </p>
+
+          {summary && impactMessage && (
+            <p className="text-sm text-muted-foreground">{impactMessage}</p>
+          )}
 
           {!rangeIsValid && (
             <p className="text-sm text-destructive">

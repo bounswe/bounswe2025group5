@@ -35,12 +35,5 @@
 
     
   },
-  "include": ["src", "src/vite-env.d.ts"],
-  "exclude": [
-    "src/**/__tests__/*",
-    "src/**/*.test.tsx",
-    "src/**/*.spec.tsx",
-    "src/**/*.test.ts",
-    "src/**/*.spec.ts"
-  ]
+  "include": ["src", "src/vite-env.d.ts"]
 }

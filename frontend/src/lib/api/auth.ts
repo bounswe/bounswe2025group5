@@ -1,4 +1,4 @@
-import { ApiClient, setTokens } from './client';
+import { ApiClient, setTokens, setAuthMetadata } from './client';
 import type { LoginResponse } from './client';
 import { LoginResponseSchema } from './schemas/auth';
 
@@ -14,7 +14,12 @@ export const AuthApi = {
       '/api/users',
       { email, username, password }
     ),
+  resetPassword: (emailOrUsername: string, oldPassword: string, newPassword: string) =>
+    ApiClient.put<{ success?: boolean; message?: string }>(
+      '/api/reset-password',
+      { emailOrUsername, oldPassword, newPassword }
+    ),
 };
 
-export { setTokens };
+export { setTokens, setAuthMetadata };
 
