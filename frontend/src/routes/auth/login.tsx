@@ -53,10 +53,10 @@ export default function Login() {
           </CardAction>
         </CardHeader>
      <CardContent>
-         <form id="login-form" onSubmit={handleSubmit} className="space-y-4">
+         <form id="login-form" onSubmit={handleSubmit} className="space-y-4" aria-label={t("login.title")}>
           {error && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
+            <Alert variant="destructive" role="alert" aria-live="assertive">
+              <AlertCircle className="h-4 w-4" aria-hidden="true" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
@@ -67,6 +67,8 @@ export default function Login() {
                 id="email"
                 placeholder={t("login.email.placeholder")}
                 required
+                aria-required="true"
+                autoComplete="username"
                 value={emailOrUsername}
                 onChange={(e) => setEmailOrUsername(e.target.value)}
               />
@@ -81,13 +83,13 @@ export default function Login() {
                   {t("login.password.forgot")}
                 </a>
               </div>
-              <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+              <Input id="password" type="password" required aria-required="true" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
             </div>
           </div>
          </form>
       </CardContent>
        <CardFooter className="flex-col gap-2">
-         <Button form="login-form" type="submit" className="w-full" disabled={loading}>
+         <Button form="login-form" type="submit" className="w-full" disabled={loading} aria-busy={loading} aria-disabled={loading}>
           {loading ? t("login.loading") : t("login.loginButton")}
         </Button>
       </CardFooter>

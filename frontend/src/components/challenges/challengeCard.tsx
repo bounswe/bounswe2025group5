@@ -307,8 +307,8 @@ export default function ChallengeCard({ challenge }: { challenge: ChallengeListI
                         </PopoverContent>
                       </Popover>
                       <Input
-                        type="number"
-                        min="1"
+                        type="text"
+                        inputMode="numeric"
                         value={logAmount}
                         onChange={(e) => setLogAmount(e.target.value)}
                         className="w-full h-9"

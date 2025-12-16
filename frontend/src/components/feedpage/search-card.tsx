@@ -84,10 +84,10 @@ export default function SearchCard({ onSearch, onClear, isLoading = false, isAct
   return (
     <Card>
       <CardContent className="transition-all duration-300 ease-in-out">
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" aria-label={t('search.formLabel', 'Search posts')}>
           <div className="flex gap-2">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" aria-hidden="true" />
               <Input
                 ref={inputRef}
                 type="text"
@@ -95,6 +95,7 @@ export default function SearchCard({ onSearch, onClear, isLoading = false, isAct
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t('search.placeholder')}
                 className="pl-10 animate-input focus-visible:border-secondary focus-visible:ring-2 focus-visible:ring-secondary/20"
+                aria-label={t('search.placeholder')}
               />
             </div>
             <Button

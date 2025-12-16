@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -79,6 +80,9 @@ export default function ReportObjectDialog({ report, open, onOpenChange }: Repor
               type: report?.contentType?.toLowerCase(),
             })}
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            {t('moderator.dialogDescription', 'View reported content details')}
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           {isLoading && (

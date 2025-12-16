@@ -59,10 +59,10 @@ export default function DeleteAccount() {
                 </Button>
             </PopoverTrigger>
         <PopoverContent className="w-96">
-            <p className="text-sm text-accent-foreground mb-4">{t('profile.confirmDelete', 'This will permanently delete your account. Continue?')}</p>
-            <Input type="password" value={password ?? ""} onChange={handlePasswordChange} placeholder={t('profile.passwordPlaceholder', 'Enter your password')} />
+            <p id="delete-account-desc" className="text-sm text-accent-foreground mb-4">{t('profile.confirmDelete', 'This will permanently delete your account. Continue?')}</p>
+            <Input type="password" value={password ?? ""} onChange={handlePasswordChange} placeholder={t('profile.passwordPlaceholder', 'Enter your password')} aria-required="true" aria-describedby="delete-account-desc" />
             {error && (
-                <div className="text-destructive text-sm mt-2">{error}</div>
+                <div className="text-destructive text-sm mt-2" role="alert" aria-live="assertive">{error}</div>
             )}
             <Button type="button" variant="destructive" onClick={handlePasswordSubmit} disabled={saving} aria-busy={saving} className="mt-4">
                 {saving ? t('profile.deleting', 'Deleting...') : t('profile.delete')}

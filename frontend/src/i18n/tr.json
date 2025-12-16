@@ -60,6 +60,9 @@
             "label": "Şifreyi Onayla",
             "placeholder": "Şifrenizi tekrar girin"
         },
+        "kvkk": {
+            "label": "Kişisel Verilerin Korunması Kanunu (KVKK) şartlarını okudum ve kişisel verilerimin işlenmesine onay veriyorum."
+        },
         "registerButton": "Kayıt Ol",
         "loading": "Hesap oluşturuluyor...",
         "haveAccount": "Zaten bir hesabınız var mı? ",
@@ -68,7 +71,8 @@
             "passwordsDontMatch": "Şifreler eşleşmiyor",
             "registrationFailed": "Kayıt başarısız",
             "tooWeak": "Şifre çok zayıf. 'İyi' veya daha yüksek olmalı.",
-            "tooShort": "Şifre en az {{min}} karakter uzunluğunda olmalıdır."
+            "tooShort": "Şifre en az {{min}} karakter uzunluğunda olmalıdır.",
+            "kvkkRequired": "Kayıt olmak için KVKK şartlarını kabul etmelisiniz."
         },
         "success": {
             "accountCreated": "Hesap başarıyla oluşturuldu. Giriş sayfasına yönlendiriliyor..."
@@ -239,6 +243,13 @@
         "editTitle": "Atık hedefi düzenle",
         "editDesc": "Atık hedefinizi güncelleyin",
         "create": "Atık hedefi oluştur",
+        "created": "Hedef oluşturuldu",
+        "createError": "Hedef oluşturulamadı",
+        "updated": "Hedef güncellendi",
+        "updateError": "Hedef güncellenemedi",
+        "deleted": "Hedef silindi",
+        "deleteError": "Hedef silinemedi",
+        "logged": "Atık kaydedildi",
         "impact": {
             "units": {
                 "trees": "ağaç",
@@ -288,6 +299,7 @@
         "navbar": "Moderatör",
         "title": "Moderatör kuyruğu",
         "subtitle": "Çözümlenmemiş raporları inceleyin ve yanıtlayın",
+        "dialogDescription": "Bildirilen içerik ayrıntılarını görüntüle",
         "refresh": "Yenile",
         "refreshing": "Yenileniyor...",
         "empty": "Çözümlenmemiş rapor yok — her şey yolunda!",
@@ -311,7 +323,9 @@
     },
     "challenges": {
         "title": "Etkinlikler",
+        "recyclingProgress": "Geri dönüşüm ilerlemesi yüzde {{percent}}",
         "leaderboard": "Liderlik Tablosu",
+        "leaderboardDescription": "Etkinlik sıralamalarını görüntüle",
         "leaderboardEmpty": "Henüz kayıt yok",
         "attendError": "Etkinliğe katılınamadı",
         "leaveError": "Etkinlikten ayrılınamadı",
@@ -340,6 +354,7 @@
         "create": {
             "createChallenge": "Etkinlik Yarat",
             "titleLabel": "Etkinlik Oluştur",
+            "dialogDescription": "Yeni bir atık azaltma etkinliği oluşturun",
             "name": "Başlık",
             "namePlaceholder": "Etkinlik başlığını girin",
             "description": "Açıklama",
@@ -361,6 +376,7 @@
         "imageAlt": "{{username}}'in gönderi resmi",
         "imageDialogTitle": "{{username}}'in gönderi resmi",
         "imageDialogTitleGeneric": "Gönderi resmi",
+        "imageDialogDescription": "Gönderi resminin büyütülmüş görünümü",
         "closeImage": "Resmi kapat",
         "like": "Gönderiyi beğen",
         "unlike": "Beğeniyi kaldır",
@@ -368,10 +384,13 @@
         "unsave": "Kaydedilenleri kaldır",
         "showComments": "Yorumları göster",
         "likes": "{{count}} beğeni",
+        "likes_plural": "{{count}} beğeni",
         "viewComments": "{{count}} yorumu görüntüle",
+        "viewComments_plural": "{{count}} yorumu görüntüle",
         "hideComments": "Yorumları gizle",
         "edit": {
             "title": "Gönderiyi Düzenle",
+            "description": "Gönderi içeriğinizi ve resminizi güncelleyin",
             "button": "Gönderiyi düzenle",
             "currentImage": "Mevcut resim yeni bir resim yüklemediğiniz sürece korunacak",
             "newImage": "Yeni Resim Yükle (İsteğe Bağlı)",

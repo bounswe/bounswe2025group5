@@ -60,6 +60,9 @@
             "label": "Confirm Password",
             "placeholder": "Re-enter your password"
         },
+        "kvkk": {
+            "label": "I have read and accept the Personal Data Protection Law (KVKK) terms and consent to the processing of my personal data."
+        },
         "registerButton": "Register",
         "loading": "Creating account...",
         "haveAccount": "Already have an account? ",
@@ -68,7 +71,8 @@
             "passwordsDontMatch": "Passwords do not match",
             "registrationFailed": "Registration failed",
             "tooWeak": "Password is too weak. Aim for 'Good' or higher.",
-            "tooShort": "Password must be at least {{min}} characters long."
+            "tooShort": "Password must be at least {{min}} characters long.",
+            "kvkkRequired": "You must accept the KVKK terms to register."
         },
         "success": {
             "accountCreated": "Account created successfully. Redirecting to login..."
@@ -293,6 +297,7 @@
         "navbar": "Moderator",
         "title": "Moderator queue",
         "subtitle": "Review and resolve unresolved reports",
+        "dialogDescription": "View reported content details",
         "refresh": "Refresh",
         "refreshing": "Refreshing...",
         "empty": "No unresolved reports — all clear!",
@@ -316,7 +321,9 @@
     },
     "challenges": {
         "title": "Challenges",
+        "recyclingProgress": "Recycling progress {{percent}} percent",
         "leaderboard": "Leaderboard",
+        "leaderboardDescription": "View challenge rankings",
         "leaderboardEmpty": "No entries yet",
         "attendError": "Could not attend the challenge",
         "leaveError": "Could not leave the challenge",
@@ -345,6 +352,7 @@
         "create": {
             "createChallenge": "Create Challenge",
             "titleLabel": "Create Challenge",
+            "dialogDescription": "Set up a new waste reduction challenge",
             "name": "Title",
             "namePlaceholder": "Enter challenge title",
             "description": "Description",
@@ -366,6 +374,7 @@
         "imageAlt": "{{username}}'s post image",
         "imageDialogTitle": "{{username}}'s post image",
         "imageDialogTitleGeneric": "Post image",
+        "imageDialogDescription": "Enlarged view of the post image",
         "closeImage": "Close image",
         "like": "Like post",
         "unlike": "Unlike post",
@@ -379,6 +388,7 @@
         "hideComments": "Hide comments",
         "edit": {
             "title": "Edit Post",
+            "description": "Update your post content and image",
             "button": "Edit post",
             "currentImage": "Current image will be kept unless you upload a new one",
             "newImage": "Upload New Image (Optional)",
