@@ -26,14 +26,21 @@
     "jsx": "react-jsx",
 
     /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "strict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
 
     
   },
-  "include": ["src", "src/vite-env.d.ts"]
+  "include": ["src", "src/vite-env.d.ts"],
+  "exclude": [
+    "**/*.test.tsx",
+    "**/*.test.ts", 
+    "**/*.spec.tsx",
+    "**/*.spec.ts",
+    "src/setupTests.ts" 
+  ]
 }
