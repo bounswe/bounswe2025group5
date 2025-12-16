@@ -313,7 +313,7 @@ describe('ChallengeCard', () => {
       await user.click(screen.getByRole('button', { name: /log/i }));
 
       await waitFor(() => {
-        expect(screen.getByRole('spinbutton')).toBeInTheDocument();
+        expect(screen.getByRole('textbox')).toBeInTheDocument();
         expect(screen.getByText(/select waste item/i)).toBeInTheDocument();
       });
     });
@@ -356,7 +356,7 @@ describe('ChallengeCard', () => {
       await user.click(screen.getByRole('combobox'));
       await user.click(screen.getAllByText('Paper')[0]);
 
-      const input = screen.getByRole('spinbutton') as HTMLInputElement;
+      const input = screen.getByRole('textbox') as HTMLInputElement;
       await user.type(input, '10');
       
       const submitButton = screen.getByRole('button', { name: /submit/i });
@@ -386,7 +386,7 @@ describe('ChallengeCard', () => {
       await user.click(screen.getByRole('combobox'));
       await user.click(screen.getAllByText('Paper')[0]);
 
-      const input = screen.getByRole('spinbutton') as HTMLInputElement;
+      const input = screen.getByRole('textbox') as HTMLInputElement;
       
       // Clear input properly and type new value
       await user.clear(input);
@@ -421,7 +421,7 @@ describe('ChallengeCard', () => {
       await user.click(screen.getByRole('combobox'));
       await user.click(screen.getAllByText('Paper')[0]);
       
-      const input = screen.getByRole('spinbutton') as HTMLInputElement;
+      const input = screen.getByRole('textbox') as HTMLInputElement;
       
       // Clear and type new value
       await user.clear(input);
@@ -459,7 +459,7 @@ describe('ChallengeCard', () => {
       await user.click(screen.getAllByText('Paper')[0]);
 
       // Enter a valid value first
-      const input = screen.getByRole('spinbutton') as HTMLInputElement;
+      const input = screen.getByRole('textbox') as HTMLInputElement;
       await user.type(input, '1');
       
       await user.click(screen.getByRole('button', { name: /submit/i }));
@@ -489,7 +489,7 @@ describe('ChallengeCard', () => {
       await user.click(screen.getAllByText('Paper')[0]);
       
       // Enter a valid value first so validation passes and API is called
-      const input = screen.getByRole('spinbutton') as HTMLInputElement;
+      const input = screen.getByRole('textbox') as HTMLInputElement;
       await user.type(input, '5');
       
       await user.click(screen.getByRole('button', { name: /submit/i }));
@@ -509,7 +509,7 @@ describe('ChallengeCard', () => {
       await user.click(screen.getByRole('combobox'));
       await user.click(screen.getAllByText('Paper')[0]);
 
-      const input = screen.getByRole('spinbutton') as HTMLInputElement;
+      const input = screen.getByRole('textbox') as HTMLInputElement;
       
       // Try to submit negative value - should alert and not call API
       await user.clear(input);
@@ -579,7 +579,7 @@ describe('ChallengeCard', () => {
       await user.click(screen.getAllByText('Paper')[0]);
       
       // Enter a valid value first
-      const input = screen.getByRole('spinbutton') as HTMLInputElement;
+      const input = screen.getByRole('textbox') as HTMLInputElement;
       await user.type(input, '1');
       
       const submitButton = screen.getByRole('button', { name: /submit/i });
