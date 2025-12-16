@@ -49,7 +49,7 @@ vi.mock('@/lib/api/feedback', () => ({
 
 vi.mock('@/lib/api/users', () => ({
   UsersApi: {
-    getUserByUsername: vi.fn(),
+    getProfile: vi.fn(),
   },
 }));
 
@@ -109,10 +109,10 @@ describe('ModeratorDashboard', () => {
   it('renders unread reports returned by the API', async () => {
     vi.mocked(ReportsApi.getUnread).mockResolvedValue([sampleReport]);
     vi.mocked(FeedbackApi.getUnseen).mockResolvedValue([]);
-    vi.mocked(UsersApi.getUserByUsername).mockResolvedValue({
+    vi.mocked(UsersApi.getProfile).mockResolvedValue({
       username: 'alice',
-      profilePhotoUrl: null,
-      bio: '',
+      photoUrl: null,
+      biography: '',
     });
 
     render(<ModeratorDashboard />);
@@ -140,10 +140,10 @@ describe('ModeratorDashboard', () => {
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([{ ...sampleReport, id: 2, reporterUsername: 'bob' }]);
     vi.mocked(FeedbackApi.getUnseen).mockResolvedValue([]);
-    vi.mocked(UsersApi.getUserByUsername).mockResolvedValue({
+    vi.mocked(UsersApi.getProfile).mockResolvedValue({
       username: 'bob',
-      profilePhotoUrl: null,
-      bio: '',
+      photoUrl: null,
+      biography: '',
     });
 
     render(<ModeratorDashboard />);
@@ -162,10 +162,10 @@ describe('ModeratorDashboard', () => {
     const user = userEvent.setup();
     vi.mocked(ReportsApi.getUnread).mockResolvedValue([sampleReport]);
     vi.mocked(FeedbackApi.getUnseen).mockResolvedValue([]);
-    vi.mocked(UsersApi.getUserByUsername).mockResolvedValue({
+    vi.mocked(UsersApi.getProfile).mockResolvedValue({
       username: 'alice',
-      profilePhotoUrl: null,
-      bio: '',
+      photoUrl: null,
+      biography: '',
     });
     vi.mocked(ReportsApi.markSolved).mockResolvedValue({ success: true, id: 1 });
 
@@ -183,10 +183,10 @@ describe('ModeratorDashboard', () => {
     const user = userEvent.setup();
     vi.mocked(ReportsApi.getUnread).mockResolvedValue([sampleReport]);
     vi.mocked(FeedbackApi.getUnseen).mockResolvedValue([]);
-    vi.mocked(UsersApi.getUserByUsername).mockResolvedValue({
+    vi.mocked(UsersApi.getProfile).mockResolvedValue({
       username: 'alice',
-      profilePhotoUrl: null,
-      bio: '',
+      photoUrl: null,
+      biography: '',
     });
     vi.mocked(PostsApi.remove).mockResolvedValue({} as never);
     vi.mocked(ReportsApi.markDeletion).mockResolvedValue({ success: true, id: 1 });
@@ -206,10 +206,10 @@ describe('ModeratorDashboard', () => {
     const user = userEvent.setup();
     vi.mocked(ReportsApi.getUnread).mockResolvedValue([{ ...sampleReport, id: 3, contentType: 'COMMENT', objectId: 99 }]);
     vi.mocked(FeedbackApi.getUnseen).mockResolvedValue([]);
-    vi.mocked(UsersApi.getUserByUsername).mockResolvedValue({
+    vi.mocked(UsersApi.getProfile).mockResolvedValue({
       username: 'alice',
-      profilePhotoUrl: null,
-      bio: '',
+      photoUrl: null,
+      biography: '',
     });
     vi.mocked(CommentsApi.remove).mockResolvedValue({} as never);
     vi.mocked(ReportsApi.markDeletion).mockResolvedValue({ success: true, id: 3 });
@@ -229,10 +229,10 @@ describe('ModeratorDashboard', () => {
     const user = userEvent.setup();
     vi.mocked(ReportsApi.getUnread).mockResolvedValue([sampleReport]);
     vi.mocked(FeedbackApi.getUnseen).mockResolvedValue([]);
-    vi.mocked(UsersApi.getUserByUsername).mockResolvedValue({
+    vi.mocked(UsersApi.getProfile).mockResolvedValue({
       username: 'alice',
-      profilePhotoUrl: null,
-      bio: '',
+      photoUrl: null,
+      biography: '',
     });
     vi.mocked(PostsApi.getById).mockResolvedValue(samplePostItem as never);
 
@@ -252,10 +252,10 @@ describe('ModeratorDashboard', () => {
       { ...sampleReport, id: 5, contentType: 'COMMENT', objectId: 99 },
     ]);
     vi.mocked(FeedbackApi.getUnseen).mockResolvedValue([]);
-    vi.mocked(UsersApi.getUserByUsername).mockResolvedValue({
+    vi.mocked(UsersApi.getProfile).mockResolvedValue({
       username: 'alice',
-      profilePhotoUrl: null,
-      bio: '',
+      photoUrl: null,
+      biography: '',
     });
     vi.mocked(CommentsApi.getById).mockResolvedValue(sampleComment as never);
     vi.mocked(PostsApi.getById).mockResolvedValue(samplePostItem as never);

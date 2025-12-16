@@ -169,7 +169,6 @@ describe('FeedbackDialog', () => {
 
   describe('Form Submission', () => {
     test('shows error when submitting empty feedback', async () => {
-      const user = userEvent.setup();
       render(<FeedbackDialog open={true} onOpenChange={vi.fn()} />);
       
       const submitButton = screen.getByRole('button', { name: 'Submit' });

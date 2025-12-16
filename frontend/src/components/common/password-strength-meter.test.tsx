@@ -15,7 +15,7 @@ vi.mock('@/hooks/usePasswordStrength', () => ({
 
 describe('PasswordStrengthMeter', () => {
   it('renders very weak strength correctly', () => {
-    vi.mocked(usePasswordStrength).mockReturnValue({ score: 0, feedback: { warning: '', suggestions: [] } });
+    vi.mocked(usePasswordStrength).mockReturnValue({ score: 0, feedback: { warning: '', suggestions: [] }, isStrong: false });
     render(<PasswordStrengthMeter password="123" />);
     
     expect(screen.getByText('common.passwordStrength.label')).toBeInTheDocument();
@@ -23,35 +23,35 @@ describe('PasswordStrengthMeter', () => {
   });
 
   it('renders weak strength correctly', () => {
-    vi.mocked(usePasswordStrength).mockReturnValue({ score: 1, feedback: { warning: '', suggestions: [] } });
+    vi.mocked(usePasswordStrength).mockReturnValue({ score: 1, feedback: { warning: '', suggestions: [] }, isStrong: false });
     render(<PasswordStrengthMeter password="weak" />);
     
     expect(screen.getByText('common.passwordStrength.weak')).toBeInTheDocument();
   });
 
   it('renders fair strength correctly', () => {
-    vi.mocked(usePasswordStrength).mockReturnValue({ score: 2, feedback: { warning: '', suggestions: [] } });
+    vi.mocked(usePasswordStrength).mockReturnValue({ score: 2, feedback: { warning: '', suggestions: [] }, isStrong: false });
     render(<PasswordStrengthMeter password="fair" />);
     
     expect(screen.getByText('common.passwordStrength.fair')).toBeInTheDocument();
   });
 
   it('renders good strength correctly', () => {
-    vi.mocked(usePasswordStrength).mockReturnValue({ score: 3, feedback: { warning: '', suggestions: [] } });
+    vi.mocked(usePasswordStrength).mockReturnValue({ score: 3, feedback: { warning: '', suggestions: [] }, isStrong: true });
     render(<PasswordStrengthMeter password="good" />);
     
     expect(screen.getByText('common.passwordStrength.good')).toBeInTheDocument();
   });
 
   it('renders strong strength correctly', () => {
-    vi.mocked(usePasswordStrength).mockReturnValue({ score: 4, feedback: { warning: '', suggestions: [] } });
+    vi.mocked(usePasswordStrength).mockReturnValue({ score: 4, feedback: { warning: '', suggestions: [] }, isStrong: true });
     render(<PasswordStrengthMeter password="strong" />);
     
     expect(screen.getByText('common.passwordStrength.strong')).toBeInTheDocument();
   });
 
   it('applies custom className', () => {
-    vi.mocked(usePasswordStrength).mockReturnValue({ score: 2, feedback: { warning: '', suggestions: [] } });
+    vi.mocked(usePasswordStrength).mockReturnValue({ score: 2, feedback: { warning: '', suggestions: [] }, isStrong: false });
     const { container } = render(<PasswordStrengthMeter password="test" className="custom-class" />);
     
     expect(container.firstChild).toHaveClass('custom-class');

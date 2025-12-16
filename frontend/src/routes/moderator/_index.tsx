@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ModeratorRoute from '@/services/ModeratorRoute';
 import { ReportsApi, type ReportItem } from '@/lib/api/reports';
@@ -7,11 +7,9 @@ import { USERNAME_KEY } from '@/lib/api/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Spinner } from '@/components/ui/spinner';
 import { PostsApi } from '@/lib/api/posts';
 import { CommentsApi } from '@/lib/api/comments';
-import { UsersApi } from '@/lib/api/users';
 import ReportObjectDialog from '@/components/moderation/ReportObjectDialog';
 import GlassCard from '@/components/ui/glass-card';
 import { RefreshCw } from 'lucide-react';
@@ -63,7 +61,6 @@ export function ModeratorDashboard() {
   const [filterType, setFilterType] = useState<string>('all');
   const [activeReport, setActiveReport] = useState<ReportItem | null>(null);
   const [isObjectDialogOpen, setIsObjectDialogOpen] = useState(false);
-  const [userProfiles, setUserProfiles] = useState<Map<string, string | null>>(new Map());
   const handleViewReport = (report: ReportItem) => {
     setActiveReport(report);
     setIsObjectDialogOpen(true);
@@ -94,19 +91,6 @@ export function ModeratorDashboard() {
         if (f.feedbackerUsername) uniqueUsernames.add(f.feedbackerUsername);
       });
 
-      // Fetch profiles for unique usernames only
-      const profileMap = new Map<string, string | null>();
-      await Promise.all(
-        Array.from(uniqueUsernames).map(async (uname) => {
-          try {
-            const profile = await UsersApi.getUserByUsername(uname);
-            profileMap.set(uname, profile.profilePhotoUrl || null);
-          } catch {
-            profileMap.set(uname, null);
-          }
-        })
-      );
-      setUserProfiles(profileMap);
       setFeedbacks(feedbacksData);
     } catch (err) {
       const message = err instanceof Error ? err.message : t('moderator.error', 'Failed to load reports');

@@ -8,7 +8,7 @@ import type { PostItem } from '@/lib/api/schemas/posts';
 // Mock i18next
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, defaultValue?: string) => {
+    t: (key: string) => {
       const translations: Record<string, string> = {
         'post.edit.button': 'Edit post',
         'post.edit.title': 'Edit Post',
@@ -21,7 +21,7 @@ vi.mock('react-i18next', () => ({
         'feed.createPost.image.selected': 'Selected',
         'common.cancel': 'Cancel',
       };
-      return translations[key] || defaultValue || key;
+      return translations[key] || key;
     },
   }),
 }));
@@ -44,6 +44,7 @@ const mockPost: PostItem = {
   postId: 1,
   content: 'Original post content',
   username: 'testuser',
+  creatorUsername: 'testuser',
   createdAt: '2025-01-15T10:00:00Z',
   likeCount: 5,
   commentCount: 3,

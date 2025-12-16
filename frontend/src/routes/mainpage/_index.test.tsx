@@ -1,5 +1,5 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import { describe, expect, it, beforeEach, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { describe, expect, it, beforeEach, vi, beforeAll, afterAll } from 'vitest';
 import MainpageIndex from '@/routes/mainpage/_index';
 import { UsersApi } from '@/lib/api/users';
 import { PostsApi } from '@/lib/api/posts';
