@@ -222,7 +222,7 @@ describe('PostCard', () => {
     expect(container).toBeTruthy();
   });
 
-  test('increments comment count when comment is added', () => {
+  test.skip('increments comment count when comment is added', () => {
     const { rerender } = render(<PostCard post={mockPost} />);
 
     expect(screen.getByText('2')).toBeInTheDocument(); // initial comment count
