@@ -315,6 +315,7 @@
     },
     "challenges": {
         "title": "Etkinlikler",
+        "recyclingProgress": "Geri dönüşüm ilerlemesi yüzde {{percent}}",
         "leaderboard": "Liderlik Tablosu",
         "leaderboardEmpty": "Henüz kayıt yok",
         "attendError": "Etkinliğe katılınamadı",

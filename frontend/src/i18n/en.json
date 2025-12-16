@@ -320,6 +320,7 @@
     },
     "challenges": {
         "title": "Challenges",
+        "recyclingProgress": "Recycling progress {{percent}} percent",
         "leaderboard": "Leaderboard",
         "leaderboardEmpty": "No entries yet",
         "attendError": "Could not attend the challenge",
