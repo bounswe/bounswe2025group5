@@ -1,0 +1,30 @@
+<testsuites id="" name="" tests="7" failures="0" skipped="0" errors="0" time="18.559298">
+<testsuite name="auth.spec.ts" timestamp="2025-12-21T13:21:50.259Z" hostname="chromium" tests="1" failures="0" skipped="0" time="1.547" errors="0">
+<testcase name="register page renders form fields" classname="auth.spec.ts" time="1.547">
+</testcase>
+</testsuite>
+<testsuite name="challenges-attend.spec.ts" timestamp="2025-12-21T13:21:50.259Z" hostname="chromium" tests="1" failures="0" skipped="0" time="5.275" errors="0">
+<testcase name="attend challenge flow › user can attend a challenge and sees Leave" classname="challenges-attend.spec.ts" time="5.275">
+</testcase>
+</testsuite>
+<testsuite name="goals-create.spec.ts" timestamp="2025-12-21T13:21:50.259Z" hostname="chromium" tests="1" failures="0" skipped="0" time="8.022" errors="0">
+<testcase name="create goals for all waste types › creates goals with duration 10 and amount 1000 for each type" classname="goals-create.spec.ts" time="8.022">
+</testcase>
+</testsuite>
+<testsuite name="home.spec.ts" timestamp="2025-12-21T13:21:50.259Z" hostname="chromium" tests="1" failures="0" skipped="0" time="1.222" errors="0">
+<testcase name="home shows login and register entry points" classname="home.spec.ts" time="1.222">
+</testcase>
+</testsuite>
+<testsuite name="language.spec.ts" timestamp="2025-12-21T13:21:50.259Z" hostname="chromium" tests="1" failures="0" skipped="0" time="1.467" errors="0">
+<testcase name="language toggle persists after reload" classname="language.spec.ts" time="1.467">
+</testcase>
+</testsuite>
+<testsuite name="login-feed-like.spec.ts" timestamp="2025-12-21T13:21:50.259Z" hostname="chromium" tests="1" failures="0" skipped="0" time="5.214" errors="0">
+<testcase name="login → mainpage → feed view › user can log in and see feed components" classname="login-feed-like.spec.ts" time="5.214">
+</testcase>
+</testsuite>
+<testsuite name="protected-pages.spec.ts" timestamp="2025-12-21T13:21:50.259Z" hostname="chromium" tests="1" failures="0" skipped="0" time="16.941" errors="0">
+<testcase name="authenticated page smoke checks › mainpage, feed, goals, profile, challenges render" classname="protected-pages.spec.ts" time="16.941">
+</testcase>
+</testsuite>
+</testsuites>

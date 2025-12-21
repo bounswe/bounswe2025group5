@@ -1,0 +1,2752 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="483" failures="0" errors="0" time="76.4180326">
+    <testsuite name="src/services/LayoutResolver.test.tsx" timestamp="2025-12-21T12:45:19.392Z" hostname="DESKTOP-6U7IB5P" tests="4" failures="0" errors="0" skipped="0" time="0.0418045">
+        <testcase classname="src/services/LayoutResolver.test.tsx" name="LayoutResolver &gt; renders matched layout content for known routes" time="0.0293146">
+            <system-err>
+react-i18next:: useTranslation: You will need to pass in an i18next instance by using initReactI18next { code: [32m&apos;NO_I18NEXT_INSTANCE&apos;[39m }
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/services/LayoutResolver.test.tsx" name="LayoutResolver &gt; wraps protected routes with ProtectedRoute outside dev mode" time="0.004497">
+        </testcase>
+        <testcase classname="src/services/LayoutResolver.test.tsx" name="LayoutResolver &gt; does not guard unprotected auth routes even in production" time="0.0023954">
+        </testcase>
+        <testcase classname="src/services/LayoutResolver.test.tsx" name="LayoutResolver &gt; falls back to the root layout when no deeper layout matches" time="0.0030742">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/routes/_index.test.tsx" timestamp="2025-12-21T12:45:19.396Z" hostname="DESKTOP-6U7IB5P" tests="2" failures="0" errors="0" skipped="0" time="0.269301">
+        <testcase classname="src/routes/_index.test.tsx" name="Landing Index Route &gt; redirects authenticated users to the main page" time="0.0425323">
+        </testcase>
+        <testcase classname="src/routes/_index.test.tsx" name="Landing Index Route &gt; navigates to login when login button is clicked" time="0.2226518">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/badges/badge-card.test.tsx" timestamp="2025-12-21T12:45:19.397Z" hostname="DESKTOP-6U7IB5P" tests="2" failures="0" errors="0" skipped="0" time="0.0335154">
+        <testcase classname="src/components/badges/badge-card.test.tsx" name="BadgeCard &gt; renders the provided icon and earned status" time="0.0271676">
+        </testcase>
+        <testcase classname="src/components/badges/badge-card.test.tsx" name="BadgeCard &gt; falls back to an initial avatar when icon is missing and shows locked status" time="0.0042628">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/badges/badge-showcase.test.tsx" timestamp="2025-12-21T12:45:19.397Z" hostname="DESKTOP-6U7IB5P" tests="5" failures="0" errors="0" skipped="0" time="0.3592559">
+        <testcase classname="src/components/badges/badge-showcase.test.tsx" name="BadgeShowcase &gt; returns null when no username is provided" time="0.012436">
+        </testcase>
+        <testcase classname="src/components/badges/badge-showcase.test.tsx" name="BadgeShowcase &gt; shows spinner while loading and renders earned badges sorted by priority" time="0.1902903">
+        </testcase>
+        <testcase classname="src/components/badges/badge-showcase.test.tsx" name="BadgeShowcase &gt; renders only the earned badges from the catalog" time="0.0358787">
+        </testcase>
+        <testcase classname="src/components/badges/badge-showcase.test.tsx" name="BadgeShowcase &gt; shows an error state when badge loading fails" time="0.0236103">
+        </testcase>
+        <testcase classname="src/components/badges/badge-showcase.test.tsx" name="BadgeShowcase &gt; navigates to catalog when CTA button is clicked" time="0.0938583">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/challenges/challengeCard.test.tsx" timestamp="2025-12-21T12:45:19.400Z" hostname="DESKTOP-6U7IB5P" tests="30" failures="0" errors="0" skipped="0" time="8.4041785">
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Rendering &gt; renders challenge name and description" time="0.222676">
+            <system-err>
+An update to ChallengeCard inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to ChallengeCard inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Rendering &gt; renders challenge details when accordion is expanded" time="0.1266137">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Rendering &gt; displays progress visualization with correct percentage" time="0.013748">
+            <system-err>
+An update to ChallengeCard inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to ChallengeCard inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Rendering &gt; displays progress bar with correct values when expanded" time="0.1092516">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Rendering &gt; renders without amount when amount is null" time="0.011048">
+            <system-err>
+An update to ChallengeCard inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to ChallengeCard inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Attend Challenge &gt; shows attend button when user is not in challenge" time="0.1135409">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Attend Challenge &gt; calls API and updates state when attend button is clicked" time="0.166725">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Attend Challenge &gt; shows attending... text while request is pending" time="0.1569261">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Attend Challenge &gt; shows alert when attend fails" time="0.1152782">
+            <system-err>
+Error: Network error
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/components/challenges/challengeCard.test.tsx:197:57
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:145:11
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:915:26
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1240:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithTimeout [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1206:10[90m)[39m
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:37
+    at Traces.$ [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/traces.U4xDYhzZ.js:115:27[90m)[39m
+    at trace [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/test.BT8LKgU9.js:239:21[90m)[39m
+    at runTest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:12[90m)[39m
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Attend Challenge &gt; disables buttons while attending" time="0.2111703">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Leave Challenge &gt; shows leave button when user is in challenge" time="0.1076783">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Leave Challenge &gt; calls API and updates state when leave button is clicked" time="0.1889605">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Leave Challenge &gt; shows leaving... text while request is pending" time="0.1366135">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Leave Challenge &gt; shows alert when leave fails" time="0.1277423">
+            <system-err>
+Error: Network error
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/components/challenges/challengeCard.test.tsx:293:56
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:145:11
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:915:26
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1240:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithTimeout [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1206:10[90m)[39m
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:37
+    at Traces.$ [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/traces.U4xDYhzZ.js:115:27[90m)[39m
+    at trace [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/test.BT8LKgU9.js:239:21[90m)[39m
+    at runTest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:12[90m)[39m
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Log Progress &gt; opens popover when log button is clicked" time="0.2208671">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Log Progress &gt; shows alert when submitting empty amount" time="0.4933357">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Log Progress &gt; logs progress with valid amount" time="0.7935401">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Log Progress &gt; logs progress with custom amount" time="0.8278817">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Log Progress &gt; updates current amount after successful log" time="0.6473422">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Log Progress &gt; shows logging... text while request is pending" time="0.6844481">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Log Progress &gt; shows alert when log fails" time="0.6120971">
+            <system-err>
+Error: Network error
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/components/challenges/challengeCard.test.tsx:481:71
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:145:11
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:915:26
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1240:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithTimeout [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1206:10[90m)[39m
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:37
+    at Traces.$ [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/traces.U4xDYhzZ.js:115:27[90m)[39m
+    at trace [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/test.BT8LKgU9.js:239:21[90m)[39m
+    at runTest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:12[90m)[39m
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Log Progress &gt; prevents negative and zero amounts via submit validation" time="0.9496469">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Log Progress &gt; disables buttons while logging" time="0.4440803">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Log Progress &gt; combobox label reflects the selected waste item" time="0.2111004">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Log Progress &gt; allows searching and selecting a waste item" time="0.4664674">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Leaderboard &gt; renders leaderboard component" time="0.0791655">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Edge Cases &gt; handles challenge without description" time="0.0415592">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Edge Cases &gt; handles missing username in localStorage" time="0.1061507">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Edge Cases &gt; handles zero progress correctly" time="0.0067524">
+            <system-err>
+An update to ChallengeCard inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to ChallengeCard inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Edge Cases &gt; handles challenge with zero amount" time="0.0073764">
+            <system-err>
+An update to ChallengeCard inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to ChallengeCard inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+            </system-err>
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/challenges/createChallenge.test.tsx" timestamp="2025-12-21T12:45:19.412Z" hostname="DESKTOP-6U7IB5P" tests="20" failures="0" errors="0" skipped="0" time="23.6902613">
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Rendering &gt; renders create challenge button" time="0.2146107">
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Rendering &gt; opens dialog when button is clicked" time="0.2113969">
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Rendering &gt; renders all form fields when dialog is open" time="0.1939903">
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Rendering &gt; lists all configured waste types in the select" time="0.5404631">
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Form Validation &gt; shows error when required fields are missing" time="0.1538163">
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Form Validation &gt; shows error when amount is not a number" time="2.2150542">
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Form Validation &gt; shows error when amount is zero" time="2.2206367">
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Form Validation &gt; shows error when amount is negative" time="1.6890154">
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Form Validation &gt; shows error when end date is before start date" time="1.4276568">
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Form Validation &gt; shows error when start date equals end date" time="1.3973232">
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Successful Submission &gt; creates challenge with valid data" time="1.6212298">
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Successful Submission &gt; shows success message after creating challenge" time="1.4055487">
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Successful Submission &gt; clears form fields after successful submission" time="1.4466648">
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Error Handling &gt; shows error message when API call fails" time="1.3976169">
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Error Handling &gt; shows generic error message when error is not an Error instance" time="1.4158358">
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Error Handling &gt; clears previous error when submitting again" time="1.3354721">
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Loading State &gt; shows spinner while submitting" time="1.4096069">
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Loading State &gt; disables submit button while loading" time="1.4391154">
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Form Input Handling &gt; updates form fields correctly" time="0.8067536">
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Form Input Handling &gt; handles amount input with decimal numbers" time="1.1438631">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/challenges/Leaderboard.test.tsx" timestamp="2025-12-21T12:45:19.416Z" hostname="DESKTOP-6U7IB5P" tests="24" failures="0" errors="0" skipped="0" time="1.9352643">
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Rendering &gt; renders leaderboard button" time="0.1945615">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Rendering &gt; opens dialog when button is clicked" time="0.1754398">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Rendering &gt; stops event propagation when button is clicked" time="0.1237889">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Data Fetching &gt; fetches leaderboard data on mount" time="0.0047938">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Data Fetching &gt; refetches data when challengeId changes" time="0.0059855">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Data Fetching &gt; handles API errors gracefully" time="0.0844045">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Loading State &gt; shows spinner while loading" time="0.1408434">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Loading State &gt; hides spinner after data is loaded" time="0.1059377">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Loading State &gt; hides spinner after error" time="0.0893283">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Leaderboard Display &gt; displays leaderboard entries with correct ranking" time="0.0851791">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Leaderboard Display &gt; displays username for each entry" time="0.1087769">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Leaderboard Display &gt; displays log amount for each entry" time="0.0642056">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Leaderboard Display &gt; displays entries in correct order" time="0.101981">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Leaderboard Display &gt; shows empty state when no entries" time="0.0625381">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Leaderboard Display &gt; handles null logAmount values" time="0.0667911">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Leaderboard Display &gt; handles undefined logAmount values" time="0.064201">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Leaderboard Display &gt; displays large number of entries with scrolling" time="0.0957068">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Dialog Behavior &gt; displays dialog title" time="0.100517">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Dialog Behavior &gt; fetches data immediately on mount, not when dialog opens" time="0.0050772">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Edge Cases &gt; handles single entry leaderboard" time="0.0820223">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Edge Cases &gt; handles entries with zero log amount" time="0.0822554">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Edge Cases &gt; handles entries with very large log amounts" time="0.0781663">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Edge Cases &gt; handles challengeId of 0" time="0.004103">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Edge Cases &gt; handles negative challengeId" time="0.0042488">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/challenges/RecyclingProgressVisualization.test.tsx" timestamp="2025-12-21T12:45:19.424Z" hostname="DESKTOP-6U7IB5P" tests="23" failures="0" errors="0" skipped="0" time="0.3517722">
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Rendering &gt; renders with default props" time="0.1306184">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Rendering &gt; renders with custom width and height" time="0.0289508">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Rendering &gt; renders with custom className" time="0.020974">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Rendering &gt; renders all images" time="0.0044334">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Progress Clamping &gt; clamps negative progress to 0" time="0.0452092">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Progress Clamping &gt; clamps progress over 100 to 100" time="0.0040706">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Progress Clamping &gt; handles valid progress values" time="0.0035646">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Progress Indicator &gt; shows progress indicator for mid-range values" time="0.0049136">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Progress Indicator &gt; hides progress indicator at 0%" time="0.0033854">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Progress Indicator &gt; hides progress indicator at 100%" time="0.0029719">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Progress Indicator &gt; shows indicator at 1%" time="0.0026255">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Progress Indicator &gt; shows indicator at 99%" time="0.0025952">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Progress Display &gt; displays correct percentage text" time="0.0031339">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Progress Display &gt; applies correct clipPath style to clean image" time="0.0122628">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Progress Display &gt; rounds decimal progress values" time="0.0034811">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Accessibility &gt; has correct ARIA role" time="0.0184386">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Accessibility &gt; has ARIA label with progress value" time="0.0118761">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Accessibility &gt; has ARIA value attributes" time="0.0299142">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Accessibility &gt; images have aria-hidden attribute" time="0.0024938">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Edge Cases &gt; handles 0% progress" time="0.0024491">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Edge Cases &gt; handles 100% progress" time="0.0034685">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Edge Cases &gt; handles very large numbers" time="0.0021711">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Edge Cases &gt; handles decimal progress values" time="0.0024378">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/common/feedback-button.test.tsx" timestamp="2025-12-21T12:45:19.439Z" hostname="DESKTOP-6U7IB5P" tests="13" failures="0" errors="0" skipped="0" time="0.4942771">
+        <testcase classname="src/components/common/feedback-button.test.tsx" name="FeedbackButton &gt; Rendering &gt; renders feedback button" time="0.1831654">
+        </testcase>
+        <testcase classname="src/components/common/feedback-button.test.tsx" name="FeedbackButton &gt; Rendering &gt; renders MessageSquare icon" time="0.0039588">
+        </testcase>
+        <testcase classname="src/components/common/feedback-button.test.tsx" name="FeedbackButton &gt; Rendering &gt; has correct aria-label" time="0.0189604">
+        </testcase>
+        <testcase classname="src/components/common/feedback-button.test.tsx" name="FeedbackButton &gt; Rendering &gt; has correct title attribute" time="0.014685">
+        </testcase>
+        <testcase classname="src/components/common/feedback-button.test.tsx" name="FeedbackButton &gt; Positioning and Styling &gt; has fixed positioning classes" time="0.0172482">
+        </testcase>
+        <testcase classname="src/components/common/feedback-button.test.tsx" name="FeedbackButton &gt; Positioning and Styling &gt; has z-index for proper layering" time="0.0084748">
+        </testcase>
+        <testcase classname="src/components/common/feedback-button.test.tsx" name="FeedbackButton &gt; Positioning and Styling &gt; has rounded-full class for circular shape" time="0.0085406">
+        </testcase>
+        <testcase classname="src/components/common/feedback-button.test.tsx" name="FeedbackButton &gt; Positioning and Styling &gt; applies custom className when provided" time="0.0105112">
+        </testcase>
+        <testcase classname="src/components/common/feedback-button.test.tsx" name="FeedbackButton &gt; Dialog Interaction &gt; does not show dialog initially" time="0.0046831">
+        </testcase>
+        <testcase classname="src/components/common/feedback-button.test.tsx" name="FeedbackButton &gt; Dialog Interaction &gt; opens dialog when button is clicked" time="0.0770124">
+        </testcase>
+        <testcase classname="src/components/common/feedback-button.test.tsx" name="FeedbackButton &gt; Dialog Interaction &gt; closes dialog when onOpenChange is called with false" time="0.1254827">
+        </testcase>
+        <testcase classname="src/components/common/feedback-button.test.tsx" name="FeedbackButton &gt; Accessibility &gt; button is focusable" time="0.0071015">
+        </testcase>
+        <testcase classname="src/components/common/feedback-button.test.tsx" name="FeedbackButton &gt; Accessibility &gt; button has accessible name" time="0.0108105">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/common/feedback-dialog.test.tsx" timestamp="2025-12-21T12:45:19.449Z" hostname="DESKTOP-6U7IB5P" tests="21" failures="0" errors="0" skipped="0" time="4.963647">
+        <testcase classname="src/components/common/feedback-dialog.test.tsx" name="FeedbackDialog &gt; Dialog Rendering &gt; does not render when open is false" time="0.0168752">
+        </testcase>
+        <testcase classname="src/components/common/feedback-dialog.test.tsx" name="FeedbackDialog &gt; Dialog Rendering &gt; renders when open is true" time="0.0973467">
+        </testcase>
+        <testcase classname="src/components/common/feedback-dialog.test.tsx" name="FeedbackDialog &gt; Dialog Rendering &gt; renders dialog title" time="0.047547">
+        </testcase>
+        <testcase classname="src/components/common/feedback-dialog.test.tsx" name="FeedbackDialog &gt; Dialog Rendering &gt; renders dialog description" time="0.0233638">
+        </testcase>
+        <testcase classname="src/components/common/feedback-dialog.test.tsx" name="FeedbackDialog &gt; Dialog Rendering &gt; renders message label" time="0.0824333">
+        </testcase>
+        <testcase classname="src/components/common/feedback-dialog.test.tsx" name="FeedbackDialog &gt; Dialog Rendering &gt; renders textarea with placeholder" time="0.0192395">
+        </testcase>
+        <testcase classname="src/components/common/feedback-dialog.test.tsx" name="FeedbackDialog &gt; Dialog Rendering &gt; renders cancel button" time="0.2335808">
+        </testcase>
+        <testcase classname="src/components/common/feedback-dialog.test.tsx" name="FeedbackDialog &gt; Dialog Rendering &gt; renders submit button" time="0.0611389">
+        </testcase>
+        <testcase classname="src/components/common/feedback-dialog.test.tsx" name="FeedbackDialog &gt; Form Interaction &gt; allows typing in textarea" time="0.3466141">
+        </testcase>
+        <testcase classname="src/components/common/feedback-dialog.test.tsx" name="FeedbackDialog &gt; Form Interaction &gt; clears textarea when cancelled" time="0.3472674">
+        </testcase>
+        <testcase classname="src/components/common/feedback-dialog.test.tsx" name="FeedbackDialog &gt; Form Submission &gt; shows error when submitting empty feedback" time="0.0412261">
+        </testcase>
+        <testcase classname="src/components/common/feedback-dialog.test.tsx" name="FeedbackDialog &gt; Form Submission &gt; shows error when submitting only whitespace" time="0.1167345">
+        </testcase>
+        <testcase classname="src/components/common/feedback-dialog.test.tsx" name="FeedbackDialog &gt; Form Submission &gt; shows error when user is not logged in" time="0.346853">
+        </testcase>
+        <testcase classname="src/components/common/feedback-dialog.test.tsx" name="FeedbackDialog &gt; Form Submission &gt; submits feedback successfully" time="0.271419">
+            <system-out>
+Submitting feedback: {
+  content: [32m&apos;Great app!&apos;[39m,
+  contentType: [32m&apos;Compliment&apos;[39m,
+  feedbackerUsername: [32m&apos;testuser&apos;[39m
+}
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/feedback-dialog.test.tsx" name="FeedbackDialog &gt; Form Submission &gt; disables submit button while submitting" time="0.3677281">
+            <system-out>
+Submitting feedback: {
+  content: [32m&apos;Test feedback&apos;[39m,
+  contentType: [32m&apos;Compliment&apos;[39m,
+  feedbackerUsername: [32m&apos;testuser&apos;[39m
+}
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/feedback-dialog.test.tsx" name="FeedbackDialog &gt; Error Handling &gt; shows generic error message on submission failure" time="0.3291189">
+            <system-out>
+Submitting feedback: {
+  content: [32m&apos;Test feedback&apos;[39m,
+  contentType: [32m&apos;Compliment&apos;[39m,
+  feedbackerUsername: [32m&apos;testuser&apos;[39m
+}
+
+Error message: Network error
+
+            </system-out>
+            <system-err>
+Failed to submit feedback: Error: Network error
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/components/common/feedback-dialog.test.tsx:249:55
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:145:11
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:915:26
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1240:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithTimeout [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1206:10[90m)[39m
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:37
+    at Traces.$ [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/traces.U4xDYhzZ.js:115:27[90m)[39m
+    at trace [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/test.BT8LKgU9.js:239:21[90m)[39m
+    at runTest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:12[90m)[39m
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/feedback-dialog.test.tsx" name="FeedbackDialog &gt; Error Handling &gt; shows forbidden error for 403 responses" time="0.4172462">
+            <system-out>
+Submitting feedback: {
+  content: [32m&apos;Test feedback&apos;[39m,
+  contentType: [32m&apos;Compliment&apos;[39m,
+  feedbackerUsername: [32m&apos;testuser&apos;[39m
+}
+
+Error message: 403 Forbidden
+
+            </system-out>
+            <system-err>
+Failed to submit feedback: Error: 403 Forbidden
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/components/common/feedback-dialog.test.tsx:265:55
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:145:11
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:915:26
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1240:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithTimeout [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1206:10[90m)[39m
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:37
+    at Traces.$ [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/traces.U4xDYhzZ.js:115:27[90m)[39m
+    at trace [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/test.BT8LKgU9.js:239:21[90m)[39m
+    at runTest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:12[90m)[39m
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/feedback-dialog.test.tsx" name="FeedbackDialog &gt; Error Handling &gt; shows auth error for 401 responses" time="0.5636915">
+            <system-out>
+Submitting feedback: {
+  content: [32m&apos;Test feedback&apos;[39m,
+  contentType: [32m&apos;Compliment&apos;[39m,
+  feedbackerUsername: [32m&apos;testuser&apos;[39m
+}
+
+Error message: 401 Unauthorized
+
+            </system-out>
+            <system-err>
+Failed to submit feedback: Error: 401 Unauthorized
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/components/common/feedback-dialog.test.tsx:281:55
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:145:11
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:915:26
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1240:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithTimeout [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1206:10[90m)[39m
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:37
+    at Traces.$ [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/traces.U4xDYhzZ.js:115:27[90m)[39m
+    at trace [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/test.BT8LKgU9.js:239:21[90m)[39m
+    at runTest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:12[90m)[39m
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/feedback-dialog.test.tsx" name="FeedbackDialog &gt; Error Handling &gt; shows user not found error" time="0.3420047">
+            <system-out>
+Submitting feedback: {
+  content: [32m&apos;Test feedback&apos;[39m,
+  contentType: [32m&apos;Compliment&apos;[39m,
+  feedbackerUsername: [32m&apos;testuser&apos;[39m
+}
+
+Error message: User not found
+
+            </system-out>
+            <system-err>
+Failed to submit feedback: Error: User not found
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/components/common/feedback-dialog.test.tsx:297:55
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:145:11
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:915:26
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1240:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithTimeout [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1206:10[90m)[39m
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:37
+    at Traces.$ [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/traces.U4xDYhzZ.js:115:27[90m)[39m
+    at trace [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/test.BT8LKgU9.js:239:21[90m)[39m
+    at runTest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:12[90m)[39m
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/feedback-dialog.test.tsx" name="FeedbackDialog &gt; State Management &gt; clears textarea after successful submission" time="0.4336584">
+            <system-out>
+Submitting feedback: {
+  content: [32m&apos;Test feedback&apos;[39m,
+  contentType: [32m&apos;Compliment&apos;[39m,
+  feedbackerUsername: [32m&apos;testuser&apos;[39m
+}
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/feedback-dialog.test.tsx" name="FeedbackDialog &gt; State Management &gt; preserves textarea value on submission error" time="0.4540339">
+            <system-out>
+Submitting feedback: {
+  content: [32m&apos;Test feedback&apos;[39m,
+  contentType: [32m&apos;Compliment&apos;[39m,
+  feedbackerUsername: [32m&apos;testuser&apos;[39m
+}
+
+Error message: Network error
+
+            </system-out>
+            <system-err>
+Failed to submit feedback: Error: Network error
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/components/common/feedback-dialog.test.tsx:331:55
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:145:11
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:915:26
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1240:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithTimeout [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1206:10[90m)[39m
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:37
+    at Traces.$ [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/traces.U4xDYhzZ.js:115:27[90m)[39m
+    at trace [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/test.BT8LKgU9.js:239:21[90m)[39m
+    at runTest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:12[90m)[39m
+
+            </system-err>
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/common/LanguageToggle.test.tsx" timestamp="2025-12-21T12:45:19.475Z" hostname="DESKTOP-6U7IB5P" tests="4" failures="0" errors="0" skipped="0" time="0.3895915">
+        <testcase classname="src/components/common/LanguageToggle.test.tsx" name="LanguageToggle &gt; renders with correct flag for Turkish language" time="0.1424975">
+        </testcase>
+        <testcase classname="src/components/common/LanguageToggle.test.tsx" name="LanguageToggle &gt; renders with correct flag for English language" time="0.0028314">
+        </testcase>
+        <testcase classname="src/components/common/LanguageToggle.test.tsx" name="LanguageToggle &gt; toggles language from Turkish to English" time="0.1182664">
+        </testcase>
+        <testcase classname="src/components/common/LanguageToggle.test.tsx" name="LanguageToggle &gt; toggles language from English to Turkish" time="0.1228628">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/common/LogoutButton.test.tsx" timestamp="2025-12-21T12:45:19.478Z" hostname="DESKTOP-6U7IB5P" tests="4" failures="0" errors="0" skipped="0" time="0.62282">
+        <testcase classname="src/components/common/LogoutButton.test.tsx" name="LogoutButton &gt; renders nothing if not authenticated" time="0.0237863">
+        </testcase>
+        <testcase classname="src/components/common/LogoutButton.test.tsx" name="LogoutButton &gt; renders button if authenticated" time="0.159451">
+        </testcase>
+        <testcase classname="src/components/common/LogoutButton.test.tsx" name="LogoutButton &gt; opens dialog and logs out on confirm" time="0.2515099">
+        </testcase>
+        <testcase classname="src/components/common/LogoutButton.test.tsx" name="LogoutButton &gt; closes dialog on cancel" time="0.1850957">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/common/navbar.test.tsx" timestamp="2025-12-21T12:45:19.482Z" hostname="DESKTOP-6U7IB5P" tests="27" failures="0" errors="0" skipped="0" time="0.9498195">
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Unauthenticated State &gt; renders logo with correct alt text" time="0.0393775">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Unauthenticated State &gt; renders public navigation links" time="0.1893543">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Unauthenticated State &gt; does not render protected navigation links" time="0.0636284">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Unauthenticated State &gt; does not render logout button and notification icon" time="0.0038832">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Unauthenticated State &gt; highlights active route" time="0.0224786">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Unauthenticated State &gt; navigates when clicking navigation links" time="0.0807304">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Unauthenticated State &gt; shows sign up button for unauthenticated users" time="0.0256115">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Authenticated State &gt; renders logo with correct alt text" time="0.006656">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Authenticated State &gt; renders all navigation links including protected routes" time="0.0687919">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Authenticated State &gt; does not show protected routes for unauthenticated users" time="0.028365">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Authenticated State &gt; renders logout button and notification icon" time="0.005604">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Authenticated State &gt; does not render sign up button" time="0.0132959">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Authenticated State &gt; highlights active route for authenticated users" time="0.018236">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Authenticated State &gt; navigates when clicking navigation links" time="0.0954981">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Authenticated State &gt; applies minimum width for authenticated navbar" time="0.0178499">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Custom Styling &gt; applies custom className when provided" time="0.0025452">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Custom Styling &gt; applies default styling classes" time="0.0024936">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Navigation Behavior &gt; all navigation buttons have correct hover states" time="0.0211071">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Navigation Behavior &gt; navigates to sign up page when clicking sign up button" time="0.0699978">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Responsive Design &gt; contains responsive padding and height classes" time="0.0035695">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Responsive Design &gt; has centered max-width container" time="0.0018448">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Accessibility &gt; navigation has correct semantic element" time="0.0016769">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Accessibility &gt; logo has accessible alt text" time="0.0019589">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Accessibility &gt; all navigation items are buttons with accessible names" time="0.0162491">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Edge Cases &gt; handles missing authToken gracefully" time="0.0080642">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Edge Cases &gt; renders correctly when window object is undefined during SSR" time="0.0301886">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Edge Cases &gt; handles navigation to non-existent routes" time="0.1064379">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/common/notification-card.test.tsx" timestamp="2025-12-21T12:45:19.498Z" hostname="DESKTOP-6U7IB5P" tests="48" failures="0" errors="0" skipped="0" time="0.7166909">
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Rendering &gt; renders notification with actor name" time="0.0457586">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Rendering &gt; renders like notification message" time="0.0063973">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Rendering &gt; renders comment notification message" time="0.0053558">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Rendering &gt; renders follow notification message" time="0.005762">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Rendering &gt; renders avatar with correct props" time="0.0054262">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Rendering &gt; renders avatar fallback with first letter of username" time="0.0067164">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Time Formatting &gt; displays time in hours for recent notifications" time="0.0040156">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Time Formatting &gt; displays time in days for older notifications" time="0.0042146">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Time Formatting &gt; displays time in minutes for very recent notifications" time="0.0080161">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Action Icons &gt; displays heart icon for like notifications" time="0.0081211">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Action Icons &gt; displays message icon for comment notifications" time="0.0033559">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Action Icons &gt; displays user-plus icon for follow notifications" time="0.0042101">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Read/Unread State &gt; displays unread badge for unread notifications" time="0.0073674">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Read/Unread State &gt; does not display unread badge for read notifications" time="0.0068591">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Read/Unread State &gt; applies highlight background for unread notifications" time="0.0033456">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Read/Unread State &gt; does not apply highlight background for read notifications" time="0.0026166">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Interaction &gt; calls onNotificationClick when card is clicked" time="0.1688648">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Interaction &gt; calls onMarkAsRead when unread notification is clicked" time="0.0695466">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Interaction &gt; does not call onMarkAsRead when read notification is clicked" time="0.0377271">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Interaction &gt; handles click when no callbacks provided" time="0.084045">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Keyboard Interaction &gt; calls handlers when Enter key is pressed" time="0.027701">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Keyboard Interaction &gt; calls handlers when Space key is pressed" time="0.0478977">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Accessibility &gt; has role button" time="0.0150721">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Accessibility &gt; is keyboard focusable" time="0.0123077">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Accessibility &gt; has descriptive aria-label for unread notifications" time="0.0083687">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Accessibility &gt; has descriptive aria-label for read notifications" time="0.0233583">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Accessibility &gt; includes focus-visible styling" time="0.0033604">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Custom Styling &gt; applies custom className" time="0.0031005">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Custom Styling &gt; applies default cursor-pointer and hover styles" time="0.0023275">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Edge Cases &gt; handles notification without actorId" time="0.0028152">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Edge Cases &gt; handles notification with unknown type" time="0.0028447">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Edge Cases &gt; handles notification without objectType" time="0.0030018">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Edge Cases &gt; handles very recent notification (seconds)" time="0.0036306">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Preview Content &gt; displays preview content from preview field" time="0.0029902">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Preview Content &gt; truncates long preview content to 80 characters with ellipsis" time="0.0144179">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Preview Content &gt; displays challenge title in preview section" time="0.0044408">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Preview Content &gt; falls back to postMessage when preview is not available" time="0.0033674">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Preview Content &gt; falls back to commentContent when preview and postMessage are not available" time="0.0023993">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Preview Content &gt; does not display preview section when no preview content is available" time="0.003739">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Preview Content &gt; preview section has correct styling" time="0.0020864">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Preview Content &gt; preview text has italic styling" time="0.0023784">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Preview Content &gt; preview text is limited to 2 lines (line-clamp)" time="0.0024252">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Preview Content &gt; challenge title has primary color styling" time="0.0024696">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Preview Content &gt; prioritizes preview field over legacy postMessage" time="0.005848">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Preview Content &gt; prioritizes preview field over legacy commentContent" time="0.00281">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Preview Content &gt; handles empty preview string" time="0.0072945">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Preview Content &gt; displays both preview and challenge title when available" time="0.0029116">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Preview Content &gt; preview section appears between message and timestamp" time="0.003614">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/common/NotificationDetailDialog.test.tsx" timestamp="2025-12-21T12:45:19.505Z" hostname="DESKTOP-6U7IB5P" tests="29" failures="0" errors="0" skipped="0" time="1.006959">
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Dialog Opening and Closing &gt; does not render when open is false" time="0.0314191">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Dialog Opening and Closing &gt; renders when open is true" time="0.0781177">
+            <system-err>
+An update to NotificationDetailDialog inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to NotificationDetailDialog inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET http://localhost:8080/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Dialog Opening and Closing &gt; does not render when notification is null" time="0.0047487">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET http://localhost:8080/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Dialog Title &gt; renders title for like notification" time="0.0158688">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET http://localhost:8080/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Dialog Title &gt; renders title for comment notification" time="0.0118723">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET http://localhost:8080/api/users/jane_smith/profile?username=jane_smith
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Dialog Title &gt; renders title for follow notification" time="0.0223859">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET http://localhost:8080/api/users/alice_wonder/profile?username=alice_wonder
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+Error fetching profile for john_doe: TypeError: fetch failed
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at until [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@open-draft[24m/until/lib/index.mjs:4:18[90m)[39m
+    at Object.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:214:68[90m)[39m
+    at _RequestController.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-JXGB54LE.mjs:196:5[90m)[39m
+    at handleRequest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-R6T7CL5E.mjs:177:12[90m)[39m
+    at globalThis.fetch [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:287:7[90m)[39m
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:100:18)
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:40:27 {
+  [cause]: AggregateError: 
+  [90m    at internalConnectMultiple (node:net:1134:18)[39m
+  [90m    at afterConnectMultiple (node:net:1715:7)[39m {
+    code: [32m&apos;ECONNREFUSED&apos;[39m,
+    [errors]: [ [36m[Error][39m, [36m[Error][39m ]
+  }
+}
+
+Error fetching profile for john_doe: TypeError: fetch failed
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at until [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@open-draft[24m/until/lib/index.mjs:4:18[90m)[39m
+    at Object.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:214:68[90m)[39m
+    at _RequestController.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-JXGB54LE.mjs:196:5[90m)[39m
+    at handleRequest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-R6T7CL5E.mjs:177:12[90m)[39m
+    at globalThis.fetch [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:287:7[90m)[39m
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:100:18)
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:40:27 {
+  [cause]: AggregateError: 
+  [90m    at internalConnectMultiple (node:net:1134:18)[39m
+  [90m    at afterConnectMultiple (node:net:1715:7)[39m {
+    code: [32m&apos;ECONNREFUSED&apos;[39m,
+    [errors]: [ [36m[Error][39m, [36m[Error][39m ]
+  }
+}
+
+Error fetching profile for john_doe: TypeError: fetch failed
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at until [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@open-draft[24m/until/lib/index.mjs:4:18[90m)[39m
+    at Object.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:214:68[90m)[39m
+    at _RequestController.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-JXGB54LE.mjs:196:5[90m)[39m
+    at handleRequest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-R6T7CL5E.mjs:177:12[90m)[39m
+    at globalThis.fetch [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:287:7[90m)[39m
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:100:18)
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:40:27 {
+  [cause]: AggregateError: 
+  [90m    at internalConnectMultiple (node:net:1134:18)[39m
+  [90m    at afterConnectMultiple (node:net:1715:7)[39m {
+    code: [32m&apos;ECONNREFUSED&apos;[39m,
+    [errors]: [ [36m[Error][39m, [36m[Error][39m ]
+  }
+}
+
+Error fetching profile for jane_smith: TypeError: fetch failed
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at until [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@open-draft[24m/until/lib/index.mjs:4:18[90m)[39m
+    at Object.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:214:68[90m)[39m
+    at _RequestController.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-JXGB54LE.mjs:196:5[90m)[39m
+    at handleRequest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-R6T7CL5E.mjs:177:12[90m)[39m
+    at globalThis.fetch [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:287:7[90m)[39m
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:100:18)
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:40:27 {
+  [cause]: AggregateError: 
+  [90m    at internalConnectMultiple (node:net:1134:18)[39m
+  [90m    at afterConnectMultiple (node:net:1715:7)[39m {
+    code: [32m&apos;ECONNREFUSED&apos;[39m,
+    [errors]: [ [36m[Error][39m, [36m[Error][39m ]
+  }
+}
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Dialog Title &gt; renders avatar with actor username" time="0.0077575">
+            <system-err>
+Error fetching profile for alice_wonder: TypeError: fetch failed
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at until [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@open-draft[24m/until/lib/index.mjs:4:18[90m)[39m
+    at Object.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:214:68[90m)[39m
+    at _RequestController.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-JXGB54LE.mjs:196:5[90m)[39m
+    at handleRequest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-R6T7CL5E.mjs:177:12[90m)[39m
+    at globalThis.fetch [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:287:7[90m)[39m
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:100:18)
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:40:27 {
+  [cause]: AggregateError: 
+  [90m    at internalConnectMultiple (node:net:1134:18)[39m
+  [90m    at afterConnectMultiple (node:net:1715:7)[39m {
+    code: [32m&apos;ECONNREFUSED&apos;[39m,
+    [errors]: [ [36m[Error][39m, [36m[Error][39m ]
+  }
+}
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Dialog Title &gt; renders avatar fallback with first letter" time="0.0056452">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Follow Notification Handling &gt; opens profile dialog for follow notifications" time="0.0221498">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Follow Notification Handling &gt; does not open profile dialog if actorId is missing" time="0.0037611">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Post Fetching &gt; fetches post when notification has objectId" time="0.0050531">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Post Fetching &gt; shows loading state while fetching post" time="0.004748">
+            <system-err>
+An update to NotificationDetailDialog inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to NotificationDetailDialog inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Post Fetching &gt; displays post card after successful fetch" time="0.0247279">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Post Fetching &gt; shows error message when fetch fails" time="0.0168009">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Post Fetching &gt; shows error when post is not found" time="0.0413169">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Comment Notification Handling &gt; fetches post for comment notifications" time="0.0255739">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Username Click Interaction &gt; opens profile dialog when username in title is clicked" time="0.2353194">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Username Click Interaction &gt; opens profile dialog when username in post card is clicked" time="0.1175084">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Username Click Interaction &gt; closes profile dialog when close button is clicked" time="0.1783009">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Username Click Interaction &gt; username button is disabled when actorId is missing" time="0.0317824">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Post Update and Delete &gt; updates post state when post is updated" time="0.0341">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Post Update and Delete &gt; closes dialog when post is deleted" time="0.0168043">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; State Reset &gt; resets state when dialog is closed" time="0.0158091">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; State Reset &gt; resets state when notification changes" time="0.009462">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Edge Cases &gt; handles notification without objectId" time="0.001875">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Edge Cases &gt; handles notification without actorId" time="0.0028718">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Edge Cases &gt; handles missing username in localStorage" time="0.0027047">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Accessibility &gt; username buttons have focus-visible styling" time="0.0181487">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Accessibility &gt; username buttons have hover styling when enabled" time="0.0138953">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/common/NotificationIcon.test.tsx" timestamp="2025-12-21T12:45:19.515Z" hostname="DESKTOP-6U7IB5P" tests="23" failures="0" errors="0" skipped="0" time="1.4375249">
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Authentication &gt; does not render when user is not authenticated" time="0.0120141">
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Authentication &gt; renders when user is authenticated" time="0.188353">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: []
+
+            </system-out>
+            <system-err>
+An update to NotificationIcon inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to NotificationIcon inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Notification Bell &gt; renders bell icon button" time="0.0227957">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: []
+
+            </system-out>
+            <system-err>
+An update to NotificationIcon inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to NotificationIcon inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Notification Bell &gt; does not show unread badge when no unread notifications" time="0.0212318">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Create&apos;[39m,
+    actorId: [32m&apos;user2&apos;[39m,
+    isRead: [33mtrue[39m,
+    createdAt: [32m&apos;2025-01-14T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;124&apos;[39m,
+    objectType: [32m&apos;Comment&apos;[39m,
+    timestamp: [32m&apos;2025-01-14T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Notification Bell &gt; shows unread count badge when unread notifications exist" time="0.0696934">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Create&apos;[39m,
+    actorId: [32m&apos;user2&apos;[39m,
+    isRead: [33mtrue[39m,
+    createdAt: [32m&apos;2025-01-14T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;124&apos;[39m,
+    objectType: [32m&apos;Comment&apos;[39m,
+    timestamp: [32m&apos;2025-01-14T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m3[39m,
+    type: [32m&apos;Follow&apos;[39m,
+    actorId: [32m&apos;user3&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-16T10:00:00Z&apos;[39m,
+    objectId: [1mnull[22m,
+    objectType: [1mnull[22m,
+    timestamp: [32m&apos;2025-01-16T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET http://localhost:8080/api/users/user2/profile?username=user2
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET http://localhost:8080/api/users/user1/profile?username=user1
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET http://localhost:8080/api/users/user2/profile?username=user2
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET http://localhost:8080/api/users/user3/profile?username=user3
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Notification Bell &gt; shows &quot;9+&quot; badge when more than 9 unread notifications" time="0.0174142">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m3[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m4[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m5[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m6[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m7[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m8[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m9[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m10[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m11[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m12[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+            <system-err>
+Error fetching profile for user2: TypeError: fetch failed
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at until [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@open-draft[24m/until/lib/index.mjs:4:18[90m)[39m
+    at Object.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:214:68[90m)[39m
+    at _RequestController.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-JXGB54LE.mjs:196:5[90m)[39m
+    at handleRequest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-R6T7CL5E.mjs:177:12[90m)[39m
+    at globalThis.fetch [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:287:7[90m)[39m
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:100:18)
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:40:27 {
+  [cause]: AggregateError: 
+  [90m    at internalConnectMultiple (node:net:1134:18)[39m
+  [90m    at afterConnectMultiple (node:net:1715:7)[39m {
+    code: [32m&apos;ECONNREFUSED&apos;[39m,
+    [errors]: [ [36m[Error][39m, [36m[Error][39m ]
+  }
+}
+
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET http://localhost:8080/api/users/user1/profile?username=user1
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Fetching Notifications &gt; fetches notifications on mount" time="0.0206264">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Create&apos;[39m,
+    actorId: [32m&apos;user2&apos;[39m,
+    isRead: [33mtrue[39m,
+    createdAt: [32m&apos;2025-01-14T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;124&apos;[39m,
+    objectType: [32m&apos;Comment&apos;[39m,
+    timestamp: [32m&apos;2025-01-14T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m3[39m,
+    type: [32m&apos;Follow&apos;[39m,
+    actorId: [32m&apos;user3&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-16T10:00:00Z&apos;[39m,
+    objectId: [1mnull[22m,
+    objectType: [1mnull[22m,
+    timestamp: [32m&apos;2025-01-16T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+            <system-err>
+Error fetching profile for user1: TypeError: fetch failed
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at until [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@open-draft[24m/until/lib/index.mjs:4:18[90m)[39m
+    at Object.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:214:68[90m)[39m
+    at _RequestController.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-JXGB54LE.mjs:196:5[90m)[39m
+    at handleRequest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-R6T7CL5E.mjs:177:12[90m)[39m
+    at globalThis.fetch [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:287:7[90m)[39m
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:100:18)
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:40:27 {
+  [cause]: AggregateError: 
+  [90m    at internalConnectMultiple (node:net:1134:18)[39m
+  [90m    at afterConnectMultiple (node:net:1715:7)[39m {
+    code: [32m&apos;ECONNREFUSED&apos;[39m,
+    [errors]: [ [36m[Error][39m, [36m[Error][39m ]
+  }
+}
+
+Error fetching profile for user2: TypeError: fetch failed
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at until [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@open-draft[24m/until/lib/index.mjs:4:18[90m)[39m
+    at Object.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:214:68[90m)[39m
+    at _RequestController.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-JXGB54LE.mjs:196:5[90m)[39m
+    at handleRequest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-R6T7CL5E.mjs:177:12[90m)[39m
+    at globalThis.fetch [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:287:7[90m)[39m
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:100:18)
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:40:27 {
+  [cause]: AggregateError: 
+  [90m    at internalConnectMultiple (node:net:1134:18)[39m
+  [90m    at afterConnectMultiple (node:net:1715:7)[39m {
+    code: [32m&apos;ECONNREFUSED&apos;[39m,
+    [errors]: [ [36m[Error][39m, [36m[Error][39m ]
+  }
+}
+
+Error fetching profile for user3: TypeError: fetch failed
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at until [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@open-draft[24m/until/lib/index.mjs:4:18[90m)[39m
+    at Object.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:214:68[90m)[39m
+    at _RequestController.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-JXGB54LE.mjs:196:5[90m)[39m
+    at handleRequest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-R6T7CL5E.mjs:177:12[90m)[39m
+    at globalThis.fetch [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:287:7[90m)[39m
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:100:18)
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:40:27 {
+  [cause]: AggregateError: 
+  [90m    at internalConnectMultiple (node:net:1134:18)[39m
+  [90m    at afterConnectMultiple (node:net:1715:7)[39m {
+    code: [32m&apos;ECONNREFUSED&apos;[39m,
+    [errors]: [ [36m[Error][39m, [36m[Error][39m ]
+  }
+}
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Fetching Notifications &gt; does not fetch notifications when username is missing" time="0.0024417">
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Fetching Notifications &gt; shows loading state while fetching" time="0.069107">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: []
+
+            </system-out>
+            <system-err>
+Error fetching profile for user1: TypeError: fetch failed
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at until [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@open-draft[24m/until/lib/index.mjs:4:18[90m)[39m
+    at Object.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:214:68[90m)[39m
+    at _RequestController.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-JXGB54LE.mjs:196:5[90m)[39m
+    at handleRequest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-R6T7CL5E.mjs:177:12[90m)[39m
+    at globalThis.fetch [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:287:7[90m)[39m
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:100:18)
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:40:27 {
+  [cause]: AggregateError: 
+  [90m    at internalConnectMultiple (node:net:1134:18)[39m
+  [90m    at afterConnectMultiple (node:net:1715:7)[39m {
+    code: [32m&apos;ECONNREFUSED&apos;[39m,
+    [errors]: [ [36m[Error][39m, [36m[Error][39m ]
+  }
+}
+
+An update to NotificationIcon inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to NotificationIcon inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Fetching Notifications &gt; shows error message when fetch fails" time="0.0751673">
+            <system-out>
+Fetching notifications for username: testuser
+
+            </system-out>
+            <system-err>
+Failed to fetch notifications: Error: Network error
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/components/common/NotificationIcon.test.tsx:227:58
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:145:11
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:915:26
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1240:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithTimeout [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1206:10[90m)[39m
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:37
+    at Traces.$ [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/traces.U4xDYhzZ.js:115:27[90m)[39m
+    at trace [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/test.BT8LKgU9.js:239:21[90m)[39m
+    at runTest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:12[90m)[39m
+Error details: Network error
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Fetching Notifications &gt; fetches notifications on initial render" time="0.0061072">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Create&apos;[39m,
+    actorId: [32m&apos;user2&apos;[39m,
+    isRead: [33mtrue[39m,
+    createdAt: [32m&apos;2025-01-14T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;124&apos;[39m,
+    objectType: [32m&apos;Comment&apos;[39m,
+    timestamp: [32m&apos;2025-01-14T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m3[39m,
+    type: [32m&apos;Follow&apos;[39m,
+    actorId: [32m&apos;user3&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-16T10:00:00Z&apos;[39m,
+    objectId: [1mnull[22m,
+    objectType: [1mnull[22m,
+    timestamp: [32m&apos;2025-01-16T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Popover Interaction &gt; opens popover when bell icon is clicked" time="0.0524984">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Create&apos;[39m,
+    actorId: [32m&apos;user2&apos;[39m,
+    isRead: [33mtrue[39m,
+    createdAt: [32m&apos;2025-01-14T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;124&apos;[39m,
+    objectType: [32m&apos;Comment&apos;[39m,
+    timestamp: [32m&apos;2025-01-14T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m3[39m,
+    type: [32m&apos;Follow&apos;[39m,
+    actorId: [32m&apos;user3&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-16T10:00:00Z&apos;[39m,
+    objectId: [1mnull[22m,
+    objectType: [1mnull[22m,
+    timestamp: [32m&apos;2025-01-16T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Popover Interaction &gt; displays notifications in popover" time="0.0595779">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Create&apos;[39m,
+    actorId: [32m&apos;user2&apos;[39m,
+    isRead: [33mtrue[39m,
+    createdAt: [32m&apos;2025-01-14T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;124&apos;[39m,
+    objectType: [32m&apos;Comment&apos;[39m,
+    timestamp: [32m&apos;2025-01-14T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m3[39m,
+    type: [32m&apos;Follow&apos;[39m,
+    actorId: [32m&apos;user3&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-16T10:00:00Z&apos;[39m,
+    objectId: [1mnull[22m,
+    objectType: [1mnull[22m,
+    timestamp: [32m&apos;2025-01-16T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Popover Interaction &gt; shows empty state when no notifications" time="0.0771842">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: []
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Notification Sorting &gt; sorts notifications with unread first, then by timestamp" time="0.0716159">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Create&apos;[39m,
+    actorId: [32m&apos;user2&apos;[39m,
+    isRead: [33mtrue[39m,
+    createdAt: [32m&apos;2025-01-14T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;124&apos;[39m,
+    objectType: [32m&apos;Comment&apos;[39m,
+    timestamp: [32m&apos;2025-01-14T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m3[39m,
+    type: [32m&apos;Follow&apos;[39m,
+    actorId: [32m&apos;user3&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-16T10:00:00Z&apos;[39m,
+    objectId: [1mnull[22m,
+    objectType: [1mnull[22m,
+    timestamp: [32m&apos;2025-01-16T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Mark as Read &gt; marks notification as read when requested" time="0.0862069">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Create&apos;[39m,
+    actorId: [32m&apos;user2&apos;[39m,
+    isRead: [33mtrue[39m,
+    createdAt: [32m&apos;2025-01-14T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;124&apos;[39m,
+    objectType: [32m&apos;Comment&apos;[39m,
+    timestamp: [32m&apos;2025-01-14T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m3[39m,
+    type: [32m&apos;Follow&apos;[39m,
+    actorId: [32m&apos;user3&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-16T10:00:00Z&apos;[39m,
+    objectId: [1mnull[22m,
+    objectType: [1mnull[22m,
+    timestamp: [32m&apos;2025-01-16T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Mark as Read &gt; updates notification state after marking as read" time="0.0943962">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Mark as Read &gt; handles mark as read failure gracefully" time="0.1478356">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Create&apos;[39m,
+    actorId: [32m&apos;user2&apos;[39m,
+    isRead: [33mtrue[39m,
+    createdAt: [32m&apos;2025-01-14T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;124&apos;[39m,
+    objectType: [32m&apos;Comment&apos;[39m,
+    timestamp: [32m&apos;2025-01-14T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m3[39m,
+    type: [32m&apos;Follow&apos;[39m,
+    actorId: [32m&apos;user3&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-16T10:00:00Z&apos;[39m,
+    objectId: [1mnull[22m,
+    objectType: [1mnull[22m,
+    timestamp: [32m&apos;2025-01-16T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Notification Detail Dialog &gt; opens detail dialog when notification is clicked" time="0.1016201">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Create&apos;[39m,
+    actorId: [32m&apos;user2&apos;[39m,
+    isRead: [33mtrue[39m,
+    createdAt: [32m&apos;2025-01-14T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;124&apos;[39m,
+    objectType: [32m&apos;Comment&apos;[39m,
+    timestamp: [32m&apos;2025-01-14T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m3[39m,
+    type: [32m&apos;Follow&apos;[39m,
+    actorId: [32m&apos;user3&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-16T10:00:00Z&apos;[39m,
+    objectId: [1mnull[22m,
+    objectType: [1mnull[22m,
+    timestamp: [32m&apos;2025-01-16T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Notification Detail Dialog &gt; closes popover when notification is clicked" time="0.0900472">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Create&apos;[39m,
+    actorId: [32m&apos;user2&apos;[39m,
+    isRead: [33mtrue[39m,
+    createdAt: [32m&apos;2025-01-14T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;124&apos;[39m,
+    objectType: [32m&apos;Comment&apos;[39m,
+    timestamp: [32m&apos;2025-01-14T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m3[39m,
+    type: [32m&apos;Follow&apos;[39m,
+    actorId: [32m&apos;user3&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-16T10:00:00Z&apos;[39m,
+    objectId: [1mnull[22m,
+    objectType: [1mnull[22m,
+    timestamp: [32m&apos;2025-01-16T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Unread Count Badge &gt; updates unread count when notification is marked as read" time="0.1146338">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Create&apos;[39m,
+    actorId: [32m&apos;user2&apos;[39m,
+    isRead: [33mtrue[39m,
+    createdAt: [32m&apos;2025-01-14T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;124&apos;[39m,
+    objectType: [32m&apos;Comment&apos;[39m,
+    timestamp: [32m&apos;2025-01-14T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m3[39m,
+    type: [32m&apos;Follow&apos;[39m,
+    actorId: [32m&apos;user3&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-16T10:00:00Z&apos;[39m,
+    objectId: [1mnull[22m,
+    objectType: [1mnull[22m,
+    timestamp: [32m&apos;2025-01-16T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Accessibility &gt; bell button has accessible label" time="0.0174883">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: []
+
+            </system-out>
+            <system-err>
+An update to NotificationIcon inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to NotificationIcon inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Accessibility &gt; bell button has correct styling classes" time="0.0138403">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: []
+
+            </system-out>
+            <system-err>
+An update to NotificationIcon inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to NotificationIcon inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+            </system-err>
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/common/password-strength-meter.test.tsx" timestamp="2025-12-21T12:45:19.556Z" hostname="DESKTOP-6U7IB5P" tests="6" failures="0" errors="0" skipped="0" time="0.0487971">
+        <testcase classname="src/components/common/password-strength-meter.test.tsx" name="PasswordStrengthMeter &gt; renders very weak strength correctly" time="0.0294155">
+        </testcase>
+        <testcase classname="src/components/common/password-strength-meter.test.tsx" name="PasswordStrengthMeter &gt; renders weak strength correctly" time="0.0044466">
+        </testcase>
+        <testcase classname="src/components/common/password-strength-meter.test.tsx" name="PasswordStrengthMeter &gt; renders fair strength correctly" time="0.0038817">
+        </testcase>
+        <testcase classname="src/components/common/password-strength-meter.test.tsx" name="PasswordStrengthMeter &gt; renders good strength correctly" time="0.0027605">
+        </testcase>
+        <testcase classname="src/components/common/password-strength-meter.test.tsx" name="PasswordStrengthMeter &gt; renders strong strength correctly" time="0.0032768">
+        </testcase>
+        <testcase classname="src/components/common/password-strength-meter.test.tsx" name="PasswordStrengthMeter &gt; applies custom className" time="0.0017907">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/common/ReportAlarmButton.test.tsx" timestamp="2025-12-21T12:45:19.561Z" hostname="DESKTOP-6U7IB5P" tests="6" failures="0" errors="0" skipped="0" time="0.4167928">
+        <testcase classname="src/components/common/ReportAlarmButton.test.tsx" name="ReportAlarmButton &gt; renders with default props" time="0.1836442">
+        </testcase>
+        <testcase classname="src/components/common/ReportAlarmButton.test.tsx" name="ReportAlarmButton &gt; renders with custom aria-label and title" time="0.0414855">
+        </testcase>
+        <testcase classname="src/components/common/ReportAlarmButton.test.tsx" name="ReportAlarmButton &gt; handles click events" time="0.0849638">
+        </testcase>
+        <testcase classname="src/components/common/ReportAlarmButton.test.tsx" name="ReportAlarmButton &gt; can be disabled" time="0.0783478">
+        </testcase>
+        <testcase classname="src/components/common/ReportAlarmButton.test.tsx" name="ReportAlarmButton &gt; applies custom className" time="0.0100443">
+        </testcase>
+        <testcase classname="src/components/common/ReportAlarmButton.test.tsx" name="ReportAlarmButton &gt; renders small size correctly" time="0.0145958">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/feedpage/comment-item.test.tsx" timestamp="2025-12-21T12:45:19.566Z" hostname="DESKTOP-6U7IB5P" tests="27" failures="0" errors="0" skipped="0" time="2.9480903">
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Rendering &gt; renders comment content correctly" time="0.0418276">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Rendering &gt; displays time ago correctly" time="0.0066141">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Rendering &gt; renders avatar with username initial" time="0.0058277">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Rendering &gt; shows edit and delete buttons for own comments" time="0.2045612">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Rendering &gt; hides edit and delete buttons for other users comments" time="0.0170612">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Rendering &gt; shows report button for all comments" time="0.0678427">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Time Formatting &gt; displays seconds for very recent comments" time="0.0053592">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Time Formatting &gt; displays minutes for comments under an hour" time="0.0051509">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Time Formatting &gt; displays days for old comments" time="0.0062916">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Edit Functionality &gt; enters edit mode when edit button is clicked" time="0.1681325">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Edit Functionality &gt; allows editing comment content" time="0.596598">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Edit Functionality &gt; cancels edit when cancel button is clicked" time="0.1352745">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Edit Functionality &gt; saves edited comment when save button is clicked" time="0.3764282">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Edit Functionality &gt; disables save button when content is unchanged" time="0.0965667">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Edit Functionality &gt; disables save button when content is empty" time="0.1012368">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Delete Functionality &gt; opens delete confirmation dialog" time="0.0419115">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Delete Functionality &gt; closes dialog when cancel is clicked" time="0.2055905">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Delete Functionality &gt; deletes comment when confirmed" time="0.0947201">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Report Functionality &gt; opens report dialog when report button is clicked" time="0.0751187">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Report Functionality &gt; shows error toast when not logged in" time="0.0606221">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Report Functionality &gt; submits report with reason" time="0.34903">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Report Functionality &gt; shows error when report reason is missing" time="0.1773468">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Username Click &gt; calls onUsernameClick when username is clicked" time="0.0635852">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Username Click &gt; handles keyboard interaction for username" time="0.0307041">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Edge Cases &gt; handles comment without createdAt" time="0.0036872">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Edge Cases &gt; handles comment without commentId" time="0.0033344">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-item.test.tsx" name="CommentItem &gt; Edge Cases &gt; uses username fallback when creatorUsername is missing" time="0.0024897">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/feedpage/comment-section.test.tsx" timestamp="2025-12-21T12:45:19.581Z" hostname="DESKTOP-6U7IB5P" tests="21" failures="0" errors="0" skipped="0" time="2.4181846">
+        <testcase classname="src/components/feedpage/comment-section.test.tsx" name="CommentSection &gt; Loading State &gt; displays loading indicator while fetching comments" time="0.0459094">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-section.test.tsx" name="CommentSection &gt; Loading State &gt; fetches comments on mount" time="0.0258957">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-section.test.tsx" name="CommentSection &gt; Comment Display &gt; renders list of comments" time="0.0732902">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET http://localhost:8080/api/users/user1/profile?username=user1
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET http://localhost:8080/api/users/user2/profile?username=user2
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET http://localhost:8080/api/users/user1/profile?username=user1
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET http://localhost:8080/api/users/user2/profile?username=user2
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-section.test.tsx" name="CommentSection &gt; Comment Display &gt; renders empty state when no comments" time="0.0130761">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-section.test.tsx" name="CommentSection &gt; Comment Display &gt; handles API error gracefully" time="0.0146081">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-section.test.tsx" name="CommentSection &gt; Comment Form &gt; displays comment form when user is logged in" time="0.1953417">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-section.test.tsx" name="CommentSection &gt; Comment Form &gt; hides comment form when user is not logged in" time="0.0147188">
+            <system-err>
+Error fetching profile for user1: TypeError: fetch failed
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at until [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@open-draft[24m/until/lib/index.mjs:4:18[90m)[39m
+    at Object.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:214:68[90m)[39m
+    at _RequestController.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-JXGB54LE.mjs:196:5[90m)[39m
+    at handleRequest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-R6T7CL5E.mjs:177:12[90m)[39m
+    at globalThis.fetch [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:287:7[90m)[39m
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:100:18)
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:40:27 {
+  [cause]: AggregateError: 
+  [90m    at internalConnectMultiple (node:net:1134:18)[39m
+  [90m    at afterConnectMultiple (node:net:1715:7)[39m {
+    code: [32m&apos;ECONNREFUSED&apos;[39m,
+    [errors]: [ [36m[Error][39m, [36m[Error][39m ]
+  }
+}
+
+Error fetching profile for user2: TypeError: fetch failed
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at until [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@open-draft[24m/until/lib/index.mjs:4:18[90m)[39m
+    at Object.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:214:68[90m)[39m
+    at _RequestController.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-JXGB54LE.mjs:196:5[90m)[39m
+    at handleRequest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-R6T7CL5E.mjs:177:12[90m)[39m
+    at globalThis.fetch [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:287:7[90m)[39m
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:100:18)
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:40:27 {
+  [cause]: AggregateError: 
+  [90m    at internalConnectMultiple (node:net:1134:18)[39m
+  [90m    at afterConnectMultiple (node:net:1715:7)[39m {
+    code: [32m&apos;ECONNREFUSED&apos;[39m,
+    [errors]: [ [36m[Error][39m, [36m[Error][39m ]
+  }
+}
+
+Error fetching profile for user1: TypeError: fetch failed
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at until [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@open-draft[24m/until/lib/index.mjs:4:18[90m)[39m
+    at Object.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:214:68[90m)[39m
+    at _RequestController.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-JXGB54LE.mjs:196:5[90m)[39m
+    at handleRequest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-R6T7CL5E.mjs:177:12[90m)[39m
+    at globalThis.fetch [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:287:7[90m)[39m
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:100:18)
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:40:27 {
+  [cause]: AggregateError: 
+  [90m    at internalConnectMultiple (node:net:1134:18)[39m
+  [90m    at afterConnectMultiple (node:net:1715:7)[39m {
+    code: [32m&apos;ECONNREFUSED&apos;[39m,
+    [errors]: [ [36m[Error][39m, [36m[Error][39m ]
+  }
+}
+
+Error fetching profile for user2: TypeError: fetch failed
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at until [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@open-draft[24m/until/lib/index.mjs:4:18[90m)[39m
+    at Object.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:214:68[90m)[39m
+    at _RequestController.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-JXGB54LE.mjs:196:5[90m)[39m
+    at handleRequest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-R6T7CL5E.mjs:177:12[90m)[39m
+    at globalThis.fetch [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:287:7[90m)[39m
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:100:18)
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:40:27 {
+  [cause]: AggregateError: 
+  [90m    at internalConnectMultiple (node:net:1134:18)[39m
+  [90m    at afterConnectMultiple (node:net:1715:7)[39m {
+    code: [32m&apos;ECONNREFUSED&apos;[39m,
+    [errors]: [ [36m[Error][39m, [36m[Error][39m ]
+  }
+}
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-section.test.tsx" name="CommentSection &gt; Comment Form &gt; displays kindness reminder message" time="0.0176601">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-section.test.tsx" name="CommentSection &gt; Comment Form &gt; allows typing in comment input" time="0.2104132">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-section.test.tsx" name="CommentSection &gt; Comment Form &gt; disables submit button when comment is empty" time="0.0450463">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-section.test.tsx" name="CommentSection &gt; Comment Form &gt; enables submit button when comment has content" time="0.2204116">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-section.test.tsx" name="CommentSection &gt; Adding Comments &gt; adds new comment when form is submitted" time="0.2667532">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET http://localhost:8080/api/users/testuser/profile?username=testuser
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-section.test.tsx" name="CommentSection &gt; Adding Comments &gt; clears input after successful submission" time="0.2470292">
+            <system-err>
+Error fetching profile for testuser: TypeError: fetch failed
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at until [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@open-draft[24m/until/lib/index.mjs:4:18[90m)[39m
+    at Object.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:214:68[90m)[39m
+    at _RequestController.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-JXGB54LE.mjs:196:5[90m)[39m
+    at handleRequest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-R6T7CL5E.mjs:177:12[90m)[39m
+    at globalThis.fetch [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:287:7[90m)[39m
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:100:18)
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:40:27 {
+  [cause]: AggregateError: 
+  [90m    at internalConnectMultiple (node:net:1134:18)[39m
+  [90m    at afterConnectMultiple (node:net:1715:7)[39m {
+    code: [32m&apos;ECONNREFUSED&apos;[39m,
+    [errors]: [ [36m[Error][39m, [36m[Error][39m ]
+  }
+}
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-section.test.tsx" name="CommentSection &gt; Adding Comments &gt; handles submission error gracefully" time="0.3006494">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-section.test.tsx" name="CommentSection &gt; Adding Comments &gt; prevents submission when not logged in" time="0.0087017">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-section.test.tsx" name="CommentSection &gt; Adding Comments &gt; prevents duplicate submissions" time="0.3069008">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-section.test.tsx" name="CommentSection &gt; Adding Comments &gt; trims whitespace from comment content" time="0.3316527">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-section.test.tsx" name="CommentSection &gt; Comment Updates and Deletions &gt; updates comment in list" time="0.0132882">
+            <system-err>
+An update to CommentSection inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-section.test.tsx" name="CommentSection &gt; Comment Updates and Deletions &gt; removes comment from list when deleted" time="0.0376144">
+            <system-err>
+An update to CommentSection inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-section.test.tsx" name="CommentSection &gt; Username Click Handling &gt; passes onUsernameClick to CommentItem" time="0.0096298">
+        </testcase>
+        <testcase classname="src/components/feedpage/comment-section.test.tsx" name="CommentSection &gt; Post ID Changes &gt; refetches comments when postId changes" time="0.0133037">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/feedpage/create-post-button.test.tsx" timestamp="2025-12-21T12:45:19.598Z" hostname="DESKTOP-6U7IB5P" tests="4" failures="0" errors="0" skipped="0" time="1.6949341">
+        <testcase classname="src/components/feedpage/create-post-button.test.tsx" name="CreatePostButton &gt; renders the create post button" time="0.1905906">
+        </testcase>
+        <testcase classname="src/components/feedpage/create-post-button.test.tsx" name="CreatePostButton &gt; opens dialog when clicked" time="0.2039754">
+        </testcase>
+        <testcase classname="src/components/feedpage/create-post-button.test.tsx" name="CreatePostButton &gt; submits form and calls API" time="0.7493688">
+        </testcase>
+        <testcase classname="src/components/feedpage/create-post-button.test.tsx" name="CreatePostButton &gt; handles API errors gracefully" time="0.5478023">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/feedpage/edit-post-dialog.test.tsx" timestamp="2025-12-21T12:45:19.600Z" hostname="DESKTOP-6U7IB5P" tests="26" failures="0" errors="0" skipped="0" time="6.6211228">
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Dialog Trigger &gt; renders edit button" time="0.2262445">
+        </testcase>
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Dialog Trigger &gt; opens dialog when edit button is clicked" time="0.2140417">
+        </testcase>
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Dialog Content &gt; displays post content in textarea" time="0.1079786">
+        </testcase>
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Dialog Content &gt; displays current image indicator when post has photo" time="0.1301414">
+        </testcase>
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Dialog Content &gt; does not display current image indicator when post has no photo" time="0.0843889">
+        </testcase>
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Dialog Content &gt; displays file input for new image upload" time="0.0680114">
+        </testcase>
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Dialog Content &gt; displays cancel and save buttons" time="0.1580664">
+        </testcase>
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Content Editing &gt; allows editing content" time="0.5499467">
+        </testcase>
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Content Editing &gt; disables save button when content is empty" time="0.1342188">
+        </testcase>
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Content Editing &gt; disables save button when content is only whitespace" time="0.2083415">
+        </testcase>
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Content Editing &gt; enables save button when content is valid" time="0.1225403">
+        </testcase>
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Image Upload &gt; displays selected file name" time="0.1676189">
+        </testcase>
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Image Upload &gt; handles file selection" time="0.1359265">
+        </testcase>
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Form Submission &gt; submits updated content" time="0.6163009">
+        </testcase>
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Form Submission &gt; submits with new image" time="0.8819922">
+        </testcase>
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Form Submission &gt; calls onPostUpdated after successful submission" time="0.5951741">
+        </testcase>
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Form Submission &gt; closes dialog after successful submission" time="0.1499796">
+        </testcase>
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Form Submission &gt; displays loading state during submission" time="0.151436">
+        </testcase>
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Form Submission &gt; handles submission error gracefully" time="0.1854542">
+        </testcase>
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Form Submission &gt; prevents submission when loading" time="0.1676465">
+        </testcase>
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Dialog Interactions &gt; closes dialog when cancel is clicked" time="0.227047">
+        </testcase>
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Dialog Interactions &gt; resets form when dialog is reopened" time="0.7334766">
+        </testcase>
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Dialog Interactions &gt; resets file selection when dialog is reopened" time="0.3473809">
+        </testcase>
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Edge Cases &gt; handles post with empty content" time="0.1220387">
+        </testcase>
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Edge Cases &gt; handles long content" time="0.0668827">
+        </testcase>
+        <testcase classname="src/components/feedpage/edit-post-dialog.test.tsx" name="EditPostDialog &gt; Edge Cases &gt; handles special characters in content" time="0.0630606">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/feedpage/image-dialog.test.tsx" timestamp="2025-12-21T12:45:19.604Z" hostname="DESKTOP-6U7IB5P" tests="25" failures="0" errors="0" skipped="0" time="1.6756506">
+        <testcase classname="src/components/feedpage/image-dialog.test.tsx" name="ImageDialog &gt; Dialog Rendering &gt; renders when open is true" time="0.2864404">
+        </testcase>
+        <testcase classname="src/components/feedpage/image-dialog.test.tsx" name="ImageDialog &gt; Dialog Rendering &gt; does not render when open is false" time="0.004864">
+        </testcase>
+        <testcase classname="src/components/feedpage/image-dialog.test.tsx" name="ImageDialog &gt; Dialog Rendering &gt; displays close button" time="0.1087889">
+        </testcase>
+        <testcase classname="src/components/feedpage/image-dialog.test.tsx" name="ImageDialog &gt; Image Display &gt; displays image with correct src" time="0.0914592">
+        </testcase>
+        <testcase classname="src/components/feedpage/image-dialog.test.tsx" name="ImageDialog &gt; Image Display &gt; displays image with correct alt text" time="0.0580538">
+        </testcase>
+        <testcase classname="src/components/feedpage/image-dialog.test.tsx" name="ImageDialog &gt; Image Display &gt; applies correct styling classes to image" time="0.0837114">
+        </testcase>
+        <testcase classname="src/components/feedpage/image-dialog.test.tsx" name="ImageDialog &gt; Dialog Title &gt; displays username in title when provided" time="0.026248">
+        </testcase>
+        <testcase classname="src/components/feedpage/image-dialog.test.tsx" name="ImageDialog &gt; Dialog Title &gt; displays generic title when username is not provided" time="0.0453399">
+        </testcase>
+        <testcase classname="src/components/feedpage/image-dialog.test.tsx" name="ImageDialog &gt; Dialog Title &gt; title is visually hidden but accessible" time="0.0425839">
+        </testcase>
+        <testcase classname="src/components/feedpage/image-dialog.test.tsx" name="ImageDialog &gt; Close Functionality &gt; calls onOpenChange with false when close button is clicked" time="0.1528308">
+        </testcase>
+        <testcase classname="src/components/feedpage/image-dialog.test.tsx" name="ImageDialog &gt; Close Functionality &gt; close button has correct aria-label" time="0.0679468">
+        </testcase>
+        <testcase classname="src/components/feedpage/image-dialog.test.tsx" name="ImageDialog &gt; Close Functionality &gt; close button has correct styling" time="0.0396406">
+        </testcase>
+        <testcase classname="src/components/feedpage/image-dialog.test.tsx" name="ImageDialog &gt; Dialog Backdrop &gt; dialog content has dark background" time="0.0547611">
+        </testcase>
+        <testcase classname="src/components/feedpage/image-dialog.test.tsx" name="ImageDialog &gt; Edge Cases &gt; handles missing imageUrl" time="0.0447974">
+            <system-err>
+An empty string (&quot;&quot;) was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/feedpage/image-dialog.test.tsx" name="ImageDialog &gt; Edge Cases &gt; handles long alt text" time="0.0503462">
+        </testcase>
+        <testcase classname="src/components/feedpage/image-dialog.test.tsx" name="ImageDialog &gt; Edge Cases &gt; handles special characters in alt text" time="0.0536484">
+        </testcase>
+        <testcase classname="src/components/feedpage/image-dialog.test.tsx" name="ImageDialog &gt; Edge Cases &gt; handles special characters in username" time="0.0489637">
+        </testcase>
+        <testcase classname="src/components/feedpage/image-dialog.test.tsx" name="ImageDialog &gt; Edge Cases &gt; handles empty username string" time="0.0365144">
+        </testcase>
+        <testcase classname="src/components/feedpage/image-dialog.test.tsx" name="ImageDialog &gt; Dialog State Changes &gt; responds to open prop changes" time="0.0651016">
+        </testcase>
+        <testcase classname="src/components/feedpage/image-dialog.test.tsx" name="ImageDialog &gt; Dialog State Changes &gt; updates image when imageUrl changes" time="0.0650299">
+        </testcase>
+        <testcase classname="src/components/feedpage/image-dialog.test.tsx" name="ImageDialog &gt; Dialog State Changes &gt; updates alt text when altText changes" time="0.0546669">
+        </testcase>
+        <testcase classname="src/components/feedpage/image-dialog.test.tsx" name="ImageDialog &gt; Accessibility &gt; image has accessible alt text" time="0.0449394">
+        </testcase>
+        <testcase classname="src/components/feedpage/image-dialog.test.tsx" name="ImageDialog &gt; Accessibility &gt; close button has accessible label" time="0.0406856">
+        </testcase>
+        <testcase classname="src/components/feedpage/image-dialog.test.tsx" name="ImageDialog &gt; Accessibility &gt; dialog title is present for screen readers" time="0.0458699">
+        </testcase>
+        <testcase classname="src/components/feedpage/image-dialog.test.tsx" name="ImageDialog &gt; Multiple Dialog Instances &gt; handles multiple different images" time="0.0578432">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/feedpage/post-card.test.tsx" timestamp="2025-12-21T12:45:19.613Z" hostname="DESKTOP-6U7IB5P" tests="14" failures="0" errors="0" skipped="0" time="0.7886976">
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; renders post content correctly" time="0.0601421">
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; displays like count and comment count" time="0.0122009">
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; shows filled heart icon when post is liked" time="0.2129032">
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; shows filled bookmark icon when post is saved" time="0.072363">
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; toggles like when like button is clicked" time="0.1538564">
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; toggles save when bookmark button is clicked" time="0.1065107">
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; shows edit and delete buttons for own posts" time="0.0597781">
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; hides edit and delete buttons for other users posts" time="0.0479447">
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; renders without crashing for own posts" time="0.0079194">
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; has comment button" time="0.0105234">
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; displays post image when photoUrl is provided" time="0.0087618">
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; formats date correctly" time="0.0077414">
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; accepts onPostDelete callback" time="0.0069518">
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; increments comment count when comment is added" time="0.0175981">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/feedpage/search-card.test.tsx" timestamp="2025-12-21T12:45:19.615Z" hostname="DESKTOP-6U7IB5P" tests="17" failures="0" errors="0" skipped="0" time="1.8462779">
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; renders search input and button" time="0.0441242">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; allows typing in search input" time="0.31494">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; calls onSearch when form is submitted" time="0.2951912">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; calls onSearch when Enter key is pressed" time="0.2688479">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; does not call onSearch when query is empty" time="0.0669586">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; disables submit button when query is empty" time="0.0130359">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; enables submit button when query has content" time="0.1681854">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; shows loading state when isLoading is true" time="0.0034397">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; disables button but keeps input enabled when loading" time="0.0042979">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; shows clear button when search is active" time="0.0055065">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; hides clear button when search is not active" time="0.0030517">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; calls onClear when clear button is clicked" time="0.0617814">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; clears input when clear button is clicked" time="0.2365177">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; shows search results indicator when active" time="0.0033101">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; hides search results indicator when not active" time="0.0033909">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; trims whitespace from search query" time="0.2656749">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; does not submit with only whitespace" time="0.0840175">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/mainpage/ScrollPanel.test.tsx" timestamp="2025-12-21T12:45:19.616Z" hostname="DESKTOP-6U7IB5P" tests="2" failures="0" errors="0" skipped="0" time="0.0364513">
+        <testcase classname="src/components/mainpage/ScrollPanel.test.tsx" name="ScrollPanel &gt; renders title, description, and children" time="0.0275715">
+        </testcase>
+        <testcase classname="src/components/mainpage/ScrollPanel.test.tsx" name="ScrollPanel &gt; applies custom class names to wrapper and content" time="0.0063217">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/goals/CreateOrEditGoalDialog.test.tsx" timestamp="2025-12-21T12:45:19.616Z" hostname="DESKTOP-6U7IB5P" tests="3" failures="0" errors="0" skipped="0" time="1.1840708">
+        <testcase classname="src/components/goals/CreateOrEditGoalDialog.test.tsx" name="CreateOrEditGoalDialog &gt; shows provided initial values and copy when dialog opens" time="0.2679238">
+            <system-err>
+react-i18next:: useTranslation: You will need to pass in an i18next instance by using initReactI18next { code: [32m&apos;NO_I18NEXT_INSTANCE&apos;[39m }
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/goals/CreateOrEditGoalDialog.test.tsx" name="CreateOrEditGoalDialog &gt; submits the form with user-edited values and closes the dialog" time="0.670932">
+        </testcase>
+        <testcase classname="src/components/goals/CreateOrEditGoalDialog.test.tsx" name="CreateOrEditGoalDialog &gt; disables the save button when inputs are invalid" time="0.2271643">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/goals/GoalCard.test.tsx" timestamp="2025-12-21T12:45:19.617Z" hostname="DESKTOP-6U7IB5P" tests="2" failures="0" errors="0" skipped="0" time="0.2866318">
+        <testcase classname="src/components/goals/GoalCard.test.tsx" name="GoalCard &gt; renders goal details including stats and actions" time="0.2378472">
+        </testcase>
+        <testcase classname="src/components/goals/GoalCard.test.tsx" name="GoalCard &gt; keeps action buttons enabled when progress exceeds limit" time="0.0461456">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/goals/LogWasteDialog.test.tsx" timestamp="2025-12-21T12:45:19.617Z" hostname="DESKTOP-6U7IB5P" tests="3" failures="0" errors="0" skipped="0" time="1.0616727">
+        <testcase classname="src/components/goals/LogWasteDialog.test.tsx" name="LogWasteDialog &gt; loads available waste items when opened" time="0.3823259">
+        </testcase>
+        <testcase classname="src/components/goals/LogWasteDialog.test.tsx" name="LogWasteDialog &gt; disables submission when quantity is invalid" time="0.2404131">
+        </testcase>
+        <testcase classname="src/components/goals/LogWasteDialog.test.tsx" name="LogWasteDialog &gt; submits the selected item and quantity" time="0.4350504">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/profile/delete_account.test.tsx" timestamp="2025-12-21T12:45:19.617Z" hostname="DESKTOP-6U7IB5P" tests="2" failures="0" errors="0" skipped="0" time="1.0572157">
+        <testcase classname="src/components/profile/delete_account.test.tsx" name="DeleteAccount &gt; submits password and clears session tokens" time="0.5544669">
+        </testcase>
+        <testcase classname="src/components/profile/delete_account.test.tsx" name="DeleteAccount &gt; shows translated error when password is incorrect" time="0.4981032">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/profile/edit_profile.test.tsx" timestamp="2025-12-21T12:45:19.619Z" hostname="DESKTOP-6U7IB5P" tests="5" failures="0" errors="0" skipped="0" time="3.5714518">
+        <testcase classname="src/components/profile/edit_profile.test.tsx" name="EditProfile &gt; updates biography and notifies parent" time="0.7279453">
+        </testcase>
+        <testcase classname="src/components/profile/edit_profile.test.tsx" name="EditProfile &gt; uploads a new profile photo" time="0.0906505">
+        </testcase>
+        <testcase classname="src/components/profile/edit_profile.test.tsx" name="EditProfile &gt; shows validation error when new password is too short" time="0.693009">
+        </testcase>
+        <testcase classname="src/components/profile/edit_profile.test.tsx" name="EditProfile &gt; submits reset password and shows success" time="0.9308116">
+        </testcase>
+        <testcase classname="src/components/profile/edit_profile.test.tsx" name="EditProfile &gt; shows backend error when reset password fails" time="1.1250385">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/profile/userProfileDialog.test.tsx" timestamp="2025-12-21T12:45:19.623Z" hostname="DESKTOP-6U7IB5P" tests="4" failures="0" errors="0" skipped="0" time="0.6330594">
+        <testcase classname="src/components/profile/userProfileDialog.test.tsx" name="UserProfileDialog &gt; loads profile details and posts when opened" time="0.3669685">
+        </testcase>
+        <testcase classname="src/components/profile/userProfileDialog.test.tsx" name="UserProfileDialog &gt; renders badge showcase with the viewed username" time="0.0208792">
+        </testcase>
+        <testcase classname="src/components/profile/userProfileDialog.test.tsx" name="UserProfileDialog &gt; toggles follow state using follow API" time="0.239093">
+        </testcase>
+        <testcase classname="src/components/profile/userProfileDialog.test.tsx" name="UserProfileDialog &gt; handles profile fetch failure gracefully" time="0.0025466">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/profile/WasteMonthlyChart.test.tsx" timestamp="2025-12-21T12:45:19.627Z" hostname="DESKTOP-6U7IB5P" tests="3" failures="0" errors="0" skipped="0" time="0.3264233">
+        <testcase classname="src/components/profile/WasteMonthlyChart.test.tsx" name="WasteMonthlyChart &gt; fetches and renders monthly waste data" time="0.294489">
+        </testcase>
+        <testcase classname="src/components/profile/WasteMonthlyChart.test.tsx" name="WasteMonthlyChart &gt; shows an error message when the request fails" time="0.0133172">
+        </testcase>
+        <testcase classname="src/components/profile/WasteMonthlyChart.test.tsx" name="WasteMonthlyChart &gt; prompts the user to sign in when username is unavailable" time="0.0162189">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/profile/WasteSummaryCard.test.tsx" timestamp="2025-12-21T12:45:19.630Z" hostname="DESKTOP-6U7IB5P" tests="4" failures="0" errors="0" skipped="0" time="1.5424194">
+        <testcase classname="src/components/profile/WasteSummaryCard.test.tsx" name="WasteSummaryCard &gt; loads the default summary on mount" time="0.1065908">
+        </testcase>
+        <testcase classname="src/components/profile/WasteSummaryCard.test.tsx" name="WasteSummaryCard &gt; submits a custom range when the form is valid" time="0.874874">
+        </testcase>
+        <testcase classname="src/components/profile/WasteSummaryCard.test.tsx" name="WasteSummaryCard &gt; surfaces errors from the API" time="0.0227276">
+        </testcase>
+        <testcase classname="src/components/profile/WasteSummaryCard.test.tsx" name="WasteSummaryCard &gt; prevents submission when the date range is invalid" time="0.534755">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/tests/examples/api-health.test.ts" timestamp="2025-12-21T12:45:19.634Z" hostname="DESKTOP-6U7IB5P" tests="2" failures="0" errors="0" skipped="0" time="0.0149929">
+        <testcase classname="src/tests/examples/api-health.test.ts" name="returns the mocked API health payload" time="0.0106064">
+        </testcase>
+        <testcase classname="src/tests/examples/api-health.test.ts" name="allows overriding handlers scoped to a single spec" time="0.0016975">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/routes/badges/_index.test.tsx" timestamp="2025-12-21T12:45:19.637Z" hostname="DESKTOP-6U7IB5P" tests="3" failures="0" errors="0" skipped="0" time="0.363141">
+        <testcase classname="src/routes/badges/_index.test.tsx" name="BadgesIndex route &gt; prompts the user to log in when no username is available" time="0.0401855">
+        </testcase>
+        <testcase classname="src/routes/badges/_index.test.tsx" name="BadgesIndex route &gt; renders badges and filters by category" time="0.2724895">
+        </testcase>
+        <testcase classname="src/routes/badges/_index.test.tsx" name="BadgesIndex route &gt; shows an error when badge loading fails" time="0.047792">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/routes/feed/_index.test.tsx" timestamp="2025-12-21T12:45:19.640Z" hostname="DESKTOP-6U7IB5P" tests="6" failures="0" errors="0" skipped="0" time="0.3524486">
+        <testcase classname="src/routes/feed/_index.test.tsx" name="FeedPage &gt; renders loading state initially" time="0.1617449">
+        </testcase>
+        <testcase classname="src/routes/feed/_index.test.tsx" name="FeedPage &gt; loads and renders feed page with posts" time="0.0294267">
+        </testcase>
+        <testcase classname="src/routes/feed/_index.test.tsx" name="FeedPage &gt; handles API error gracefully" time="0.0387515">
+            <system-err>
+Error loading posts: Error: API Error
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/routes/feed/_index.test.tsx:136:46
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:145:11
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:915:26
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1240:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithTimeout [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1206:10[90m)[39m
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:37
+    at Traces.$ [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/traces.U4xDYhzZ.js:115:27[90m)[39m
+    at trace [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/test.BT8LKgU9.js:239:21[90m)[39m
+    at runTest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:12[90m)[39m
+
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET http://localhost:8080/api/users/user1/profile?username=user1
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET http://localhost:8080/api/users/user2/profile?username=user2
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/routes/feed/_index.test.tsx" name="FeedPage &gt; initial load and feed type selection" time="0.0181051">
+        </testcase>
+        <testcase classname="src/routes/feed/_index.test.tsx" name="FeedPage &gt; loads more posts" time="0.0472134">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET http://localhost:8080/api/users/user1/profile?username=user1
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET http://localhost:8080/api/users/user2/profile?username=user2
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET http://localhost:8080/api/users/user1/profile?username=user1
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+Error fetching profile for user2: TypeError: fetch failed
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at until [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@open-draft[24m/until/lib/index.mjs:4:18[90m)[39m
+    at Object.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:214:68[90m)[39m
+    at _RequestController.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-JXGB54LE.mjs:196:5[90m)[39m
+    at handleRequest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-R6T7CL5E.mjs:177:12[90m)[39m
+    at globalThis.fetch [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:287:7[90m)[39m
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:100:18)
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:40:27 {
+  [cause]: AggregateError: 
+  [90m    at internalConnectMultiple (node:net:1134:18)[39m
+  [90m    at afterConnectMultiple (node:net:1715:7)[39m {
+    code: [32m&apos;ECONNREFUSED&apos;[39m,
+    [errors]: [ [36m[Error][39m, [36m[Error][39m ]
+  }
+}
+
+Error fetching profile for user1: TypeError: fetch failed
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at until [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@open-draft[24m/until/lib/index.mjs:4:18[90m)[39m
+    at Object.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:214:68[90m)[39m
+    at _RequestController.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-JXGB54LE.mjs:196:5[90m)[39m
+    at handleRequest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-R6T7CL5E.mjs:177:12[90m)[39m
+    at globalThis.fetch [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:287:7[90m)[39m
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:100:18)
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:40:27 {
+  [cause]: AggregateError: 
+  [90m    at internalConnectMultiple (node:net:1134:18)[39m
+  [90m    at afterConnectMultiple (node:net:1715:7)[39m {
+    code: [32m&apos;ECONNREFUSED&apos;[39m,
+    [errors]: [ [36m[Error][39m, [36m[Error][39m ]
+  }
+}
+
+Encountered two children with the same key, `1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `2`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `3`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `4`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `5`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `6`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `7`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `8`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `9`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `10`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/routes/feed/_index.test.tsx" name="FeedPage &gt; search functionality" time="0.0527086">
+            <system-err>
+Error fetching profile for user1: TypeError: fetch failed
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at until [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@open-draft[24m/until/lib/index.mjs:4:18[90m)[39m
+    at Object.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:214:68[90m)[39m
+    at _RequestController.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-JXGB54LE.mjs:196:5[90m)[39m
+    at handleRequest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-R6T7CL5E.mjs:177:12[90m)[39m
+    at globalThis.fetch [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:287:7[90m)[39m
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:100:18)
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:40:27 {
+  [cause]: AggregateError: 
+  [90m    at internalConnectMultiple (node:net:1134:18)[39m
+  [90m    at afterConnectMultiple (node:net:1715:7)[39m {
+    code: [32m&apos;ECONNREFUSED&apos;[39m,
+    [errors]: [ [36m[Error][39m, [36m[Error][39m ]
+  }
+}
+
+Error fetching profile for user2: TypeError: fetch failed
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at until [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@open-draft[24m/until/lib/index.mjs:4:18[90m)[39m
+    at Object.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:214:68[90m)[39m
+    at _RequestController.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-JXGB54LE.mjs:196:5[90m)[39m
+    at handleRequest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-R6T7CL5E.mjs:177:12[90m)[39m
+    at globalThis.fetch [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:287:7[90m)[39m
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:100:18)
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:40:27 {
+  [cause]: AggregateError: 
+  [90m    at internalConnectMultiple (node:net:1134:18)[39m
+  [90m    at afterConnectMultiple (node:net:1715:7)[39m {
+    code: [32m&apos;ECONNREFUSED&apos;[39m,
+    [errors]: [ [36m[Error][39m, [36m[Error][39m ]
+  }
+}
+
+Error fetching profile for user1: TypeError: fetch failed
+[90m    at node:internal/deps/undici/undici:13510:13[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at until [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@open-draft[24m/until/lib/index.mjs:4:18[90m)[39m
+    at Object.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:214:68[90m)[39m
+    at _RequestController.passthrough [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-JXGB54LE.mjs:196:5[90m)[39m
+    at handleRequest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-R6T7CL5E.mjs:177:12[90m)[39m
+    at globalThis.fetch [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@mswjs[24m/interceptors/lib/node/chunk-OFW5L5ET.mjs:287:7[90m)[39m
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:100:18)
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:40:27 {
+  [cause]: AggregateError: 
+  [90m    at internalConnectMultiple (node:net:1134:18)[39m
+  [90m    at afterConnectMultiple (node:net:1715:7)[39m {
+    code: [32m&apos;ECONNREFUSED&apos;[39m,
+    [errors]: [ [36m[Error][39m, [36m[Error][39m ]
+  }
+}
+
+            </system-err>
+        </testcase>
+    </testsuite>
+    <testsuite name="src/routes/goals/_index.test.tsx" timestamp="2025-12-21T12:45:19.650Z" hostname="DESKTOP-6U7IB5P" tests="3" failures="0" errors="0" skipped="0" time="0.2510793">
+        <testcase classname="src/routes/goals/_index.test.tsx" name="GoalsIndex route &gt; renders fetched goals" time="0.0527765">
+        </testcase>
+        <testcase classname="src/routes/goals/_index.test.tsx" name="GoalsIndex route &gt; shows empty state when no username is available" time="0.020751">
+        </testcase>
+        <testcase classname="src/routes/goals/_index.test.tsx" name="GoalsIndex route &gt; deletes a goal when delete action is triggered" time="0.1749797">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/routes/challenges/_index.test.tsx" timestamp="2025-12-21T12:45:19.653Z" hostname="DESKTOP-6U7IB5P" tests="3" failures="0" errors="0" skipped="0" time="0.0601107">
+        <testcase classname="src/routes/challenges/_index.test.tsx" name="ChallengesIndex route &gt; renders returned challenges" time="0.0329988">
+        </testcase>
+        <testcase classname="src/routes/challenges/_index.test.tsx" name="ChallengesIndex route &gt; shows empty state when there are no challenges" time="0.0192371">
+        </testcase>
+        <testcase classname="src/routes/challenges/_index.test.tsx" name="ChallengesIndex route &gt; shows an error when loading fails" time="0.0047365">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/routes/mainpage/_index.test.tsx" timestamp="2025-12-21T12:45:19.656Z" hostname="DESKTOP-6U7IB5P" tests="2" failures="0" errors="0" skipped="0" time="0.0791911">
+        <testcase classname="src/routes/mainpage/_index.test.tsx" name="MainpageIndex route &gt; renders challenge and post panels when data loads" time="0.0650998">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET http://localhost:8080/api/users/demo/profile?username=demo
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/routes/mainpage/_index.test.tsx" name="MainpageIndex route &gt; shows an error message when loading fails" time="0.011378">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/routes/moderator/_index.test.tsx" timestamp="2025-12-21T12:45:19.659Z" hostname="DESKTOP-6U7IB5P" tests="8" failures="0" errors="0" skipped="0" time="1.1352323">
+        <testcase classname="src/routes/moderator/_index.test.tsx" name="ModeratorDashboard &gt; renders unread reports returned by the API" time="0.1170318">
+        </testcase>
+        <testcase classname="src/routes/moderator/_index.test.tsx" name="ModeratorDashboard &gt; surfaces backend errors to the moderator" time="0.028553">
+        </testcase>
+        <testcase classname="src/routes/moderator/_index.test.tsx" name="ModeratorDashboard &gt; allows manually refreshing the queue" time="0.2391045">
+        </testcase>
+        <testcase classname="src/routes/moderator/_index.test.tsx" name="ModeratorDashboard &gt; marks reports as solved" time="0.1544726">
+        </testcase>
+        <testcase classname="src/routes/moderator/_index.test.tsx" name="ModeratorDashboard &gt; deletes reported posts when requested" time="0.122509">
+        </testcase>
+        <testcase classname="src/routes/moderator/_index.test.tsx" name="ModeratorDashboard &gt; deletes reported comments with the proper API" time="0.1271191">
+        </testcase>
+        <testcase classname="src/routes/moderator/_index.test.tsx" name="ModeratorDashboard &gt; opens a dialog to preview reported posts" time="0.1649349">
+        </testcase>
+        <testcase classname="src/routes/moderator/_index.test.tsx" name="ModeratorDashboard &gt; shows comment preview when viewing reported comments" time="0.177692">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/routes/profile/_index.test.tsx" timestamp="2025-12-21T12:45:19.660Z" hostname="DESKTOP-6U7IB5P" tests="3" failures="0" errors="0" skipped="0" time="0.3372097">
+        <testcase classname="src/routes/profile/_index.test.tsx" name="ProfileIndex route &gt; shows auth error when username is missing" time="0.0371098">
+        </testcase>
+        <testcase classname="src/routes/profile/_index.test.tsx" name="ProfileIndex route &gt; renders profile information after loading" time="0.0324557">
+        </testcase>
+        <testcase classname="src/routes/profile/_index.test.tsx" name="ProfileIndex route &gt; loads saved posts when toggle is clicked" time="0.2641393">
+        </testcase>
+    </testsuite>
+</testsuites>
