@@ -44,7 +44,7 @@ describe('GoalCard', () => {
     expect(screen.getByText('1200')).toBeInTheDocument();
     expect(screen.getByText('30')).toBeInTheDocument();
     expect(
-      screen.getByText((content, node) => node?.textContent?.replace(/\s+/g, '') === '72.5%')
+      screen.getByText((_, node) => node?.textContent?.replace(/\s+/g, '') === '72.5%')
     ).toBeInTheDocument();
 
     expect(screen.getByRole('button', { name: 'Log' })).toHaveAttribute('data-action', 'log-waste');

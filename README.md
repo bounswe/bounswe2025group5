@@ -90,14 +90,38 @@ Make sure you have **Docker** and **Docker Compose** installed on your computer.
     ```bash
     docker-compose up -d --build
     ```
-
-3.  **Verify Containers**
+    If there is this error:
+    ```bash
+    failed open: failed to do request: Get "https://registry-1.docker.io/v2/library/mysql/blobs/sha256:aa4b7f9671cf3b8e55608e806a1342c081b309c402450c4f6a6c10dfc13e1ec2": net/http: TLS handshake timeout 
+    ```
+   
+    Then run this command:
+    ```bash
+    docker pull mysql:8.4
+    ```
+    and then try to run docker-compose again:
+    ```bash
+     docker-compose up -d
+    ```
+    
+4.  **Verify Containers**
     Check if the containers are running correctly.
     ```bash
     docker ps -as
     ```
+5. **Data Seeding**
+     ```bash
+   cat mock_data.sql | sudo docker exec -i <db_container_name> mysql -u <db_username> -p<db_password> waste_less
+    ```
+   Moderator Account:
+     - Username: kerim
+     - Password: gfiadbceh
+  
+   Normal Account:
+     - Username: Alice
+     - Password: 32434543
 
-4.  **Access the Application**
+6.  **Access the Application**
     Open your browser and navigate to:
     `http://localhost:3000`
 

@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, beforeAll, afterAll } from 'vitest';
 import GoalsIndex from '@/routes/goals/_index';
 import type { WasteGoalItem } from '@/lib/api/schemas/goals';
 import { UsersApi } from '@/lib/api/users';

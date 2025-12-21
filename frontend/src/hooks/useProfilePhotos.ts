@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { UsersApi } from '@/lib/api/users';
 
 // Global cache to avoid re-fetching the same profile photos
@@ -11,6 +11,9 @@ const profilePhotoCache = new Map<string, string | null>();
 export function useProfilePhotos(usernames: string[]) {
   const [photoMap, setPhotoMap] = useState<Map<string, string | null>>(new Map());
   const [isLoading, setIsLoading] = useState(false);
+
+  // Memoize sorted usernames to prevent unnecessary re-fetches
+  const sortedUsernames = useMemo(() => usernames.slice().sort().join(','), [usernames.join(',')]);
 
   useEffect(() => {
     const fetchPhotos = async () => {
@@ -57,7 +60,7 @@ export function useProfilePhotos(usernames: string[]) {
     };
 
     fetchPhotos();
-  }, [JSON.stringify(usernames.sort())]); // Sort to avoid re-fetching on order changes
+  }, [sortedUsernames]); // Memoized to avoid re-fetching on order changes
 
   return { photoMap, isLoading };
 }

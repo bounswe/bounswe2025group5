@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslation } from 'react-i18next';
 import PostCard from '@/components/feedpage/post-card';
-import CreatePostCard from '@/components/feedpage/create-post-card';
+import CreatePostButton from '@/components/feedpage/create-post-button';
 import SearchCard from '@/components/feedpage/search-card';
 import { PostsApi } from '@/lib/api/posts';
 import { SearchApi } from '@/lib/api/search';
@@ -12,6 +12,7 @@ import { RefreshCw, TrendingUp } from 'lucide-react';
 import GlassCard from '@/components/ui/glass-card';
 import Masonry from 'react-masonry-css';
 import UserProfileDialog from '@/components/profile/userProfileDialog';
+import { useProfilePhotos } from '@/hooks/useProfilePhotos';
 
 const POSTS_PER_PAGE = 10;
 
@@ -26,22 +27,48 @@ export default function FeedPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [renderKey] = useState(0);
   
   // Search state
   const [searchResults, setSearchResults] = useState<PostItem[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [currentSearchQuery, setCurrentSearchQuery] = useState<string>('');
+  const [selectedWasteType, setSelectedWasteType] = useState<string | null>(null);
+  const [cachedNormalPosts, setCachedNormalPosts] = useState<PostItem[]>([]);
   
   // Get current username from localStorage
   const currentUsername = typeof window !== 'undefined' ? localStorage.getItem('username') : null;
 
+  // Extract unique usernames from all posts (post creators only, comments will be fetched separately within each post)
+  const uniqueUsernames = useMemo(() => {
+    const displayedPosts = isSearchActive ? searchResults : posts;
+    return Array.from(new Set(displayedPosts.map(p => p.creatorUsername).filter(Boolean)));
+  }, [posts, searchResults, isSearchActive]);
+
+  // Fetch all profile photos at once
+  const { photoMap } = useProfilePhotos(uniqueUsernames);
+
   // Load initial posts
   useEffect(() => {
-    loadInitialPosts();
-  }, [feedType]);
+    // Don't load posts if search is active
+    if (!isSearchActive) {
+      // If we have cached posts, restore them immediately
+      if (cachedNormalPosts.length > 0) {
+        setPosts(cachedNormalPosts);
+        setCachedNormalPosts([]); // Clear cache after restoring
+      } else if (posts.length === 0) {
+        // Only load from API if no posts and no cache (initial load)
+        loadInitialPosts();
+      }
+    }
+  }, [feedType, isSearchActive]);
 
   const loadInitialPosts = async () => {
+    // Don't interfere with active search
+    if (isSearchActive) return;
+    
     setIsLoading(true);
     setError(null);
     try {
@@ -110,6 +137,12 @@ export default function FeedPage() {
 
   // Search handlers
   const handleSearch = async (query: string) => {
+    setCurrentSearchQuery(query);
+    // Cache current posts before entering search mode
+    if (!isSearchActive && posts.length > 0) {
+      setCachedNormalPosts(posts);
+    }
+    setIsSearchActive(true);
     setIsSearching(true);
     setSearchError(null);
     
@@ -121,78 +154,154 @@ export default function FeedPage() {
       });
       
       setSearchResults(results);
-      setIsSearchActive(true);
     } catch (error) {
       console.error('Error searching posts:', error);
       setSearchError(t('search.error'));
+      setIsSearchActive(false);
     } finally {
       setIsSearching(false);
     }
   };
 
   const handleClearSearch = () => {
+    setCurrentSearchQuery('');
     setSearchResults([]);
-    setIsSearchActive(false);
     setSearchError(null);
+    setIsSearchActive(false);
+    setSelectedWasteType(null); // Clear waste type selection
+    // useEffect will handle reloading posts when isSearchActive becomes false
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen pt-32 pb-8 px-4">
-        <div className="max-w-6xl mx-auto flex justify-center">
-          <GlassCard className="w-full">
-            <div className="flex items-center justify-center min-h-[400px]">
-              <div className="text-center">
-                <Spinner className="h-8 w-8 mx-auto mb-4" />
-                <p className="text-gray-600">{t('feed.loading')}</p>
-              </div>
-            </div>
-          </GlassCard>
-        </div>
-      </div>
-    );
-  }
+  const handleWasteTypeClick = async (type: string) => {
+    // Toggle waste type selection
+    const newType = selectedWasteType === type ? null : type;
+    setSelectedWasteType(newType);
+    
+    if (newType === null) {
+      // If deselecting, exit search mode
+      setIsSearchActive(false);
+      setSearchResults([]);
+      setCurrentSearchQuery('');
+      return;
+    }
+    
+    // Cache current posts before entering search mode
+    if (!isSearchActive && posts.length > 0) {
+      setCachedNormalPosts(posts);
+    }
+    
+    setIsSearchActive(true);
+    setIsSearching(true);
+    setSearchError(null);
+    
+    try {
+      const results = await SearchApi.searchPostsSemantic({
+        query: currentSearchQuery || t(`feed.wasteTypes.${type}`),
+        username: currentUsername || undefined,
+        lang: i18n.language || 'en'
+      });
+      
+      setSearchResults(results);
+    } catch (error) {
+      console.error('Error searching posts:', error);
+      setSearchError(t('search.error'));
+      setIsSearchActive(false);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handlePostCreated = (newPost: PostItem) => {
+    setPosts(prev => [newPost, ...prev]);
+  };
 
   return (
     <div className="min-h-screen pt-32 pb-8 px-4">
       <div className="max-w-6xl mx-auto flex justify-center">
-        <GlassCard className="w-full">
+        <GlassCard 
+          className={`w-full transition-all duration-500 relative ${
+            isSearchActive 
+              ? 'ring-4 ring-secondary/60 shadow-[0_0_30px_rgba(14,157,207,0.5)] animate-pulse-glow' 
+              : ''
+          }`}
+        >
+          {/* Gradient Overlay for Search */}
+          {isSearchActive && (
+            <div 
+              className="absolute inset-0 pointer-events-none rounded-[inherit] z-0 animate-in fade-in duration-700"
+              style={{
+                background: `
+                  linear-gradient(to bottom, rgba(14, 157, 207, 0.1) 0%, transparent 15%, transparent 85%, rgba(14, 157, 207, 0.1) 100%),
+                  linear-gradient(to right, rgba(14, 157, 207, 0.1) 0%, transparent 20%, transparent 80%, rgba(14, 157, 207, 0.1) 100%)
+                `
+              }}
+            />
+          )}
+          
+          {/* Content with higher z-index */}
+          <div className="relative z-10">
           {/* Header */}
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-6">
+          <div className="mb-1">
+            <div className="flex items-center justify-between mb-6 relative">
               <h1 className="text-3xl font-bold text-emerald-900">{t('feed.title')}</h1>
+
+              <div className="absolute left-1/2 -translate-x-1/2">
+                <CreatePostButton 
+                  onPostCreated={handlePostCreated}
+                />
+              </div>
+              
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleRefresh}
                 disabled={isLoading}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 ml-auto"
               >
                 <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
                 {t('feed.refresh')}
               </Button>
             </div>
-
-            {/* Feed Type Selector */}
-            <div className="flex gap-2">
-              <Button
-                variant={feedType === 'latest' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFeedType('latest')}
-                disabled={isLoading}
-              >
-                {t('feed.latest')}
-              </Button>
-              <Button
-                variant={feedType === 'popular' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFeedType('popular')}
-                disabled={isLoading}
-                className="flex items-center gap-2"
-              >
-                <TrendingUp className="h-4 w-4" />
-                {t('feed.popular')}
-              </Button>
+            
+            
+            {/* Feed Type Selector and Waste Type Filters */}
+            <div className="flex justify-between items-center gap-4">
+              <div className="flex gap-2">
+                <Button
+                  variant={feedType === 'latest' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setFeedType('latest')}
+                  disabled={isLoading}
+                >
+                  {t('feed.latest')}
+                </Button>
+                <Button
+                  variant={feedType === 'popular' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setFeedType('popular')}
+                  disabled={isLoading}
+                  className="flex items-center gap-2"
+                >
+                  <TrendingUp className="h-4 w-4" />
+                  {t('feed.popular')}
+                </Button>
+              </div>
+              
+              {/* Waste Type Filter Buttons */}
+              <div className="flex gap-2 flex-wrap">
+                {['plastic', 'paper', 'glass', 'metal', 'organic'].map((type) => (
+                  <Button
+                    key={type}
+                    variant={selectedWasteType === type ? 'secondary' : 'outline'}
+                    size="sm"
+                    onClick={() => handleWasteTypeClick(type)}
+                    disabled={isSearching}
+                    className="text-xs"
+                  >
+                    {t(`feed.wasteTypes.${type}`)}
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -202,21 +311,14 @@ export default function FeedPage() {
               <p className="text-red-700 text-sm">{error}</p>
             </div>
           )}
-
-          {/* Create Post Card */}
-          <div className="mb-2">
-            <CreatePostCard 
-              onPostCreated={loadInitialPosts}
-            />
-          </div>
-
-          {/* Search Card */}
-          <div className="mb-2">
+                    {/* Search Card */}
+          <div className="mb-2 pt-4">
             <SearchCard
               onSearch={handleSearch}
               onClear={handleClearSearch}
               isLoading={isSearching}
               isActive={isSearchActive}
+              externalQuery={currentSearchQuery}
             />
           </div>
 
@@ -226,30 +328,45 @@ export default function FeedPage() {
               <p className="text-red-700 text-sm">{searchError}</p>
             </div>
           )}
-
+          {/* Loading Indicator */}
+          {isLoading && (
+            <div className="flex justify-center py-4 mb-4">
+              <Spinner className="h-6 w-6" />
+            </div>
+          )}
           {/* Posts Feed */}
           {isSearchActive ? (
             /* Search Results */
             searchResults.length > 0 ? (
-              <Masonry
-                breakpointCols={{ default: 2, 1024: 1 }}
-                className="flex -ml-6 w-auto"
-                columnClassName="pl-6 bg-clip-padding"
-              >
-                {searchResults.map((post) => (
-                  <div key={post.postId} className="mb-6">
-                    <PostCard
-                      post={post}
-                      onPostUpdate={handlePostUpdate}
-                      onPostDelete={handlePostDelete}
-                      onUsernameClick={handleUsernameClick}
-                    />
-                  </div>
-                ))}
-              </Masonry>
+              <div className="pt-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <Masonry
+                  breakpointCols={{ default: 2, 1024: 1 }}
+                  className="flex -ml-6 w-auto"
+                  columnClassName="pl-6 bg-clip-padding"
+                >
+                  {searchResults.map((post, index) => (
+                    <div 
+                      key={post.postId} 
+                      className="mb-6 opacity-0 translate-y-4 animate-fade-in"
+                      style={{ 
+                        animationDelay: `${index * 50}ms`,
+                        animationFillMode: 'forwards'
+                      }}
+                    >
+                      <PostCard
+                        post={post}
+                        onPostUpdate={handlePostUpdate}
+                        onPostDelete={handlePostDelete}
+                        onUsernameClick={handleUsernameClick}
+                        creatorPhotoUrl={photoMap.get(post.creatorUsername) || null}
+                      />
+                    </div>
+                  ))}
+                </Masonry>
+              </div>
             ) : (
               /* No Search Results */
-              <div className="text-center py-12">
+              <div className="text-center py-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="bg-white/60 backdrop-blur-sm rounded-lg p-8 max-w-md mx-auto border border-white/20">
                   <h3 className="text-lg font-semibold text-emerald-900 mb-2">
                     {t('search.noResults')}
@@ -266,20 +383,28 @@ export default function FeedPage() {
           ) : (
             /* Regular Posts Feed */
             posts.length > 0 ? (
-              <div className="space-y-8">
+              <div key={`normal-posts-${renderKey}`} className="space-y-8">
                 {/* Posts Masonry */}
                 <Masonry
                   breakpointCols={{ default: 2, 1024: 1 }}
                   className="flex -ml-6 w-auto"
                   columnClassName="pl-6 bg-clip-padding"
                 >
-                  {posts.map((post) => (
-                    <div key={post.postId} className="mb-6">
+                  {posts.map((post, index) => (
+                    <div 
+                      key={post.postId} 
+                      className="mb-6 opacity-0 translate-y-4 animate-fade-in"
+                      style={{ 
+                        animationDelay: `${index * 100}ms`,
+                        animationFillMode: 'forwards'
+                      }}
+                    >
                       <PostCard
                         post={post}
                         onPostUpdate={handlePostUpdate}
                         onPostDelete={handlePostDelete}
                         onUsernameClick={handleUsernameClick}
+                        creatorPhotoUrl={photoMap.get(post.creatorUsername) || null}
                       />
                     </div>
                   ))}
@@ -318,7 +443,7 @@ export default function FeedPage() {
               </div>
             ) : (
               /* Empty State */
-              <div className="text-center py-12">
+              <div className="text-center py-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="bg-white/60 backdrop-blur-sm rounded-lg p-8 max-w-md mx-auto border border-white/20">
                   <h3 className="text-lg font-semibold text-emerald-900 mb-2">
                     {t('feed.empty.title')}
@@ -337,6 +462,7 @@ export default function FeedPage() {
               </div>
             )
           )}
+          </div>
         </GlassCard>
       </div>
       {selectedUsername && (

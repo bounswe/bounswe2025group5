@@ -1,6 +1,7 @@
 import wallpaper from '@/assets/background.png';
 import LanguageToggle from '@/components/common/LanguageToggle';
 import Navbar from '@/components/common/navbar';
+import GlassCard from '@/components/ui/glass-card';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
     return (
@@ -16,9 +17,11 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <LanguageToggle />
         </div>
         <main
-          className="min-h-screen pt-28 pb-12 px-4 flex items-center justify-center"
+          className="min-h-screen pt-26 pb-12 px-4 flex items-center justify-center"
         >
-          {children}
+          <GlassCard variant="default" className="mx-auto min-h-[628px] flex items-center justify-center">
+            {children}
+          </GlassCard>
         </main>
       </div>
     );

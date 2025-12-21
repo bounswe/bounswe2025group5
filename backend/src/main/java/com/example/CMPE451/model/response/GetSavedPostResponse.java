@@ -17,4 +17,5 @@ public class GetSavedPostResponse {
     private String photoUrl;
     boolean liked;
     boolean saved;
+    private String profile_picture;
 }

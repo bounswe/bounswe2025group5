@@ -134,7 +134,7 @@ export default function EditProfile({ username, initialBio, initialPhotoUrl, onB
     return (
         <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
             <DialogTrigger asChild>
-                <Button type="button" variant="outline">
+                <Button type="button" variant="secondary">
                     {t('profile.edit')}
                 </Button>
             </DialogTrigger>
@@ -205,7 +205,7 @@ export default function EditProfile({ username, initialBio, initialPhotoUrl, onB
                         </div>
                     </TabsContent>
                     <TabsContent value="password">
-                        <form onSubmit={handleResetSubmit} className="space-y-4">
+                        <form onSubmit={handleResetSubmit} className="space-y-4" aria-label={t('profile.account.password', 'Reset Password')}>
                             <div className="text-sm text-muted-foreground leading-relaxed">
                                 {t('profile.resetPassword.subtitle', 'Set a new password to keep your account secure.')}
                             </div>
@@ -218,6 +218,7 @@ export default function EditProfile({ username, initialBio, initialPhotoUrl, onB
                                     onChange={(e) => setCurrentPassword(e.target.value)}
                                     autoComplete="current-password"
                                     required
+                                    aria-required="true"
                                     className="text-base py-3 px-4"
                                 />
                             </div>
@@ -231,14 +232,15 @@ export default function EditProfile({ username, initialBio, initialPhotoUrl, onB
                                     placeholder={t('profile.resetPassword.placeholder', 'Choose a strong password')}
                                     autoComplete="new-password"
                                     required
-                                    aria-describedby="password-requirements"
+                                    aria-required="true"
+                                    aria-describedby="password-requirements password-strength"
                                     className="text-base py-3 px-4"
                                 />
                                 <p id="password-requirements" className="text-xs text-muted-foreground">
                                     {t('profile.resetPassword.requirements', 'Use at least 8 characters. Mix letters, numbers, and symbols, and avoid common patterns.')}
                                 </p>
                                 {newPassword ? (
-                                    <PasswordStrengthMeter password={newPassword} />
+                                    <PasswordStrengthMeter password={newPassword} id="password-strength" />
                                 ) : (
                                     <div className="h-[34px]" aria-hidden="true" />
                                 )}
@@ -253,16 +255,17 @@ export default function EditProfile({ username, initialBio, initialPhotoUrl, onB
                                     placeholder={t('profile.resetPassword.confirmLabel', 'Confirm new password')}
                                     autoComplete="new-password"
                                     required
+                                    aria-required="true"
                                     className="text-base py-3 px-4"
                                 />
                             </div>
                             {resetError && (
-                                <Alert variant="destructive" className="p-3">
+                                <Alert variant="destructive" className="p-3" role="alert" aria-live="assertive">
                                     <AlertDescription>{resetError}</AlertDescription>
                                 </Alert>
                             )}
                             {resetSuccess && (
-                                <Alert className="p-3">
+                                <Alert className="p-3" role="status" aria-live="polite">
                                     <AlertDescription>{resetSuccess}</AlertDescription>
                                 </Alert>
                             )}

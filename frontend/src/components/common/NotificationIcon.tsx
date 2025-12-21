@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,6 +9,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { NotificationsApi } from '@/lib/api/notifications';
 import { UsersApi } from '@/lib/api/users';
+import { useProfilePhotos } from '@/hooks/useProfilePhotos';
 import NotificationCard from './notification-card';
 import NotificationDetailDialog from './NotificationDetailDialog';
 import type { Notification } from '@/lib/api/schemas/notifications';
@@ -21,10 +22,20 @@ export default function NotificationIcon() {
   const [error, setError] = useState<string | null>(null);
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
   const [showDetailDialog, setShowDetailDialog] = useState(false);
+  const hasInitiallyFetched = useRef(false);
 
   const username = localStorage.getItem('username');
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
+
+  // Get unique actor IDs from all notifications
+  const uniqueActorIds = useMemo(
+    () => Array.from(new Set(notifications.map(n => n.actorId).filter((id): id is string => !!id))),
+    [notifications]
+  );
+
+  // Fetch all profile photos at once
+  const { photoMap } = useProfilePhotos(uniqueActorIds);
 
   // Sort notifications: unread first, then by timestamp (newest first)
   const sortedNotifications = [...notifications].sort((a, b) => {
@@ -117,14 +128,15 @@ export default function NotificationIcon() {
 
   // Fetch notifications on mount (page refresh/login)
   useEffect(() => {
-    if (username) {
+    if (username && !hasInitiallyFetched.current) {
+      hasInitiallyFetched.current = true;
       fetchNotifications(false);
     }
   }, [username]);
 
   // Refresh notifications when popover is opened (background refresh)
   useEffect(() => {
-    if (username && isOpen) {
+    if (username && isOpen && hasInitiallyFetched.current) {
       fetchNotifications(true);
     }
   }, [isOpen]);
@@ -192,6 +204,7 @@ export default function NotificationIcon() {
                   notification={notification}
                   onMarkAsRead={handleMarkAsRead}
                   onNotificationClick={handleNotificationClick}
+                  actorPhotoUrl={notification.actorId ? photoMap.get(notification.actorId) || null : null}
                   className="shadow-sm"
                 />
               ))}

@@ -58,7 +58,7 @@ describe('WasteSummaryCard', () => {
     expect(screen.getByLabelText('5 kg (Total collected)')).toBeInTheDocument();
     expect(screen.getByText('0.08 barrels of oil')).toBeInTheDocument();
     expect(
-      screen.getByText('You logged 5 kg of PLASTIC, saving about 0.08 barrels of oil.')
+      screen.getByText('All users logged 5 kg of PLASTIC, saving about 0.08 barrels of oil.')
     ).toBeInTheDocument();
   });
 
@@ -76,8 +76,7 @@ describe('WasteSummaryCard', () => {
     await user.type(startInput, '2024-01-01');
     await user.clear(endInput);
     await user.type(endInput, '2024-01-03');
-    await user.clear(wasteTypeInput);
-    await user.type(wasteTypeInput, 'METAL');
+    await user.selectOptions(wasteTypeInput, 'METAL');
 
     await user.click(screen.getByRole('button', { name: 'Refresh data' }));
 

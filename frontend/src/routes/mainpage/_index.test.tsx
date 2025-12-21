@@ -1,5 +1,5 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import { describe, expect, it, beforeEach, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { describe, expect, it, beforeEach, vi, beforeAll, afterAll } from 'vitest';
 import MainpageIndex from '@/routes/mainpage/_index';
 import { UsersApi } from '@/lib/api/users';
 import { PostsApi } from '@/lib/api/posts';
@@ -81,7 +81,7 @@ describe('MainpageIndex route', () => {
 
   it('renders challenge and post panels when data loads', async () => {
     mockedListChallenges.mockResolvedValue([
-      { challengeId: 1, userInChallenge: true },
+      { challengeId: 1, userInChallenge: true, status: 'active', title: 'Test Challenge', creatorUsername: 'demo' },
     ] as any);
     mockedListPosts.mockResolvedValue([
       { postId: 7, content: 'hello', creatorUsername: 'demo' },

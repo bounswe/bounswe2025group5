@@ -8,11 +8,12 @@ import { cn } from "@/lib/utils";
 interface PasswordStrengthMeterProps {
   password: string;
   className?: string;
+  id?: string;
 }
 
 const scoreToPercent = (score: 0 | 1 | 2 | 3 | 4) => (score / 4) * 100;
 
-export default function PasswordStrengthMeter({ password, className }: PasswordStrengthMeterProps) {
+export default function PasswordStrengthMeter({ password, className, id }: PasswordStrengthMeterProps) {
   const { t } = useTranslation();
   const { score } = usePasswordStrength(password);
 
@@ -32,13 +33,15 @@ export default function PasswordStrengthMeter({ password, className }: PasswordS
     }
   }, [score]);
 
+  const strengthLabel = t(labelKey);
+
   return (
-    <div className={cn("flex flex-col gap-1", className)}>
+    <div id={id} className={cn("flex flex-col gap-1", className)} role="status" aria-live="polite" aria-label={`${t("common.passwordStrength.label")}: ${strengthLabel}`}>
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>{t("common.passwordStrength.label")}</span>
-        <Badge variant={badgeVariant}>{t(labelKey)}</Badge>
+        <Badge variant={badgeVariant} aria-hidden="true">{strengthLabel}</Badge>
       </div>
-      <Progress value={scoreToPercent(score)} variant={progressVariant} />
+      <Progress value={scoreToPercent(score)} variant={progressVariant} aria-label={`${t("common.passwordStrength.label")} ${Math.round(scoreToPercent(score))}%`} />
     </div>
   );
 }

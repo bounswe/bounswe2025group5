@@ -3,28 +3,53 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ModeratorDashboard } from '@/routes/moderator/_index';
 import { ReportsApi } from '@/lib/api/reports';
+import { FeedbackApi } from '@/lib/api/feedback';
 import { USERNAME_KEY } from '@/lib/api/client';
 import { PostsApi } from '@/lib/api/posts';
 import { CommentsApi } from '@/lib/api/comments';
+import { UsersApi } from '@/lib/api/users';
 
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string, defaultValue?: string, options?: Record<string, unknown>) => {
-      if (defaultValue) {
-        return defaultValue.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, token) =>
-          String(options?.[token] ?? ''),
-        );
-      }
-      return key;
-    },
-  }),
-}));
+vi.mock('react-i18next', () => {
+  const t = (key: string, defaultValue?: string | { defaultValue?: string; [key: string]: unknown }, options?: Record<string, unknown>) => {
+    // Handle object-style parameters (e.g., { defaultValue: 'text', someKey: value })
+    if (typeof defaultValue === 'object' && defaultValue !== null) {
+      const opts = defaultValue as { defaultValue?: string; [key: string]: unknown };
+      const text = opts.defaultValue || key;
+      return text.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, token) =>
+        String(opts[token] ?? ''),
+      );
+    }
+    // Handle string defaultValue with separate options
+    if (typeof defaultValue === 'string') {
+      return defaultValue.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, token) =>
+        String(options?.[token] ?? ''),
+      );
+    }
+    return key;
+  };
+  return {
+    useTranslation: () => ({ t }),
+  };
+});
 
 vi.mock('@/lib/api/reports', () => ({
   ReportsApi: {
     getUnread: vi.fn(),
     markSolved: vi.fn(),
     markDeletion: vi.fn(),
+  },
+}));
+
+vi.mock('@/lib/api/feedback', () => ({
+  FeedbackApi: {
+    getUnseen: vi.fn(),
+    markAsSeen: vi.fn(),
+  },
+}));
+
+vi.mock('@/lib/api/users', () => ({
+  UsersApi: {
+    getProfile: vi.fn(),
   },
 }));
 
@@ -39,6 +64,7 @@ vi.mock('@/lib/api/comments', () => ({
   CommentsApi: {
     remove: vi.fn(),
     getById: vi.fn(),
+    list: vi.fn().mockResolvedValue([]),
   },
 }));
 
@@ -82,17 +108,25 @@ describe('ModeratorDashboard', () => {
 
   it('renders unread reports returned by the API', async () => {
     vi.mocked(ReportsApi.getUnread).mockResolvedValue([sampleReport]);
+    vi.mocked(FeedbackApi.getUnseen).mockResolvedValue([]);
+    vi.mocked(UsersApi.getProfile).mockResolvedValue({
+      username: 'alice',
+      photoUrl: null,
+      biography: '',
+    });
 
     render(<ModeratorDashboard />);
 
     expect(await screen.findByTestId('report-1')).toBeInTheDocument();
     expect(ReportsApi.getUnread).toHaveBeenCalledWith('moderator-user');
+    expect(FeedbackApi.getUnseen).toHaveBeenCalledWith('moderator-user');
     expect(screen.getByText(/alice/)).toBeInTheDocument();
     expect(screen.getByText(/Spam content detected/)).toBeInTheDocument();
   });
 
   it('surfaces backend errors to the moderator', async () => {
     vi.mocked(ReportsApi.getUnread).mockRejectedValue(new Error('boom'));
+    vi.mocked(FeedbackApi.getUnseen).mockResolvedValue([]);
 
     render(<ModeratorDashboard />);
 
@@ -105,10 +139,16 @@ describe('ModeratorDashboard', () => {
     vi.mocked(ReportsApi.getUnread)
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([{ ...sampleReport, id: 2, reporterUsername: 'bob' }]);
+    vi.mocked(FeedbackApi.getUnseen).mockResolvedValue([]);
+    vi.mocked(UsersApi.getProfile).mockResolvedValue({
+      username: 'bob',
+      photoUrl: null,
+      biography: '',
+    });
 
     render(<ModeratorDashboard />);
 
-    await waitFor(() => expect(ReportsApi.getUnread).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(ReportsApi.getUnread).toHaveBeenCalled());
     expect(ReportsApi.getUnread).toHaveBeenCalledWith('moderator-user');
 
     await user.click(screen.getByRole('button', { name: /refresh/i }));
@@ -121,6 +161,12 @@ describe('ModeratorDashboard', () => {
   it('marks reports as solved', async () => {
     const user = userEvent.setup();
     vi.mocked(ReportsApi.getUnread).mockResolvedValue([sampleReport]);
+    vi.mocked(FeedbackApi.getUnseen).mockResolvedValue([]);
+    vi.mocked(UsersApi.getProfile).mockResolvedValue({
+      username: 'alice',
+      photoUrl: null,
+      biography: '',
+    });
     vi.mocked(ReportsApi.markSolved).mockResolvedValue({ success: true, id: 1 });
 
     render(<ModeratorDashboard />);
@@ -136,6 +182,12 @@ describe('ModeratorDashboard', () => {
   it('deletes reported posts when requested', async () => {
     const user = userEvent.setup();
     vi.mocked(ReportsApi.getUnread).mockResolvedValue([sampleReport]);
+    vi.mocked(FeedbackApi.getUnseen).mockResolvedValue([]);
+    vi.mocked(UsersApi.getProfile).mockResolvedValue({
+      username: 'alice',
+      photoUrl: null,
+      biography: '',
+    });
     vi.mocked(PostsApi.remove).mockResolvedValue({} as never);
     vi.mocked(ReportsApi.markDeletion).mockResolvedValue({ success: true, id: 1 });
 
@@ -153,6 +205,12 @@ describe('ModeratorDashboard', () => {
   it('deletes reported comments with the proper API', async () => {
     const user = userEvent.setup();
     vi.mocked(ReportsApi.getUnread).mockResolvedValue([{ ...sampleReport, id: 3, contentType: 'COMMENT', objectId: 99 }]);
+    vi.mocked(FeedbackApi.getUnseen).mockResolvedValue([]);
+    vi.mocked(UsersApi.getProfile).mockResolvedValue({
+      username: 'alice',
+      photoUrl: null,
+      biography: '',
+    });
     vi.mocked(CommentsApi.remove).mockResolvedValue({} as never);
     vi.mocked(ReportsApi.markDeletion).mockResolvedValue({ success: true, id: 3 });
 
@@ -170,6 +228,12 @@ describe('ModeratorDashboard', () => {
   it('opens a dialog to preview reported posts', async () => {
     const user = userEvent.setup();
     vi.mocked(ReportsApi.getUnread).mockResolvedValue([sampleReport]);
+    vi.mocked(FeedbackApi.getUnseen).mockResolvedValue([]);
+    vi.mocked(UsersApi.getProfile).mockResolvedValue({
+      username: 'alice',
+      photoUrl: null,
+      biography: '',
+    });
     vi.mocked(PostsApi.getById).mockResolvedValue(samplePostItem as never);
 
     render(<ModeratorDashboard />);
@@ -178,7 +242,7 @@ describe('ModeratorDashboard', () => {
 
     await user.click(screen.getByRole('button', { name: /view content/i }));
 
-    await waitFor(() => expect(PostsApi.getById).toHaveBeenCalledWith(42));
+    await waitFor(() => expect(PostsApi.getById).toHaveBeenCalledWith(42, 'moderator-user'));
     expect(await screen.findByText(/offending post/)).toBeInTheDocument();
   });
 
@@ -187,6 +251,12 @@ describe('ModeratorDashboard', () => {
     vi.mocked(ReportsApi.getUnread).mockResolvedValue([
       { ...sampleReport, id: 5, contentType: 'COMMENT', objectId: 99 },
     ]);
+    vi.mocked(FeedbackApi.getUnseen).mockResolvedValue([]);
+    vi.mocked(UsersApi.getProfile).mockResolvedValue({
+      username: 'alice',
+      photoUrl: null,
+      biography: '',
+    });
     vi.mocked(CommentsApi.getById).mockResolvedValue(sampleComment as never);
     vi.mocked(PostsApi.getById).mockResolvedValue(samplePostItem as never);
 

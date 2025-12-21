@@ -16,6 +16,7 @@ vi.mock('react-i18next', () => ({
         'goals.navbar': 'Goals',
         'challenge.navbar': 'Challenges',
         'login.signup': 'Sign Up',
+        'login.login': 'Login',
         'navbar.logoAlt': 'WasteLess application logo',
       };
       return translations[key] || fallback || key;
@@ -87,7 +88,6 @@ describe('Navbar', () => {
 
     test('renders public navigation links', () => {
       renderNavbar('/', false);
-      expect(screen.getByRole('button', { name: 'Home' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Feed' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Sign Up' })).toBeInTheDocument();
     });
@@ -141,17 +141,17 @@ describe('Navbar', () => {
 
     test('renders all navigation links including protected routes', () => {
       renderNavbar('/', true);
-      expect(screen.getByRole('button', { name: 'Main Page' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Profile' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Feed' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Goals' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Challenges' })).toBeInTheDocument();
     });
 
-    test('changes Home to Main Page for authenticated users', () => {
-      renderNavbar('/', true);
-      expect(screen.getByRole('button', { name: 'Main Page' })).toBeInTheDocument();
-      expect(screen.queryByRole('button', { name: 'Home' })).not.toBeInTheDocument();
+    test('does not show protected routes for unauthenticated users', () => {
+      renderNavbar('/', false);
+      expect(screen.queryByRole('button', { name: 'Profile' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Goals' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Challenges' })).not.toBeInTheDocument();
     });
 
     test('renders logout button and notification icon', () => {
@@ -186,7 +186,8 @@ describe('Navbar', () => {
     test('applies minimum width for authenticated navbar', () => {
       const { container } = renderNavbar('/', true);
       const nav = container.querySelector('nav');
-      expect(nav).toHaveClass('min-w-[660px]');
+      // Regular authenticated user gets min-w-[60px], moderator would get min-w-[660px]
+      expect(nav).toHaveClass('min-w-[60px]');
     });
   });
 
@@ -220,11 +221,11 @@ describe('Navbar', () => {
   describe('Navigation Behavior', () => {
     test('all navigation buttons have correct hover states', () => {
       renderNavbar('/', false);
-      const homeButton = screen.getByRole('button', { name: 'Home' });
       const feedButton = screen.getByRole('button', { name: 'Feed' });
+      const signUpButton = screen.getByRole('button', { name: 'Sign Up' });
       
-      expect(homeButton).toHaveClass('hover:bg-white/20', 'transition-colors');
       expect(feedButton).toHaveClass('hover:bg-white/20', 'transition-colors');
+      expect(signUpButton).toHaveClass('hover:bg-white/20', 'transition-colors');
     });
 
     test('navigates to sign up page when clicking sign up button', async () => {
@@ -234,8 +235,10 @@ describe('Navbar', () => {
       const signUpButton = screen.getByRole('button', { name: 'Sign Up' });
       await user.click(signUpButton);
       
-      // Navigation would occur in real app
-      expect(signUpButton).toBeInTheDocument();
+      // After navigation to /auth/register, the button changes to Login
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Login' })).toBeInTheDocument();
+      });
     });
   });
 
@@ -285,17 +288,17 @@ describe('Navbar', () => {
     test('renders correctly when window object is undefined during SSR', () => {
       // This is implicitly tested by not using window directly in tests
       renderNavbar('/', false);
-      expect(screen.getByRole('button', { name: 'Home' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Feed' })).toBeInTheDocument();
     });
 
     test('handles navigation to non-existent routes', async () => {
       const user = userEvent.setup();
       renderNavbar('/unknown-route', false);
       
-      const homeButton = screen.getByRole('button', { name: 'Home' });
-      await user.click(homeButton);
+      const feedButton = screen.getByRole('button', { name: 'Feed' });
+      await user.click(feedButton);
       
-      expect(homeButton).toBeInTheDocument();
+      expect(feedButton).toBeInTheDocument();
     });
   });
 });

@@ -15,7 +15,6 @@ export default function Navbar({ className }: NavbarProps) {
   
   const { t } = useTranslation();
   const navRoutes = [
-  { name: t('main.navbar'), path: '/' },
   { name: t('profile.navbar'), path: '/profile' },
   { name: t('feed.navbar'), path: '/feed' },
   { name: t('goals.navbar'), path: '/goals' },
@@ -25,13 +24,6 @@ export default function Navbar({ className }: NavbarProps) {
   const location = useLocation();
   const isAuthed = typeof window !== 'undefined' && !!localStorage.getItem('authToken');
   const isModerator = isAuthed && isModeratorUser();
-  if (isAuthed) {
-    const index = navRoutes.findIndex(r => r.path === '/');
-    if (index !== -1) {
-      navRoutes[index].path = '/mainpage';
-      navRoutes[index].name = t('mainpage.navbar');
-    }
-  }
   if (isModerator && !navRoutes.some(route => route.path === '/moderator')) {
     navRoutes.push({ name: t('moderator.navbar', 'Moderation'), path: '/moderator' });
   }
@@ -40,7 +32,7 @@ export default function Navbar({ className }: NavbarProps) {
   );
 
   return (
-    <nav className={`bg-[#b07f5a]/90 backdrop-blur-sm text-white px-3 py-2 flex items-center gap-2 h-16 rounded-full shadow-lg border border-white/20 max-w-4xl mx-auto ${isAuthed ? 'min-w-[660px]' : ''} ${className || ''}`}>
+    <nav className={`bg-[#b07f5a]/90 backdrop-blur-sm text-white px-3 py-2 flex items-center gap-2 h-16 rounded-full shadow-lg border border-white/20 max-w-4xl mx-auto ${isAuthed ? (isModerator ? 'min-w-[660px]' : 'min-w-[60px]') : ''} ${className || ''}`}>
       {/* Logo and Title */}
       <div className="flex items-center shrink-0">
         <img

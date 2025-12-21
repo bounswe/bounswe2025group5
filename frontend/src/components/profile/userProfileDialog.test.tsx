@@ -35,6 +35,12 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
+vi.mock('@/components/badges/badge-showcase', () => ({
+  BadgeShowcase: ({ username }: { username: string | null }) => (
+    <div data-testid="badge-showcase">{username}</div>
+  ),
+}));
+
 vi.mock('@/components/ui/dialog', () => ({
   Dialog: ({ children }: { children: React.ReactNode }) => <div data-testid="dialog">{children}</div>,
   DialogContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
@@ -133,6 +139,19 @@ describe('UserProfileDialog', () => {
     expect(screen.getByTestId('post-1')).toHaveTextContent('first');
   });
 
+  it('renders badge showcase with the viewed username', () => {
+    render(
+      <UserProfileDialog
+        username="other-user"
+        open
+        onOpenChange={vi.fn()}
+        __testOverrides={{ profile: profileResponse, posts: postItems, isFollowing: false }}
+      />
+    );
+
+    expect(screen.getByTestId('badge-showcase')).toHaveTextContent('other-user');
+  });
+
   it('toggles follow state using follow API', async () => {
     const user = userEvent.setup();
     vi.mocked(FollowApi.followUser).mockResolvedValue({} as never);
@@ -168,4 +187,3 @@ describe('UserProfileDialog', () => {
     expect(screen.getByText('profile.error.loadFailed')).toBeInTheDocument();
   });
 });
-

@@ -100,8 +100,10 @@ export default function GoalsIndex() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {items.map((item) => (
+            {items.map((item, index) => (
               <div key={item.goalId}
+                className="opacity-0 animate-fade-in"
+                style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'forwards' }}
                 onClick={(e) => {
                   const target = e.target as HTMLElement;
                   const action = target.closest('[data-action]')?.getAttribute('data-action');

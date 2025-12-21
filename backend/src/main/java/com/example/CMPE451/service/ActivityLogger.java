@@ -35,7 +35,7 @@ public class ActivityLogger {
                           String actorType, Object actorId,
                           String objectType, Object objectId,
                           String targetType, Object targetId,
-                          String preview) {
+                          String preview, String profile_picture) {
         try {
             Map<String, Object> activity = new LinkedHashMap<>();
             activity.put("@context", "https://www.w3.org/ns/activitystreams");
@@ -88,7 +88,8 @@ public class ActivityLogger {
                         safe(objectType),
                         safe(actorId),
                         safe(objectId),
-                        safe(preview)
+                        safe(preview),
+                        safe(profile_picture)
                 );
             }
 

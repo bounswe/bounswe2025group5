@@ -52,7 +52,7 @@ public class CommentService {
                 "User", user.getUsername(),
                 "Comment", postId,
                 "User", post.getUser().getUsername(),
-                request.getUsername()
+                getFirst255Characters(request.getContent()), user.getProfile().getPhotoUrl()
         );
 
         return convertToResponse(savedComment);
@@ -110,5 +110,18 @@ public class CommentService {
                 comment.getCreatedAt(),
                 comment.getUser().getUsername()
         );
+    }
+    public static String getFirst255Characters(String text) {
+        if (text == null) {
+            return null;
+        }
+
+        int maxLength = 255;
+
+        if (text.length() > maxLength) {
+            return text.substring(0, maxLength);
+        } else {
+            return text;
+        }
     }
 }

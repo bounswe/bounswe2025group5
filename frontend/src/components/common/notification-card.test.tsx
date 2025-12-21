@@ -78,6 +78,66 @@ const mockNotificationFollow: Notification = {
   timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
 };
 
+const mockNotificationWithPreview: Notification = {
+  id: 4,
+  type: 'Like',
+  actorId: 'bob_smith',
+  isRead: false,
+  createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+  objectId: '125',
+  objectType: 'Post',
+  timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+  preview: 'This is a sample post content that was liked by someone',
+};
+
+const mockNotificationWithLongPreview: Notification = {
+  id: 5,
+  type: 'Create',
+  actorId: 'charlie_brown',
+  isRead: false,
+  createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+  objectId: '126',
+  objectType: 'Comment',
+  timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+  preview: 'This is a very long comment content that exceeds the 80 character limit and should be truncated with ellipsis at the end',
+};
+
+const mockNotificationWithChallengeTitle: Notification = {
+  id: 6,
+  type: 'End',
+  actorId: null,
+  isRead: false,
+  createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+  objectId: '127',
+  objectType: 'Challenge',
+  timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+  challengeTitle: 'Recycle 100 Bottles Challenge',
+};
+
+const mockNotificationWithPostMessage: Notification = {
+  id: 7,
+  type: 'Like',
+  actorId: 'david_jones',
+  isRead: false,
+  createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+  objectId: '128',
+  objectType: 'Post',
+  timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+  postMessage: 'Legacy post message field for backward compatibility',
+};
+
+const mockNotificationWithCommentContent: Notification = {
+  id: 8,
+  type: 'Create',
+  actorId: 'emily_davis',
+  isRead: false,
+  createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+  objectId: '129',
+  objectType: 'Comment',
+  timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+  commentContent: 'Legacy comment content field for backward compatibility',
+};
+
 describe('NotificationCard', () => {
   describe('Rendering', () => {
     test('renders notification with actor name', () => {
@@ -93,7 +153,7 @@ describe('NotificationCard', () => {
     test('renders comment notification message', () => {
       render(<NotificationCard notification={mockNotificationComment} />);
       expect(screen.getByText('jane_smith')).toBeInTheDocument();
-      expect(screen.getByText(/commented on your comment/i)).toBeInTheDocument();
+      expect(screen.getByText(/commented on your post/i)).toBeInTheDocument();
     });
 
     test('renders follow notification message', () => {
@@ -380,6 +440,122 @@ describe('NotificationCard', () => {
       
       render(<NotificationCard notification={veryRecentNotification} />);
       expect(screen.getByText(/seconds ago/i)).toBeInTheDocument();
+    });
+  });
+
+  describe('Preview Content', () => {
+    test('displays preview content from preview field', () => {
+      render(<NotificationCard notification={mockNotificationWithPreview} />);
+      expect(screen.getByText(/"This is a sample post content that was liked by someone"/i)).toBeInTheDocument();
+    });
+
+    test('truncates long preview content to 80 characters with ellipsis', () => {
+      render(<NotificationCard notification={mockNotificationWithLongPreview} />);
+      const previewText = screen.getByText((content) => {
+        // Check if text contains the beginning of the preview and ends with ellipsis
+        return content.includes('This is a very long comment content') && content.includes('...');
+      });
+      expect(previewText).toBeInTheDocument();
+      // Verify the text is actually truncated (80 chars + "..." + quotes = 85)
+      expect(previewText.textContent).toHaveLength(85);
+    });
+
+    test('displays challenge title in preview section', () => {
+      render(<NotificationCard notification={mockNotificationWithChallengeTitle} />);
+      expect(screen.getByText('Recycle 100 Bottles Challenge')).toBeInTheDocument();
+    });
+
+    test('falls back to postMessage when preview is not available', () => {
+      render(<NotificationCard notification={mockNotificationWithPostMessage} />);
+      expect(screen.getByText(/"Legacy post message field for backward compatibility"/i)).toBeInTheDocument();
+    });
+
+    test('falls back to commentContent when preview and postMessage are not available', () => {
+      render(<NotificationCard notification={mockNotificationWithCommentContent} />);
+      expect(screen.getByText(/"Legacy comment content field for backward compatibility"/i)).toBeInTheDocument();
+    });
+
+    test('does not display preview section when no preview content is available', () => {
+      render(<NotificationCard notification={mockNotificationLike} />);
+      const { container } = render(<NotificationCard notification={mockNotificationLike} />);
+      const previewSection = container.querySelector('.bg-muted\\/50');
+      expect(previewSection).not.toBeInTheDocument();
+    });
+
+    test('preview section has correct styling', () => {
+      const { container } = render(<NotificationCard notification={mockNotificationWithPreview} />);
+      const previewSection = container.querySelector('.bg-muted\\/50');
+      expect(previewSection).toBeInTheDocument();
+      expect(previewSection).toHaveClass('mt-2', 'p-2', 'rounded-md', 'border', 'border-border/50');
+    });
+
+    test('preview text has italic styling', () => {
+      render(<NotificationCard notification={mockNotificationWithPreview} />);
+      const previewText = screen.getByText(/"This is a sample post content that was liked by someone"/i);
+      expect(previewText).toHaveClass('italic');
+    });
+
+    test('preview text is limited to 2 lines (line-clamp)', () => {
+      render(<NotificationCard notification={mockNotificationWithPreview} />);
+      const previewText = screen.getByText(/"This is a sample post content that was liked by someone"/i);
+      expect(previewText).toHaveClass('line-clamp-2');
+    });
+
+    test('challenge title has primary color styling', () => {
+      render(<NotificationCard notification={mockNotificationWithChallengeTitle} />);
+      const challengeTitle = screen.getByText('Recycle 100 Bottles Challenge');
+      expect(challengeTitle).toHaveClass('text-primary');
+    });
+
+    test('prioritizes preview field over legacy postMessage', () => {
+      const notificationWithBoth: Notification = {
+        ...mockNotificationWithPreview,
+        postMessage: 'This should not be displayed',
+      };
+      render(<NotificationCard notification={notificationWithBoth} />);
+      expect(screen.getByText(/"This is a sample post content that was liked by someone"/i)).toBeInTheDocument();
+      expect(screen.queryByText(/"This should not be displayed"/i)).not.toBeInTheDocument();
+    });
+
+    test('prioritizes preview field over legacy commentContent', () => {
+      const notificationWithBoth: Notification = {
+        ...mockNotificationWithLongPreview,
+        commentContent: 'This should not be displayed',
+      };
+      render(<NotificationCard notification={notificationWithBoth} />);
+      expect(screen.getByText((content) => content.includes('This is a very long comment content'))).toBeInTheDocument();
+      expect(screen.queryByText(/"This should not be displayed"/i)).not.toBeInTheDocument();
+    });
+
+    test('handles empty preview string', () => {
+      const notificationWithEmptyPreview: Notification = {
+        ...mockNotificationWithPreview,
+        preview: '',
+      };
+      const { container } = render(<NotificationCard notification={notificationWithEmptyPreview} />);
+      const previewSection = container.querySelector('.bg-muted\\/50');
+      expect(previewSection).not.toBeInTheDocument();
+    });
+
+    test('displays both preview and challenge title when available', () => {
+      const notificationWithBoth: Notification = {
+        ...mockNotificationWithPreview,
+        challengeTitle: 'Test Challenge',
+      };
+      render(<NotificationCard notification={notificationWithBoth} />);
+      expect(screen.getByText(/"This is a sample post content that was liked by someone"/i)).toBeInTheDocument();
+      expect(screen.getByText('Test Challenge')).toBeInTheDocument();
+    });
+
+    test('preview section appears between message and timestamp', () => {
+      const { container } = render(<NotificationCard notification={mockNotificationWithPreview} />);
+      const card = container.firstChild as HTMLElement;
+      const content = card.textContent || '';
+      
+      // Check order: actor name -> message -> preview content -> timestamp
+      expect(content.indexOf('bob_smith')).toBeLessThan(content.indexOf('liked your post'));
+      expect(content.indexOf('liked your post')).toBeLessThan(content.indexOf('This is a sample post content'));
+      expect(content.indexOf('This is a sample post content')).toBeLessThan(content.indexOf('hours ago'));
     });
   });
 });
