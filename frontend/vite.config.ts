@@ -51,6 +51,13 @@ export default defineConfig({
       reporter: ["text", "lcov"],
       reportsDirectory: "coverage",
     },
+    reporters: [
+      "default",
+      [
+        "junit",
+        { outputFile: "reports/frontend/unit/vitest-junit.xml" },
+      ],
+    ],
   },
 });
 

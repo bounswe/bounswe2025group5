@@ -1,0 +1,3214 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="322" failures="21" errors="0" time="55.3730936">
+    <testsuite name="e2e/auth.spec.ts" timestamp="2025-12-21T12:20:45.205Z" hostname="DESKTOP-6U7IB5P" tests="1" failures="1" errors="0" skipped="0" time="0">
+        <testcase classname="e2e/auth.spec.ts" name="e2e/auth.spec.ts" time="0">
+            <failure message="Playwright Test did not expect test() to be called here.
+Most common reasons include:
+- You are calling test() in a configuration file.
+- You are calling test() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test." type="Error">
+Error: Playwright Test did not expect test() to be called here.
+Most common reasons include:
+- You are calling test() in a configuration file.
+- You are calling test() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.
+ ❯ TestTypeImpl._currentSuite node_modules/playwright/lib/common/testType.js:75:13
+ ❯ TestTypeImpl._createTest node_modules/playwright/lib/common/testType.js:88:24
+ ❯ node_modules/playwright/lib/transform/transform.js:275:12
+ ❯ e2e/auth.spec.ts:3:1
+            </failure>
+        </testcase>
+    </testsuite>
+    <testsuite name="e2e/challenges-attend.spec.ts" timestamp="2025-12-21T12:20:45.208Z" hostname="DESKTOP-6U7IB5P" tests="1" failures="1" errors="0" skipped="0" time="0">
+        <testcase classname="e2e/challenges-attend.spec.ts" name="e2e/challenges-attend.spec.ts" time="0">
+            <failure message="Playwright Test did not expect test.describe() to be called here.
+Most common reasons include:
+- You are calling test.describe() in a configuration file.
+- You are calling test.describe() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test." type="Error">
+Error: Playwright Test did not expect test.describe() to be called here.
+Most common reasons include:
+- You are calling test.describe() in a configuration file.
+- You are calling test.describe() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.
+ ❯ TestTypeImpl._currentSuite node_modules/playwright/lib/common/testType.js:75:13
+ ❯ TestTypeImpl._describe node_modules/playwright/lib/common/testType.js:115:24
+ ❯ Function.describe node_modules/playwright/lib/transform/transform.js:275:12
+ ❯ e2e/challenges-attend.spec.ts:7:6
+            </failure>
+        </testcase>
+    </testsuite>
+    <testsuite name="e2e/goals-create.spec.ts" timestamp="2025-12-21T12:20:45.210Z" hostname="DESKTOP-6U7IB5P" tests="1" failures="1" errors="0" skipped="0" time="0">
+        <testcase classname="e2e/goals-create.spec.ts" name="e2e/goals-create.spec.ts" time="0">
+            <failure message="Playwright Test did not expect test.describe() to be called here.
+Most common reasons include:
+- You are calling test.describe() in a configuration file.
+- You are calling test.describe() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test." type="Error">
+Error: Playwright Test did not expect test.describe() to be called here.
+Most common reasons include:
+- You are calling test.describe() in a configuration file.
+- You are calling test.describe() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.
+ ❯ TestTypeImpl._currentSuite node_modules/playwright/lib/common/testType.js:75:13
+ ❯ TestTypeImpl._describe node_modules/playwright/lib/common/testType.js:115:24
+ ❯ Function.describe node_modules/playwright/lib/transform/transform.js:275:12
+ ❯ e2e/goals-create.spec.ts:9:6
+            </failure>
+        </testcase>
+    </testsuite>
+    <testsuite name="e2e/home.spec.ts" timestamp="2025-12-21T12:20:45.212Z" hostname="DESKTOP-6U7IB5P" tests="1" failures="1" errors="0" skipped="0" time="0">
+        <testcase classname="e2e/home.spec.ts" name="e2e/home.spec.ts" time="0">
+            <failure message="Playwright Test did not expect test() to be called here.
+Most common reasons include:
+- You are calling test() in a configuration file.
+- You are calling test() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test." type="Error">
+Error: Playwright Test did not expect test() to be called here.
+Most common reasons include:
+- You are calling test() in a configuration file.
+- You are calling test() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.
+ ❯ TestTypeImpl._currentSuite node_modules/playwright/lib/common/testType.js:75:13
+ ❯ TestTypeImpl._createTest node_modules/playwright/lib/common/testType.js:88:24
+ ❯ node_modules/playwright/lib/transform/transform.js:275:12
+ ❯ e2e/home.spec.ts:3:1
+            </failure>
+        </testcase>
+    </testsuite>
+    <testsuite name="e2e/language.spec.ts" timestamp="2025-12-21T12:20:45.213Z" hostname="DESKTOP-6U7IB5P" tests="1" failures="1" errors="0" skipped="0" time="0">
+        <testcase classname="e2e/language.spec.ts" name="e2e/language.spec.ts" time="0">
+            <failure message="Playwright Test did not expect test() to be called here.
+Most common reasons include:
+- You are calling test() in a configuration file.
+- You are calling test() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test." type="Error">
+Error: Playwright Test did not expect test() to be called here.
+Most common reasons include:
+- You are calling test() in a configuration file.
+- You are calling test() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.
+ ❯ TestTypeImpl._currentSuite node_modules/playwright/lib/common/testType.js:75:13
+ ❯ TestTypeImpl._createTest node_modules/playwright/lib/common/testType.js:88:24
+ ❯ node_modules/playwright/lib/transform/transform.js:275:12
+ ❯ e2e/language.spec.ts:5:1
+            </failure>
+        </testcase>
+    </testsuite>
+    <testsuite name="e2e/login-feed-like.spec.ts" timestamp="2025-12-21T12:20:45.213Z" hostname="DESKTOP-6U7IB5P" tests="1" failures="1" errors="0" skipped="0" time="0">
+        <testcase classname="e2e/login-feed-like.spec.ts" name="e2e/login-feed-like.spec.ts" time="0">
+            <failure message="Playwright Test did not expect test.describe() to be called here.
+Most common reasons include:
+- You are calling test.describe() in a configuration file.
+- You are calling test.describe() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test." type="Error">
+Error: Playwright Test did not expect test.describe() to be called here.
+Most common reasons include:
+- You are calling test.describe() in a configuration file.
+- You are calling test.describe() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.
+ ❯ TestTypeImpl._currentSuite node_modules/playwright/lib/common/testType.js:75:13
+ ❯ TestTypeImpl._describe node_modules/playwright/lib/common/testType.js:115:24
+ ❯ Function.describe node_modules/playwright/lib/transform/transform.js:275:12
+ ❯ e2e/login-feed-like.spec.ts:6:6
+            </failure>
+        </testcase>
+    </testsuite>
+    <testsuite name="e2e/protected-pages.spec.ts" timestamp="2025-12-21T12:20:45.214Z" hostname="DESKTOP-6U7IB5P" tests="1" failures="1" errors="0" skipped="0" time="0">
+        <testcase classname="e2e/protected-pages.spec.ts" name="e2e/protected-pages.spec.ts" time="0">
+            <failure message="Playwright Test did not expect test.describe() to be called here.
+Most common reasons include:
+- You are calling test.describe() in a configuration file.
+- You are calling test.describe() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test." type="Error">
+Error: Playwright Test did not expect test.describe() to be called here.
+Most common reasons include:
+- You are calling test.describe() in a configuration file.
+- You are calling test.describe() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.
+ ❯ TestTypeImpl._currentSuite node_modules/playwright/lib/common/testType.js:75:13
+ ❯ TestTypeImpl._describe node_modules/playwright/lib/common/testType.js:115:24
+ ❯ Function.describe node_modules/playwright/lib/transform/transform.js:275:12
+ ❯ e2e/protected-pages.spec.ts:7:6
+            </failure>
+        </testcase>
+    </testsuite>
+    <testsuite name="src/services/LayoutResolver.test.tsx" timestamp="2025-12-21T12:20:45.216Z" hostname="DESKTOP-6U7IB5P" tests="4" failures="0" errors="0" skipped="0" time="0.0522393">
+        <testcase classname="src/services/LayoutResolver.test.tsx" name="LayoutResolver &gt; renders matched layout content for known routes" time="0.023198">
+        </testcase>
+        <testcase classname="src/services/LayoutResolver.test.tsx" name="LayoutResolver &gt; wraps protected routes with ProtectedRoute outside dev mode" time="0.0173415">
+            <system-err>
+react-i18next:: useTranslation: You will need to pass in an i18next instance by using initReactI18next { code: [32m&apos;NO_I18NEXT_INSTANCE&apos;[39m }
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/services/LayoutResolver.test.tsx" name="LayoutResolver &gt; does not guard unprotected auth routes even in production" time="0.0026752">
+        </testcase>
+        <testcase classname="src/services/LayoutResolver.test.tsx" name="LayoutResolver &gt; falls back to the root layout when no deeper layout matches" time="0.0060212">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/routes/_index.test.tsx" timestamp="2025-12-21T12:20:45.217Z" hostname="DESKTOP-6U7IB5P" tests="2" failures="0" errors="0" skipped="0" time="0.2467152">
+        <testcase classname="src/routes/_index.test.tsx" name="Landing Index Route &gt; redirects authenticated users to the main page" time="0.0371144">
+        </testcase>
+        <testcase classname="src/routes/_index.test.tsx" name="Landing Index Route &gt; navigates to login when login button is clicked" time="0.2069256">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/challenges/challengeCard.test.tsx" timestamp="2025-12-21T12:20:45.217Z" hostname="DESKTOP-6U7IB5P" tests="30" failures="0" errors="0" skipped="0" time="7.5278541">
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Rendering &gt; renders challenge name and description" time="0.1992899">
+            <system-err>
+An update to ChallengeCard inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to ChallengeCard inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Rendering &gt; renders challenge details when accordion is expanded" time="0.1585845">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Rendering &gt; displays progress visualization with correct percentage" time="0.027511">
+            <system-err>
+An update to ChallengeCard inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to ChallengeCard inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Rendering &gt; displays progress bar with correct values when expanded" time="0.0907705">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Rendering &gt; renders without amount when amount is null" time="0.0216928">
+            <system-err>
+An update to ChallengeCard inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to ChallengeCard inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Attend Challenge &gt; shows attend button when user is not in challenge" time="0.1628997">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Attend Challenge &gt; calls API and updates state when attend button is clicked" time="0.1513152">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Attend Challenge &gt; shows attending... text while request is pending" time="0.1465772">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Attend Challenge &gt; shows alert when attend fails" time="0.1280231">
+            <system-err>
+Error: Network error
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/components/challenges/challengeCard.test.tsx:197:57
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:145:11
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:915:26
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1240:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithTimeout [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1206:10[90m)[39m
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:37
+    at Traces.$ [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/traces.U4xDYhzZ.js:115:27[90m)[39m
+    at trace [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/test.BT8LKgU9.js:239:21[90m)[39m
+    at runTest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:12[90m)[39m
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Attend Challenge &gt; disables buttons while attending" time="0.2217159">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Leave Challenge &gt; shows leave button when user is in challenge" time="0.1115628">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Leave Challenge &gt; calls API and updates state when leave button is clicked" time="0.2740601">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Leave Challenge &gt; shows leaving... text while request is pending" time="0.1971556">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Leave Challenge &gt; shows alert when leave fails" time="0.1640121">
+            <system-err>
+Error: Network error
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/components/challenges/challengeCard.test.tsx:295:56
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:145:11
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:915:26
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1240:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithTimeout [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1206:10[90m)[39m
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:37
+    at Traces.$ [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/traces.U4xDYhzZ.js:115:27[90m)[39m
+    at trace [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/test.BT8LKgU9.js:239:21[90m)[39m
+    at runTest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:12[90m)[39m
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Log Progress &gt; opens popover when log button is clicked" time="0.2311554">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Log Progress &gt; shows alert when submitting empty amount" time="0.570598">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Log Progress &gt; logs progress with valid amount" time="0.6569284">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Log Progress &gt; logs progress with custom amount" time="0.563949">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Log Progress &gt; updates current amount after successful log" time="0.4729121">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Log Progress &gt; shows logging... text while request is pending" time="0.4152216">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Log Progress &gt; shows alert when log fails" time="0.3687749">
+            <system-err>
+Error: Network error
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/components/challenges/challengeCard.test.tsx:483:71
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:145:11
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:915:26
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1240:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithTimeout [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1206:10[90m)[39m
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:37
+    at Traces.$ [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/traces.U4xDYhzZ.js:115:27[90m)[39m
+    at trace [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/test.BT8LKgU9.js:239:21[90m)[39m
+    at runTest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:12[90m)[39m
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Log Progress &gt; prevents negative and zero amounts via submit validation" time="0.8990959">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Log Progress &gt; disables buttons while logging" time="0.4029067">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Log Progress &gt; combobox label reflects the selected waste item" time="0.2505319">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Log Progress &gt; allows searching and selecting a waste item" time="0.4181237">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Leaderboard &gt; renders leaderboard component" time="0.0785724">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Edge Cases &gt; handles challenge without description" time="0.0477428">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Edge Cases &gt; handles missing username in localStorage" time="0.0773396">
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Edge Cases &gt; handles zero progress correctly" time="0.0082691">
+            <system-err>
+An update to ChallengeCard inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to ChallengeCard inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/challengeCard.test.tsx" name="ChallengeCard &gt; Edge Cases &gt; handles challenge with zero amount" time="0.0066581">
+            <system-err>
+An update to ChallengeCard inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to ChallengeCard inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+            </system-err>
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/challenges/createChallenge.test.tsx" timestamp="2025-12-21T12:20:45.224Z" hostname="DESKTOP-6U7IB5P" tests="20" failures="0" errors="0" skipped="0" time="23.0620899">
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Rendering &gt; renders create challenge button" time="0.312555">
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Rendering &gt; opens dialog when button is clicked" time="0.2704609">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Rendering &gt; renders all form fields when dialog is open" time="0.1770189">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Rendering &gt; lists all configured waste types in the select" time="0.4541643">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Form Validation &gt; shows error when required fields are missing" time="0.1606772">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Form Validation &gt; shows error when amount is not a number" time="2.2231876">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Form Validation &gt; shows error when amount is zero" time="1.5128842">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Form Validation &gt; shows error when amount is negative" time="1.3721347">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Form Validation &gt; shows error when end date is before start date" time="1.4092217">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Form Validation &gt; shows error when start date equals end date" time="1.5074797">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Successful Submission &gt; creates challenge with valid data" time="1.6153332">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Successful Submission &gt; shows success message after creating challenge" time="1.4104006">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Successful Submission &gt; clears form fields after successful submission" time="1.5061108">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Error Handling &gt; shows error message when API call fails" time="1.4407944">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Error Handling &gt; shows generic error message when error is not an Error instance" time="1.4459867">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Error Handling &gt; clears previous error when submitting again" time="1.3264382">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Loading State &gt; shows spinner while submitting" time="1.4836283">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Loading State &gt; disables submit button while loading" time="1.4872122">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Form Input Handling &gt; updates form fields correctly" time="0.8488948">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/createChallenge.test.tsx" name="CreateChallenge &gt; Form Input Handling &gt; handles amount input with decimal numbers" time="1.0932865">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/challenges/Leaderboard.test.tsx" timestamp="2025-12-21T12:20:45.231Z" hostname="DESKTOP-6U7IB5P" tests="24" failures="0" errors="0" skipped="0" time="2.0852286">
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Rendering &gt; renders leaderboard button" time="0.1333249">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Rendering &gt; opens dialog when button is clicked" time="0.1731781">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Rendering &gt; stops event propagation when button is clicked" time="0.1894238">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Data Fetching &gt; fetches leaderboard data on mount" time="0.0053021">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Data Fetching &gt; refetches data when challengeId changes" time="0.0120541">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Data Fetching &gt; handles API errors gracefully" time="0.107627">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Loading State &gt; shows spinner while loading" time="0.1838285">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Loading State &gt; hides spinner after data is loaded" time="0.1369621">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Loading State &gt; hides spinner after error" time="0.0820534">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Leaderboard Display &gt; displays leaderboard entries with correct ranking" time="0.0939545">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Leaderboard Display &gt; displays username for each entry" time="0.0594087">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Leaderboard Display &gt; displays log amount for each entry" time="0.0629205">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Leaderboard Display &gt; displays entries in correct order" time="0.0683917">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Leaderboard Display &gt; shows empty state when no entries" time="0.1121031">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Leaderboard Display &gt; handles null logAmount values" time="0.1080619">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Leaderboard Display &gt; handles undefined logAmount values" time="0.1031255">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Leaderboard Display &gt; displays large number of entries with scrolling" time="0.0925845">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Dialog Behavior &gt; displays dialog title" time="0.0866194">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Dialog Behavior &gt; fetches data immediately on mount, not when dialog opens" time="0.0034286">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Edge Cases &gt; handles single entry leaderboard" time="0.0992007">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Edge Cases &gt; handles entries with zero log amount" time="0.0778615">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Edge Cases &gt; handles entries with very large log amounts" time="0.073055">
+            <system-err>
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Edge Cases &gt; handles challengeId of 0" time="0.0032878">
+        </testcase>
+        <testcase classname="src/components/challenges/Leaderboard.test.tsx" name="Leaderboard &gt; Edge Cases &gt; handles negative challengeId" time="0.0117023">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/challenges/RecyclingProgressVisualization.test.tsx" timestamp="2025-12-21T12:20:45.238Z" hostname="DESKTOP-6U7IB5P" tests="22" failures="0" errors="0" skipped="0" time="0.1619137">
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Rendering &gt; renders with default props" time="0.0910878">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Rendering &gt; renders with custom width and height" time="0.014953">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Rendering &gt; renders with custom className" time="0.0079768">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Rendering &gt; renders all images" time="0.0024898">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Progress Clamping &gt; clamps negative progress to 0" time="0.0028797">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Progress Clamping &gt; clamps progress over 100 to 100" time="0.0015886">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Progress Clamping &gt; handles valid progress values" time="0.0023634">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Progress Indicator &gt; shows progress indicator for mid-range values" time="0.0023087">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Progress Indicator &gt; hides progress indicator at 0%" time="0.0021665">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Progress Indicator &gt; hides progress indicator at 100%" time="0.0019178">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Progress Indicator &gt; shows indicator at 1%" time="0.0013403">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Progress Indicator &gt; shows indicator at 99%" time="0.0012036">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Progress Display &gt; displays correct percentage text" time="0.0012772">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Progress Display &gt; applies correct clipPath style to clean image" time="0.0055617">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Progress Display &gt; rounds decimal progress values" time="0.0017174">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Accessibility &gt; has correct ARIA role" time="0.0085249">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Accessibility &gt; has ARIA label with progress value" time="0.0015084">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Accessibility &gt; images have aria-hidden attribute" time="0.001394">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Edge Cases &gt; handles 0% progress" time="0.0013017">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Edge Cases &gt; handles 100% progress" time="0.0015206">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Edge Cases &gt; handles very large numbers" time="0.0013186">
+        </testcase>
+        <testcase classname="src/components/challenges/RecyclingProgressVisualization.test.tsx" name="RecyclingProgressVisualization &gt; Edge Cases &gt; handles decimal progress values" time="0.0019226">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/common/LanguageToggle.test.tsx" timestamp="2025-12-21T12:20:45.242Z" hostname="DESKTOP-6U7IB5P" tests="4" failures="0" errors="0" skipped="0" time="0.2143404">
+        <testcase classname="src/components/common/LanguageToggle.test.tsx" name="LanguageToggle &gt; renders with correct flag for Turkish language" time="0.110931">
+        </testcase>
+        <testcase classname="src/components/common/LanguageToggle.test.tsx" name="LanguageToggle &gt; renders with correct flag for English language" time="0.0030544">
+        </testcase>
+        <testcase classname="src/components/common/LanguageToggle.test.tsx" name="LanguageToggle &gt; toggles language from Turkish to English" time="0.0516432">
+        </testcase>
+        <testcase classname="src/components/common/LanguageToggle.test.tsx" name="LanguageToggle &gt; toggles language from English to Turkish" time="0.0461079">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/common/navbar.test.tsx" timestamp="2025-12-21T12:20:45.243Z" hostname="DESKTOP-6U7IB5P" tests="27" failures="1" errors="0" skipped="0" time="0.6274046">
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Unauthenticated State &gt; renders logo with correct alt text" time="0.0387857">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Unauthenticated State &gt; renders public navigation links" time="0.1552084">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Unauthenticated State &gt; does not render protected navigation links" time="0.0298634">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Unauthenticated State &gt; does not render logout button and notification icon" time="0.0039488">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Unauthenticated State &gt; highlights active route" time="0.0202531">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Unauthenticated State &gt; navigates when clicking navigation links" time="0.0530556">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Unauthenticated State &gt; shows sign up button for unauthenticated users" time="0.0158759">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Authenticated State &gt; renders logo with correct alt text" time="0.0036493">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Authenticated State &gt; renders all navigation links including protected routes" time="0.0608746">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Authenticated State &gt; changes Home to Main Page for authenticated users" time="0.0255425">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Authenticated State &gt; renders logout button and notification icon" time="0.0031264">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Authenticated State &gt; does not render sign up button" time="0.0208777">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Authenticated State &gt; highlights active route for authenticated users" time="0.0131494">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Authenticated State &gt; navigates when clicking navigation links" time="0.0554655">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Authenticated State &gt; applies minimum width for authenticated navbar" time="0.0029009">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Custom Styling &gt; applies custom className when provided" time="0.0023794">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Custom Styling &gt; applies default styling classes" time="0.0021513">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Navigation Behavior &gt; all navigation buttons have correct hover states" time="0.0164143">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Navigation Behavior &gt; navigates to sign up page when clicking sign up button" time="0.035448">
+            <failure message="[2mexpect([22m[31melement[39m[2m).toBeInTheDocument()[22m
+
+[31melement could not be found in the document[39m" type="Error">
+Error: expect(element).toBeInTheDocument()
+
+element could not be found in the document
+ ❯ src/components/common/navbar.test.tsx:238:28
+            </failure>
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Responsive Design &gt; contains responsive padding and height classes" time="0.0017986">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Responsive Design &gt; has centered max-width container" time="0.0014022">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Accessibility &gt; navigation has correct semantic element" time="0.0020364">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Accessibility &gt; logo has accessible alt text" time="0.0014758">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Accessibility &gt; all navigation items are buttons with accessible names" time="0.0166271">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Edge Cases &gt; handles missing authToken gracefully" time="0.0092043">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Edge Cases &gt; renders correctly when window object is undefined during SSR" time="0.0110193">
+        </testcase>
+        <testcase classname="src/components/common/navbar.test.tsx" name="Navbar &gt; Edge Cases &gt; handles navigation to non-existent routes" time="0.0207991">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/common/notification-card.test.tsx" timestamp="2025-12-21T12:20:45.248Z" hostname="DESKTOP-6U7IB5P" tests="33" failures="1" errors="0" skipped="0" time="0.9320699">
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Rendering &gt; renders notification with actor name" time="0.0552253">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Rendering &gt; renders like notification message" time="0.0108662">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Rendering &gt; renders comment notification message" time="0.0143556">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+            <failure message="Unable to find an element with the text: /commented on your comment/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m&lt;body&gt;[39m
+  [36m&lt;div&gt;[39m
+    [36m&lt;div[39m
+      [33maria-label[39m=[32m&quot;jane_smith commented on your post. 1 days ago. &quot;[39m
+      [33mclass[39m=[32m&quot;cursor-pointer transition-all hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset py-2&quot;[39m
+      [33mrole[39m=[32m&quot;button&quot;[39m
+      [33mtabindex[39m=[32m&quot;0&quot;[39m
+    [36m&gt;[39m
+      [36m&lt;div[39m
+        [33mclass[39m=[32m&quot;p-3 py-2 relative&quot;[39m
+      [36m&gt;[39m
+        [36m&lt;div[39m
+          [33mclass[39m=[32m&quot;flex items-start gap-2&quot;[39m
+        [36m&gt;[39m
+          [36m&lt;div&gt;[39m
+            [36m&lt;img[39m
+              [33malt[39m=[32m&quot;jane_smith&quot;[39m
+              [33msrc[39m=[32m&quot;user-avatar.png&quot;[39m
+            [36m/&gt;[39m
+            [36m&lt;span&gt;[39m
+              [0mJ[0m
+            [36m&lt;/span&gt;[39m
+          [36m&lt;/div&gt;[39m
+          [36m&lt;div[39m
+            [33mclass[39m=[32m&quot;flex-1 min-w-0&quot;[39m
+          [36m&gt;[39m
+            [36m&lt;p[39m
+              [33mclass[39m=[32m&quot;text-sm leading-tight&quot;[39m
+            [36m&gt;[39m
+              [36m&lt;span[39m
+                [33mclass[39m=[32m&quot;font-semibold&quot;[39m
+              [36m&gt;[39m
+                [0mjane_smith[0m
+              [36m&lt;/span&gt;[39m
+              [0m [0m
+              [36m&lt;span[39m
+                [33mclass[39m=[32m&quot;&quot;[39m
+              [36m&gt;[39m
+                [0mcommented on your post[0m
+              [36m&lt;/span&gt;[39m
+            [36m&lt;/p&gt;[39m
+            [36m&lt;div[39m
+              [33mclass[39m=[32m&quot;flex items-center justify-between mt-0.5&quot;[39m
+            [36m&gt;[39m
+              [36m&lt;p[39m
+                [33mclass[39m=[32m&quot;text-[10px] text-muted-foreground&quot;[39m
+              [36m&gt;[39m
+                [0m1 days ago[0m
+              [36m&lt;/p&gt;[39m
+              [36m&lt;div[39m
+                [33mclass[39m=[32m&quot;flex items-center gap-1&quot;[39m
+              [36m&gt;[39m
+                [36m&lt;svg[39m
+                  [33maria-hidden[39m=[32m&quot;true&quot;[39m
+                  [33mclass[39m=[32m&quot;lucide lucide-message-circle h-3.5 w-3.5 text-blue-500&quot;[39m
+                  [33mfill[39m=[32m&quot;none&quot;[39m
+                  [33mheight[39m=[32m&quot;24&quot;[39m
+                  [33mstroke[39m=[32m&quot;currentColor&quot;[39m
+                  [33mstroke-linecap[39m=[32m&quot;round&quot;[39m
+                  [33mstroke-linejoin[39m=[32m&quot;round&quot;[39m
+                  [33mstroke-width[39m=[32m&quot;2&quot;[39m
+                  [33mviewBox[39m=[32m&quot;0 0 24 24&quot;[39m
+                  [33mwidth[39m=[32m&quot;24&quot;[39m
+                  [33mxmlns[39m=[32m&quot;http://www.w3.org/2000/svg&quot;[39m
+                [36m&gt;[39m
+                  [36m&lt;path[39m
+                    [33md[39m=[32m&quot;M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719&quot;[39m
+                  [36m/&gt;[39m
+                [36m&lt;/svg&gt;[39m
+              [36m&lt;/div&gt;[39m
+            [36m&lt;/div&gt;[39m
+          [36m&lt;/div&gt;[39m
+        [36m&lt;/div&gt;[39m
+      [36m&lt;/div&gt;[39m
+    [36m&lt;/div&gt;[39m
+  [36m&lt;/div&gt;[39m
+[36m&lt;/body&gt;[39m" type="TestingLibraryElementError">
+TestingLibraryElementError: Unable to find an element with the text: /commented on your comment/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+&lt;body&gt;
+  &lt;div&gt;
+    &lt;div
+      aria-label=&quot;jane_smith commented on your post. 1 days ago. &quot;
+      class=&quot;cursor-pointer transition-all hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset py-2&quot;
+      role=&quot;button&quot;
+      tabindex=&quot;0&quot;
+    &gt;
+      &lt;div
+        class=&quot;p-3 py-2 relative&quot;
+      &gt;
+        &lt;div
+          class=&quot;flex items-start gap-2&quot;
+        &gt;
+          &lt;div&gt;
+            &lt;img
+              alt=&quot;jane_smith&quot;
+              src=&quot;user-avatar.png&quot;
+            /&gt;
+            &lt;span&gt;
+              J
+            &lt;/span&gt;
+          &lt;/div&gt;
+          &lt;div
+            class=&quot;flex-1 min-w-0&quot;
+          &gt;
+            &lt;p
+              class=&quot;text-sm leading-tight&quot;
+            &gt;
+              &lt;span
+                class=&quot;font-semibold&quot;
+              &gt;
+                jane_smith
+              &lt;/span&gt;
+               
+              &lt;span
+                class=&quot;&quot;
+              &gt;
+                commented on your post
+              &lt;/span&gt;
+            &lt;/p&gt;
+            &lt;div
+              class=&quot;flex items-center justify-between mt-0.5&quot;
+            &gt;
+              &lt;p
+                class=&quot;text-[10px] text-muted-foreground&quot;
+              &gt;
+                1 days ago
+              &lt;/p&gt;
+              &lt;div
+                class=&quot;flex items-center gap-1&quot;
+              &gt;
+                &lt;svg
+                  aria-hidden=&quot;true&quot;
+                  class=&quot;lucide lucide-message-circle h-3.5 w-3.5 text-blue-500&quot;
+                  fill=&quot;none&quot;
+                  height=&quot;24&quot;
+                  stroke=&quot;currentColor&quot;
+                  stroke-linecap=&quot;round&quot;
+                  stroke-linejoin=&quot;round&quot;
+                  stroke-width=&quot;2&quot;
+                  viewBox=&quot;0 0 24 24&quot;
+                  width=&quot;24&quot;
+                  xmlns=&quot;http://www.w3.org/2000/svg&quot;
+                &gt;
+                  &lt;path
+                    d=&quot;M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719&quot;
+                  /&gt;
+                &lt;/svg&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/body&gt;
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/common/notification-card.test.tsx:96:21
+            </failure>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Rendering &gt; renders follow notification message" time="0.0084405">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/jane_smith/profile?username=jane_smith
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Rendering &gt; renders avatar with correct props" time="0.0082127">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/alice_wonder/profile?username=alice_wonder
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Rendering &gt; renders avatar fallback with first letter of username" time="0.0067872">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Time Formatting &gt; displays time in hours for recent notifications" time="0.0232245">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Time Formatting &gt; displays time in days for older notifications" time="0.0093047">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Time Formatting &gt; displays time in minutes for very recent notifications" time="0.0113358">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/jane_smith/profile?username=jane_smith
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Action Icons &gt; displays heart icon for like notifications" time="0.0376518">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/alice_wonder/profile?username=alice_wonder
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Action Icons &gt; displays message icon for comment notifications" time="0.0072186">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Action Icons &gt; displays user-plus icon for follow notifications" time="0.0043486">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/jane_smith/profile?username=jane_smith
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Read/Unread State &gt; displays unread badge for unread notifications" time="0.0260825">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/alice_wonder/profile?username=alice_wonder
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Read/Unread State &gt; does not display unread badge for read notifications" time="0.0133612">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Read/Unread State &gt; applies highlight background for unread notifications" time="0.0093334">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/jane_smith/profile?username=jane_smith
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Read/Unread State &gt; does not apply highlight background for read notifications" time="0.0052402">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Interaction &gt; calls onNotificationClick when card is clicked" time="0.1560478">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/jane_smith/profile?username=jane_smith
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Interaction &gt; calls onMarkAsRead when unread notification is clicked" time="0.0784484">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Interaction &gt; does not call onMarkAsRead when read notification is clicked" time="0.0379376">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/jane_smith/profile?username=jane_smith
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Interaction &gt; handles click when no callbacks provided" time="0.0864787">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Keyboard Interaction &gt; calls handlers when Enter key is pressed" time="0.0239051">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Keyboard Interaction &gt; calls handlers when Space key is pressed" time="0.0351915">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Accessibility &gt; has role button" time="0.0136879">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Accessibility &gt; is keyboard focusable" time="0.0131506">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Accessibility &gt; has descriptive aria-label for unread notifications" time="0.0177514">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Accessibility &gt; has descriptive aria-label for read notifications" time="0.0081668">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Accessibility &gt; includes focus-visible styling" time="0.0035843">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/jane_smith/profile?username=jane_smith
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Custom Styling &gt; applies custom className" time="0.0040234">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Custom Styling &gt; applies default cursor-pointer and hover styles" time="0.0031486">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Edge Cases &gt; handles notification without actorId" time="0.0048012">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Edge Cases &gt; handles notification with unknown type" time="0.0045613">
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Edge Cases &gt; handles notification without objectType" time="0.0063748">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/notification-card.test.tsx" name="NotificationCard &gt; Edge Cases &gt; handles very recent notification (seconds)" time="0.0214559">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/common/NotificationDetailDialog.test.tsx" timestamp="2025-12-21T12:20:45.258Z" hostname="DESKTOP-6U7IB5P" tests="29" failures="1" errors="0" skipped="0" time="2.0282364">
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Dialog Opening and Closing &gt; does not render when open is false" time="0.0360884">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Dialog Opening and Closing &gt; renders when open is true" time="0.1075111">
+            <system-err>
+An update to NotificationDetailDialog inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to NotificationDetailDialog inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Dialog Opening and Closing &gt; does not render when notification is null" time="0.0045466">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Dialog Title &gt; renders title for like notification" time="0.0119476">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/john_doe/profile?username=john_doe
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Dialog Title &gt; renders title for comment notification" time="1.0180908">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/jane_smith/profile?username=jane_smith
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+Error fetching profile for jane_smith: Error: API Error: 403 Forbidden
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:147:11)
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:37:27
+    at async Promise.all (index 0)
+    at fetchPhotos (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:48:7)
+
+Error fetching profile for john_doe: Error: API Error: 403 Forbidden
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:147:11)
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:37:27
+    at async Promise.all (index 0)
+    at fetchPhotos (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:48:7)
+
+Error fetching profile for john_doe: Error: API Error: 403 Forbidden
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:147:11)
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:37:27
+    at async Promise.all (index 0)
+    at fetchPhotos (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:48:7)
+
+Error fetching profile for john_doe: Error: API Error: 403 Forbidden
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:147:11)
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:37:27
+    at async Promise.all (index 0)
+    at fetchPhotos (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:48:7)
+
+            </system-err>
+            <failure message="Unable to find an element with the text: jane_smith. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m&lt;body&gt;[39m
+  [36m&lt;div&gt;[39m
+    [36m&lt;div[39m
+      [33mdata-testid[39m=[32m&quot;dialog&quot;[39m
+    [36m&gt;[39m
+      [36m&lt;div[39m
+        [33mdata-testid[39m=[32m&quot;dialog-content&quot;[39m
+      [36m&gt;[39m
+        [36m&lt;div&gt;[39m
+          [36m&lt;div[39m
+            [33mdata-testid[39m=[32m&quot;dialog-title&quot;[39m
+          [36m&gt;[39m
+            [0mNotification[0m
+          [36m&lt;/div&gt;[39m
+        [36m&lt;/div&gt;[39m
+        [36m&lt;div[39m
+          [33mclass[39m=[32m&quot;mt-4&quot;[39m
+        [36m&gt;[39m
+          [36m&lt;div[39m
+            [33mdata-testid[39m=[32m&quot;post-card&quot;[39m
+          [36m&gt;[39m
+            [36m&lt;div&gt;[39m
+              [0mPost by [0m
+              [0mtestuser[0m
+            [36m&lt;/div&gt;[39m
+            [36m&lt;button&gt;[39m
+              [0mView Profile[0m
+            [36m&lt;/button&gt;[39m
+          [36m&lt;/div&gt;[39m
+        [36m&lt;/div&gt;[39m
+      [36m&lt;/div&gt;[39m
+    [36m&lt;/div&gt;[39m
+  [36m&lt;/div&gt;[39m
+[36m&lt;/body&gt;[39m
+
+Ignored nodes: comments, script, style
+[36m&lt;html&gt;[39m
+  [36m&lt;head /&gt;[39m
+  [36m&lt;body&gt;[39m
+    [36m&lt;div&gt;[39m
+      [36m&lt;div[39m
+        [33mdata-testid[39m=[32m&quot;dialog&quot;[39m
+      [36m&gt;[39m
+        [36m&lt;div[39m
+          [33mdata-testid[39m=[32m&quot;dialog-content&quot;[39m
+        [36m&gt;[39m
+          [36m&lt;div&gt;[39m
+            [36m&lt;div[39m
+              [33mdata-testid[39m=[32m&quot;dialog-title&quot;[39m
+            [36m&gt;[39m
+              [0mNotification[0m
+            [36m&lt;/div&gt;[39m
+          [36m&lt;/div&gt;[39m
+          [36m&lt;div[39m
+            [33mclass[39m=[32m&quot;mt-4&quot;[39m
+          [36m&gt;[39m
+            [36m&lt;div[39m
+              [33mdata-testid[39m=[32m&quot;post-card&quot;[39m
+            [36m&gt;[39m
+              [36m&lt;div&gt;[39m
+                [0mPost by [0m
+                [0mtestuser[0m
+              [36m&lt;/div&gt;[39m
+              [36m&lt;button&gt;[39m
+                [0mView Profile[0m
+              [36m&lt;/button&gt;[39m
+            [36m&lt;/div&gt;[39m
+          [36m&lt;/div&gt;[39m
+        [36m&lt;/div&gt;[39m
+      [36m&lt;/div&gt;[39m
+    [36m&lt;/div&gt;[39m
+  [36m&lt;/body&gt;[39m
+[36m&lt;/html&gt;[39m" type="TestingLibraryElementError">
+TestingLibraryElementError: Unable to find an element with the text: jane_smith. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+&lt;body&gt;
+  &lt;div&gt;
+    &lt;div
+      data-testid=&quot;dialog&quot;
+    &gt;
+      &lt;div
+        data-testid=&quot;dialog-content&quot;
+      &gt;
+        &lt;div&gt;
+          &lt;div
+            data-testid=&quot;dialog-title&quot;
+          &gt;
+            Notification
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div
+          class=&quot;mt-4&quot;
+        &gt;
+          &lt;div
+            data-testid=&quot;post-card&quot;
+          &gt;
+            &lt;div&gt;
+              Post by 
+              testuser
+            &lt;/div&gt;
+            &lt;button&gt;
+              View Profile
+            &lt;/button&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/body&gt;
+
+Ignored nodes: comments, script, style
+&lt;html&gt;
+  &lt;head /&gt;
+  &lt;body&gt;
+    &lt;div&gt;
+      &lt;div
+        data-testid=&quot;dialog&quot;
+      &gt;
+        &lt;div
+          data-testid=&quot;dialog-content&quot;
+        &gt;
+          &lt;div&gt;
+            &lt;div
+              data-testid=&quot;dialog-title&quot;
+            &gt;
+              Notification
+            &lt;/div&gt;
+          &lt;/div&gt;
+          &lt;div
+            class=&quot;mt-4&quot;
+          &gt;
+            &lt;div
+              data-testid=&quot;post-card&quot;
+            &gt;
+              &lt;div&gt;
+                Post by 
+                testuser
+              &lt;/div&gt;
+              &lt;button&gt;
+                View Profile
+              &lt;/button&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+ ❯ Proxy.waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ src/components/common/NotificationDetailDialog.test.tsx:213:13
+            </failure>
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Dialog Title &gt; renders title for follow notification" time="0.0281044">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/alice_wonder/profile?username=alice_wonder
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Dialog Title &gt; renders avatar with actor username" time="0.0132531">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Dialog Title &gt; renders avatar fallback with first letter" time="0.0474926">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Follow Notification Handling &gt; opens profile dialog for follow notifications" time="0.0445252">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/alice_wonder/profile?username=alice_wonder
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Follow Notification Handling &gt; does not open profile dialog if actorId is missing" time="0.0027217">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Post Fetching &gt; fetches post when notification has objectId" time="0.0043387">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Post Fetching &gt; shows loading state while fetching post" time="0.0039367">
+            <system-err>
+An update to NotificationDetailDialog inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to NotificationDetailDialog inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Post Fetching &gt; displays post card after successful fetch" time="0.0170793">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Post Fetching &gt; shows error message when fetch fails" time="0.0309057">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Post Fetching &gt; shows error when post is not found" time="0.0232216">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Comment Notification Handling &gt; fetches post for comment notifications" time="0.0281181">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Username Click Interaction &gt; opens profile dialog when username in title is clicked" time="0.2022336">
+            <system-err>
+Error fetching profile for alice_wonder: Error: API Error: 403 Forbidden
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:147:11)
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:37:27
+    at async Promise.all (index 0)
+    at fetchPhotos (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:48:7)
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Username Click Interaction &gt; opens profile dialog when username in post card is clicked" time="0.1127383">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Username Click Interaction &gt; closes profile dialog when close button is clicked" time="0.146599">
+            <system-err>
+Error fetching profile for alice_wonder: Error: API Error: 403 Forbidden
+    at apiFetch (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/client.ts:147:11)
+[90m    at processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+    at Object.getProfile (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/lib/api/users.ts:25:18)
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:37:27
+    at async Promise.all (index 0)
+    at fetchPhotos (C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/hooks/useProfilePhotos.ts:48:7)
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Username Click Interaction &gt; username button is disabled when actorId is missing" time="0.0148709">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Post Update and Delete &gt; updates post state when post is updated" time="0.0142379">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Post Update and Delete &gt; closes dialog when post is deleted" time="0.0083349">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; State Reset &gt; resets state when dialog is closed" time="0.0068813">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; State Reset &gt; resets state when notification changes" time="0.0110895">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Edge Cases &gt; handles notification without objectId" time="0.0030152">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Edge Cases &gt; handles notification without actorId" time="0.0109801">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Edge Cases &gt; handles missing username in localStorage" time="0.0043059">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Accessibility &gt; username buttons have focus-visible styling" time="0.0209528">
+        </testcase>
+        <testcase classname="src/components/common/NotificationDetailDialog.test.tsx" name="NotificationDetailDialog &gt; Accessibility &gt; username buttons have hover styling when enabled" time="0.0408113">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/common/NotificationIcon.test.tsx" timestamp="2025-12-21T12:20:45.264Z" hostname="DESKTOP-6U7IB5P" tests="23" failures="0" errors="0" skipped="0" time="1.8069392">
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Authentication &gt; does not render when user is not authenticated" time="0.0133709">
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Authentication &gt; renders when user is authenticated" time="0.2079084">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: []
+
+            </system-out>
+            <system-err>
+An update to NotificationIcon inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to NotificationIcon inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Notification Bell &gt; renders bell icon button" time="0.0322984">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: []
+
+            </system-out>
+            <system-err>
+An update to NotificationIcon inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to NotificationIcon inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Notification Bell &gt; does not show unread badge when no unread notifications" time="0.02137">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Create&apos;[39m,
+    actorId: [32m&apos;user2&apos;[39m,
+    isRead: [33mtrue[39m,
+    createdAt: [32m&apos;2025-01-14T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;124&apos;[39m,
+    objectType: [32m&apos;Comment&apos;[39m,
+    timestamp: [32m&apos;2025-01-14T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Notification Bell &gt; shows unread count badge when unread notifications exist" time="0.0138257">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Create&apos;[39m,
+    actorId: [32m&apos;user2&apos;[39m,
+    isRead: [33mtrue[39m,
+    createdAt: [32m&apos;2025-01-14T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;124&apos;[39m,
+    objectType: [32m&apos;Comment&apos;[39m,
+    timestamp: [32m&apos;2025-01-14T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m3[39m,
+    type: [32m&apos;Follow&apos;[39m,
+    actorId: [32m&apos;user3&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-16T10:00:00Z&apos;[39m,
+    objectId: [1mnull[22m,
+    objectType: [1mnull[22m,
+    timestamp: [32m&apos;2025-01-16T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Notification Bell &gt; shows &quot;9+&quot; badge when more than 9 unread notifications" time="0.0339947">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m3[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m4[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m5[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m6[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m7[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m8[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m9[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m10[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m11[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m12[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Fetching Notifications &gt; fetches notifications on mount" time="0.0057901">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Create&apos;[39m,
+    actorId: [32m&apos;user2&apos;[39m,
+    isRead: [33mtrue[39m,
+    createdAt: [32m&apos;2025-01-14T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;124&apos;[39m,
+    objectType: [32m&apos;Comment&apos;[39m,
+    timestamp: [32m&apos;2025-01-14T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m3[39m,
+    type: [32m&apos;Follow&apos;[39m,
+    actorId: [32m&apos;user3&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-16T10:00:00Z&apos;[39m,
+    objectId: [1mnull[22m,
+    objectType: [1mnull[22m,
+    timestamp: [32m&apos;2025-01-16T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Fetching Notifications &gt; does not fetch notifications when username is missing" time="0.0008812">
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Fetching Notifications &gt; shows loading state while fetching" time="0.0812538">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: []
+
+            </system-out>
+            <system-err>
+An update to NotificationIcon inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to NotificationIcon inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Fetching Notifications &gt; shows error message when fetch fails" time="0.157145">
+            <system-out>
+Fetching notifications for username: testuser
+
+            </system-out>
+            <system-err>
+Failed to fetch notifications: Error: Network error
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/components/common/NotificationIcon.test.tsx:227:58
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:145:11
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:915:26
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1240:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithTimeout [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1206:10[90m)[39m
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:37
+    at Traces.$ [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/traces.U4xDYhzZ.js:115:27[90m)[39m
+    at trace [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/test.BT8LKgU9.js:239:21[90m)[39m
+    at runTest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:12[90m)[39m
+Error details: Network error
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Fetching Notifications &gt; fetches notifications on initial render" time="0.0069698">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Create&apos;[39m,
+    actorId: [32m&apos;user2&apos;[39m,
+    isRead: [33mtrue[39m,
+    createdAt: [32m&apos;2025-01-14T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;124&apos;[39m,
+    objectType: [32m&apos;Comment&apos;[39m,
+    timestamp: [32m&apos;2025-01-14T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m3[39m,
+    type: [32m&apos;Follow&apos;[39m,
+    actorId: [32m&apos;user3&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-16T10:00:00Z&apos;[39m,
+    objectId: [1mnull[22m,
+    objectType: [1mnull[22m,
+    timestamp: [32m&apos;2025-01-16T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Popover Interaction &gt; opens popover when bell icon is clicked" time="0.1003603">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Create&apos;[39m,
+    actorId: [32m&apos;user2&apos;[39m,
+    isRead: [33mtrue[39m,
+    createdAt: [32m&apos;2025-01-14T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;124&apos;[39m,
+    objectType: [32m&apos;Comment&apos;[39m,
+    timestamp: [32m&apos;2025-01-14T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m3[39m,
+    type: [32m&apos;Follow&apos;[39m,
+    actorId: [32m&apos;user3&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-16T10:00:00Z&apos;[39m,
+    objectId: [1mnull[22m,
+    objectType: [1mnull[22m,
+    timestamp: [32m&apos;2025-01-16T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Popover Interaction &gt; displays notifications in popover" time="0.0666871">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Create&apos;[39m,
+    actorId: [32m&apos;user2&apos;[39m,
+    isRead: [33mtrue[39m,
+    createdAt: [32m&apos;2025-01-14T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;124&apos;[39m,
+    objectType: [32m&apos;Comment&apos;[39m,
+    timestamp: [32m&apos;2025-01-14T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m3[39m,
+    type: [32m&apos;Follow&apos;[39m,
+    actorId: [32m&apos;user3&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-16T10:00:00Z&apos;[39m,
+    objectId: [1mnull[22m,
+    objectType: [1mnull[22m,
+    timestamp: [32m&apos;2025-01-16T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Popover Interaction &gt; shows empty state when no notifications" time="0.0850265">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: []
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Notification Sorting &gt; sorts notifications with unread first, then by timestamp" time="0.0731381">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Create&apos;[39m,
+    actorId: [32m&apos;user2&apos;[39m,
+    isRead: [33mtrue[39m,
+    createdAt: [32m&apos;2025-01-14T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;124&apos;[39m,
+    objectType: [32m&apos;Comment&apos;[39m,
+    timestamp: [32m&apos;2025-01-14T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m3[39m,
+    type: [32m&apos;Follow&apos;[39m,
+    actorId: [32m&apos;user3&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-16T10:00:00Z&apos;[39m,
+    objectId: [1mnull[22m,
+    objectType: [1mnull[22m,
+    timestamp: [32m&apos;2025-01-16T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Mark as Read &gt; marks notification as read when requested" time="0.117093">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Create&apos;[39m,
+    actorId: [32m&apos;user2&apos;[39m,
+    isRead: [33mtrue[39m,
+    createdAt: [32m&apos;2025-01-14T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;124&apos;[39m,
+    objectType: [32m&apos;Comment&apos;[39m,
+    timestamp: [32m&apos;2025-01-14T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m3[39m,
+    type: [32m&apos;Follow&apos;[39m,
+    actorId: [32m&apos;user3&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-16T10:00:00Z&apos;[39m,
+    objectId: [1mnull[22m,
+    objectType: [1mnull[22m,
+    timestamp: [32m&apos;2025-01-16T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Mark as Read &gt; updates notification state after marking as read" time="0.1127144">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Mark as Read &gt; handles mark as read failure gracefully" time="0.1263285">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Create&apos;[39m,
+    actorId: [32m&apos;user2&apos;[39m,
+    isRead: [33mtrue[39m,
+    createdAt: [32m&apos;2025-01-14T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;124&apos;[39m,
+    objectType: [32m&apos;Comment&apos;[39m,
+    timestamp: [32m&apos;2025-01-14T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m3[39m,
+    type: [32m&apos;Follow&apos;[39m,
+    actorId: [32m&apos;user3&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-16T10:00:00Z&apos;[39m,
+    objectId: [1mnull[22m,
+    objectType: [1mnull[22m,
+    timestamp: [32m&apos;2025-01-16T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Notification Detail Dialog &gt; opens detail dialog when notification is clicked" time="0.1582067">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Create&apos;[39m,
+    actorId: [32m&apos;user2&apos;[39m,
+    isRead: [33mtrue[39m,
+    createdAt: [32m&apos;2025-01-14T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;124&apos;[39m,
+    objectType: [32m&apos;Comment&apos;[39m,
+    timestamp: [32m&apos;2025-01-14T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m3[39m,
+    type: [32m&apos;Follow&apos;[39m,
+    actorId: [32m&apos;user3&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-16T10:00:00Z&apos;[39m,
+    objectId: [1mnull[22m,
+    objectType: [1mnull[22m,
+    timestamp: [32m&apos;2025-01-16T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Notification Detail Dialog &gt; closes popover when notification is clicked" time="0.1145331">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Create&apos;[39m,
+    actorId: [32m&apos;user2&apos;[39m,
+    isRead: [33mtrue[39m,
+    createdAt: [32m&apos;2025-01-14T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;124&apos;[39m,
+    objectType: [32m&apos;Comment&apos;[39m,
+    timestamp: [32m&apos;2025-01-14T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m3[39m,
+    type: [32m&apos;Follow&apos;[39m,
+    actorId: [32m&apos;user3&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-16T10:00:00Z&apos;[39m,
+    objectId: [1mnull[22m,
+    objectType: [1mnull[22m,
+    timestamp: [32m&apos;2025-01-16T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Unread Count Badge &gt; updates unread count when notification is marked as read" time="0.2279669">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: [
+  {
+    id: [33m1[39m,
+    type: [32m&apos;Like&apos;[39m,
+    actorId: [32m&apos;user1&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-15T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;123&apos;[39m,
+    objectType: [32m&apos;Post&apos;[39m,
+    timestamp: [32m&apos;2025-01-15T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m2[39m,
+    type: [32m&apos;Create&apos;[39m,
+    actorId: [32m&apos;user2&apos;[39m,
+    isRead: [33mtrue[39m,
+    createdAt: [32m&apos;2025-01-14T10:00:00Z&apos;[39m,
+    objectId: [32m&apos;124&apos;[39m,
+    objectType: [32m&apos;Comment&apos;[39m,
+    timestamp: [32m&apos;2025-01-14T10:00:00Z&apos;[39m
+  },
+  {
+    id: [33m3[39m,
+    type: [32m&apos;Follow&apos;[39m,
+    actorId: [32m&apos;user3&apos;[39m,
+    isRead: [33mfalse[39m,
+    createdAt: [32m&apos;2025-01-16T10:00:00Z&apos;[39m,
+    objectId: [1mnull[22m,
+    objectType: [1mnull[22m,
+    timestamp: [32m&apos;2025-01-16T10:00:00Z&apos;[39m
+  }
+]
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Accessibility &gt; bell button has accessible label" time="0.0130737">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: []
+
+            </system-out>
+            <system-err>
+An update to NotificationIcon inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to NotificationIcon inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/common/NotificationIcon.test.tsx" name="NotificationIcon &gt; Accessibility &gt; bell button has correct styling classes" time="0.0082169">
+            <system-out>
+Fetching notifications for username: testuser
+
+Notifications received: []
+
+            </system-out>
+            <system-err>
+An update to NotificationIcon inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to NotificationIcon inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() =&gt; {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you&apos;re testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+            </system-err>
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/feedpage/create-post-card.test.tsx" timestamp="2025-12-21T12:20:45.271Z" hostname="DESKTOP-6U7IB5P" tests="12" failures="0" errors="0" skipped="0" time="4.2446704">
+        <testcase classname="src/components/feedpage/create-post-card.test.tsx" name="CreatePostCard &gt; renders create post card with title" time="0.0411248">
+        </testcase>
+        <testcase classname="src/components/feedpage/create-post-card.test.tsx" name="CreatePostCard &gt; opens popover when placeholder is clicked" time="0.371943">
+        </testcase>
+        <testcase classname="src/components/feedpage/create-post-card.test.tsx" name="CreatePostCard &gt; allows typing in content textarea" time="0.8152158">
+        </testcase>
+        <testcase classname="src/components/feedpage/create-post-card.test.tsx" name="CreatePostCard &gt; displays image upload input" time="0.1793752">
+        </testcase>
+        <testcase classname="src/components/feedpage/create-post-card.test.tsx" name="CreatePostCard &gt; submits form with content" time="0.570268">
+        </testcase>
+        <testcase classname="src/components/feedpage/create-post-card.test.tsx" name="CreatePostCard &gt; form has submit button when opened" time="0.2136325">
+        </testcase>
+        <testcase classname="src/components/feedpage/create-post-card.test.tsx" name="CreatePostCard &gt; allows content to be filled" time="0.4859886">
+        </testcase>
+        <testcase classname="src/components/feedpage/create-post-card.test.tsx" name="CreatePostCard &gt; form can be submitted" time="0.5041113">
+        </testcase>
+        <testcase classname="src/components/feedpage/create-post-card.test.tsx" name="CreatePostCard &gt; clears form after successful submission" time="0.6358355">
+        </testcase>
+        <testcase classname="src/components/feedpage/create-post-card.test.tsx" name="CreatePostCard &gt; handles image file selection" time="0.2104573">
+        </testcase>
+        <testcase classname="src/components/feedpage/create-post-card.test.tsx" name="CreatePostCard &gt; form opens in a popover" time="0.120832">
+        </testcase>
+        <testcase classname="src/components/feedpage/create-post-card.test.tsx" name="CreatePostCard &gt; displays kindness reminder when form is opened" time="0.0912622">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/feedpage/post-card.test.tsx" timestamp="2025-12-21T12:20:45.272Z" hostname="DESKTOP-6U7IB5P" tests="14" failures="0" errors="0" skipped="0" time="1.0844276">
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; renders post content correctly" time="0.1818842">
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; displays like count and comment count" time="0.0799009">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/testuser/profile?username=testuser
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; shows filled heart icon when post is liked" time="0.2298982">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/testuser/profile?username=testuser
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; shows filled bookmark icon when post is saved" time="0.077146">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/testuser/profile?username=testuser
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; toggles like when like button is clicked" time="0.1241718">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/testuser/profile?username=testuser
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/testuser/profile?username=testuser
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; toggles save when bookmark button is clicked" time="0.1063702">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/testuser/profile?username=testuser
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; shows edit and delete buttons for own posts" time="0.0887855">
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; hides edit and delete buttons for other users posts" time="0.0638515">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/testuser/profile?username=testuser
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; renders without crashing for own posts" time="0.0150955">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/otheruser/profile?username=otheruser
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; has comment button" time="0.0164769">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/testuser/profile?username=testuser
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; displays post image when photoUrl is provided" time="0.0209981">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/testuser/profile?username=testuser
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; formats date correctly" time="0.0138707">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/testuser/profile?username=testuser
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; accepts onPostDelete callback" time="0.0120875">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/testuser/profile?username=testuser
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/feedpage/post-card.test.tsx" name="PostCard &gt; increments comment count when comment is added" time="0.0268602">
+            <system-err>
+[MSW] Warning: intercepted a request without a matching request handler:
+
+  • GET https://waste-less.alibartukonca.org/api/users/testuser/profile?username=testuser
+
+If you still wish to intercept this unhandled request, please create a request handler for it.
+Read more: https://mswjs.io/docs/http/intercepting-requests
+
+            </system-err>
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/feedpage/search-card.test.tsx" timestamp="2025-12-21T12:20:45.275Z" hostname="DESKTOP-6U7IB5P" tests="17" failures="0" errors="0" skipped="0" time="1.4658059">
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; renders search input and button" time="0.0345304">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; allows typing in search input" time="0.2276406">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; calls onSearch when form is submitted" time="0.1546471">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; calls onSearch when Enter key is pressed" time="0.1085954">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; does not call onSearch when query is empty" time="0.0427763">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; disables submit button when query is empty" time="0.0029148">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; enables submit button when query has content" time="0.1029649">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; shows loading state when isLoading is true" time="0.0024275">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; disables input and button when loading" time="0.0026913">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; shows clear button when search is active" time="0.0070204">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; hides clear button when search is not active" time="0.003804">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; calls onClear when clear button is clicked" time="0.0329129">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; clears input when clear button is clicked" time="0.150753">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; shows search results indicator when active" time="0.004593">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; hides search results indicator when not active" time="0.0040389">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; trims whitespace from search query" time="0.4425394">
+        </testcase>
+        <testcase classname="src/components/feedpage/search-card.test.tsx" name="SearchCard &gt; does not submit with only whitespace" time="0.1374134">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/goals/CreateOrEditGoalDialog.test.tsx" timestamp="2025-12-21T12:20:45.277Z" hostname="DESKTOP-6U7IB5P" tests="3" failures="0" errors="0" skipped="0" time="0.8329921">
+        <testcase classname="src/components/goals/CreateOrEditGoalDialog.test.tsx" name="CreateOrEditGoalDialog &gt; shows provided initial values and copy when dialog opens" time="0.2195674">
+            <system-err>
+react-i18next:: useTranslation: You will need to pass in an i18next instance by using initReactI18next { code: [32m&apos;NO_I18NEXT_INSTANCE&apos;[39m }
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/components/goals/CreateOrEditGoalDialog.test.tsx" name="CreateOrEditGoalDialog &gt; submits the form with user-edited values and closes the dialog" time="0.4752953">
+        </testcase>
+        <testcase classname="src/components/goals/CreateOrEditGoalDialog.test.tsx" name="CreateOrEditGoalDialog &gt; disables the save button when inputs are invalid" time="0.1354548">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/goals/GoalCard.test.tsx" timestamp="2025-12-21T12:20:45.277Z" hostname="DESKTOP-6U7IB5P" tests="2" failures="0" errors="0" skipped="0" time="0.2964388">
+        <testcase classname="src/components/goals/GoalCard.test.tsx" name="GoalCard &gt; renders goal details including stats and actions" time="0.200506">
+        </testcase>
+        <testcase classname="src/components/goals/GoalCard.test.tsx" name="GoalCard &gt; keeps action buttons enabled when progress exceeds limit" time="0.0909142">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/goals/LogWasteDialog.test.tsx" timestamp="2025-12-21T12:20:45.278Z" hostname="DESKTOP-6U7IB5P" tests="3" failures="0" errors="0" skipped="0" time="1.0788824">
+        <testcase classname="src/components/goals/LogWasteDialog.test.tsx" name="LogWasteDialog &gt; loads available waste items when opened" time="0.3550484">
+        </testcase>
+        <testcase classname="src/components/goals/LogWasteDialog.test.tsx" name="LogWasteDialog &gt; disables submission when quantity is invalid" time="0.2295225">
+        </testcase>
+        <testcase classname="src/components/goals/LogWasteDialog.test.tsx" name="LogWasteDialog &gt; submits the selected item and quantity" time="0.4912114">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/mainpage/ScrollPanel.test.tsx" timestamp="2025-12-21T12:20:45.278Z" hostname="DESKTOP-6U7IB5P" tests="2" failures="0" errors="0" skipped="0" time="0.0352724">
+        <testcase classname="src/components/mainpage/ScrollPanel.test.tsx" name="ScrollPanel &gt; renders title, description, and children" time="0.0256894">
+        </testcase>
+        <testcase classname="src/components/mainpage/ScrollPanel.test.tsx" name="ScrollPanel &gt; applies custom class names to wrapper and content" time="0.0070472">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/profile/delete_account.test.tsx" timestamp="2025-12-21T12:20:45.279Z" hostname="DESKTOP-6U7IB5P" tests="2" failures="0" errors="0" skipped="0" time="1.1723162">
+        <testcase classname="src/components/profile/delete_account.test.tsx" name="DeleteAccount &gt; submits password and clears session tokens" time="0.6779303">
+        </testcase>
+        <testcase classname="src/components/profile/delete_account.test.tsx" name="DeleteAccount &gt; shows translated error when password is incorrect" time="0.4915868">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/profile/edit_profile.test.tsx" timestamp="2025-12-21T12:20:45.279Z" hostname="DESKTOP-6U7IB5P" tests="5" failures="0" errors="0" skipped="0" time="3.1457513">
+        <testcase classname="src/components/profile/edit_profile.test.tsx" name="EditProfile &gt; updates biography and notifies parent" time="0.4280618">
+        </testcase>
+        <testcase classname="src/components/profile/edit_profile.test.tsx" name="EditProfile &gt; uploads a new profile photo" time="0.0651593">
+        </testcase>
+        <testcase classname="src/components/profile/edit_profile.test.tsx" name="EditProfile &gt; shows validation error when new password is too short" time="0.6296562">
+        </testcase>
+        <testcase classname="src/components/profile/edit_profile.test.tsx" name="EditProfile &gt; submits reset password and shows success" time="0.9503673">
+        </testcase>
+        <testcase classname="src/components/profile/edit_profile.test.tsx" name="EditProfile &gt; shows backend error when reset password fails" time="1.0699171">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/profile/userProfileDialog.test.tsx" timestamp="2025-12-21T12:20:45.280Z" hostname="DESKTOP-6U7IB5P" tests="3" failures="0" errors="0" skipped="0" time="0.5910743">
+        <testcase classname="src/components/profile/userProfileDialog.test.tsx" name="UserProfileDialog &gt; loads profile details and posts when opened" time="0.3300792">
+        </testcase>
+        <testcase classname="src/components/profile/userProfileDialog.test.tsx" name="UserProfileDialog &gt; toggles follow state using follow API" time="0.2545889">
+        </testcase>
+        <testcase classname="src/components/profile/userProfileDialog.test.tsx" name="UserProfileDialog &gt; handles profile fetch failure gracefully" time="0.0031046">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/profile/WasteMonthlyChart.test.tsx" timestamp="2025-12-21T12:20:45.280Z" hostname="DESKTOP-6U7IB5P" tests="3" failures="1" errors="0" skipped="0" time="0.1159042">
+        <testcase classname="src/components/profile/WasteMonthlyChart.test.tsx" name="WasteMonthlyChart &gt; fetches and renders monthly waste data" time="0.0798452">
+            <system-err>
+An error occurred in the &lt;WasteMonthlyChart&gt; component.
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries.
+
+
+            </system-err>
+            <failure message="Unable to find an element with the text: 12-month waste trends. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m&lt;body&gt;[39m
+  [36m&lt;div /&gt;[39m
+[36m&lt;/body&gt;[39m" type="TestingLibraryElementError">
+TestingLibraryElementError: Unable to find an element with the text: 12-month waste trends. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+&lt;body&gt;
+  &lt;div /&gt;
+&lt;/body&gt;
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/profile/WasteMonthlyChart.test.tsx:80:19
+            </failure>
+        </testcase>
+        <testcase classname="src/components/profile/WasteMonthlyChart.test.tsx" name="WasteMonthlyChart &gt; shows an error message when the request fails" time="0.0205257">
+        </testcase>
+        <testcase classname="src/components/profile/WasteMonthlyChart.test.tsx" name="WasteMonthlyChart &gt; prompts the user to sign in when username is unavailable" time="0.0125822">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/profile/WasteSummaryCard.test.tsx" timestamp="2025-12-21T12:20:45.281Z" hostname="DESKTOP-6U7IB5P" tests="4" failures="2" errors="0" skipped="0" time="1.4218263">
+        <testcase classname="src/components/profile/WasteSummaryCard.test.tsx" name="WasteSummaryCard &gt; loads the default summary on mount" time="0.2371845">
+            <failure message="Unable to find an element with the text: You logged 5 kg of PLASTIC, saving about 0.08 barrels of oil.. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m&lt;body&gt;[39m
+  [36m&lt;div&gt;[39m
+    [36m&lt;div[39m
+      [33mclass[39m=[32m&quot;bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-lg w-full relative min-h-[380px]&quot;[39m
+      [33mdata-slot[39m=[32m&quot;card&quot;[39m
+    [36m&gt;[39m
+      [36m&lt;div&gt;[39m
+        [36m&lt;div&gt;[39m
+          [36m&lt;div[39m
+            [33mclass[39m=[32m&quot;@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 space-y-2 p-5 pb-3&quot;[39m
+            [33mdata-slot[39m=[32m&quot;card-header&quot;[39m
+          [36m&gt;[39m
+            [36m&lt;div[39m
+              [33mclass[39m=[32m&quot;flex flex-wrap items-start justify-between gap-3&quot;[39m
+            [36m&gt;[39m
+              [36m&lt;div[39m
+                [33mclass[39m=[32m&quot;space-y-2&quot;[39m
+              [36m&gt;[39m
+                [36m&lt;div[39m
+                  [33mclass[39m=[32m&quot;flex flex-wrap items-center gap-3&quot;[39m
+                [36m&gt;[39m
+                  [36m&lt;div[39m
+                    [33mclass[39m=[32m&quot;font-semibold text-2xl&quot;[39m
+                    [33mdata-slot[39m=[32m&quot;card-title&quot;[39m
+                  [36m&gt;[39m
+                    [0mWaste impact snapshot[0m
+                  [36m&lt;/div&gt;[39m
+                  [36m&lt;span[39m
+                    [33mclass[39m=[32m&quot;inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&amp;&gt;svg]:size-3 gap-1 [&amp;&gt;svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden border-transparent bg-accent text-secondary-foreground [a&amp;]:hover:bg-secondary/90 uppercase tracking-wide&quot;[39m
+                    [33mdata-slot[39m=[32m&quot;badge&quot;[39m
+                  [36m&gt;[39m
+                    [0mPLASTIC[0m
+                  [36m&lt;/span&gt;[39m
+                [36m&lt;/div&gt;[39m
+                [36m&lt;div[39m
+                  [33mclass[39m=[32m&quot;text-muted-foreground text-sm&quot;[39m
+                  [33mdata-slot[39m=[32m&quot;card-description&quot;[39m
+                [36m&gt;[39m
+                  [0m2025-12-14 / 2025-12-21.[0m
+                [36m&lt;/div&gt;[39m
+              [36m&lt;/div&gt;[39m
+            [36m&lt;/div&gt;[39m
+          [36m&lt;/div&gt;[39m
+          [36m&lt;div[39m
+            [33mclass[39m=[32m&quot;space-y-4 p-5 pt-0&quot;[39m
+            [33mdata-slot[39m=[32m&quot;card-content&quot;[39m
+          [36m&gt;[39m
+            [36m&lt;div[39m
+              [33mclass[39m=[32m&quot;flex items-center justify-center&quot;[39m
+            [36m&gt;[39m
+              [36m&lt;div[39m
+                [33mclass[39m=[32m&quot;relative&quot;[39m
+              [36m&gt;[39m
+                [36m&lt;svg[39m
+                  [33maria-label[39m=[32m&quot;5 kg (Total collected)&quot;[39m
+                  [33mheight[39m=[32m&quot;200&quot;[39m
+                  [33mrole[39m=[32m&quot;img&quot;[39m
+                  [33mviewBox[39m=[32m&quot;0 0 200 200&quot;[39m
+                  [33mwidth[39m=[32m&quot;200&quot;[39m
+                [36m&gt;[39m
+                  [36m&lt;defs&gt;[39m
+                    [36m&lt;lineargradient[39m
+                      [33mid[39m=[32m&quot;_r_0_-stroke&quot;[39m
+                      [33mx1[39m=[32m&quot;0%&quot;[39m
+                      [33mx2[39m=[32m&quot;100%&quot;[39m
+                      [33my1[39m=[32m&quot;0%&quot;[39m
+                      [33my2[39m=[32m&quot;0%&quot;[39m
+                    [36m&gt;[39m
+                      [36m&lt;stop[39m
+                        [33moffset[39m=[32m&quot;0%&quot;[39m
+                        [33mstop-color[39m=[32m&quot;rgb(16 185 129)&quot;[39m
+                      [36m/&gt;[39m
+                      [36m&lt;stop[39m
+                        [33moffset[39m=[32m&quot;100%&quot;[39m
+                        [33mstop-color[39m=[32m&quot;rgb(59 130 246)&quot;[39m
+                      [36m/&gt;[39m
+                    [36m&lt;/lineargradient&gt;[39m
+                  [36m&lt;/defs&gt;[39m
+                  [36m&lt;circle[39m
+                    [33mclass[39m=[32m&quot;text-muted-foreground/30&quot;[39m
+                    [33mcx[39m=[32m&quot;100&quot;[39m
+                    [33mcy[39m=[32m&quot;100&quot;[39m
+                    [33mfill[39m=[32m&quot;transparent&quot;[39m
+                    [33mr[39m=[32m&quot;72&quot;[39m
+                    [33mstroke[39m=[32m&quot;currentColor&quot;[39m
+                    [33mstroke-width[39m=[32m&quot;14&quot;[39m
+                  [36m/&gt;[39m
+                  [36m&lt;circle[39m
+                    [33mclass[39m=[32m&quot;text-primary transition-all duration-500&quot;[39m
+                    [33mcx[39m=[32m&quot;100&quot;[39m
+                    [33mcy[39m=[32m&quot;100&quot;[39m
+                    [33mfill[39m=[32m&quot;transparent&quot;[39m
+                    [33mr[39m=[32m&quot;72&quot;[39m
+                    [33mstroke[39m=[32m&quot;url(#_r_0_-stroke)&quot;[39m
+                    [33mstroke-dasharray[39m=[32m&quot;452.3893421169302 452.3893421169302&quot;[39m
+                    [33mstroke-dashoffset[39m=[32m&quot;0&quot;[39m
+                    [33mstroke-linecap[39m=[32m&quot;round&quot;[39m
+                    [33mstroke-width[39m=[32m&quot;14&quot;[39m
+                    [33mstyle[39m=[32m&quot;transform: rotate(-90deg); transform-origin: 50% 50%;&quot;[39m
+                  [36m/&gt;[39m
+                  [36m&lt;text[39m
+                    [33mclass[39m=[32m&quot;fill-foreground text-2xl font-semibold&quot;[39m
+                    [33mtext-anchor[39m=[32m&quot;middle&quot;[39m
+                    [33mx[39m=[32m&quot;100&quot;[39m
+                    [33my[39m=[32m&quot;95&quot;[39m
+                  [36m&gt;[39m
+                    [0m5 kg[0m
+                  [36m&lt;/text&gt;[39m
+                  [36m&lt;text[39m
+                    [33mclass[39m=[32m&quot;fill-muted-foreground text-sm&quot;[39m
+                    [33mtext-anchor[39m=[32m&quot;middle&quot;[39m
+                    [33mx[39m=[32m&quot;100&quot;[39m
+                    [33my[39m=[32m&quot;120&quot;[39m
+                  [36m&gt;[39m
+                    [0mTotal collected[0m
+                  [36m&lt;/text&gt;[39m
+                  [36m&lt;text[39m
+                    [33mclass[39m=[32m&quot;fill-muted-foreground text-xs&quot;[39m
+                    [33mtext-anchor[39m=[32m&quot;middle&quot;[39m
+                    [33mx[39m=[32m&quot;100&quot;[39m
+                    [33my[39m=[32m&quot;140&quot;[39m
+                  [36m&gt;[39m
+                    [0m100%[0m
+                  [36m&lt;/text&gt;[39m
+                [36m&lt;/svg&gt;[39m
+                [36m&lt;p[39m
+                  [33mclass[39m=[32m&quot;mt-2 text-center text-xs text-muted-foreground&quot;[39m
+                [36m&gt;[39m
+                  [0mScale max: 5 kg[0m
+                [36m&lt;/p&gt;[39m
+              [36m&lt;/div&gt;[39m
+            [36m&lt;/div&gt;[39m
+            [36m&lt;div[39m
+              [33mclass[39m=[32m&quot;absolute bottom-2 right-2&quot;[39m
+            [36m&gt;[39m
+              [36m&lt;button[39m
+                [33mtype[39m=[32m&quot;button&quot;[39m
+              [36m/&gt;[39m
+            [36..." type="TestingLibraryElementError">
+TestingLibraryElementError: Unable to find an element with the text: You logged 5 kg of PLASTIC, saving about 0.08 barrels of oil.. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+&lt;body&gt;
+  &lt;div&gt;
+    &lt;div
+      class=&quot;bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-lg w-full relative min-h-[380px]&quot;
+      data-slot=&quot;card&quot;
+    &gt;
+      &lt;div&gt;
+        &lt;div&gt;
+          &lt;div
+            class=&quot;@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6 space-y-2 p-5 pb-3&quot;
+            data-slot=&quot;card-header&quot;
+          &gt;
+            &lt;div
+              class=&quot;flex flex-wrap items-start justify-between gap-3&quot;
+            &gt;
+              &lt;div
+                class=&quot;space-y-2&quot;
+              &gt;
+                &lt;div
+                  class=&quot;flex flex-wrap items-center gap-3&quot;
+                &gt;
+                  &lt;div
+                    class=&quot;font-semibold text-2xl&quot;
+                    data-slot=&quot;card-title&quot;
+                  &gt;
+                    Waste impact snapshot
+                  &lt;/div&gt;
+                  &lt;span
+                    class=&quot;inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&amp;&gt;svg]:size-3 gap-1 [&amp;&gt;svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden border-transparent bg-accent text-secondary-foreground [a&amp;]:hover:bg-secondary/90 uppercase tracking-wide&quot;
+                    data-slot=&quot;badge&quot;
+                  &gt;
+                    PLASTIC
+                  &lt;/span&gt;
+                &lt;/div&gt;
+                &lt;div
+                  class=&quot;text-muted-foreground text-sm&quot;
+                  data-slot=&quot;card-description&quot;
+                &gt;
+                  2025-12-14 / 2025-12-21.
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+          &lt;div
+            class=&quot;space-y-4 p-5 pt-0&quot;
+            data-slot=&quot;card-content&quot;
+          &gt;
+            &lt;div
+              class=&quot;flex items-center justify-center&quot;
+            &gt;
+              &lt;div
+                class=&quot;relative&quot;
+              &gt;
+                &lt;svg
+                  aria-label=&quot;5 kg (Total collected)&quot;
+                  height=&quot;200&quot;
+                  role=&quot;img&quot;
+                  viewBox=&quot;0 0 200 200&quot;
+                  width=&quot;200&quot;
+                &gt;
+                  &lt;defs&gt;
+                    &lt;lineargradient
+                      id=&quot;_r_0_-stroke&quot;
+                      x1=&quot;0%&quot;
+                      x2=&quot;100%&quot;
+                      y1=&quot;0%&quot;
+                      y2=&quot;0%&quot;
+                    &gt;
+                      &lt;stop
+                        offset=&quot;0%&quot;
+                        stop-color=&quot;rgb(16 185 129)&quot;
+                      /&gt;
+                      &lt;stop
+                        offset=&quot;100%&quot;
+                        stop-color=&quot;rgb(59 130 246)&quot;
+                      /&gt;
+                    &lt;/lineargradient&gt;
+                  &lt;/defs&gt;
+                  &lt;circle
+                    class=&quot;text-muted-foreground/30&quot;
+                    cx=&quot;100&quot;
+                    cy=&quot;100&quot;
+                    fill=&quot;transparent&quot;
+                    r=&quot;72&quot;
+                    stroke=&quot;currentColor&quot;
+                    stroke-width=&quot;14&quot;
+                  /&gt;
+                  &lt;circle
+                    class=&quot;text-primary transition-all duration-500&quot;
+                    cx=&quot;100&quot;
+                    cy=&quot;100&quot;
+                    fill=&quot;transparent&quot;
+                    r=&quot;72&quot;
+                    stroke=&quot;url(#_r_0_-stroke)&quot;
+                    stroke-dasharray=&quot;452.3893421169302 452.3893421169302&quot;
+                    stroke-dashoffset=&quot;0&quot;
+                    stroke-linecap=&quot;round&quot;
+                    stroke-width=&quot;14&quot;
+                    style=&quot;transform: rotate(-90deg); transform-origin: 50% 50%;&quot;
+                  /&gt;
+                  &lt;text
+                    class=&quot;fill-foreground text-2xl font-semibold&quot;
+                    text-anchor=&quot;middle&quot;
+                    x=&quot;100&quot;
+                    y=&quot;95&quot;
+                  &gt;
+                    5 kg
+                  &lt;/text&gt;
+                  &lt;text
+                    class=&quot;fill-muted-foreground text-sm&quot;
+                    text-anchor=&quot;middle&quot;
+                    x=&quot;100&quot;
+                    y=&quot;120&quot;
+                  &gt;
+                    Total collected
+                  &lt;/text&gt;
+                  &lt;text
+                    class=&quot;fill-muted-foreground text-xs&quot;
+                    text-anchor=&quot;middle&quot;
+                    x=&quot;100&quot;
+                    y=&quot;140&quot;
+                  &gt;
+                    100%
+                  &lt;/text&gt;
+                &lt;/svg&gt;
+                &lt;p
+                  class=&quot;mt-2 text-center text-xs text-muted-foreground&quot;
+                &gt;
+                  Scale max: 5 kg
+                &lt;/p&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div
+              class=&quot;absolute bottom-2 right-2&quot;
+            &gt;
+              &lt;button
+                type=&quot;button&quot;
+              /&gt;
+            ...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/profile/WasteSummaryCard.test.tsx:61:14
+            </failure>
+        </testcase>
+        <testcase classname="src/components/profile/WasteSummaryCard.test.tsx" name="WasteSummaryCard &gt; submits a custom range when the form is valid" time="0.6365783">
+            <failure message="clear()` is only supported on editable elements." type="Error">
+Error: clear()` is only supported on editable elements.
+ ❯ Object.clear node_modules/@testing-library/user-event/dist/esm/utility/clear.js:17:15
+ ❯ node_modules/@testing-library/user-event/dist/esm/setup/setup.js:83:35
+ ❯ Object.asyncWrapper node_modules/@testing-library/react/dist/pure.js:88:28
+ ❯ wrapAsync node_modules/@testing-library/user-event/dist/esm/setup/wrapAsync.js:6:24
+ ❯ Object.method [as clear] node_modules/@testing-library/user-event/dist/esm/setup/setup.js:83:16
+ ❯ src/components/profile/WasteSummaryCard.test.tsx:79:16
+            </failure>
+        </testcase>
+        <testcase classname="src/components/profile/WasteSummaryCard.test.tsx" name="WasteSummaryCard &gt; surfaces errors from the API" time="0.0579712">
+        </testcase>
+        <testcase classname="src/components/profile/WasteSummaryCard.test.tsx" name="WasteSummaryCard &gt; prevents submission when the date range is invalid" time="0.486556">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/tests/examples/api-health.test.ts" timestamp="2025-12-21T12:20:45.283Z" hostname="DESKTOP-6U7IB5P" tests="2" failures="0" errors="0" skipped="0" time="0.0161187">
+        <testcase classname="src/tests/examples/api-health.test.ts" name="returns the mocked API health payload" time="0.0117158">
+        </testcase>
+        <testcase classname="src/tests/examples/api-health.test.ts" name="allows overriding handlers scoped to a single spec" time="0.0019917">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/routes/challenges/_index.test.tsx" timestamp="2025-12-21T12:20:45.283Z" hostname="DESKTOP-6U7IB5P" tests="3" failures="0" errors="0" skipped="0" time="0.0544451">
+        <testcase classname="src/routes/challenges/_index.test.tsx" name="ChallengesIndex route &gt; renders returned challenges" time="0.0265424">
+        </testcase>
+        <testcase classname="src/routes/challenges/_index.test.tsx" name="ChallengesIndex route &gt; shows empty state when there are no challenges" time="0.0171442">
+        </testcase>
+        <testcase classname="src/routes/challenges/_index.test.tsx" name="ChallengesIndex route &gt; shows an error when loading fails" time="0.008178">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/routes/feed/_index.test.tsx" timestamp="2025-12-21T12:20:45.284Z" hostname="DESKTOP-6U7IB5P" tests="6" failures="0" errors="0" skipped="0" time="0.1606706">
+        <testcase classname="src/routes/feed/_index.test.tsx" name="FeedPage &gt; renders loading state initially" time="0.0407683">
+        </testcase>
+        <testcase classname="src/routes/feed/_index.test.tsx" name="FeedPage &gt; loads and renders feed page with posts" time="0.0313717">
+        </testcase>
+        <testcase classname="src/routes/feed/_index.test.tsx" name="FeedPage &gt; handles API error gracefully" time="0.014615">
+            <system-err>
+Error loading posts: Error: API Error
+    at C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/src/routes/feed/_index.test.tsx:136:46
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:145:11
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:915:26
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1240:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithTimeout [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1206:10[90m)[39m
+    at [90mfile:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:37
+    at Traces.$ [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/traces.U4xDYhzZ.js:115:27[90m)[39m
+    at trace [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/test.BT8LKgU9.js:239:21[90m)[39m
+    at runTest [90m(file:///C:/Users/erens/Desktop/projects/bounswe2025group5/frontend/[39mnode_modules/[4m@vitest[24m/runner/dist/index.js:1650:12[90m)[39m
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/routes/feed/_index.test.tsx" name="FeedPage &gt; switches between latest and popular feeds" time="0.0257583">
+        </testcase>
+        <testcase classname="src/routes/feed/_index.test.tsx" name="FeedPage &gt; loads more posts" time="0.022738">
+            <system-err>
+Encountered two children with the same key, `1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `2`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `3`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `4`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `5`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `6`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `7`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `8`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `9`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+Encountered two children with the same key, `10`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/routes/feed/_index.test.tsx" name="FeedPage &gt; search functionality" time="0.0222026">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/routes/goals/_index.test.tsx" timestamp="2025-12-21T12:20:45.285Z" hostname="DESKTOP-6U7IB5P" tests="3" failures="0" errors="0" skipped="0" time="0.4031599">
+        <testcase classname="src/routes/goals/_index.test.tsx" name="GoalsIndex route &gt; renders fetched goals" time="0.0422836">
+        </testcase>
+        <testcase classname="src/routes/goals/_index.test.tsx" name="GoalsIndex route &gt; shows empty state when no username is available" time="0.0075861">
+        </testcase>
+        <testcase classname="src/routes/goals/_index.test.tsx" name="GoalsIndex route &gt; deletes a goal when delete action is triggered" time="0.3490032">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/routes/mainpage/_index.test.tsx" timestamp="2025-12-21T12:20:45.285Z" hostname="DESKTOP-6U7IB5P" tests="2" failures="0" errors="0" skipped="0" time="0.055488">
+        <testcase classname="src/routes/mainpage/_index.test.tsx" name="MainpageIndex route &gt; renders challenge and post panels when data loads" time="0.0446749">
+        </testcase>
+        <testcase classname="src/routes/mainpage/_index.test.tsx" name="MainpageIndex route &gt; shows an error message when loading fails" time="0.0076374">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/routes/profile/_index.test.tsx" timestamp="2025-12-21T12:20:45.286Z" hostname="DESKTOP-6U7IB5P" tests="3" failures="0" errors="0" skipped="0" time="0.3618063">
+        <testcase classname="src/routes/profile/_index.test.tsx" name="ProfileIndex route &gt; shows auth error when username is missing" time="0.0253649">
+        </testcase>
+        <testcase classname="src/routes/profile/_index.test.tsx" name="ProfileIndex route &gt; renders profile information after loading" time="0.046683">
+        </testcase>
+        <testcase classname="src/routes/profile/_index.test.tsx" name="ProfileIndex route &gt; loads saved posts when toggle is clicked" time="0.2870472">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/routes/moderator/_index.test.tsx" timestamp="2025-12-21T12:20:45.286Z" hostname="DESKTOP-6U7IB5P" tests="8" failures="8" errors="0" skipped="0" time="0.0910118">
+        <testcase classname="src/routes/moderator/_index.test.tsx" name="ModeratorDashboard &gt; renders unread reports returned by the API" time="0.0388787">
+            <failure message="defaultValue.replace is not a function" type="TypeError">
+TypeError: defaultValue.replace is not a function
+ ❯ t src/routes/moderator/_index.test.tsx:14:29
+ ❯ ReportObjectDialog src/components/moderation/ReportObjectDialog.tsx:77:14
+ ❯ Object.react_stack_bottom_frame node_modules/react-dom/cjs/react-dom-client.development.js:25904:20
+ ❯ renderWithHooks node_modules/react-dom/cjs/react-dom-client.development.js:7662:22
+ ❯ updateFunctionComponent node_modules/react-dom/cjs/react-dom-client.development.js:10166:19
+ ❯ beginWork node_modules/react-dom/cjs/react-dom-client.development.js:11778:18
+ ❯ runWithFiberInDEV node_modules/react-dom/cjs/react-dom-client.development.js:874:13
+ ❯ performUnitOfWork node_modules/react-dom/cjs/react-dom-client.development.js:17641:22
+ ❯ workLoopSync node_modules/react-dom/cjs/react-dom-client.development.js:17469:41
+ ❯ renderRootSync node_modules/react-dom/cjs/react-dom-client.development.js:17450:11
+            </failure>
+        </testcase>
+        <testcase classname="src/routes/moderator/_index.test.tsx" name="ModeratorDashboard &gt; surfaces backend errors to the moderator" time="0.0044536">
+            <failure message="defaultValue.replace is not a function" type="TypeError">
+TypeError: defaultValue.replace is not a function
+ ❯ t src/routes/moderator/_index.test.tsx:14:29
+ ❯ ReportObjectDialog src/components/moderation/ReportObjectDialog.tsx:77:14
+ ❯ Object.react_stack_bottom_frame node_modules/react-dom/cjs/react-dom-client.development.js:25904:20
+ ❯ renderWithHooks node_modules/react-dom/cjs/react-dom-client.development.js:7662:22
+ ❯ updateFunctionComponent node_modules/react-dom/cjs/react-dom-client.development.js:10166:19
+ ❯ beginWork node_modules/react-dom/cjs/react-dom-client.development.js:11778:18
+ ❯ runWithFiberInDEV node_modules/react-dom/cjs/react-dom-client.development.js:874:13
+ ❯ performUnitOfWork node_modules/react-dom/cjs/react-dom-client.development.js:17641:22
+ ❯ workLoopSync node_modules/react-dom/cjs/react-dom-client.development.js:17469:41
+ ❯ renderRootSync node_modules/react-dom/cjs/react-dom-client.development.js:17450:11
+            </failure>
+        </testcase>
+        <testcase classname="src/routes/moderator/_index.test.tsx" name="ModeratorDashboard &gt; allows manually refreshing the queue" time="0.0047999">
+            <failure message="defaultValue.replace is not a function" type="TypeError">
+TypeError: defaultValue.replace is not a function
+ ❯ t src/routes/moderator/_index.test.tsx:14:29
+ ❯ ReportObjectDialog src/components/moderation/ReportObjectDialog.tsx:77:14
+ ❯ Object.react_stack_bottom_frame node_modules/react-dom/cjs/react-dom-client.development.js:25904:20
+ ❯ renderWithHooks node_modules/react-dom/cjs/react-dom-client.development.js:7662:22
+ ❯ updateFunctionComponent node_modules/react-dom/cjs/react-dom-client.development.js:10166:19
+ ❯ beginWork node_modules/react-dom/cjs/react-dom-client.development.js:11778:18
+ ❯ runWithFiberInDEV node_modules/react-dom/cjs/react-dom-client.development.js:874:13
+ ❯ performUnitOfWork node_modules/react-dom/cjs/react-dom-client.development.js:17641:22
+ ❯ workLoopSync node_modules/react-dom/cjs/react-dom-client.development.js:17469:41
+ ❯ renderRootSync node_modules/react-dom/cjs/react-dom-client.development.js:17450:11
+            </failure>
+        </testcase>
+        <testcase classname="src/routes/moderator/_index.test.tsx" name="ModeratorDashboard &gt; marks reports as solved" time="0.0058762">
+            <failure message="defaultValue.replace is not a function" type="TypeError">
+TypeError: defaultValue.replace is not a function
+ ❯ t src/routes/moderator/_index.test.tsx:14:29
+ ❯ ReportObjectDialog src/components/moderation/ReportObjectDialog.tsx:77:14
+ ❯ Object.react_stack_bottom_frame node_modules/react-dom/cjs/react-dom-client.development.js:25904:20
+ ❯ renderWithHooks node_modules/react-dom/cjs/react-dom-client.development.js:7662:22
+ ❯ updateFunctionComponent node_modules/react-dom/cjs/react-dom-client.development.js:10166:19
+ ❯ beginWork node_modules/react-dom/cjs/react-dom-client.development.js:11778:18
+ ❯ runWithFiberInDEV node_modules/react-dom/cjs/react-dom-client.development.js:874:13
+ ❯ performUnitOfWork node_modules/react-dom/cjs/react-dom-client.development.js:17641:22
+ ❯ workLoopSync node_modules/react-dom/cjs/react-dom-client.development.js:17469:41
+ ❯ renderRootSync node_modules/react-dom/cjs/react-dom-client.development.js:17450:11
+            </failure>
+        </testcase>
+        <testcase classname="src/routes/moderator/_index.test.tsx" name="ModeratorDashboard &gt; deletes reported posts when requested" time="0.0036229">
+            <failure message="defaultValue.replace is not a function" type="TypeError">
+TypeError: defaultValue.replace is not a function
+ ❯ t src/routes/moderator/_index.test.tsx:14:29
+ ❯ ReportObjectDialog src/components/moderation/ReportObjectDialog.tsx:77:14
+ ❯ Object.react_stack_bottom_frame node_modules/react-dom/cjs/react-dom-client.development.js:25904:20
+ ❯ renderWithHooks node_modules/react-dom/cjs/react-dom-client.development.js:7662:22
+ ❯ updateFunctionComponent node_modules/react-dom/cjs/react-dom-client.development.js:10166:19
+ ❯ beginWork node_modules/react-dom/cjs/react-dom-client.development.js:11778:18
+ ❯ runWithFiberInDEV node_modules/react-dom/cjs/react-dom-client.development.js:874:13
+ ❯ performUnitOfWork node_modules/react-dom/cjs/react-dom-client.development.js:17641:22
+ ❯ workLoopSync node_modules/react-dom/cjs/react-dom-client.development.js:17469:41
+ ❯ renderRootSync node_modules/react-dom/cjs/react-dom-client.development.js:17450:11
+            </failure>
+        </testcase>
+        <testcase classname="src/routes/moderator/_index.test.tsx" name="ModeratorDashboard &gt; deletes reported comments with the proper API" time="0.0211953">
+            <failure message="defaultValue.replace is not a function" type="TypeError">
+TypeError: defaultValue.replace is not a function
+ ❯ t src/routes/moderator/_index.test.tsx:14:29
+ ❯ ReportObjectDialog src/components/moderation/ReportObjectDialog.tsx:77:14
+ ❯ Object.react_stack_bottom_frame node_modules/react-dom/cjs/react-dom-client.development.js:25904:20
+ ❯ renderWithHooks node_modules/react-dom/cjs/react-dom-client.development.js:7662:22
+ ❯ updateFunctionComponent node_modules/react-dom/cjs/react-dom-client.development.js:10166:19
+ ❯ beginWork node_modules/react-dom/cjs/react-dom-client.development.js:11778:18
+ ❯ runWithFiberInDEV node_modules/react-dom/cjs/react-dom-client.development.js:874:13
+ ❯ performUnitOfWork node_modules/react-dom/cjs/react-dom-client.development.js:17641:22
+ ❯ workLoopSync node_modules/react-dom/cjs/react-dom-client.development.js:17469:41
+ ❯ renderRootSync node_modules/react-dom/cjs/react-dom-client.development.js:17450:11
+            </failure>
+        </testcase>
+        <testcase classname="src/routes/moderator/_index.test.tsx" name="ModeratorDashboard &gt; opens a dialog to preview reported posts" time="0.0039553">
+            <failure message="defaultValue.replace is not a function" type="TypeError">
+TypeError: defaultValue.replace is not a function
+ ❯ t src/routes/moderator/_index.test.tsx:14:29
+ ❯ ReportObjectDialog src/components/moderation/ReportObjectDialog.tsx:77:14
+ ❯ Object.react_stack_bottom_frame node_modules/react-dom/cjs/react-dom-client.development.js:25904:20
+ ❯ renderWithHooks node_modules/react-dom/cjs/react-dom-client.development.js:7662:22
+ ❯ updateFunctionComponent node_modules/react-dom/cjs/react-dom-client.development.js:10166:19
+ ❯ beginWork node_modules/react-dom/cjs/react-dom-client.development.js:11778:18
+ ❯ runWithFiberInDEV node_modules/react-dom/cjs/react-dom-client.development.js:874:13
+ ❯ performUnitOfWork node_modules/react-dom/cjs/react-dom-client.development.js:17641:22
+ ❯ workLoopSync node_modules/react-dom/cjs/react-dom-client.development.js:17469:41
+ ❯ renderRootSync node_modules/react-dom/cjs/react-dom-client.development.js:17450:11
+            </failure>
+        </testcase>
+        <testcase classname="src/routes/moderator/_index.test.tsx" name="ModeratorDashboard &gt; shows comment preview when viewing reported comments" time="0.0037577">
+            <failure message="defaultValue.replace is not a function" type="TypeError">
+TypeError: defaultValue.replace is not a function
+ ❯ t src/routes/moderator/_index.test.tsx:14:29
+ ❯ ReportObjectDialog src/components/moderation/ReportObjectDialog.tsx:77:14
+ ❯ Object.react_stack_bottom_frame node_modules/react-dom/cjs/react-dom-client.development.js:25904:20
+ ❯ renderWithHooks node_modules/react-dom/cjs/react-dom-client.development.js:7662:22
+ ❯ updateFunctionComponent node_modules/react-dom/cjs/react-dom-client.development.js:10166:19
+ ❯ beginWork node_modules/react-dom/cjs/react-dom-client.development.js:11778:18
+ ❯ runWithFiberInDEV node_modules/react-dom/cjs/react-dom-client.development.js:874:13
+ ❯ performUnitOfWork node_modules/react-dom/cjs/react-dom-client.development.js:17641:22
+ ❯ workLoopSync node_modules/react-dom/cjs/react-dom-client.development.js:17469:41
+ ❯ renderRootSync node_modules/react-dom/cjs/react-dom-client.development.js:17450:11
+            </failure>
+        </testcase>
+    </testsuite>
+</testsuites>
