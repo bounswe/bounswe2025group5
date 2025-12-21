@@ -43,6 +43,13 @@ export default defineConfig({
     setupFiles: "./src/tests/setup.ts",
     css: true,
     passWithNoTests: true,
+    exclude: [
+      "e2e/**/*", // keep Playwright specs out of Vitest
+      "playwright-report/**/*",
+      "reports/**/*",
+      "node_modules/**/*",
+      "dist/**/*",
+    ],
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
@@ -51,6 +58,13 @@ export default defineConfig({
       reporter: ["text", "lcov"],
       reportsDirectory: "coverage",
     },
+    reporters: [
+      "default",
+      [
+        "junit",
+        { outputFile: "reports/frontend/unit/vitest-junit.xml" },
+      ],
+    ],
   },
 });
 
