@@ -1,121 +1,30 @@
-<testsuites id="" name="" tests="7" failures="3" skipped="0" errors="0" time="30.874363999999996">
-<testsuite name="auth.spec.ts" timestamp="2025-12-21T13:02:17.864Z" hostname="chromium" tests="1" failures="0" skipped="0" time="1.141" errors="0">
-<testcase name="register page renders form fields" classname="auth.spec.ts" time="1.141">
+<testsuites id="" name="" tests="7" failures="0" skipped="0" errors="0" time="18.559298">
+<testsuite name="auth.spec.ts" timestamp="2025-12-21T13:21:50.259Z" hostname="chromium" tests="1" failures="0" skipped="0" time="1.547" errors="0">
+<testcase name="register page renders form fields" classname="auth.spec.ts" time="1.547">
 </testcase>
 </testsuite>
-<testsuite name="challenges-attend.spec.ts" timestamp="2025-12-21T13:02:17.864Z" hostname="chromium" tests="1" failures="1" skipped="0" time="9.932" errors="0">
-<testcase name="attend challenge flow › user can attend a challenge and sees Leave" classname="challenges-attend.spec.ts" time="9.932">
-<failure message="challenges-attend.spec.ts:10:3 user can attend a challenge and sees Leave" type="FAILURE">
-<![CDATA[  [chromium] › challenges-attend.spec.ts:10:3 › attend challenge flow › user can attend a challenge and sees Leave 
-
-    Error: expect(locator).toBeVisible() failed
-
-    Locator: getByText(/No challenges found|Etkinlik bulunamadı/i).or(getByRole('heading', { level: 3 }).filter({ hasNotText: /Create Challenge/i }).first())
-    Expected: visible
-    Timeout: 5000ms
-    Error: element(s) not found
-
-    Call log:
-      - Expect "toBeVisible" with timeout 5000ms
-      - waiting for getByText(/No challenges found|Etkinlik bulunamadı/i).or(getByRole('heading', { level: 3 }).filter({ hasNotText: /Create Challenge/i }).first())
-
-
-      59 |
-      60 |     // If no attend buttons, assert that challenges are empty
-    > 61 |     await expect(emptyChallenges.or(challengeTitles.first())).toBeVisible();
-         |                                                               ^
-      62 |   });
-      63 | });
-      64 |
-        at C:\Users\erens\Desktop\projects\bounswe2025group5\frontend\e2e\challenges-attend.spec.ts:61:63
-
-    Error Context: ..\test-results\challenges-attend-attend-c-27d54--a-challenge-and-sees-Leave-chromium\error-context.md
-]]>
-</failure>
-<system-out>
-<![CDATA[
-[[ATTACHMENT|..\..\..\test-results\challenges-attend-attend-c-27d54--a-challenge-and-sees-Leave-chromium\error-context.md]]
-]]>
-</system-out>
+<testsuite name="challenges-attend.spec.ts" timestamp="2025-12-21T13:21:50.259Z" hostname="chromium" tests="1" failures="0" skipped="0" time="5.275" errors="0">
+<testcase name="attend challenge flow › user can attend a challenge and sees Leave" classname="challenges-attend.spec.ts" time="5.275">
 </testcase>
 </testsuite>
-<testsuite name="goals-create.spec.ts" timestamp="2025-12-21T13:02:17.864Z" hostname="chromium" tests="1" failures="1" skipped="0" time="30.032" errors="0">
-<testcase name="create goals for all waste types › creates goals with duration 10 and amount 1000 for each type" classname="goals-create.spec.ts" time="30.032">
-<failure message="goals-create.spec.ts:12:3 creates goals with duration 10 and amount 1000 for each type" type="FAILURE">
-<![CDATA[  [chromium] › goals-create.spec.ts:12:3 › create goals for all waste types › creates goals with duration 10 and amount 1000 for each type 
-
-    Test timeout of 30000ms exceeded.
-
-    Error: locator.click: Test timeout of 30000ms exceeded.
-    Call log:
-      - waiting for getByRole('button', { name: /create goal/i })
-
-
-      27 |
-      28 |     for (const type of WASTE_TYPES) {
-    > 29 |       await page.getByRole('button', { name: /create goal/i }).click();
-         |                                                                ^
-      30 |       await page.selectOption('#goal-type', type);
-      31 |       await page.fill('#goal-duration', '10');
-      32 |       await page.fill('#goal-restriction', '1000');
-        at C:\Users\erens\Desktop\projects\bounswe2025group5\frontend\e2e\goals-create.spec.ts:29:64
-
-    Error Context: ..\test-results\goals-create-create-goals--8ed0f-d-amount-1000-for-each-type-chromium\error-context.md
-]]>
-</failure>
-<system-out>
-<![CDATA[
-[[ATTACHMENT|..\..\..\test-results\goals-create-create-goals--8ed0f-d-amount-1000-for-each-type-chromium\error-context.md]]
-]]>
-</system-out>
+<testsuite name="goals-create.spec.ts" timestamp="2025-12-21T13:21:50.259Z" hostname="chromium" tests="1" failures="0" skipped="0" time="8.022" errors="0">
+<testcase name="create goals for all waste types › creates goals with duration 10 and amount 1000 for each type" classname="goals-create.spec.ts" time="8.022">
 </testcase>
 </testsuite>
-<testsuite name="home.spec.ts" timestamp="2025-12-21T13:02:17.864Z" hostname="chromium" tests="1" failures="0" skipped="0" time="0.844" errors="0">
-<testcase name="home shows login and register entry points" classname="home.spec.ts" time="0.844">
+<testsuite name="home.spec.ts" timestamp="2025-12-21T13:21:50.259Z" hostname="chromium" tests="1" failures="0" skipped="0" time="1.222" errors="0">
+<testcase name="home shows login and register entry points" classname="home.spec.ts" time="1.222">
 </testcase>
 </testsuite>
-<testsuite name="language.spec.ts" timestamp="2025-12-21T13:02:17.864Z" hostname="chromium" tests="1" failures="0" skipped="0" time="1.252" errors="0">
-<testcase name="language toggle persists after reload" classname="language.spec.ts" time="1.252">
+<testsuite name="language.spec.ts" timestamp="2025-12-21T13:21:50.259Z" hostname="chromium" tests="1" failures="0" skipped="0" time="1.467" errors="0">
+<testcase name="language toggle persists after reload" classname="language.spec.ts" time="1.467">
 </testcase>
 </testsuite>
-<testsuite name="login-feed-like.spec.ts" timestamp="2025-12-21T13:02:17.864Z" hostname="chromium" tests="1" failures="0" skipped="0" time="2.077" errors="0">
-<testcase name="login → mainpage → feed view › user can log in and see feed components" classname="login-feed-like.spec.ts" time="2.077">
+<testsuite name="login-feed-like.spec.ts" timestamp="2025-12-21T13:21:50.259Z" hostname="chromium" tests="1" failures="0" skipped="0" time="5.214" errors="0">
+<testcase name="login → mainpage → feed view › user can log in and see feed components" classname="login-feed-like.spec.ts" time="5.214">
 </testcase>
 </testsuite>
-<testsuite name="protected-pages.spec.ts" timestamp="2025-12-21T13:02:17.864Z" hostname="chromium" tests="1" failures="1" skipped="0" time="6.94" errors="0">
-<testcase name="authenticated page smoke checks › mainpage, feed, goals, profile, challenges render" classname="protected-pages.spec.ts" time="6.94">
-<failure message="protected-pages.spec.ts:10:3 mainpage, feed, goals, profile, challenges render" type="FAILURE">
-<![CDATA[  [chromium] › protected-pages.spec.ts:10:3 › authenticated page smoke checks › mainpage, feed, goals, profile, challenges render 
-
-    Error: expect(locator).toBeVisible() failed
-
-    Locator: getByText(/Your Challenges|Katıldığınız Etkinlikler/i)
-    Expected: visible
-    Timeout: 5000ms
-    Error: element(s) not found
-
-    Call log:
-      - Expect "toBeVisible" with timeout 5000ms
-      - waiting for getByText(/Your Challenges|Katıldığınız Etkinlikler/i)
-
-
-      24 |     await expect(
-      25 |       page.getByText(/Your Challenges|Katıldığınız Etkinlikler/i)
-    > 26 |     ).toBeVisible();
-         |       ^
-      27 |     await expect(
-      28 |       page.getByText(/Following Feed|Takip Akışı/i)
-      29 |     ).toBeVisible();
-        at C:\Users\erens\Desktop\projects\bounswe2025group5\frontend\e2e\protected-pages.spec.ts:26:7
-
-    Error Context: ..\test-results\protected-pages-authentica-a704b-s-profile-challenges-render-chromium\error-context.md
-]]>
-</failure>
-<system-out>
-<![CDATA[
-[[ATTACHMENT|..\..\..\test-results\protected-pages-authentica-a704b-s-profile-challenges-render-chromium\error-context.md]]
-]]>
-</system-out>
+<testsuite name="protected-pages.spec.ts" timestamp="2025-12-21T13:21:50.259Z" hostname="chromium" tests="1" failures="0" skipped="0" time="16.941" errors="0">
+<testcase name="authenticated page smoke checks › mainpage, feed, goals, profile, challenges render" classname="protected-pages.spec.ts" time="16.941">
 </testcase>
 </testsuite>
 </testsuites>
