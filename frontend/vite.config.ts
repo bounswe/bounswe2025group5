@@ -43,6 +43,13 @@ export default defineConfig({
     setupFiles: "./src/tests/setup.ts",
     css: true,
     passWithNoTests: true,
+    exclude: [
+      "e2e/**/*", // keep Playwright specs out of Vitest
+      "playwright-report/**/*",
+      "reports/**/*",
+      "node_modules/**/*",
+      "dist/**/*",
+    ],
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
