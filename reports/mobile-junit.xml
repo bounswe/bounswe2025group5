@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="66" failures="0" errors="0" time="16.884">
+  <testsuite name="ProfileScreen" errors="0" failures="0" skipped="0" timestamp="2025-12-21T13:32:48" time="7" tests="21">
+    <testcase classname="ProfileScreen shows loading indicator initially" name="ProfileScreen shows loading indicator initially" time="0.024">
+    </testcase>
+    <testcase classname="ProfileScreen renders user profile data correctly" name="ProfileScreen renders user profile data correctly" time="0.088">
+    </testcase>
+    <testcase classname="ProfileScreen handles profile fetch error" name="ProfileScreen handles profile fetch error" time="0.063">
+    </testcase>
+    <testcase classname="ProfileScreen redirects guest users to index" name="ProfileScreen redirects guest users to index" time="0.002">
+    </testcase>
+    <testcase classname="ProfileScreen handles logout correctly" name="ProfileScreen handles logout correctly" time="0.151">
+    </testcase>
+    <testcase classname="ProfileScreen navigates to edit profile screen" name="ProfileScreen navigates to edit profile screen" time="0.065">
+    </testcase>
+    <testcase classname="ProfileScreen opens feedback modal" name="ProfileScreen opens feedback modal" time="0.077">
+    </testcase>
+    <testcase classname="ProfileScreen navigates to create post screen" name="ProfileScreen navigates to create post screen" time="0.061">
+    </testcase>
+    <testcase classname="ProfileScreen navigates to manage posts screen" name="ProfileScreen navigates to manage posts screen" time="0.053">
+    </testcase>
+    <testcase classname="ProfileScreen opens impact modal and fetches data" name="ProfileScreen opens impact modal and fetches data" time="0.087">
+    </testcase>
+    <testcase classname="ProfileScreen renders posts correctly" name="ProfileScreen renders posts correctly" time="0.053">
+    </testcase>
+    <testcase classname="ProfileScreen displays badges when available" name="ProfileScreen displays badges when available" time="0.064">
+    </testcase>
+    <testcase classname="ProfileScreen shows loading state for badges" name="ProfileScreen shows loading state for badges" time="0.059">
+    </testcase>
+    <testcase classname="ProfileScreen shows no badges message when user has no badges" name="ProfileScreen shows no badges message when user has no badges" time="0.004">
+    </testcase>
+    <testcase classname="ProfileScreen handles badge fetch error gracefully" name="ProfileScreen handles badge fetch error gracefully" time="0.007">
+    </testcase>
+    <testcase classname="ProfileScreen fetches followers list when followers button is pressed" name="ProfileScreen fetches followers list when followers button is pressed" time="0.128">
+    </testcase>
+    <testcase classname="ProfileScreen shows error when followers fetch fails" name="ProfileScreen shows error when followers fetch fails" time="0.121">
+    </testcase>
+    <testcase classname="ProfileScreen fetches following list when following button is pressed" name="ProfileScreen fetches following list when following button is pressed" time="0.13">
+    </testcase>
+    <testcase classname="ProfileScreen shows error when following fetch fails" name="ProfileScreen shows error when following fetch fails" time="0.121">
+    </testcase>
+    <testcase classname="ProfileScreen shows no followers message when followers list is empty" name="ProfileScreen shows no followers message when followers list is empty" time="0.133">
+    </testcase>
+    <testcase classname="ProfileScreen shows not following anyone message when following list is empty" name="ProfileScreen shows not following anyone message when following list is empty" time="0.131">
+    </testcase>
+  </testsuite>
+  <testsuite name="WasteGoalScreen Functionalities" errors="0" failures="0" skipped="0" timestamp="2025-12-21T13:32:58" time="1.004" tests="6">
+    <testcase classname="WasteGoalScreen Functionalities fetches and displays waste goals" name="WasteGoalScreen Functionalities fetches and displays waste goals" time="0.133">
+    </testcase>
+    <testcase classname="WasteGoalScreen Functionalities allows creating a new waste goal" name="WasteGoalScreen Functionalities allows creating a new waste goal" time="0.119">
+    </testcase>
+    <testcase classname="WasteGoalScreen Functionalities allows editing a waste goal" name="WasteGoalScreen Functionalities allows editing a waste goal" time="0.081">
+    </testcase>
+    <testcase classname="WasteGoalScreen Functionalities allows deleting a waste goal" name="WasteGoalScreen Functionalities allows deleting a waste goal" time="0.083">
+    </testcase>
+    <testcase classname="WasteGoalScreen Functionalities allows adding a waste log" name="WasteGoalScreen Functionalities allows adding a waste log" time="0.137">
+    </testcase>
+    <testcase classname="WasteGoalScreen Functionalities displays correct texts in Turkish and English" name="WasteGoalScreen Functionalities displays correct texts in Turkish and English" time="0.117">
+    </testcase>
+  </testsuite>
+  <testsuite name="ReportModal Interactions" errors="0" failures="0" skipped="0" timestamp="2025-12-21T13:33:00" time="0.66" tests="17">
+    <testcase classname="ReportModal Interactions renders report modal with post context" name="ReportModal Interactions renders report modal with post context" time="0.047">
+    </testcase>
+    <testcase classname="ReportModal Interactions renders report modal with comment context" name="ReportModal Interactions renders report modal with comment context" time="0.006">
+    </testcase>
+    <testcase classname="ReportModal Interactions displays all report reason options" name="ReportModal Interactions displays all report reason options" time="0.005">
+    </testcase>
+    <testcase classname="ReportModal Interactions submit button is disabled when no reason is selected" name="ReportModal Interactions submit button is disabled when no reason is selected" time="0.004">
+    </testcase>
+    <testcase classname="ReportModal Interactions submit button is enabled when a reason is selected" name="ReportModal Interactions submit button is enabled when a reason is selected" time="0.036">
+    </testcase>
+    <testcase classname="ReportModal Interactions allows selecting different report reasons" name="ReportModal Interactions allows selecting different report reasons" time="0.01">
+    </testcase>
+    <testcase classname="ReportModal Interactions allows entering details in the text input" name="ReportModal Interactions allows entering details in the text input" time="0.007">
+    </testcase>
+    <testcase classname="ReportModal Interactions calls onClose when close button is pressed" name="ReportModal Interactions calls onClose when close button is pressed" time="0.004">
+    </testcase>
+    <testcase classname="ReportModal Interactions calls onClose when backdrop is pressed" name="ReportModal Interactions calls onClose when backdrop is pressed" time="0.008">
+    </testcase>
+    <testcase classname="ReportModal Interactions submits report with correct payload for post" name="ReportModal Interactions submits report with correct payload for post" time="0.08">
+    </testcase>
+    <testcase classname="ReportModal Interactions submits report with correct payload for comment" name="ReportModal Interactions submits report with correct payload for comment" time="0.064">
+    </testcase>
+    <testcase classname="ReportModal Interactions submits report with Violence type for Harm selection" name="ReportModal Interactions submits report with Violence type for Harm selection" time="0.076">
+    </testcase>
+    <testcase classname="ReportModal Interactions shows success alert after successful submission" name="ReportModal Interactions shows success alert after successful submission" time="0.063">
+    </testcase>
+    <testcase classname="ReportModal Interactions shows error alert when user is not logged in" name="ReportModal Interactions shows error alert when user is not logged in" time="0.06">
+    </testcase>
+    <testcase classname="ReportModal Interactions shows error alert when API call fails" name="ReportModal Interactions shows error alert when API call fails" time="0.062">
+    </testcase>
+    <testcase classname="ReportModal Interactions disables submit button while submitting" name="ReportModal Interactions disables submit button while submitting" time="0.009">
+    </testcase>
+    <testcase classname="ReportModal Interactions resets state when modal becomes invisible" name="ReportModal Interactions resets state when modal becomes invisible" time="0.015">
+    </testcase>
+  </testsuite>
+  <testsuite name="color contrast smoke test" errors="0" failures="0" skipped="0" timestamp="2025-12-21T13:33:00" time="0.905" tests="1">
+    <testcase classname="color contrast smoke test checks contrast for rendered text nodes in app/components and app pages" name="color contrast smoke test checks contrast for rendered text nodes in app/components and app pages" time="0.843">
+    </testcase>
+  </testsuite>
+  <testsuite name="&lt;ExploreScreen /&gt;" errors="0" failures="0" skipped="0" timestamp="2025-12-21T13:33:01" time="0.468" tests="1">
+    <testcase classname="&lt;ExploreScreen /&gt; loads feed when user is logged in" name="&lt;ExploreScreen /&gt; loads feed when user is logged in" time="0.126">
+    </testcase>
+  </testsuite>
+  <testsuite name="HomeScreen" errors="0" failures="0" skipped="0" timestamp="2025-12-21T13:33:02" time="0.412" tests="7">
+    <testcase classname="HomeScreen renders initial elements correctly" name="HomeScreen renders initial elements correctly" time="0.08">
+    </testcase>
+    <testcase classname="HomeScreen fetches and displays trending posts" name="HomeScreen fetches and displays trending posts" time="0.063">
+    </testcase>
+    <testcase classname="HomeScreen navigates to explore when &apos;Continue as Guest&apos; is pressed" name="HomeScreen navigates to explore when &apos;Continue as Guest&apos; is pressed" time="0.01">
+    </testcase>
+    <testcase classname="HomeScreen shows auth fields when &apos;Log In&apos; is pressed" name="HomeScreen shows auth fields when &apos;Log In&apos; is pressed" time="0.011">
+    </testcase>
+    <testcase classname="HomeScreen shows auth fields when &apos;Register&apos; is pressed" name="HomeScreen shows auth fields when &apos;Register&apos; is pressed" time="0.008">
+    </testcase>
+    <testcase classname="HomeScreen switches between Login and Register modes" name="HomeScreen switches between Login and Register modes" time="0.011">
+    </testcase>
+    <testcase classname="HomeScreen auto-logins if token exists in storage" name="HomeScreen auto-logins if token exists in storage" time="0.066">
+    </testcase>
+  </testsuite>
+  <testsuite name="Create post screen" errors="0" failures="0" skipped="0" timestamp="2025-12-21T13:33:03" time="0.397" tests="1">
+    <testcase classname="Create post screen submits when content is provided and navigates back on success" name="Create post screen submits when content is provided and navigates back on success" time="0.086">
+    </testcase>
+  </testsuite>
+  <testsuite name="Index / Auth flow" errors="0" failures="0" skipped="0" timestamp="2025-12-21T13:33:03" time="0.384" tests="4">
+    <testcase classname="Index / Auth flow shows login form after tapping login button" name="Index / Auth flow shows login form after tapping login button" time="0.02">
+    </testcase>
+    <testcase classname="Index / Auth flow shows registration fields after tapping register" name="Index / Auth flow shows registration fields after tapping register" time="0.017">
+    </testcase>
+    <testcase classname="Index / Auth flow navigates to explore when continuing as guest" name="Index / Auth flow navigates to explore when continuing as guest" time="0.008">
+    </testcase>
+    <testcase classname="Index / Auth flow shows error on invalid login credentials" name="Index / Auth flow shows error on invalid login credentials" time="0.019">
+    </testcase>
+  </testsuite>
+  <testsuite name="badgeUtils" errors="0" failures="0" skipped="0" timestamp="2025-12-21T13:33:04" time="0.44" tests="5">
+    <testcase classname="badgeUtils normalizeBadgeTranslationKey converts mixed separators and casing into camelCase starting lowercase" name="badgeUtils normalizeBadgeTranslationKey converts mixed separators and casing into camelCase starting lowercase" time="0.001">
+    </testcase>
+    <testcase classname="badgeUtils normalizeBadgeSlug creates predictable kebab-case slugs from various inputs" name="badgeUtils normalizeBadgeSlug creates predictable kebab-case slugs from various inputs" time="0.001">
+    </testcase>
+    <testcase classname="badgeUtils getBadgeImageSource returns an image source for known badges and undefined otherwise" name="badgeUtils getBadgeImageSource returns an image source for known badges and undefined otherwise" time="0">
+    </testcase>
+    <testcase classname="badgeUtils priority sorting sorts badge names by configured priority and keeps unknowns stable" name="badgeUtils priority sorting sorts badge names by configured priority and keeps unknowns stable" time="0">
+    </testcase>
+    <testcase classname="badgeUtils priority sorting sorts badge objects by priority while preserving stability" name="badgeUtils priority sorting sorts badge objects by priority while preserving stability" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="FeedbackModal" errors="0" failures="0" skipped="0" timestamp="2025-12-21T13:33:04" time="0.144" tests="3">
+    <testcase classname="FeedbackModal asks the user to log in before submitting feedback" name="FeedbackModal asks the user to log in before submitting feedback" time="0.028">
+    </testcase>
+    <testcase classname="FeedbackModal requires a message before attempting submission" name="FeedbackModal requires a message before attempting submission" time="0.003">
+    </testcase>
+    <testcase classname="FeedbackModal submits feedback with the chosen type and resets after closing" name="FeedbackModal submits feedback with the chosen type and resets after closing" time="0.021">
+    </testcase>
+  </testsuite>
+</testsuites>

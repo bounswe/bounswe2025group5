@@ -1,0 +1,597 @@
+<html><head><meta charset="utf-8"/><title>Mobile Test Report</title><style type="text/css">:root {
+  --text-primary: #111;
+  --text-secondary: #4f4f4f;
+  --success: #006633;
+  --success-bright: #80ffbf;
+  --danger: #cc071e;
+  --danger-bright: #fbdfe0;
+  --warning: #995c00;
+  --warning-bright: #ffeea8;
+  --panel: #eee;
+  --border: #949494;
+  --disabled: #6b6b6b;
+}
+
+html,
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  margin: 0;
+  padding: 0;
+  color: var(--text-primary);
+}
+body {
+  padding: 2rem 1rem;
+}
+.jesthtml-content {
+  margin: 0 auto;
+  max-width: 70rem;
+}
+header {
+  display: flex;
+  align-items: center;
+}
+#title {
+  margin: 0;
+  flex-grow: 1;
+}
+#logo {
+  height: 4rem;
+}
+#timestamp {
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+}
+
+#metadata-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.additional-information-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+}
+
+/** SUMMARY */
+#summary {
+  color: var(--text-primary);
+  display: flex;
+  font-family: monospace;
+  font-size: 1rem;
+}
+#summary > div {
+  margin-right: 0.5rem;
+  background: var(--panel);
+  padding: 1rem;
+  min-width: 15rem;
+}
+#summary > div:last-child {
+  margin-right: 0;
+}
+@media only screen and (max-width: 720px) {
+  #summary {
+    flex-direction: column;
+  }
+  #summary > div {
+    margin-right: 0;
+    margin-top: 1rem;
+  }
+  #summary > div:first-child {
+    margin-top: 0;
+  }
+}
+
+.summary-total {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+.summary-passed {
+  color: var(--success);
+  border-left: 0.4rem solid var(--success);
+  padding-left: 0.5rem;
+  margin-bottom: 0.15rem;
+}
+.summary-failed,
+.summary-obsolete-snapshots {
+  color: var(--danger);
+  border-left: 0.4rem solid var(--danger);
+  padding-left: 0.5rem;
+  margin-bottom: 0.15rem;
+}
+.summary-pending {
+  color: var(--warning);
+  border-left: 0.4rem solid var(--warning);
+  padding-left: 0.5rem;
+  margin-bottom: 0.15rem;
+}
+.summary-empty {
+  color: var(--disabled);
+  border-left: 0.4rem solid var(--disabled);
+  margin-bottom: 0.15rem;
+}
+
+.test-result {
+  padding: 1rem;
+  margin-bottom: 0.25rem;
+}
+.test-result:last-child {
+  border: 0;
+}
+.test-result.passed {
+  background-color: var(--success-bright);
+  color: var(--success);
+}
+.test-result.failed {
+  background-color: var(--danger-bright);
+  color: var(--danger);
+}
+.test-result.pending {
+  background-color: var(--warning-bright);
+  color: var(--warning);
+}
+
+.test-info {
+  display: flex;
+  justify-content: space-between;
+}
+.test-suitename {
+  width: 20%;
+  text-align: left;
+  font-weight: bold;
+  word-break: break-word;
+}
+.test-title {
+  width: 40%;
+  text-align: left;
+  font-style: italic;
+}
+.test-status {
+  width: 20%;
+  text-align: right;
+}
+.test-duration {
+  width: 10%;
+  text-align: right;
+  font-size: 0.85rem;
+}
+
+.failureMessages {
+  padding: 0 1rem;
+  margin-top: 1rem;
+  border-top: 1px dashed var(--danger);
+}
+.failureMessages.suiteFailure {
+  border-top: none;
+}
+.failureMsg {
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
+}
+
+.suite-container {
+  margin-bottom: 1rem;
+}
+.suite-info {
+  padding: 1rem;
+  background-color: var(--panel);
+  color: var(--text-secondary);
+  border: 0.15rem solid;
+  border-color: var(--panel);
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+.suite-info:hover {
+  border-color: var(--border);
+  cursor: pointer;
+}
+.suite-info .suite-path {
+  word-break: break-all;
+  flex-grow: 1;
+  font-family: monospace;
+  font-size: 1rem;
+}
+.suite-info .suite-time {
+  margin-left: 1rem;
+  padding: 0.2rem 0.3rem;
+  font-size: 0.85rem;
+}
+.suite-info .suite-time.warn {
+  background-color: var(--danger);
+  color: #fff;
+}
+.suite-info:before {
+  content: "\2303";
+  display: inline-block;
+  margin-right: 1rem;
+  transform: rotate(180deg) translateY(0.15rem);
+}
+.suite-container[open] .suite-info:before {
+  transform: rotate(0deg) translateY(0.15rem);
+}
+
+/* CONSOLE LOGS */
+.suite-consolelog {
+  margin-bottom: 0.25rem;
+  padding: 1rem;
+  background-color: var(--panel);
+}
+.suite-consolelog-header {
+  font-weight: bold;
+}
+.suite-consolelog-item {
+  padding: 0.5rem;
+}
+.suite-consolelog-item pre {
+  margin: 0.5rem 0;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
+}
+.suite-consolelog-item-origin {
+  color: var(--text-secondary);
+  font-weight: bold;
+}
+.suite-consolelog-item-message {
+  color: var(--text-primary);
+  font-size: 1rem;
+  padding: 0 0.5rem;
+}
+
+/* OBSOLETE SNAPSHOTS */
+.suite-obsolete-snapshots {
+  margin-bottom: 0.25rem;
+  padding: 1rem;
+  background-color: var(--danger-bright);
+  color: var(--danger);
+}
+.suite-obsolete-snapshots-header {
+  font-weight: bold;
+}
+.suite-obsolete-snapshots-item {
+  padding: 0.5rem;
+}
+.suite-obsolete-snapshots-item pre {
+  margin: 0.5rem 0;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
+}
+.suite-obsolete-snapshots-item-message {
+  color: var(--text-primary);
+  font-size: 1rem;
+  padding: 0 0.5rem;
+}
+</style></head><body><main class="jesthtml-content"><header><h1 id="title">Mobile Test Report</h1></header><section id="metadata-container"><div id="timestamp">Started: 2025-12-21 16:32:48</div><div id="summary"><div id="suite-summary"><div class="summary-total">Suites (20)</div><div class="summary-passed ">10 passed</div><div class="summary-failed ">10 failed</div><div class="summary-pending  summary-empty">0 pending</div></div><div id="test-summary"><div class="summary-total">Tests (66)</div><div class="summary-passed ">66 passed</div><div class="summary-failed  summary-empty">0 failed</div><div class="summary-pending  summary-empty">0 pending</div></div></div></section><details id="suite-1" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)\__tests__\ProfileScreen.test.tsx</div><div class="suite-time warn">7s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">ProfileScreen</div><div class="test-title">shows loading indicator initially</div><div class="test-status">passed</div><div class="test-duration">0.024s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ProfileScreen</div><div class="test-title">renders user profile data correctly</div><div class="test-status">passed</div><div class="test-duration">0.088s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ProfileScreen</div><div class="test-title">handles profile fetch error</div><div class="test-status">passed</div><div class="test-duration">0.063s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ProfileScreen</div><div class="test-title">redirects guest users to index</div><div class="test-status">passed</div><div class="test-duration">0.002s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ProfileScreen</div><div class="test-title">handles logout correctly</div><div class="test-status">passed</div><div class="test-duration">0.151s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ProfileScreen</div><div class="test-title">navigates to edit profile screen</div><div class="test-status">passed</div><div class="test-duration">0.065s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ProfileScreen</div><div class="test-title">opens feedback modal</div><div class="test-status">passed</div><div class="test-duration">0.077s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ProfileScreen</div><div class="test-title">navigates to create post screen</div><div class="test-status">passed</div><div class="test-duration">0.061s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ProfileScreen</div><div class="test-title">navigates to manage posts screen</div><div class="test-status">passed</div><div class="test-duration">0.053s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ProfileScreen</div><div class="test-title">opens impact modal and fetches data</div><div class="test-status">passed</div><div class="test-duration">0.087s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ProfileScreen</div><div class="test-title">renders posts correctly</div><div class="test-status">passed</div><div class="test-duration">0.053s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ProfileScreen</div><div class="test-title">displays badges when available</div><div class="test-status">passed</div><div class="test-duration">0.064s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ProfileScreen</div><div class="test-title">shows loading state for badges</div><div class="test-status">passed</div><div class="test-duration">0.059s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ProfileScreen</div><div class="test-title">shows no badges message when user has no badges</div><div class="test-status">passed</div><div class="test-duration">0.004s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ProfileScreen</div><div class="test-title">handles badge fetch error gracefully</div><div class="test-status">passed</div><div class="test-duration">0.007s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ProfileScreen</div><div class="test-title">fetches followers list when followers button is pressed</div><div class="test-status">passed</div><div class="test-duration">0.128s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ProfileScreen</div><div class="test-title">shows error when followers fetch fails</div><div class="test-status">passed</div><div class="test-duration">0.121s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ProfileScreen</div><div class="test-title">fetches following list when following button is pressed</div><div class="test-status">passed</div><div class="test-duration">0.13s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ProfileScreen</div><div class="test-title">shows error when following fetch fails</div><div class="test-status">passed</div><div class="test-duration">0.121s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ProfileScreen</div><div class="test-title">shows no followers message when followers list is empty</div><div class="test-status">passed</div><div class="test-duration">0.133s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ProfileScreen</div><div class="test-title">shows not following anyone message when following list is empty</div><div class="test-status">passed</div><div class="test-duration">0.131s</div></div></div></div></details><details id="suite-2" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)\__tests__\ExploreSearch.test.tsx</div><div class="suite-time">0s</div></summary><div class="suite-tests"><div class="test-result failed"><div class="failureMessages suiteFailure"> <pre class="failureMsg">  ● Test suite failed to run
+
+    [@RNC/AsyncStorage]: NativeModule: AsyncStorage is null.
+
+    To fix this issue try these steps:
+
+      • Uninstall, rebuild and restart the app.
+
+      • Run the packager with `--reset-cache` flag.
+
+      • If you are using CocoaPods on iOS, run `pod install` in the `ios` directory, then rebuild and re-run the app.
+
+      • Make sure your project's `package.json` depends on `@react-native-async-storage/async-storage`, even if you only depend on it indirectly through other dependencies. CLI only autolinks native modules found in your `package.json`.
+
+      • If this happens while testing with Jest, check out how to integrate AsyncStorage here: https://react-native-async-storage.github.io/async-storage/docs/advanced/jest
+
+    If none of these fix the issue, please open an issue on the GitHub repository: https://github.com/react-native-async-storage/async-storage/issues
+
+      1 | // utils/imageCache.ts
+      2 | import * as FileSystem from 'expo-file-system';
+    &gt; 3 | import AsyncStorage from '@react-native-async-storage/async-storage';
+        | ^
+      4 |
+      5 | const CACHE_DIR = `${FileSystem.cacheDirectory}image-cache/`;
+      6 | const CACHE_METADATA_KEY = '@image_cache_metadata';
+
+      at Object.&lt;anonymous&gt; (node_modules/@react-native-async-storage/async-storage/lib/commonjs/AsyncStorage.native.ts:23:9)
+      at Object.require (node_modules/@react-native-async-storage/async-storage/lib/commonjs/index.ts:1:1)
+      at Object.require (utils/imageCache.ts:3:1)
+      at Object.require (app/_layout.tsx:17:1)
+      at Object.require (C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)../../../../../../explore.tsx:32:1)
+      at Object.require (C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)../../../../../../__tests__/ExploreSearch.test.tsx:9:1)
+</pre></div></div></div></details><details id="suite-3" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)\__tests__\ExploreNotifications.test.tsx</div><div class="suite-time">0s</div></summary><div class="suite-tests"><div class="test-result failed"><div class="failureMessages suiteFailure"> <pre class="failureMsg">  ● Test suite failed to run
+
+    [@RNC/AsyncStorage]: NativeModule: AsyncStorage is null.
+
+    To fix this issue try these steps:
+
+      • Uninstall, rebuild and restart the app.
+
+      • Run the packager with `--reset-cache` flag.
+
+      • If you are using CocoaPods on iOS, run `pod install` in the `ios` directory, then rebuild and re-run the app.
+
+      • Make sure your project's `package.json` depends on `@react-native-async-storage/async-storage`, even if you only depend on it indirectly through other dependencies. CLI only autolinks native modules found in your `package.json`.
+
+      • If this happens while testing with Jest, check out how to integrate AsyncStorage here: https://react-native-async-storage.github.io/async-storage/docs/advanced/jest
+
+    If none of these fix the issue, please open an issue on the GitHub repository: https://github.com/react-native-async-storage/async-storage/issues
+
+      1 | // utils/imageCache.ts
+      2 | import * as FileSystem from 'expo-file-system';
+    &gt; 3 | import AsyncStorage from '@react-native-async-storage/async-storage';
+        | ^
+      4 |
+      5 | const CACHE_DIR = `${FileSystem.cacheDirectory}image-cache/`;
+      6 | const CACHE_METADATA_KEY = '@image_cache_metadata';
+
+      at Object.&lt;anonymous&gt; (node_modules/@react-native-async-storage/async-storage/lib/commonjs/AsyncStorage.native.ts:23:9)
+      at Object.require (node_modules/@react-native-async-storage/async-storage/lib/commonjs/index.ts:1:1)
+      at Object.require (utils/imageCache.ts:3:1)
+      at Object.require (app/_layout.tsx:17:1)
+      at Object.require (C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)../../../../../../explore.tsx:32:1)
+      at Object.require (C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)../../../../../../__tests__/ExploreNotifications.test.tsx:9:1)
+</pre></div></div></div></details><details id="suite-4" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)\__tests__\ChallengesScreen.test.tsx</div><div class="suite-time">0s</div></summary><div class="suite-tests"><div class="test-result failed"><div class="failureMessages suiteFailure"> <pre class="failureMsg">  ● Test suite failed to run
+
+    [@RNC/AsyncStorage]: NativeModule: AsyncStorage is null.
+
+    To fix this issue try these steps:
+
+      • Uninstall, rebuild and restart the app.
+
+      • Run the packager with `--reset-cache` flag.
+
+      • If you are using CocoaPods on iOS, run `pod install` in the `ios` directory, then rebuild and re-run the app.
+
+      • Make sure your project's `package.json` depends on `@react-native-async-storage/async-storage`, even if you only depend on it indirectly through other dependencies. CLI only autolinks native modules found in your `package.json`.
+
+      • If this happens while testing with Jest, check out how to integrate AsyncStorage here: https://react-native-async-storage.github.io/async-storage/docs/advanced/jest
+
+    If none of these fix the issue, please open an issue on the GitHub repository: https://github.com/react-native-async-storage/async-storage/issues
+
+      1 | // utils/imageCache.ts
+      2 | import * as FileSystem from 'expo-file-system';
+    &gt; 3 | import AsyncStorage from '@react-native-async-storage/async-storage';
+        | ^
+      4 |
+      5 | const CACHE_DIR = `${FileSystem.cacheDirectory}image-cache/`;
+      6 | const CACHE_METADATA_KEY = '@image_cache_metadata';
+
+      at Object.&lt;anonymous&gt; (node_modules/@react-native-async-storage/async-storage/lib/commonjs/AsyncStorage.native.ts:23:9)
+      at Object.require (node_modules/@react-native-async-storage/async-storage/lib/commonjs/index.ts:1:1)
+      at Object.require (utils/imageCache.ts:3:1)
+      at Object.require (app/_layout.tsx:17:1)
+      at Object.require (C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)../../../../../../challenges.tsx:20:1)
+      at Object.require (C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)../../../../../../__tests__/ChallengesScreen.test.tsx:8:1)
+</pre></div></div></div></details><details id="suite-5" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\__tests__\CommentExplore.test.tsx</div><div class="suite-time">0s</div></summary><div class="suite-tests"><div class="test-result failed"><div class="failureMessages suiteFailure"> <pre class="failureMsg">  ● Test suite failed to run
+
+    [@RNC/AsyncStorage]: NativeModule: AsyncStorage is null.
+
+    To fix this issue try these steps:
+
+      • Uninstall, rebuild and restart the app.
+
+      • Run the packager with `--reset-cache` flag.
+
+      • If you are using CocoaPods on iOS, run `pod install` in the `ios` directory, then rebuild and re-run the app.
+
+      • Make sure your project's `package.json` depends on `@react-native-async-storage/async-storage`, even if you only depend on it indirectly through other dependencies. CLI only autolinks native modules found in your `package.json`.
+
+      • If this happens while testing with Jest, check out how to integrate AsyncStorage here: https://react-native-async-storage.github.io/async-storage/docs/advanced/jest
+
+    If none of these fix the issue, please open an issue on the GitHub repository: https://github.com/react-native-async-storage/async-storage/issues
+
+      1 | // utils/imageCache.ts
+      2 | import * as FileSystem from 'expo-file-system';
+    &gt; 3 | import AsyncStorage from '@react-native-async-storage/async-storage';
+        | ^
+      4 |
+      5 | const CACHE_DIR = `${FileSystem.cacheDirectory}image-cache/`;
+      6 | const CACHE_METADATA_KEY = '@image_cache_metadata';
+
+      at Object.&lt;anonymous&gt; (node_modules/@react-native-async-storage/async-storage/lib/commonjs/AsyncStorage.native.ts:23:9)
+      at Object.require (node_modules/@react-native-async-storage/async-storage/lib/commonjs/index.ts:1:1)
+      at Object.require (utils/imageCache.ts:3:1)
+      at Object.require (app/_layout.tsx:17:1)
+      at Object.require (C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)../../../../../../explore.tsx:32:1)
+      at Object.require (__tests__/CommentExplore.test.tsx:3:1)
+</pre></div></div></div></details><details id="suite-6" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)\__tests__\EditProfile.test.tsx</div><div class="suite-time">0s</div></summary><div class="suite-tests"><div class="test-result failed"><div class="failureMessages suiteFailure"> <pre class="failureMsg">  ● Test suite failed to run
+
+    [@RNC/AsyncStorage]: NativeModule: AsyncStorage is null.
+
+    To fix this issue try these steps:
+
+      • Uninstall, rebuild and restart the app.
+
+      • Run the packager with `--reset-cache` flag.
+
+      • If you are using CocoaPods on iOS, run `pod install` in the `ios` directory, then rebuild and re-run the app.
+
+      • Make sure your project's `package.json` depends on `@react-native-async-storage/async-storage`, even if you only depend on it indirectly through other dependencies. CLI only autolinks native modules found in your `package.json`.
+
+      • If this happens while testing with Jest, check out how to integrate AsyncStorage here: https://react-native-async-storage.github.io/async-storage/docs/advanced/jest
+
+    If none of these fix the issue, please open an issue on the GitHub repository: https://github.com/react-native-async-storage/async-storage/issues
+
+      1 | // utils/imageCache.ts
+      2 | import * as FileSystem from 'expo-file-system';
+    &gt; 3 | import AsyncStorage from '@react-native-async-storage/async-storage';
+        | ^
+      4 |
+      5 | const CACHE_DIR = `${FileSystem.cacheDirectory}image-cache/`;
+      6 | const CACHE_METADATA_KEY = '@image_cache_metadata';
+
+      at Object.&lt;anonymous&gt; (node_modules/@react-native-async-storage/async-storage/lib/commonjs/AsyncStorage.native.ts:23:9)
+      at Object.require (node_modules/@react-native-async-storage/async-storage/lib/commonjs/index.ts:1:1)
+      at Object.require (utils/imageCache.ts:3:1)
+      at Object.require (app/_layout.tsx:17:1)
+      at Object.require (app/edit_profile.tsx:18:1)
+      at Object.require (C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)../../../../../../__tests__/EditProfile.test.tsx:4:1)
+</pre></div></div></div></details><details id="suite-7" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\__tests__\WasteGoal.test.tsx</div><div class="suite-time">1.004s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">WasteGoalScreen Functionalities</div><div class="test-title">fetches and displays waste goals</div><div class="test-status">passed</div><div class="test-duration">0.133s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">WasteGoalScreen Functionalities</div><div class="test-title">allows creating a new waste goal</div><div class="test-status">passed</div><div class="test-duration">0.119s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">WasteGoalScreen Functionalities</div><div class="test-title">allows editing a waste goal</div><div class="test-status">passed</div><div class="test-duration">0.081s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">WasteGoalScreen Functionalities</div><div class="test-title">allows deleting a waste goal</div><div class="test-status">passed</div><div class="test-duration">0.083s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">WasteGoalScreen Functionalities</div><div class="test-title">allows adding a waste log</div><div class="test-status">passed</div><div class="test-duration">0.137s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">WasteGoalScreen Functionalities</div><div class="test-title">displays correct texts in Turkish and English</div><div class="test-status">passed</div><div class="test-duration">0.117s</div></div></div></div></details><details id="suite-8" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)\__tests__\UserProfile.test.tsx</div><div class="suite-time">0s</div></summary><div class="suite-tests"><div class="test-result failed"><div class="failureMessages suiteFailure"> <pre class="failureMsg">  ● Test suite failed to run
+
+    [@RNC/AsyncStorage]: NativeModule: AsyncStorage is null.
+
+    To fix this issue try these steps:
+
+      • Uninstall, rebuild and restart the app.
+
+      • Run the packager with `--reset-cache` flag.
+
+      • If you are using CocoaPods on iOS, run `pod install` in the `ios` directory, then rebuild and re-run the app.
+
+      • Make sure your project's `package.json` depends on `@react-native-async-storage/async-storage`, even if you only depend on it indirectly through other dependencies. CLI only autolinks native modules found in your `package.json`.
+
+      • If this happens while testing with Jest, check out how to integrate AsyncStorage here: https://react-native-async-storage.github.io/async-storage/docs/advanced/jest
+
+    If none of these fix the issue, please open an issue on the GitHub repository: https://github.com/react-native-async-storage/async-storage/issues
+
+      1 | // utils/imageCache.ts
+      2 | import * as FileSystem from 'expo-file-system';
+    &gt; 3 | import AsyncStorage from '@react-native-async-storage/async-storage';
+        | ^
+      4 |
+      5 | const CACHE_DIR = `${FileSystem.cacheDirectory}image-cache/`;
+      6 | const CACHE_METADATA_KEY = '@image_cache_metadata';
+
+      at Object.&lt;anonymous&gt; (node_modules/@react-native-async-storage/async-storage/lib/commonjs/AsyncStorage.native.ts:23:9)
+      at Object.require (node_modules/@react-native-async-storage/async-storage/lib/commonjs/index.ts:1:1)
+      at Object.require (utils/imageCache.ts:3:1)
+      at Object.require (app/_layout.tsx:17:1)
+      at Object.require (app/user_profile.tsx:21:1)
+      at Object.require (C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)../../../../../../__tests__/UserProfile.test.tsx:4:1)
+</pre></div></div></div></details><details id="suite-9" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)\__tests__\ReportModalInteractions.test.tsx</div><div class="suite-time">0.66s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">ReportModal Interactions</div><div class="test-title">renders report modal with post context</div><div class="test-status">passed</div><div class="test-duration">0.047s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ReportModal Interactions</div><div class="test-title">renders report modal with comment context</div><div class="test-status">passed</div><div class="test-duration">0.006s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ReportModal Interactions</div><div class="test-title">displays all report reason options</div><div class="test-status">passed</div><div class="test-duration">0.005s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ReportModal Interactions</div><div class="test-title">submit button is disabled when no reason is selected</div><div class="test-status">passed</div><div class="test-duration">0.004s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ReportModal Interactions</div><div class="test-title">submit button is enabled when a reason is selected</div><div class="test-status">passed</div><div class="test-duration">0.036s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ReportModal Interactions</div><div class="test-title">allows selecting different report reasons</div><div class="test-status">passed</div><div class="test-duration">0.01s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ReportModal Interactions</div><div class="test-title">allows entering details in the text input</div><div class="test-status">passed</div><div class="test-duration">0.007s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ReportModal Interactions</div><div class="test-title">calls onClose when close button is pressed</div><div class="test-status">passed</div><div class="test-duration">0.004s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ReportModal Interactions</div><div class="test-title">calls onClose when backdrop is pressed</div><div class="test-status">passed</div><div class="test-duration">0.008s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ReportModal Interactions</div><div class="test-title">submits report with correct payload for post</div><div class="test-status">passed</div><div class="test-duration">0.08s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ReportModal Interactions</div><div class="test-title">submits report with correct payload for comment</div><div class="test-status">passed</div><div class="test-duration">0.064s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ReportModal Interactions</div><div class="test-title">submits report with Violence type for Harm selection</div><div class="test-status">passed</div><div class="test-duration">0.076s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ReportModal Interactions</div><div class="test-title">shows success alert after successful submission</div><div class="test-status">passed</div><div class="test-duration">0.063s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ReportModal Interactions</div><div class="test-title">shows error alert when user is not logged in</div><div class="test-status">passed</div><div class="test-duration">0.06s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ReportModal Interactions</div><div class="test-title">shows error alert when API call fails</div><div class="test-status">passed</div><div class="test-duration">0.062s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ReportModal Interactions</div><div class="test-title">disables submit button while submitting</div><div class="test-status">passed</div><div class="test-duration">0.009s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">ReportModal Interactions</div><div class="test-title">resets state when modal becomes invisible</div><div class="test-status">passed</div><div class="test-duration">0.015s</div></div></div></div></details><details id="suite-10" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\__tests__\ColorContrast.test.tsx</div><div class="suite-time">0.905s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">color contrast smoke test</div><div class="test-title">checks contrast for rendered text nodes in app/components and app pages</div><div class="test-status">passed</div><div class="test-duration">0.843s</div></div></div></div></details><details id="suite-11" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)\__tests__\ExploreScreen.test.tsx</div><div class="suite-time">0.468s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">&lt;ExploreScreen /&gt;</div><div class="test-title">loads feed when user is logged in</div><div class="test-status">passed</div><div class="test-duration">0.126s</div></div></div></div></details><details id="suite-12" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\__tests__\CreatePost.test.tsx</div><div class="suite-time">0s</div></summary><div class="suite-tests"><div class="test-result failed"><div class="failureMessages suiteFailure"> <pre class="failureMsg">  ● Test suite failed to run
+
+    [@RNC/AsyncStorage]: NativeModule: AsyncStorage is null.
+
+    To fix this issue try these steps:
+
+      • Uninstall, rebuild and restart the app.
+
+      • Run the packager with `--reset-cache` flag.
+
+      • If you are using CocoaPods on iOS, run `pod install` in the `ios` directory, then rebuild and re-run the app.
+
+      • Make sure your project's `package.json` depends on `@react-native-async-storage/async-storage`, even if you only depend on it indirectly through other dependencies. CLI only autolinks native modules found in your `package.json`.
+
+      • If this happens while testing with Jest, check out how to integrate AsyncStorage here: https://react-native-async-storage.github.io/async-storage/docs/advanced/jest
+
+    If none of these fix the issue, please open an issue on the GitHub repository: https://github.com/react-native-async-storage/async-storage/issues
+
+      1 | // utils/imageCache.ts
+      2 | import * as FileSystem from 'expo-file-system';
+    &gt; 3 | import AsyncStorage from '@react-native-async-storage/async-storage';
+        | ^
+      4 |
+      5 | const CACHE_DIR = `${FileSystem.cacheDirectory}image-cache/`;
+      6 | const CACHE_METADATA_KEY = '@image_cache_metadata';
+
+      at Object.&lt;anonymous&gt; (node_modules/@react-native-async-storage/async-storage/lib/commonjs/AsyncStorage.native.ts:23:9)
+      at Object.require (node_modules/@react-native-async-storage/async-storage/lib/commonjs/index.ts:1:1)
+      at Object.require (utils/imageCache.ts:3:1)
+      at Object.require (app/_layout.tsx:17:1)
+      at Object.require (app/create_post.tsx:17:1)
+      at Object.require (__tests__/CreatePost.test.tsx:3:1)
+</pre></div></div></div></details><details id="suite-13" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)\__tests__\HomeScreen.test.tsx</div><div class="suite-time">0.412s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">HomeScreen</div><div class="test-title">renders initial elements correctly</div><div class="test-status">passed</div><div class="test-duration">0.08s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">HomeScreen</div><div class="test-title">fetches and displays trending posts</div><div class="test-status">passed</div><div class="test-duration">0.063s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">HomeScreen</div><div class="test-title">navigates to explore when 'Continue as Guest' is pressed</div><div class="test-status">passed</div><div class="test-duration">0.01s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">HomeScreen</div><div class="test-title">shows auth fields when 'Log In' is pressed</div><div class="test-status">passed</div><div class="test-duration">0.011s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">HomeScreen</div><div class="test-title">shows auth fields when 'Register' is pressed</div><div class="test-status">passed</div><div class="test-duration">0.008s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">HomeScreen</div><div class="test-title">switches between Login and Register modes</div><div class="test-status">passed</div><div class="test-duration">0.011s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">HomeScreen</div><div class="test-title">auto-logins if token exists in storage</div><div class="test-status">passed</div><div class="test-duration">0.066s</div></div></div></div></details><details id="suite-14" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)\__tests__\ManagePosts.test.tsx</div><div class="suite-time">0s</div></summary><div class="suite-tests"><div class="test-result failed"><div class="failureMessages suiteFailure"> <pre class="failureMsg">  ● Test suite failed to run
+
+    [@RNC/AsyncStorage]: NativeModule: AsyncStorage is null.
+
+    To fix this issue try these steps:
+
+      • Uninstall, rebuild and restart the app.
+
+      • Run the packager with `--reset-cache` flag.
+
+      • If you are using CocoaPods on iOS, run `pod install` in the `ios` directory, then rebuild and re-run the app.
+
+      • Make sure your project's `package.json` depends on `@react-native-async-storage/async-storage`, even if you only depend on it indirectly through other dependencies. CLI only autolinks native modules found in your `package.json`.
+
+      • If this happens while testing with Jest, check out how to integrate AsyncStorage here: https://react-native-async-storage.github.io/async-storage/docs/advanced/jest
+
+    If none of these fix the issue, please open an issue on the GitHub repository: https://github.com/react-native-async-storage/async-storage/issues
+
+      1 | // utils/imageCache.ts
+      2 | import * as FileSystem from 'expo-file-system';
+    &gt; 3 | import AsyncStorage from '@react-native-async-storage/async-storage';
+        | ^
+      4 |
+      5 | const CACHE_DIR = `${FileSystem.cacheDirectory}image-cache/`;
+      6 | const CACHE_METADATA_KEY = '@image_cache_metadata';
+
+      at Object.&lt;anonymous&gt; (node_modules/@react-native-async-storage/async-storage/lib/commonjs/AsyncStorage.native.ts:23:9)
+      at Object.require (node_modules/@react-native-async-storage/async-storage/lib/commonjs/index.ts:1:1)
+      at Object.require (utils/imageCache.ts:3:1)
+      at Object.require (app/_layout.tsx:17:1)
+      at Object.require (app/posts.tsx:18:1)
+      at Object.require (C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)../../../../../../__tests__/ManagePosts.test.tsx:5:1)
+</pre></div></div></div></details><details id="suite-15" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)\__tests__\CreatePost.test.tsx</div><div class="suite-time">0.397s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">Create post screen</div><div class="test-title">submits when content is provided and navigates back on success</div><div class="test-status">passed</div><div class="test-duration">0.086s</div></div></div></div></details><details id="suite-16" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)\__tests__\IndexAuthFlow.test.tsx</div><div class="suite-time">0.384s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">Index / Auth flow</div><div class="test-title">shows login form after tapping login button</div><div class="test-status">passed</div><div class="test-duration">0.02s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">Index / Auth flow</div><div class="test-title">shows registration fields after tapping register</div><div class="test-status">passed</div><div class="test-duration">0.017s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">Index / Auth flow</div><div class="test-title">navigates to explore when continuing as guest</div><div class="test-status">passed</div><div class="test-duration">0.008s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">Index / Auth flow</div><div class="test-title">shows error on invalid login credentials</div><div class="test-status">passed</div><div class="test-duration">0.019s</div></div></div></div></details><details id="suite-17" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\__tests__\BadgeUtils.test.ts</div><div class="suite-time">0.44s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">badgeUtils &gt; normalizeBadgeTranslationKey</div><div class="test-title">converts mixed separators and casing into camelCase starting lowercase</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">badgeUtils &gt; normalizeBadgeSlug</div><div class="test-title">creates predictable kebab-case slugs from various inputs</div><div class="test-status">passed</div><div class="test-duration">0.001s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">badgeUtils &gt; getBadgeImageSource</div><div class="test-title">returns an image source for known badges and undefined otherwise</div><div class="test-status">passed</div><div class="test-duration"> </div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">badgeUtils &gt; priority sorting</div><div class="test-title">sorts badge names by configured priority and keeps unknowns stable</div><div class="test-status">passed</div><div class="test-duration"> </div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">badgeUtils &gt; priority sorting</div><div class="test-title">sorts badge objects by priority while preserving stability</div><div class="test-status">passed</div><div class="test-duration"> </div></div></div></div></details><details id="suite-18" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)\__tests__\SavedPosts.test.tsx</div><div class="suite-time">0s</div></summary><div class="suite-tests"><div class="test-result failed"><div class="failureMessages suiteFailure"> <pre class="failureMsg">  ● Test suite failed to run
+
+    [@RNC/AsyncStorage]: NativeModule: AsyncStorage is null.
+
+    To fix this issue try these steps:
+
+      • Uninstall, rebuild and restart the app.
+
+      • Run the packager with `--reset-cache` flag.
+
+      • If you are using CocoaPods on iOS, run `pod install` in the `ios` directory, then rebuild and re-run the app.
+
+      • Make sure your project's `package.json` depends on `@react-native-async-storage/async-storage`, even if you only depend on it indirectly through other dependencies. CLI only autolinks native modules found in your `package.json`.
+
+      • If this happens while testing with Jest, check out how to integrate AsyncStorage here: https://react-native-async-storage.github.io/async-storage/docs/advanced/jest
+
+    If none of these fix the issue, please open an issue on the GitHub repository: https://github.com/react-native-async-storage/async-storage/issues
+
+      1 | // utils/imageCache.ts
+      2 | import * as FileSystem from 'expo-file-system';
+    &gt; 3 | import AsyncStorage from '@react-native-async-storage/async-storage';
+        | ^
+      4 |
+      5 | const CACHE_DIR = `${FileSystem.cacheDirectory}image-cache/`;
+      6 | const CACHE_METADATA_KEY = '@image_cache_metadata';
+
+      at Object.&lt;anonymous&gt; (node_modules/@react-native-async-storage/async-storage/lib/commonjs/AsyncStorage.native.ts:23:9)
+      at Object.require (node_modules/@react-native-async-storage/async-storage/lib/commonjs/index.ts:1:1)
+      at Object.require (utils/imageCache.ts:3:1)
+      at Object.require (components/CachedImage.tsx:10:1)
+      at Object.require (app/saved_posts.tsx:19:1)
+      at Object.require (C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)../../../../../../__tests__/SavedPosts.test.tsx:4:1)
+</pre></div></div></div></details><details id="suite-19" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\__tests__\FeedbackModal.test.tsx</div><div class="suite-time">0.144s</div></summary><div class="suite-tests"><div class="test-result passed"><div class="test-info"><div class="test-suitename">FeedbackModal</div><div class="test-title">asks the user to log in before submitting feedback</div><div class="test-status">passed</div><div class="test-duration">0.028s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">FeedbackModal</div><div class="test-title">requires a message before attempting submission</div><div class="test-status">passed</div><div class="test-duration">0.003s</div></div></div><div class="test-result passed"><div class="test-info"><div class="test-suitename">FeedbackModal</div><div class="test-title">submits feedback with the chosen type and resets after closing</div><div class="test-status">passed</div><div class="test-duration">0.021s</div></div></div></div></details><details id="suite-20" class="suite-container" open=""><summary class="suite-info"><div class="suite-path">C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)\__tests__\ReportModalFlow.test.tsx</div><div class="suite-time">0s</div></summary><div class="suite-tests"><div class="test-result failed"><div class="failureMessages suiteFailure"> <pre class="failureMsg">  ● Test suite failed to run
+
+    [@RNC/AsyncStorage]: NativeModule: AsyncStorage is null.
+
+    To fix this issue try these steps:
+
+      • Uninstall, rebuild and restart the app.
+
+      • Run the packager with `--reset-cache` flag.
+
+      • If you are using CocoaPods on iOS, run `pod install` in the `ios` directory, then rebuild and re-run the app.
+
+      • Make sure your project's `package.json` depends on `@react-native-async-storage/async-storage`, even if you only depend on it indirectly through other dependencies. CLI only autolinks native modules found in your `package.json`.
+
+      • If this happens while testing with Jest, check out how to integrate AsyncStorage here: https://react-native-async-storage.github.io/async-storage/docs/advanced/jest
+
+    If none of these fix the issue, please open an issue on the GitHub repository: https://github.com/react-native-async-storage/async-storage/issues
+
+      1 | // utils/imageCache.ts
+      2 | import * as FileSystem from 'expo-file-system';
+    &gt; 3 | import AsyncStorage from '@react-native-async-storage/async-storage';
+        | ^
+      4 |
+      5 | const CACHE_DIR = `${FileSystem.cacheDirectory}image-cache/`;
+      6 | const CACHE_METADATA_KEY = '@image_cache_metadata';
+
+      at Object.&lt;anonymous&gt; (node_modules/@react-native-async-storage/async-storage/lib/commonjs/AsyncStorage.native.ts:23:9)
+      at Object.require (node_modules/@react-native-async-storage/async-storage/lib/commonjs/index.ts:1:1)
+      at Object.require (utils/imageCache.ts:3:1)
+      at Object.require (components/CachedImage.tsx:10:1)
+      at Object.require (app/components/PostItem.tsx:22:1)
+      at Object.require (C:\Users\Yusuf Onur Öksüz\Desktop\bounswe\bounswe2025group5\mobile\app\(tabs)../../../../../../__tests__/ReportModalFlow.test.tsx:4:1)
+</pre></div></div></div></details></main></body></html>
